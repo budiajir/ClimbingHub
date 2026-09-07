@@ -12,10 +12,10 @@ export default function HeroBanner() {
         }}
       />
 
-      {/* Judul Polos: ClimbingHub Indonesia */}
+      {/* Judul Polos: Jalur */}
       <div className="relative z-10 text-center px-4 select-none">
         <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-chalk tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
-          ClimbingHub Indonesia
+          Jalur
         </h1>
       </div>
     </div>

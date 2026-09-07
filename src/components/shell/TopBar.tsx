@@ -82,7 +82,7 @@ export default function TopBar({
 
   return (
     <>
-      {/* MINIMALIST TOP BAR (Matching Illustrator Mockup) */}
+      {/* MINIMALIST TOP BAR (Left: Account, Center: Jalur Logo, Right: Menu =) */}
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
           transparent
@@ -93,42 +93,74 @@ export default function TopBar({
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-14 md:h-16 flex items-center justify-between">
-          {/* Left: Solid Circle Logo Emblem */}
-          <Link href="/" className="flex items-center gap-2 group" title="ClimbHub Indonesia">
-            <div
-              className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all ${
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-14 md:h-16 grid grid-cols-3 items-center">
+          {/* Left: User Account Button */}
+          <div className="flex items-center justify-start">
+            <button
+              onClick={() => {
+                if (role === 'guest') {
+                  openAuthModal('Silakan masuk atau daftar akun untuk profil dan logbook Anda.')
+                } else {
+                  setShowDrawer(true)
+                }
+              }}
+              className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center transition-all border ${
                 isSandstone
-                  ? 'bg-[#1a1815] text-[#cfc2ab] shadow-sm group-hover:scale-105'
-                  : 'bg-chalk text-granite shadow-lime-glow-sm group-hover:scale-105'
+                  ? 'border-[#1a1815]/30 hover:border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
+                  : 'border-white/20 hover:border-lime text-chalk hover:text-lime hover:bg-white/5'
               }`}
+              title={role === 'guest' ? 'Masuk / Akun' : user?.name || 'Profil Akun'}
+              aria-label="Akun Pengguna"
             >
-              <Mountain size={18} strokeWidth={2.4} />
-            </div>
-          </Link>
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover rounded-xl" />
+              ) : role === 'super_admin' ? (
+                <Crown size={18} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+              ) : role === 'gym_admin' ? (
+                <Store size={18} className={isSandstone ? 'text-[#1a1815]' : 'text-project'} />
+              ) : (
+                <User size={18} />
+              )}
+            </button>
+          </div>
+
+          {/* Center: Typography Logo */}
+          <div className="flex items-center justify-center">
+            <Link href="/" className="flex items-center justify-center group" title="Jalur">
+              <img
+                src="/jalur-logo.png"
+                alt="Jalur"
+                className={`h-7 md:h-8 w-auto object-contain transition-transform group-hover:scale-105 ${
+                  isSandstone ? 'mix-blend-multiply' : 'invert mix-blend-screen'
+                }`}
+              />
+            </Link>
+          </div>
 
           {/* Right: Minimalist 2-Line Menu Icon (=) */}
-          <button
-            onClick={() => setShowDrawer(true)}
-            className={`w-10 h-10 flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl transition-all touch-ripple ${
-              isSandstone
-                ? 'hover:bg-[#1a1815]/10 text-[#1a1815]'
-                : 'hover:bg-white/10 text-chalk'
-            }`}
-            title="Buka Menu"
-            aria-label="Buka Menu Navigasi"
-          >
-            <span
-              className={`w-6 h-[2.5px] rounded-full transition-all ${
-                isSandstone ? 'bg-[#1a1815]' : 'bg-chalk'
+          <div className="flex items-center justify-end">
+            <button
+              onClick={() => setShowDrawer(true)}
+              className={`w-10 h-10 flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl transition-all ${
+                isSandstone
+                  ? 'hover:bg-[#1a1815]/10 text-[#1a1815]'
+                  : 'hover:bg-white/10 text-chalk'
               }`}
-            />
-            <span
-              className={`w-6 h-[2.5px] rounded-full transition-all ${
-                isSandstone ? 'bg-[#1a1815]' : 'bg-chalk'
-              }`}
-            />
-          </button>
+              title="Buka Menu"
+              aria-label="Buka Menu Navigasi"
+            >
+              <span
+                className={`w-6 h-[2.5px] rounded-full transition-all ${
+                  isSandstone ? 'bg-[#1a1815]' : 'bg-chalk'
+                }`}
+              />
+              <span
+                className={`w-6 h-[2.5px] rounded-full transition-all ${
+                  isSandstone ? 'bg-[#1a1815]' : 'bg-chalk'
+                }`}
+              />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -164,18 +196,14 @@ export default function TopBar({
               {/* Drawer Top Header: Logo, Theme Switcher, Close X */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
-                  <div className="flex items-center gap-2.5">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                        isSandstone ? 'bg-[#1a1815] text-[#ded3be]' : 'bg-lime text-granite'
+                  <div className="flex items-center gap-2">
+                    <img
+                      src="/jalur-logo.png"
+                      alt="Jalur"
+                      className={`h-6 w-auto object-contain ${
+                        isSandstone ? 'mix-blend-multiply' : 'invert mix-blend-screen'
                       }`}
-                    >
-                      <Mountain size={16} strokeWidth={2.4} />
-                    </div>
-                    <div>
-                      <span className="font-bold text-sm block leading-none">ClimbHub</span>
-                      <span className="text-[9px] font-bold tracking-widest opacity-60">INDONESIA</span>
-                    </div>
+                    />
                   </div>
 
                   <div className="flex items-center gap-2">

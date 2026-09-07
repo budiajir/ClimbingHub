@@ -6,7 +6,7 @@ import AppLayoutShell from '@/components/shell/AppLayoutShell'
 import AuthModal from '@/components/auth/AuthModal'
 
 export const metadata: Metadata = {
-  title: 'ClimbHub Indonesia — Bouldering & Climbing Community',
+  title: 'Jalur — Bouldering & Climbing Community',
   description: 'Platform climbing dan bouldering untuk komunitas panjat tebing Indonesia. Topo database, gym booking, beta videos & community meetups.',
 }
 

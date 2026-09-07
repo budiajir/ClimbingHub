@@ -39,7 +39,7 @@ export default function RoadmapContributeModal({ onClose }: RoadmapContributeMod
             Kurasi Jalur Tebing Alam Resmi
           </h2>
           <p className="text-slate-ash text-xs md:text-sm font-light leading-relaxed">
-            Terima kasih atas antusiasme Anda, <b>{user?.name || 'Climber'}</b>! Saat ini, penambahan jalur tebing alam dikurasi secara eksklusif oleh <b>Pemilik Website & Tim Kurator Resmi ClimbingHub</b>.
+            Terima kasih atas antusiasme Anda, <b>{user?.name || 'Climber'}</b>! Saat ini, penambahan jalur tebing alam dikurasi secara eksklusif oleh <b>Pemilik Website & Tim Kurator Resmi Jalur</b>.
           </p>
         </div>
 

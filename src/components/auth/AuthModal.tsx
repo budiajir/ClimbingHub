@@ -53,7 +53,7 @@ export default function AuthModal() {
               <Lock size={18} />
             </div>
             <h3 className="text-chalk font-bold text-xl">
-              {tab === 'login' ? 'Masuk ke ClimbingHub' : 'Daftar Akun Climber'}
+              {tab === 'login' ? 'Masuk ke Jalur' : 'Daftar Akun Climber'}
             </h3>
             <p className="text-slate-ash text-xs font-light mt-1">
               {authModalReason || 'Nikmati fitur Log Ascent, simpan wishlist tebing, dan gabung mabar komunitas.'}

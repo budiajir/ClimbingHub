@@ -285,7 +285,7 @@ export default function AddRouteModal({
       setter: 'Chief Route Curator (Owner)',
       fa: fa || 'Tim Ekspedisi Tebing Alam',
       faDate: new Date().toISOString().split('T')[0],
-      description: description || 'Jalur tebing terverifikasi resmi oleh kurator ClimbingHub Indonesia.',
+      description: description || 'Jalur tebing terverifikasi resmi oleh kurator Jalur.',
       imageUrl: activePhoto,
       accessInfo: accessInfo || (isCreatingNewRegion ? `${newRegionName} Access` : `${currentRegion?.name} Crag Access`),
       localContact: localContact || 'Pemandu Lokal / Pengelola Tebing',
