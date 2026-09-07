@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-granite: #12161A;
+  --color-crag: #1E242B;
+  --color-lime: #CCFF00;
+  --color-cyan: #06B6D4;
+  --color-red: #EF4444;
+  --color-orange: #FF6B00;
+  --color-chalk: #F8FAFC;
+  --color-slate: #94A3B8;
+  --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+html {
+  background-color: #12161A;
+  color: #F8FAFC;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: #12161A;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 400; /* Bodytext: Helvetica Regular */
+}
+
+/* Typography Hierarchy Utilities */
+.font-title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700; /* Helvetica Bold */
+  letter-spacing: -0.02em;
+}
+
+.font-subtitle {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 300; /* Helvetica Light */
+  letter-spacing: 0.01em;
+}
+
+.font-body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 400; /* Helvetica Regular */
+}
+
+.font-cta {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 300; /* Helvetica Light */
+  letter-spacing: 0.03em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #12161A;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E242B;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Hide scrollbar for horizontal scrolls */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Editorial grid image */
+.topo-canvas {
+  position: relative;
+  overflow: hidden;
+  touch-action: pinch-zoom;
+}
+
+/* Frosted glass */
+.glass {
+  background: rgba(30, 36, 43, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Lime badge */
+.badge-lime {
+  background: rgba(204,255,0,0.15);
+  color: #CCFF00;
+  border: 1px solid rgba(204,255,0,0.3);
+}
+
+/* Grade badges */
+.grade-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* Bottom sheet */
+.bottom-sheet {
+  border-radius: 1.5rem 1.5rem 0 0;
+}
+
+/* Touch feedback */
+.touch-ripple {
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+.touch-ripple:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
