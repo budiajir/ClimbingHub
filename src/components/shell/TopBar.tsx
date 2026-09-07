@@ -4,10 +4,29 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Search, Mountain, BookOpen, Building2, Users, Plus, LogIn, LogOut, Store, Crown, User, Compass, Moon, Sun } from 'lucide-react'
+import {
+  X,
+  Search,
+  Mountain,
+  BookOpen,
+  Building2,
+  Users,
+  Plus,
+  LogIn,
+  LogOut,
+  Store,
+  Crown,
+  User,
+  Compass,
+  Moon,
+  Sun,
+  Eye,
+  UserCheck,
+  Check,
+} from 'lucide-react'
 import clsx from 'clsx'
 import { useAuth } from '@/lib/auth-context'
-import { canLogAscent, canCreateCragRoute } from '@/lib/permissions'
+import { canLogAscent, canCreateCragRoute, UserRole } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
 
 interface TopBarProps {
@@ -25,7 +44,7 @@ export default function TopBar({
 }: TopBarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { role, user, gymTenant, openAuthModal, logout } = useAuth()
+  const { role, setRole, user, gymTenant, openAuthModal, logout } = useAuth()
   const { isSandstone, toggleTheme } = useTheme()
   const [showDrawer, setShowDrawer] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -53,6 +72,13 @@ export default function TopBar({
       router.push(`/?search=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
+
+  const rolesConfig: { key: UserRole; label: string; sub: string; icon: React.ElementType }[] = [
+    { key: 'guest', label: 'Public (Guest)', sub: 'Tamu publik', icon: Eye },
+    { key: 'registered', label: 'Climber', sub: 'Log ascent aktif', icon: UserCheck },
+    { key: 'super_admin', label: 'Super Admin', sub: 'Owner & kurator', icon: Crown },
+    { key: 'gym_admin', label: 'Gym Admin', sub: 'Dashboard POS', icon: Store },
+  ]
 
   return (
     <>
@@ -125,14 +151,14 @@ export default function TopBar({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className={`relative z-10 w-full max-w-sm h-full flex flex-col justify-between p-6 shadow-2xl border-l overflow-y-auto ${
+              className={`relative z-10 w-full max-w-sm h-full flex flex-col justify-between p-5 md:p-6 shadow-2xl border-l overflow-y-auto ${
                 isSandstone
                   ? 'bg-[#ded3be] border-[#1a1815]/20 text-[#1a1815]'
                   : 'bg-[#181d22] border-white/10 text-chalk'
               }`}
               style={{
-                paddingTop: 'max(env(safe-area-inset-top), 24px)',
-                paddingBottom: 'max(env(safe-area-inset-bottom), 24px)',
+                paddingTop: 'max(env(safe-area-inset-top), 20px)',
+                paddingBottom: 'max(env(safe-area-inset-bottom), 120px)',
               }}
             >
               {/* Drawer Top Header: Logo, Theme Switcher, Close X */}
@@ -156,10 +182,10 @@ export default function TopBar({
                     {/* Theme Switcher */}
                     <button
                       onClick={toggleTheme}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border ${
                         isSandstone
-                          ? 'bg-[#1a1815]/10 hover:bg-[#1a1815]/20 text-[#1a1815]'
-                          : 'bg-crag hover:bg-crag-light text-chalk border border-white/10'
+                          ? 'border-[#1a1815]/30 bg-transparent text-[#1a1815] hover:bg-[#1a1815]/10'
+                          : 'border-white/15 bg-transparent text-chalk hover:bg-white/10'
                       }`}
                       title="Ganti Tema (Sandstone / Dark)"
                     >
@@ -205,14 +231,14 @@ export default function TopBar({
                     placeholder="Cari spot boulder, tebing, gym..."
                     className={`w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border outline-none transition-all ${
                       isSandstone
-                        ? 'bg-white/60 border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/50 focus:border-[#1a1815]'
-                        : 'bg-granite border-white/10 text-chalk placeholder:text-slate-ash focus:border-lime/40'
+                        ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/50 focus:border-[#1a1815]'
+                        : 'bg-transparent border-white/10 text-chalk placeholder:text-slate-ash focus:border-lime/40'
                     }`}
                   />
                 </form>
 
                 {/* Main Navigation Links */}
-                <div className="space-y-1.5 pt-2">
+                <div className="space-y-1.5 pt-1">
                   <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 px-2 block">
                     Menu Utama
                   </span>
@@ -229,28 +255,28 @@ export default function TopBar({
                       <button
                         key={item.href}
                         onClick={() => handleNavClick(item.href)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all ${
+                        className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all border ${
                           isActive
                             ? isSandstone
-                              ? 'bg-[#1a1815] text-[#ded3be] font-bold shadow-sm'
-                              : 'bg-lime text-granite font-bold shadow-lime-glow-sm'
+                              ? 'bg-transparent border-[#1a1815] text-[#1a1815] font-bold'
+                              : 'bg-transparent border-lime text-lime font-bold shadow-lime-glow-sm'
                             : isSandstone
-                              ? 'hover:bg-[#1a1815]/10 text-[#1a1815]'
-                              : 'hover:bg-white/5 text-chalk'
+                              ? 'bg-transparent border-transparent hover:border-[#1a1815]/20 text-[#1a1815]'
+                              : 'bg-transparent border-transparent hover:border-white/10 text-chalk'
                         }`}
                       >
                         <div
-                          className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 border ${
                             isActive
                               ? isSandstone
-                                ? 'bg-[#ded3be] text-[#1a1815]'
-                                : 'bg-granite text-lime'
+                                ? 'border-[#1a1815] text-[#1a1815]'
+                                : 'border-lime text-lime'
                               : isSandstone
-                                ? 'bg-[#1a1815]/10 text-[#1a1815]'
-                                : 'bg-crag text-chalk'
+                                ? 'border-[#1a1815]/20 text-[#1a1815]'
+                                : 'border-white/10 text-chalk'
                           }`}
                         >
-                          <Icon size={18} />
+                          <Icon size={16} />
                         </div>
                         <div>
                           <div className="text-sm font-bold leading-tight">{item.label}</div>
@@ -263,18 +289,63 @@ export default function TopBar({
                   })}
                 </div>
 
+                {/* ROLE SWITCHER / MODE PENGGUNA */}
+                <div className="pt-2 space-y-2 border-t border-black/10 dark:border-white/10">
+                  <div className="flex items-center justify-between px-2">
+                    <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 block">
+                      Pilih Role Pengguna
+                    </span>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded border uppercase font-mono font-bold ${
+                      isSandstone ? 'border-[#1a1815]/30 text-[#1a1815]' : 'border-lime/30 text-lime'
+                    }`}>
+                      Aktif: {role}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {rolesConfig.map(r => {
+                      const Icon = r.icon
+                      const isSelected = role === r.key
+                      return (
+                        <button
+                          key={r.key}
+                          onClick={() => setRole(r.key)}
+                          className={`flex items-center gap-2 p-2.5 rounded-xl border text-left transition-all ${
+                            isSelected
+                              ? isSandstone
+                                ? 'bg-[#1a1815] text-[#ded3be] border-[#1a1815] shadow-sm font-bold'
+                                : 'bg-lime text-granite border-lime font-bold shadow-lime-glow-sm'
+                              : isSandstone
+                                ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815] hover:border-[#1a1815]/50'
+                                : 'bg-transparent border-white/10 text-slate-ash hover:text-chalk hover:border-white/30'
+                          }`}
+                        >
+                          <Icon size={14} className="flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold truncate leading-tight">{r.label}</div>
+                            <div className={`text-[9px] truncate ${isSelected ? 'opacity-90' : 'opacity-60'}`}>
+                              {r.sub}
+                            </div>
+                          </div>
+                          {isSelected && <Check size={12} className="flex-shrink-0" />}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
                 {/* Action Links */}
-                <div className="pt-2 space-y-1.5">
+                <div className="pt-2 space-y-1.5 border-t border-black/10 dark:border-white/10">
                   <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 px-2 block">
                     Aksi Cepat
                   </span>
 
                   <button
                     onClick={() => handleNavClick('/beta')}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
                       isSandstone
-                        ? 'border border-[#1a1815]/20 hover:bg-[#1a1815]/10 text-[#1a1815]'
-                        : 'bg-crag hover:bg-crag-light text-chalk border border-white/5'
+                        ? 'border-[#1a1815]/30 hover:border-[#1a1815] text-[#1a1815] bg-transparent'
+                        : 'border-white/15 hover:border-white/30 text-chalk bg-transparent'
                     }`}
                   >
                     <Plus size={15} />
@@ -283,10 +354,10 @@ export default function TopBar({
 
                   <button
                     onClick={handleLogAscentClick}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
                       isSandstone
-                        ? 'bg-[#d95338] text-white hover:bg-[#c2452c]'
-                        : 'bg-lime text-granite shadow-lime-glow-sm hover:bg-lime-dim'
+                        ? 'border-[#d95338] text-[#d95338] hover:bg-[#d95338]/10 bg-transparent'
+                        : 'border-lime text-lime hover:bg-lime/10 bg-transparent'
                     }`}
                   >
                     <BookOpen size={15} />
@@ -296,39 +367,59 @@ export default function TopBar({
               </div>
 
               {/* Drawer Bottom: User Profile / Auth Area */}
-              <div className="pt-4 border-t border-black/10 dark:border-white/10">
+              <div className="pt-4 border-t border-black/10 dark:border-white/10 space-y-2 mt-4">
+                {role === 'gym_admin' && (
+                  <button
+                    onClick={() => handleNavClick('/admin')}
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold border border-cyan-500/40 text-cyan-500 hover:bg-cyan-500/10 transition-colors"
+                  >
+                    <Store size={14} /> Buka Dashboard POS Kasir Gym
+                  </button>
+                )}
+
+                {role === 'super_admin' && (
+                  <div className={`p-2.5 rounded-xl border text-[11px] font-medium flex items-center gap-2 ${
+                    isSandstone ? 'border-[#1a1815]/20 text-[#1a1815]' : 'border-lime/30 text-lime'
+                  }`}>
+                    <Crown size={14} />
+                    <span>Mode Pemilik Web: Akses penuh verifikasi & kurasi jalur</span>
+                  </div>
+                )}
+
                 {role === 'guest' ? (
                   <button
                     onClick={() => {
                       setShowDrawer(false)
                       openAuthModal('Silakan masuk untuk mengakses profil dan logbook Anda.')
                     }}
-                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition-all ${
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs transition-all border ${
                       isSandstone
-                        ? 'bg-[#1a1815] text-[#ded3be] hover:bg-black'
-                        : 'bg-lime text-granite shadow-lime-glow-sm hover:bg-lime-dim'
+                        ? 'border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
+                        : 'border-lime text-lime hover:bg-lime/10'
                     }`}
                   >
-                    <LogIn size={16} />
+                    <LogIn size={15} />
                     <span>Masuk / Daftar Akun</span>
                   </button>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-crag flex items-center justify-center text-chalk overflow-hidden">
+                      <div className={`w-9 h-9 rounded-xl border flex items-center justify-center overflow-hidden ${
+                        isSandstone ? 'border-[#1a1815]/20 text-[#1a1815]' : 'border-white/15 text-chalk'
+                      }`}>
                         {user?.avatar ? (
                           <img src={user.avatar} alt="User" className="w-full h-full object-cover" />
                         ) : role === 'super_admin' ? (
-                          <Crown size={20} className="text-lime" />
+                          <Crown size={18} className="text-lime" />
                         ) : role === 'gym_admin' ? (
-                          <Store size={20} className="text-project" />
+                          <Store size={18} className="text-project" />
                         ) : (
-                          <User size={20} />
+                          <User size={18} />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="font-bold text-sm truncate">{user?.name || 'Climber'}</div>
-                        <div className="text-[11px] opacity-70 truncate">
+                        <div className="font-bold text-xs truncate">{user?.name || 'Climber'}</div>
+                        <div className="text-[10px] opacity-70 truncate">
                           {role === 'super_admin'
                             ? '👑 Pemilik Web / Kurator'
                             : role === 'gym_admin'
@@ -338,23 +429,14 @@ export default function TopBar({
                       </div>
                     </div>
 
-                    {role === 'gym_admin' && (
-                      <button
-                        onClick={() => handleNavClick('/admin')}
-                        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold bg-project/20 text-project border border-project/30 hover:bg-project/30"
-                      >
-                        <Store size={14} /> Buka Dashboard POS
-                      </button>
-                    )}
-
                     <button
                       onClick={() => {
                         logout()
                         setShowDrawer(false)
                       }}
-                      className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium text-redpoint hover:bg-redpoint/10 transition-colors"
+                      className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-medium text-redpoint hover:bg-redpoint/10 transition-colors border border-redpoint/30"
                     >
-                      <LogOut size={14} /> Keluar Akun
+                      <LogOut size={13} /> Reset ke Guest
                     </button>
                   </div>
                 )}
