@@ -159,11 +159,23 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
         {/* Pan and Zoom Layer */}
         <motion.div
           drag={scale > 1}
-          dragConstraints={containerRef}
+          dragConstraints={{
+            left: -240 * (scale - 1),
+            right: 240 * (scale - 1),
+            top: -340 * (scale - 1),
+            bottom: 340 * (scale - 1),
+          }}
           dragElastic={0.1}
-          className="absolute inset-0 w-full h-full origin-center"
-          animate={{ scale }}
+          dragMomentum={false}
+          animate={{
+            scale,
+            x: scale === 1 ? 0 : undefined,
+            y: scale === 1 ? 0 : undefined,
+          }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          className={`absolute inset-0 w-full h-full origin-center ${
+            scale > 1 ? 'touch-none cursor-grab active:cursor-grabbing' : 'cursor-default'
+          }`}
         >
           {/* Topo Cliff Photo — Full frame */}
           <div
@@ -173,36 +185,26 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
             }}
           />
 
-          {/* CONNECTED TOPO VECTOR PATH (SVG) */}
+          {/* CONNECTED TOPO VECTOR PATH (SVG) — PURE WHITE LINE ONLY */}
           {svgPathD && (
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
-              {/* Base outer glow line */}
-              <path
-                d={svgPathD}
-                stroke={lineColor}
-                strokeWidth="2.4"
-                strokeDasharray="2 1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-                style={{ filter: `drop-shadow(0 0 7px ${glowColor})` }}
-              />
-              {/* Base inner crisp line */}
+              {/* Clean crisp pure white dashed line */}
               <path
                 d={svgPathD}
                 stroke="#FFFFFF"
-                strokeWidth="0.8"
-                strokeDasharray="2 1.5"
+                strokeWidth="1.8"
+                strokeDasharray="2.5 1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
+                style={{ filter: 'drop-shadow(0 0 3px rgba(0,0,0,0.85))' }}
               />
 
-              {/* MULTI PITCH: Highlighted active pitch segment */}
+              {/* MULTI PITCH: Highlighted active pitch segment (Pure White bold) */}
               {isMultiPitch && activePitch && problem.markers.length >= 2 && (
                 (() => {
                   const segIdx = activePitch - 1
@@ -214,18 +216,11 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
                     <g>
                       <path
                         d={highlightD}
-                        stroke="#FF6B00"
-                        strokeWidth="4.5"
-                        strokeLinecap="round"
-                        fill="none"
-                        style={{ filter: 'drop-shadow(0 0 12px rgba(255,107,0,1))' }}
-                      />
-                      <path
-                        d={highlightD}
                         stroke="#FFFFFF"
-                        strokeWidth="1.8"
+                        strokeWidth="3.2"
                         strokeLinecap="round"
                         fill="none"
+                        style={{ filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.9))' }}
                       />
                     </g>
                   )
