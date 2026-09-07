@@ -56,21 +56,9 @@ export default function ProblemSheet({ problem, onLogAscent, onClose }: ProblemS
       <div className="flex items-start justify-between px-4 pb-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            {discipline === 'sport' && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-lime/20 text-lime border border-lime/30 font-bold">
-                <Mountain size={11} /> SPORT · {problem.pitchLength || 'Single Pitch'}
-              </span>
-            )}
-            {discipline === 'multipitch' && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-project/20 text-project border border-project/30 font-bold">
-                <Layers size={11} /> MULTI PITCH · {problem.totalPitches || 4}P ({problem.totalHeight || '160m'})
-              </span>
-            )}
-            {discipline === 'bouldering' && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-climb/20 text-cyan-climb border border-cyan-climb/30 font-bold">
-                <Compass size={11} /> BOULDERING · {problem.startType || 'Crashpad'}
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-climb/20 text-cyan-climb border border-cyan-climb/30 font-bold">
+              <Compass size={11} /> BOULDERING · {problem.startType || 'Sit Start'}
+            </span>
             <span className="text-xs font-mono font-bold text-chalk bg-granite px-2 py-0.5 rounded-md border border-white/5">
               {problem.grade} ({problem.fontGrade})
             </span>
@@ -151,83 +139,23 @@ export default function ProblemSheet({ problem, onLogAscent, onClose }: ProblemS
               exit={{ opacity: 0, y: -10 }}
               className="space-y-4"
             >
-              {/* Sport Specs */}
-              {discipline === 'sport' && (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-granite p-3 rounded-xl">
-                      <span className="text-[10px] text-slate-ash uppercase block">Panjang Pitch</span>
-                      <span className="text-sm font-bold text-lime">{problem.pitchLength || '24m'}</span>
-                    </div>
-                    <div className="bg-granite p-3 rounded-xl">
-                      <span className="text-[10px] text-slate-ash uppercase block">Jumlah Bolt</span>
-                      <span className="text-sm font-bold text-lime">{problem.boltCount || 8} Quickdraws</span>
-                    </div>
-                  </div>
-                  <div className="bg-granite p-3 rounded-xl">
-                    <span className="text-[10px] text-slate-ash uppercase block">Tipe Anchor Top</span>
-                    <span className="text-xs font-normal text-chalk">{problem.anchorType || 'Double Ring Chain Anchor'}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Multi Pitch Specs */}
-              {discipline === 'multipitch' && (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-granite p-3 rounded-xl">
-                      <span className="text-[10px] text-slate-ash uppercase block">Jumlah Pitch</span>
-                      <span className="text-sm font-bold text-project">{problem.totalPitches || 4} Pitches</span>
-                    </div>
-                    <div className="bg-granite p-3 rounded-xl">
-                      <span className="text-[10px] text-slate-ash uppercase block">Total Tinggi Dinding</span>
-                      <span className="text-sm font-bold text-project">{problem.totalHeight || '165m'}</span>
-                    </div>
-                  </div>
-
-                  {problem.pitchBreakdown && problem.pitchBreakdown.length > 0 && (
-                    <div className="space-y-2">
-                      <span className="text-xs font-bold text-chalk block">Rincian Pitch-by-Pitch:</span>
-                      {problem.pitchBreakdown.map(p => (
-                        <div key={p.pitchNumber} className="bg-granite p-2.5 rounded-xl border border-white/5 space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-project font-mono">P{p.pitchNumber} ({p.length})</span>
-                            <span className="text-xs font-mono font-bold text-chalk bg-crag px-2 py-0.5 rounded">{p.grade}</span>
-                          </div>
-                          <p className="text-[11px] text-slate-ash font-light">{p.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {problem.descentInfo && (
-                    <div className="bg-project/10 border border-project/20 p-3 rounded-xl">
-                      <span className="text-[10px] text-project uppercase font-bold block mb-1">Panduan Turun (Descent)</span>
-                      <p className="text-xs text-chalk/90 font-light">{problem.descentInfo}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* Bouldering Specs */}
-              {discipline === 'bouldering' && (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-granite p-3 rounded-xl">
-                      <span className="text-[10px] text-slate-ash uppercase block">Start Stance</span>
-                      <span className="text-sm font-bold text-cyan-climb">{problem.startType || 'Sit Start (SS)'}</span>
-                    </div>
-                    <div className="bg-granite p-3 rounded-xl">
-                      <span className="text-[10px] text-slate-ash uppercase block">Rekomendasi Crashpad</span>
-                      <span className="text-xs font-bold text-cyan-climb">{problem.padRecommendation || '2 Pads'}</span>
-                    </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-granite p-3 rounded-xl">
+                    <span className="text-[10px] text-slate-ash uppercase block">Start Stance</span>
+                    <span className="text-sm font-bold text-cyan-climb">{problem.startType || 'Sit Start (SS)'}</span>
                   </div>
                   <div className="bg-granite p-3 rounded-xl">
-                    <span className="text-[10px] text-slate-ash uppercase block">Kondisi Pendaratan (Landing)</span>
-                    <span className="text-xs font-normal text-chalk">{problem.landingQuality || 'Bebatuan datar berumput'}</span>
+                    <span className="text-[10px] text-slate-ash uppercase block">Rekomendasi Crashpad</span>
+                    <span className="text-xs font-bold text-cyan-climb">{problem.padRecommendation || '2 Pads'}</span>
                   </div>
                 </div>
-              )}
+                <div className="bg-granite p-3 rounded-xl">
+                  <span className="text-[10px] text-slate-ash uppercase block">Kondisi Pendaratan (Landing)</span>
+                  <span className="text-xs font-normal text-chalk">{problem.landingQuality || 'Bebatuan datar berumput'}</span>
+                </div>
+              </div>
             </motion.div>
           )}
 

@@ -482,7 +482,7 @@ export default function BetaPage() {
                                         >
                                           <div className="min-w-0 pr-2">
                                             <p className="font-bold text-xs truncate">{p.name}</p>
-                                            <p className="text-[10px] opacity-70 truncate">{p.discipline} · FA: {p.fa}</p>
+                                            <p className="text-[10px] opacity-70 truncate">{p.startType || 'Sit Start'} · FA: {p.fa}</p>
                                           </div>
                                           <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-black/10">
                                             {p.grade}
@@ -728,23 +728,11 @@ export default function BetaPage() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        {/* Discipline Tag */}
+                        {/* Boulder Tag */}
                         <div className="flex items-center gap-1.5 mb-1">
-                          {discipline === 'sport' && (
-                            <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-lime/10 text-lime border border-lime/20 font-bold">
-                              SPORT · {p.pitchLength || '24m'}
-                            </span>
-                          )}
-                          {discipline === 'multipitch' && (
-                            <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-project/10 text-project border border-project/20 font-bold">
-                              MULTI PITCH · {p.totalPitches || 4}P
-                            </span>
-                          )}
-                          {discipline === 'bouldering' && (
-                            <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-climb/10 text-cyan-climb border border-cyan-climb/20 font-bold">
-                              BOULDER · {p.startType === 'Sit Start (SS)' ? 'SS' : 'STAND'}
-                            </span>
-                          )}
+                          <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-climb/10 text-cyan-climb border border-cyan-climb/20 font-bold">
+                            BOULDER · {p.startType === 'Sit Start (SS)' ? 'SS' : 'STAND'}
+                          </span>
                         </div>
 
                         <h3 className="text-chalk font-bold text-sm md:text-base truncate group-hover:text-lime transition-colors">
@@ -797,23 +785,11 @@ export default function BetaPage() {
                 <div>
                   <div className="flex items-start justify-between mb-4 border-b border-white/5 pb-4">
                     <div>
-                      {/* Discipline Badge */}
+                      {/* Boulder Badge */}
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        {problem.discipline === 'sport' && (
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-lime/20 text-lime border border-lime/30 font-bold">
-                            SPORT CLIMBING · {problem.pitchLength || '24m'}
-                          </span>
-                        )}
-                        {problem.discipline === 'multipitch' && (
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-project/20 text-project border border-project/30 font-bold">
-                            MULTI PITCH · {problem.totalPitches || 4} PITCHES ({problem.totalHeight || '165m'})
-                          </span>
-                        )}
-                        {problem.discipline === 'bouldering' && (
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-climb/20 text-cyan-climb border border-cyan-climb/30 font-bold">
-                            BOULDERING · {problem.startType || 'Sit Start'}
-                          </span>
-                        )}
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-climb/20 text-cyan-climb border border-cyan-climb/30 font-bold">
+                          BOULDERING · {problem.startType || 'Sit Start'}
+                        </span>
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -879,76 +855,20 @@ export default function BetaPage() {
 
                   {desktopTab === 'specs' && (
                     <div className="space-y-3">
-                      {problem.discipline === 'sport' && (
-                        <>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-granite p-3 rounded-xl">
-                              <span className="text-[10px] text-slate-ash uppercase block">Panjang Pitch</span>
-                              <span className="text-sm font-bold text-lime">{problem.pitchLength || '24m'}</span>
-                            </div>
-                            <div className="bg-granite p-3 rounded-xl">
-                              <span className="text-[10px] text-slate-ash uppercase block">Jumlah Bolt</span>
-                              <span className="text-sm font-bold text-lime">{problem.boltCount || 8} Quickdraws</span>
-                            </div>
-                          </div>
-                          <div className="bg-granite p-3 rounded-xl">
-                            <span className="text-[10px] text-slate-ash uppercase block">Tipe Anchor Top</span>
-                            <span className="text-xs font-normal text-chalk">{problem.anchorType || 'Double Ring Chain Anchor'}</span>
-                          </div>
-                        </>
-                      )}
-
-                      {problem.discipline === 'multipitch' && (
-                        <>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-granite p-3 rounded-xl">
-                              <span className="text-[10px] text-slate-ash uppercase block">Jumlah Pitch</span>
-                              <span className="text-sm font-bold text-project">{problem.totalPitches || 4} Pitches</span>
-                            </div>
-                            <div className="bg-granite p-3 rounded-xl">
-                              <span className="text-[10px] text-slate-ash uppercase block">Tinggi Dinding</span>
-                              <span className="text-sm font-bold text-project">{problem.totalHeight || '165m'}</span>
-                            </div>
-                          </div>
-
-                          {problem.pitchBreakdown && (
-                            <div className="space-y-1.5 max-h-36 overflow-y-auto no-scrollbar">
-                              {problem.pitchBreakdown.map(p => (
-                                <div key={p.pitchNumber} className="bg-granite p-2 rounded-xl text-xs flex justify-between items-center">
-                                  <span className="font-mono font-bold text-project">P{p.pitchNumber} ({p.length})</span>
-                                  <span className="text-chalk font-mono bg-crag px-1.5 py-0.5 rounded">{p.grade}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {problem.descentInfo && (
-                            <div className="bg-project/10 border border-project/20 p-2.5 rounded-xl text-xs">
-                              <span className="text-project font-bold block text-[10px] uppercase">Descent:</span>
-                              <span className="text-chalk/90 font-light">{problem.descentInfo}</span>
-                            </div>
-                          )}
-                        </>
-                      )}
-
-                      {problem.discipline === 'bouldering' && (
-                        <>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-granite p-3 rounded-xl">
-                              <span className="text-[10px] text-slate-ash uppercase block">Start Stance</span>
-                              <span className="text-sm font-bold text-cyan-climb">{problem.startType || 'Sit Start'}</span>
-                            </div>
-                            <div className="bg-granite p-3 rounded-xl">
-                              <span className="text-[10px] text-slate-ash uppercase block">Crashpad</span>
-                              <span className="text-xs font-bold text-cyan-climb">{problem.padRecommendation || '2 Pads'}</span>
-                            </div>
-                          </div>
-                          <div className="bg-granite p-3 rounded-xl">
-                            <span className="text-[10px] text-slate-ash uppercase block">Pendaratan / Landing</span>
-                            <span className="text-xs text-chalk">{problem.landingQuality || 'Bebatuan datar berumput'}</span>
-                          </div>
-                        </>
-                      )}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-granite p-3 rounded-xl">
+                          <span className="text-[10px] text-slate-ash uppercase block">Start Stance</span>
+                          <span className="text-sm font-bold text-cyan-climb">{problem.startType || 'Sit Start'}</span>
+                        </div>
+                        <div className="bg-granite p-3 rounded-xl">
+                          <span className="text-[10px] text-slate-ash uppercase block">Crashpad</span>
+                          <span className="text-xs font-bold text-cyan-climb">{problem.padRecommendation || '2 Pads'}</span>
+                        </div>
+                      </div>
+                      <div className="bg-granite p-3 rounded-xl">
+                        <span className="text-[10px] text-slate-ash uppercase block">Pendaratan / Landing</span>
+                        <span className="text-xs text-chalk">{problem.landingQuality || 'Bebatuan datar berumput'}</span>
+                      </div>
                     </div>
                   )}
 

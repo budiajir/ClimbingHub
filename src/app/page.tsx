@@ -377,7 +377,7 @@ export default function HomePage() {
             <p className={`text-xs md:text-sm font-light mt-0.5 ${
               isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
             }`}>
-              Katalog jalur tebing: Sport Climbing, Multi Pitch, dan Bouldering
+              Katalog jalur boulder & topo tebing Indonesia
             </p>
           </div>
 
@@ -385,7 +385,6 @@ export default function HomePage() {
           <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
             {featuredProblems.slice(0, 6).map(problem => {
               const gradeColor = gradeColors[problem.grade] || '#CCFF00'
-              const discipline = problem.discipline || 'bouldering'
 
               return (
                 <Link
@@ -398,29 +397,13 @@ export default function HomePage() {
                   }`}
                 >
                   <div className="space-y-3">
-                    {/* Top: Discipline Badge & Grade */}
+                    {/* Top: Boulder Badge & Grade */}
                     <div className="flex items-center justify-between">
-                      {discipline === 'sport' && (
-                        <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${
-                          isSandstone ? 'bg-transparent text-[#1a1815] border-[#1a1815]/30' : 'bg-transparent text-lime border-lime/40'
-                        }`}>
-                          <Mountain size={10} /> SPORT · {problem.pitchLength || '24m'}
-                        </span>
-                      )}
-                      {discipline === 'multipitch' && (
-                        <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${
-                          isSandstone ? 'bg-transparent text-[#1a1815] border-[#1a1815]/30' : 'bg-transparent text-project border-project/40'
-                        }`}>
-                          <Layers size={10} /> MULTI PITCH · {problem.totalPitches || 4}P
-                        </span>
-                      )}
-                      {discipline === 'bouldering' && (
-                        <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${
-                          isSandstone ? 'bg-transparent text-[#1a1815] border-[#1a1815]/30' : 'bg-transparent text-cyan-climb border-cyan-climb/40'
-                        }`}>
-                          <Compass size={10} /> BOULDER · {problem.grade}
-                        </span>
-                      )}
+                      <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${
+                        isSandstone ? 'bg-transparent text-[#1a1815] border-[#1a1815]/30' : 'bg-transparent text-cyan-climb border-cyan-climb/40'
+                      }`}>
+                        <Compass size={10} /> BOULDER · {problem.startType || 'Sit Start'}
+                      </span>
 
                       <div
                         className="px-2 py-0.5 rounded-md font-bold font-mono text-xs border"
