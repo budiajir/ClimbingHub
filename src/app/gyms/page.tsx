@@ -5,9 +5,12 @@ import { motion } from 'framer-motion'
 import { Search, Filter, Star, MapPin, Building2, Check, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { useGyms } from '@/lib/use-data'
+import { useTheme } from '@/lib/theme-context'
 
 export default function GymsPage() {
   const { gyms } = useGyms()
+  const { theme } = useTheme()
+  const isSandstone = theme === 'sandstone'
   const [query, setQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState('all')
 
@@ -22,22 +25,38 @@ export default function GymsPage() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:px-6 lg:px-8 space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
+      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4 ${
+        isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+      }`}>
         <div>
-          <h1 className="text-chalk font-bold text-xl md:text-3xl flex items-center gap-2">
-            Boulder Gym Directory <Building2 size={24} className="text-lime" />
+          <h1 className={`font-bold text-xl md:text-3xl flex items-center gap-2 ${
+            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+          }`}>
+            Boulder Gym Directory <Building2 size={24} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
           </h1>
-          <p className="text-slate-ash text-xs md:text-sm font-light">Direktori & Reservasi Sesi Wall Climbing & Bouldering Indonesia</p>
+          <p className={`text-xs md:text-sm font-light ${
+            isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+          }`}>
+            Direktori & Reservasi Sesi Wall Climbing & Bouldering Indonesia
+          </p>
         </div>
 
         {/* Search Bar */}
-        <div className="flex items-center gap-2 bg-crag rounded-xl px-3.5 py-2.5 border border-white/5 w-full md:w-80 focus-within:border-lime/30 transition-colors">
-          <Search size={16} className="text-slate-ash" />
+        <div className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 border w-full md:w-80 transition-colors ${
+          isSandstone
+            ? 'bg-transparent border-[#1a1815]/20 focus-within:border-[#1a1815]'
+            : 'bg-transparent border-white/10 focus-within:border-lime/40'
+        }`}>
+          <Search size={16} className={isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'} />
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Cari gym atau kota..."
-            className="flex-1 bg-transparent text-chalk text-xs md:text-sm font-normal placeholder:font-light placeholder:text-slate-ash/50 focus:outline-none"
+            className={`flex-1 bg-transparent text-xs md:text-sm font-normal focus:outline-none ${
+              isSandstone
+                ? 'text-[#1a1815] placeholder:text-[#1a1815]/40'
+                : 'text-chalk placeholder:text-slate-ash/50'
+            }`}
           />
         </div>
       </div>
@@ -48,10 +67,14 @@ export default function GymsPage() {
           <button
             key={city}
             onClick={() => setSelectedCity(city)}
-            className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs transition-all ${
+            className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs transition-all border ${
               selectedCity === city
-                ? 'bg-lime text-granite shadow-lime-glow-sm font-bold'
-                : 'bg-crag text-slate-ash hover:text-chalk border border-white/5 font-light'
+                ? isSandstone
+                  ? 'bg-transparent border-[#1a1815] text-[#1a1815] font-bold'
+                  : 'bg-transparent border-lime text-lime font-bold'
+                : isSandstone
+                  ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]/70 hover:border-[#1a1815]/40'
+                  : 'bg-transparent border-white/10 text-slate-ash hover:text-chalk hover:border-white/20 font-light'
             }`}
           >
             {city === 'all' ? 'Semua Kota' : city}
@@ -69,19 +92,23 @@ export default function GymsPage() {
             transition={{ delay: i * 0.07 }}
           >
             <Link href={`/gyms/${gym.id}`}>
-              <div className="bg-crag border border-white/5 rounded-2xl overflow-hidden touch-ripple hover:border-lime/30 hover:shadow-card-hover transition-all group flex flex-col h-full">
+              <div className={`rounded-2xl overflow-hidden touch-ripple transition-all group flex flex-col h-full border ${
+                isSandstone
+                  ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50'
+                  : 'bg-transparent border-white/10 hover:border-lime/30'
+              }`}>
                 <div className="relative h-48 md:h-52 overflow-hidden">
                   <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                     style={{ backgroundImage: `url(${gym.image})` }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-crag via-crag/20 to-transparent" />
-                  <div className="absolute top-3 left-3 glass rounded-full px-2.5 py-1 flex items-center gap-1">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/15">
                     <Star size={11} className="text-lime fill-lime" />
                     <span className="text-chalk text-xs font-bold">{gym.rating}</span>
                     <span className="text-slate-ash text-[10px] font-light">({gym.reviewCount})</span>
                   </div>
-                  <div className="absolute top-3 right-3 glass rounded-full px-2.5 py-1 flex items-center gap-1">
+                  <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/15">
                     <MapPin size={10} className="text-slate-ash" />
                     <span className="text-chalk text-[10px] font-light">{gym.city}</span>
                   </div>
@@ -90,37 +117,62 @@ export default function GymsPage() {
                 <div className="p-4 flex flex-col flex-1 justify-between">
                   <div>
                     <div className="flex items-start justify-between mb-1.5">
-                      <h3 className="text-chalk font-bold text-base group-hover:text-lime transition-colors">
+                      <h3 className={`font-bold text-base transition-colors ${
+                        isSandstone ? 'text-[#1a1815] group-hover:opacity-80' : 'text-chalk group-hover:text-lime'
+                      }`}>
                         {gym.name}
                       </h3>
-                      <span className="text-lime font-bold text-sm">
-                        Rp {(gym.pricePerSession / 1000).toFixed(0)}k<span className="text-[10px] font-light text-slate-ash">/sesi</span>
+                      <span className={`font-bold text-sm ${
+                        isSandstone ? 'text-[#1a1815]' : 'text-lime'
+                      }`}>
+                        Rp {(gym.pricePerSession / 1000).toFixed(0)}k<span className={`text-[10px] font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>/sesi</span>
                       </span>
                     </div>
-                    <p className="text-slate-ash text-xs font-normal line-clamp-2 mb-3">
+                    <p className={`text-xs font-normal line-clamp-2 mb-3 ${
+                      isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
+                    }`}>
                       {gym.description}
                     </p>
 
                     <div className="flex gap-1.5 flex-wrap mb-4">
                       {gym.facilities.slice(0, 4).map(f => (
-                        <span key={f} className="text-[10px] text-slate-ash font-light bg-granite px-2 py-0.5 rounded-md border border-white/5">
+                        <span
+                          key={f}
+                          className={`text-[10px] font-light px-2 py-0.5 rounded-md border ${
+                            isSandstone
+                              ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+                              : 'bg-transparent border-white/10 text-slate-ash'
+                          }`}
+                        >
                           {f}
                         </span>
                       ))}
                       {gym.facilities.length > 4 && (
-                        <span className="text-[10px] text-lime font-light bg-lime/10 px-2 py-0.5 rounded-md border border-lime/20">
+                        <span
+                          className={`text-[10px] font-light px-2 py-0.5 rounded-md border ${
+                            isSandstone
+                              ? 'bg-transparent border-[#1a1815]/40 text-[#1a1815]'
+                              : 'bg-transparent border-lime/30 text-lime'
+                          }`}
+                        >
                           +{gym.facilities.length - 4}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                    <div className="text-slate-ash text-xs font-light flex items-center gap-1">
-                      <Clock size={12} className="text-lime" />
+                  <div className={`flex items-center justify-between pt-3 border-t ${
+                    isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+                  }`}>
+                    <div className={`text-xs font-light flex items-center gap-1 ${
+                      isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                    }`}>
+                      <Clock size={12} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
                       <span>{gym.slots.morning + gym.slots.afternoon + gym.slots.evening} slot tersedia</span>
                     </div>
-                    <span className="text-lime text-xs font-light tracking-wide group-hover:underline">
+                    <span className={`text-xs font-medium tracking-wide group-hover:underline ${
+                      isSandstone ? 'text-[#1a1815]' : 'text-lime'
+                    }`}>
                       Pesan Tiket →
                     </span>
                   </div>

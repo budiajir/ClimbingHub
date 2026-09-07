@@ -74,10 +74,10 @@ export default function HomePage() {
           </div>
           <button
             onClick={toggleTheme}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all touch-ripple ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-medium transition-all touch-ripple border ${
               isSandstone
-                ? 'bg-[#1a1815] text-[#d2c5ae] hover:bg-black shadow-sm'
-                : 'bg-lime text-granite hover:bg-lime-dim font-bold shadow-lime-glow-sm'
+                ? 'bg-transparent border-[#1a1815]/30 text-[#1a1815] hover:border-[#1a1815]'
+                : 'bg-transparent border-lime/40 text-lime hover:border-lime'
             }`}
           >
             <span>{isSandstone ? 'Ganti ke 🌑 Dark' : 'Ganti ke 📜 Sandstone'}</span>
@@ -92,28 +92,19 @@ export default function HomePage() {
         {/* SECTION 1: COMMUNITY (Sesuai Sketsa: "Community" + Cards)    */}
         {/* ============================================================ */}
         <section className="space-y-4">
-          <div className="flex items-end justify-between">
-            <div>
-              <h2 className={`text-2xl md:text-3xl font-bold tracking-tight ${
-                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+          <div>
+            <Link href="/community" className="group inline-block">
+              <h2 className={`text-2xl md:text-3xl font-bold tracking-tight transition-colors ${
+                isSandstone ? 'text-[#1a1815] group-hover:opacity-75' : 'text-chalk group-hover:text-lime'
               }`}>
                 Community
               </h2>
-              <p className={`text-xs md:text-sm font-light ${
-                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-              }`}>
-                Squad bouldering lokal, teman mabar, dan koneksi komunitas
-              </p>
-            </div>
-            <Link
-              href="/community"
-              className={`text-xs font-semibold hover:underline flex items-center gap-1 flex-shrink-0 touch-ripple ${
-                isSandstone ? 'text-[#1a1815]' : 'text-lime'
-              }`}
-            >
-              <span>Lihat Semua</span>
-              <ChevronRight size={14} />
             </Link>
+            <p className={`text-xs md:text-sm font-light mt-0.5 ${
+              isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+            }`}>
+              Squad bouldering lokal, teman mabar, dan koneksi komunitas
+            </p>
           </div>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3 cols */}
@@ -121,10 +112,10 @@ export default function HomePage() {
             {communities.map(comm => (
               <div
                 key={comm.id}
-                className={`w-72 md:w-auto flex-shrink-0 rounded-2xl overflow-hidden transition-all flex flex-col justify-between group shadow-lg ${
+                className={`w-72 md:w-auto flex-shrink-0 rounded-2xl overflow-hidden transition-all flex flex-col justify-between group ${
                   isSandstone
-                    ? 'bg-[#e3d8c5] border border-[#1a1815]/15 hover:border-[#1a1815]/35 text-[#1a1815]'
-                    : 'bg-crag border border-white/5 hover:border-lime/30 shadow-xl text-chalk'
+                    ? 'bg-transparent border border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
+                    : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
                 }`}
               >
                 <div>
@@ -135,7 +126,7 @@ export default function HomePage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                     <div className="absolute top-2.5 right-2.5 flex gap-1">
                       {comm.tags.slice(0, 2).map(tag => (
-                        <span key={tag} className="text-[9px] glass px-2 py-0.5 rounded-md text-chalk uppercase font-light">
+                        <span key={tag} className="text-[9px] bg-black/60 backdrop-blur-sm border border-white/20 px-2 py-0.5 rounded-md text-chalk uppercase font-light">
                           {tag}
                         </span>
                       ))}
@@ -158,7 +149,7 @@ export default function HomePage() {
                         </div>
                       </div>
                       <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full border ${
-                        isSandstone ? 'bg-[#1a1815]/10 border-[#1a1815]/15 text-[#1a1815]' : 'bg-granite border-white/5 text-chalk'
+                        isSandstone ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]' : 'bg-transparent border-white/10 text-chalk'
                       }`}>
                         <Users size={11} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-climb'} />
                         <span className="text-xs font-bold">{comm.memberCount}</span>
@@ -209,28 +200,19 @@ export default function HomePage() {
         {/* SECTION 2: BOULDER GYM (Sesuai Sketsa: "Boulder Gym" + Cards)*/}
         {/* ============================================================ */}
         <section className="space-y-4">
-          <div className="flex items-end justify-between">
-            <div>
-              <h2 className={`text-2xl md:text-3xl font-bold tracking-tight ${
-                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+          <div>
+            <Link href="/gyms" className="group inline-block">
+              <h2 className={`text-2xl md:text-3xl font-bold tracking-tight transition-colors ${
+                isSandstone ? 'text-[#1a1815] group-hover:opacity-75' : 'text-chalk group-hover:text-cyan-climb'
               }`}>
                 Boulder Gym
               </h2>
-              <p className={`text-xs md:text-sm font-light ${
-                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-              }`}>
-                Direktori climbing gym, fasilitas modern, dan live kuota sesi
-              </p>
-            </div>
-            <Link
-              href="/gyms"
-              className={`text-xs font-semibold hover:underline flex items-center gap-1 flex-shrink-0 touch-ripple ${
-                isSandstone ? 'text-[#1a1815]' : 'text-cyan-climb'
-              }`}
-            >
-              <span>Lihat Semua</span>
-              <ChevronRight size={14} />
             </Link>
+            <p className={`text-xs md:text-sm font-light mt-0.5 ${
+              isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+            }`}>
+              Direktori climbing gym, fasilitas modern, dan live kuota sesi
+            </p>
           </div>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
@@ -238,10 +220,10 @@ export default function HomePage() {
             {gyms.map(gym => (
               <div
                 key={gym.id}
-                className={`w-72 md:w-auto flex-shrink-0 rounded-2xl overflow-hidden transition-all flex flex-col justify-between group shadow-lg ${
+                className={`w-72 md:w-auto flex-shrink-0 rounded-2xl overflow-hidden transition-all flex flex-col justify-between group ${
                   isSandstone
-                    ? 'bg-[#e3d8c5] border border-[#1a1815]/15 hover:border-[#1a1815]/35 text-[#1a1815]'
-                    : 'bg-crag border border-white/5 hover:border-cyan-climb/40 shadow-xl text-chalk'
+                    ? 'bg-transparent border border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
+                    : 'bg-transparent border border-white/10 hover:border-cyan-climb/40 text-chalk'
                 }`}
               >
                 <div>
@@ -250,7 +232,7 @@ export default function HomePage() {
                     style={{ backgroundImage: `url(${gym.image})` }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                    <div className="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 text-xs">
+                    <div className="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/15 flex items-center gap-1 text-xs">
                       <Star size={11} className="text-lime fill-lime" />
                       <span className="font-bold text-chalk">{gym.rating}</span>
                     </div>
@@ -282,7 +264,7 @@ export default function HomePage() {
 
                     {/* Live Slot Bar */}
                     <div className={`p-2 rounded-xl border text-[11px] flex justify-between items-center font-light ${
-                      isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10 text-[#1a1815]' : 'bg-granite border-white/5 text-slate-ash'
+                      isSandstone ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]' : 'bg-transparent border-white/10 text-slate-ash'
                     }`}>
                       <span>Sore Kuota:</span>
                       <span className={`font-bold font-mono ${isSandstone ? 'text-[#1a1815]' : 'text-cyan-climb'}`}>
@@ -295,10 +277,10 @@ export default function HomePage() {
                 <div className="p-4 pt-0">
                   <Link
                     href={`/gyms/${gym.id}`}
-                    className={`w-full h-9 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-colors ${
+                    className={`w-full h-9 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-colors border ${
                       isSandstone
-                        ? 'bg-[#1a1815] text-[#d2c5ae] hover:bg-black shadow-sm'
-                        : 'bg-cyan-climb/10 border border-cyan-climb/30 hover:bg-cyan-climb/20 text-cyan-climb'
+                        ? 'bg-transparent border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
+                        : 'bg-transparent border-cyan-climb/60 hover:bg-cyan-climb/10 text-cyan-climb'
                     }`}
                   >
                     <span>Pesan Sesi Gym</span>
@@ -317,28 +299,19 @@ export default function HomePage() {
         {/* SECTION 3: CRAGS (Sesuai Sketsa: "Crags" + Cards)            */}
         {/* ============================================================ */}
         <section className="space-y-4">
-          <div className="flex items-end justify-between">
-            <div>
-              <h2 className={`text-2xl md:text-3xl font-bold tracking-tight ${
-                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+          <div>
+            <Link href="/beta" className="group inline-block">
+              <h2 className={`text-2xl md:text-3xl font-bold tracking-tight transition-colors ${
+                isSandstone ? 'text-[#1a1815] group-hover:opacity-75' : 'text-chalk group-hover:text-lime'
               }`}>
                 Crags
               </h2>
-              <p className={`text-xs md:text-sm font-light ${
-                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-              }`}>
-                Destinasi tebing alam, formasi karst, dan akses pemanjatan outdoor
-              </p>
-            </div>
-            <Link
-              href="/beta"
-              className={`text-xs font-semibold hover:underline flex items-center gap-1 flex-shrink-0 touch-ripple ${
-                isSandstone ? 'text-[#1a1815]' : 'text-project'
-              }`}
-            >
-              <span>Jelajahi Topo</span>
-              <ChevronRight size={14} />
             </Link>
+            <p className={`text-xs md:text-sm font-light mt-0.5 ${
+              isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+            }`}>
+              Destinasi tebing alam, formasi karst, dan akses pemanjatan outdoor
+            </p>
           </div>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3 cols */}
@@ -393,28 +366,19 @@ export default function HomePage() {
         {/* SECTION 4: PROBLEMS (Sesuai Sketsa: "Problems" + Cards)      */}
         {/* ============================================================ */}
         <section className="space-y-4">
-          <div className="flex items-end justify-between">
-            <div>
-              <h2 className={`text-2xl md:text-3xl font-bold tracking-tight ${
-                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+          <div>
+            <Link href="/beta" className="group inline-block">
+              <h2 className={`text-2xl md:text-3xl font-bold tracking-tight transition-colors ${
+                isSandstone ? 'text-[#1a1815] group-hover:opacity-75' : 'text-chalk group-hover:text-lime'
               }`}>
                 Problems
               </h2>
-              <p className={`text-xs md:text-sm font-light ${
-                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-              }`}>
-                Katalog jalur tebing: Sport Climbing, Multi Pitch, dan Bouldering
-              </p>
-            </div>
-            <Link
-              href="/beta"
-              className={`text-xs font-semibold hover:underline flex items-center gap-1 flex-shrink-0 touch-ripple ${
-                isSandstone ? 'text-[#1a1815]' : 'text-lime'
-              }`}
-            >
-              <span>Buka Beta Book</span>
-              <ChevronRight size={14} />
             </Link>
+            <p className={`text-xs md:text-sm font-light mt-0.5 ${
+              isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+            }`}>
+              Katalog jalur tebing: Sport Climbing, Multi Pitch, dan Bouldering
+            </p>
           </div>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
@@ -427,10 +391,10 @@ export default function HomePage() {
                 <Link
                   key={problem.id}
                   href="/beta"
-                  className={`w-72 md:w-auto flex-shrink-0 rounded-2xl p-4 transition-all flex flex-col justify-between group shadow-lg ${
+                  className={`w-72 md:w-auto flex-shrink-0 rounded-2xl p-4 transition-all flex flex-col justify-between group ${
                     isSandstone
-                      ? 'bg-[#e3d8c5] border border-[#1a1815]/15 hover:border-[#1a1815]/35 text-[#1a1815]'
-                      : 'bg-crag border border-white/5 hover:border-lime/30 hover:bg-crag-light shadow-xl text-chalk'
+                      ? 'bg-transparent border border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
+                      : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
                   }`}
                 >
                   <div className="space-y-3">
@@ -438,29 +402,29 @@ export default function HomePage() {
                     <div className="flex items-center justify-between">
                       {discipline === 'sport' && (
                         <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${
-                          isSandstone ? 'bg-[#1a1815]/10 text-[#1a1815] border-[#1a1815]/20' : 'bg-lime/10 text-lime border-lime/20'
+                          isSandstone ? 'bg-transparent text-[#1a1815] border-[#1a1815]/30' : 'bg-transparent text-lime border-lime/40'
                         }`}>
                           <Mountain size={10} /> SPORT · {problem.pitchLength || '24m'}
                         </span>
                       )}
                       {discipline === 'multipitch' && (
                         <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${
-                          isSandstone ? 'bg-[#1a1815]/10 text-[#1a1815] border-[#1a1815]/20' : 'bg-project/10 text-project border-project/20'
+                          isSandstone ? 'bg-transparent text-[#1a1815] border-[#1a1815]/30' : 'bg-transparent text-project border-project/40'
                         }`}>
                           <Layers size={10} /> MULTI PITCH · {problem.totalPitches || 4}P
                         </span>
                       )}
                       {discipline === 'bouldering' && (
                         <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${
-                          isSandstone ? 'bg-[#1a1815]/10 text-[#1a1815] border-[#1a1815]/20' : 'bg-cyan-climb/10 text-cyan-climb border-cyan-climb/20'
+                          isSandstone ? 'bg-transparent text-[#1a1815] border-[#1a1815]/30' : 'bg-transparent text-cyan-climb border-cyan-climb/40'
                         }`}>
                           <Compass size={10} /> BOULDER · {problem.grade}
                         </span>
                       )}
 
                       <div
-                        className="px-2 py-0.5 rounded-md font-bold font-mono text-xs"
-                        style={{ backgroundColor: gradeColor + '20', color: gradeColor }}
+                        className="px-2 py-0.5 rounded-md font-bold font-mono text-xs border"
+                        style={{ borderColor: gradeColor, color: gradeColor, backgroundColor: 'transparent' }}
                       >
                         {problem.grade}
                       </div>
