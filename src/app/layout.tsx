@@ -4,7 +4,6 @@ import { ThemeProvider } from '@/lib/theme-context'
 import { AuthProvider } from '@/lib/auth-context'
 import AppLayoutShell from '@/components/shell/AppLayoutShell'
 import AuthModal from '@/components/auth/AuthModal'
-import RoleSwitcher from '@/components/auth/RoleSwitcher'
 
 export const metadata: Metadata = {
   title: 'ClimbHub Indonesia — Bouldering & Climbing Community',
@@ -34,9 +33,6 @@ export default function RootLayout({
 
             {/* Global Auth Modal for Login/Register gate */}
             <AuthModal />
-
-            {/* Interactive Role Switcher for Demo / Testing */}
-            <RoleSwitcher />
           </AuthProvider>
         </ThemeProvider>
       </body>
