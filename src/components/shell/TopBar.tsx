@@ -130,7 +130,7 @@ export default function TopBar({
               <img
                 src="/jalur-logo.png"
                 alt="Jalur"
-                className={`h-7 md:h-8 w-auto object-contain transition-transform group-hover:scale-105 ${
+                className={`h-9 md:h-11 max-h-12 w-auto object-contain transition-transform group-hover:scale-105 ${
                   isSandstone ? 'mix-blend-multiply' : 'invert mix-blend-screen'
                 }`}
               />
@@ -200,7 +200,7 @@ export default function TopBar({
                     <img
                       src="/jalur-logo.png"
                       alt="Jalur"
-                      className={`h-6 w-auto object-contain ${
+                      className={`h-7 md:h-8 w-auto object-contain ${
                         isSandstone ? 'mix-blend-multiply' : 'invert mix-blend-screen'
                       }`}
                     />
