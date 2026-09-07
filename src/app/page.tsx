@@ -172,7 +172,7 @@ export default function HomePage() {
                     </p>
 
                     <div className={`text-[11px] p-2 rounded-xl border font-light truncate ${
-                      isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10 text-[#1a1815]' : 'bg-granite border-white/5 text-slate-ash'
+                      isSandstone ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]' : 'bg-transparent border-white/10 text-slate-ash'
                     }`}>
                       🏟️ <span className="font-normal">{comm.homebase}</span>
                     </div>
@@ -184,7 +184,7 @@ export default function HomePage() {
                     href={comm.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 h-9 bg-[#25D366]/15 border border-[#25D366]/25 rounded-xl text-[#16a34a] text-xs font-medium flex items-center justify-center gap-1 hover:bg-[#25D366]/25 transition-colors"
+                    className="flex-1 h-9 bg-transparent border border-[#25D366] rounded-xl text-[#16a34a] dark:text-[#25D366] text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#25D366]/10 transition-colors"
                   >
                     <MessageCircle size={14} /> WhatsApp
                   </a>
@@ -192,7 +192,7 @@ export default function HomePage() {
                     href={comm.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 h-9 bg-pink-500/15 border border-pink-500/25 rounded-xl text-pink-600 text-xs font-medium flex items-center justify-center gap-1 hover:bg-pink-500/25 transition-colors"
+                    className="flex-1 h-9 bg-transparent border border-[#E1306C] rounded-xl text-[#E1306C] text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#E1306C]/10 transition-colors"
                   >
                     <Instagram size={14} /> Instagram
                   </a>
