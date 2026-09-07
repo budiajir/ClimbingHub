@@ -317,117 +317,62 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
         </div>
       )}
 
-      {/* Desktop Zoom controls */}
-      <div className="hidden md:flex absolute bottom-4 right-4 items-center gap-1.5 glass p-1.5 rounded-xl z-30">
-        <button
-          onClick={() => setScale((s) => Math.min(s + 0.25, 2.5))}
-          className="w-8 h-8 rounded-lg bg-crag flex items-center justify-center text-chalk hover:bg-crag-light transition-colors"
-          title="Zoom In"
-        >
-          <ZoomIn size={16} />
-        </button>
-        <button
-          onClick={() => setScale((s) => Math.max(s - 0.25, 1))}
-          className="w-8 h-8 rounded-lg bg-crag flex items-center justify-center text-chalk hover:bg-crag-light transition-colors"
-          title="Zoom Out"
-        >
-          <ZoomOut size={16} />
-        </button>
-        <button
-          onClick={() => setScale(1)}
-          className="w-8 h-8 rounded-lg bg-crag flex items-center justify-center text-chalk hover:bg-crag-light transition-colors"
-          title="Reset Zoom"
-        >
-          <RotateCcw size={14} />
-        </button>
-      </div>
+      {/* Bottom Overlay: Combined Info, Grade & Topo Legend */}
+      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 bg-gradient-to-t from-black/90 via-black/70 to-transparent z-20 space-y-2">
+        {/* Topo Legend & Grade Row (at bottom) */}
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          {/* Grade & Discipline Badge */}
+          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/15">
+            <div className="flex items-center gap-1 text-[10px] font-mono uppercase text-slate-ash">
+              {isSport && <Mountain size={11} className="text-lime" />}
+              {isMultiPitch && <Layers size={11} className="text-project" />}
+              {!isSport && !isMultiPitch && <Compass size={11} className="text-cyan-climb" />}
+              <span>{isMultiPitch ? 'MULTI PITCH' : isSport ? 'SPORT' : 'BOULDER'}</span>
+            </div>
+            <span className="text-white/30">|</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-lime text-base font-black">{problem.grade}</span>
+              <span className="text-slate-ash text-[11px] font-bold">/ {problem.fontGrade}</span>
+            </div>
+          </div>
 
-      {/* Topo Legend */}
-      {showLegend && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="absolute top-3 right-3 glass bg-black/70 backdrop-blur-md rounded-2xl p-3 border border-white/10 flex flex-col gap-2 z-30 max-w-[180px]"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-mono text-slate-ash uppercase tracking-wider">
-              Legenda Topo
-            </span>
-            <button
-              onClick={() => setShowLegend(false)}
-              className="text-slate-ash hover:text-chalk p-0.5"
-            >
-              <X size={12} />
-            </button>
-          </div>
-          <div className="flex items-center gap-2 text-[11px] text-chalk font-light">
-            <span className="w-5 h-5 rounded-full bg-lime text-granite flex items-center justify-center font-bold text-[10px]">
-              S
-            </span>
-            <span>{isMultiPitch ? 'Dasar Jalur' : 'Titik Start'}</span>
-          </div>
-          {isSport && (
-            <div className="flex items-center gap-2 text-[11px] text-chalk font-light">
-              <span className="w-5 h-5 rounded-full bg-cyan-climb text-granite flex items-center justify-center font-bold text-[10px]">
-                B
-              </span>
-              <span>Baut (Bolt)</span>
+          {/* Compact Topo Legend Chips */}
+          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/15 text-[11px] text-chalk font-light">
+            <div className="flex items-center gap-1">
+              <span className="w-4 h-4 rounded-full bg-lime text-granite flex items-center justify-center font-bold text-[9px]">S</span>
+              <span className="text-[10px] text-slate-ash">{isMultiPitch ? 'Start' : 'Start'}</span>
             </div>
-          )}
-          {isMultiPitch && (
-            <div className="flex items-center gap-2 text-[11px] text-chalk font-light">
-              <span className="w-5 h-5 rounded-full bg-project text-chalk flex items-center justify-center font-bold text-[9px] font-mono">
-                P1..
-              </span>
-              <span>Stasiun Anchor</span>
+            {isSport && (
+              <div className="flex items-center gap-1">
+                <span className="w-4 h-4 rounded-full bg-cyan-climb text-granite flex items-center justify-center font-bold text-[9px]">B</span>
+                <span className="text-[10px] text-slate-ash">Bolt</span>
+              </div>
+            )}
+            {!isSport && !isMultiPitch && (
+              <div className="flex items-center gap-1">
+                <span className="w-4 h-4 rounded-full bg-cyan-climb text-granite flex items-center justify-center font-bold text-[9px]">Z</span>
+                <span className="text-[10px] text-slate-ash">Crux</span>
+              </div>
+            )}
+            {isMultiPitch && (
+              <div className="flex items-center gap-1">
+                <span className="w-4 h-4 rounded-full bg-project text-white flex items-center justify-center font-bold text-[8px]">P</span>
+                <span className="text-[10px] text-slate-ash">Anchor</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1">
+              <span className="w-4 h-4 rounded-full bg-redpoint text-white flex items-center justify-center font-bold text-[9px]">T</span>
+              <span className="text-[10px] text-slate-ash">{isMultiPitch ? 'Summit' : 'Top'}</span>
             </div>
-          )}
-          {!isSport && !isMultiPitch && (
-            <div className="flex items-center gap-2 text-[11px] text-chalk font-light">
-              <span className="w-5 h-5 rounded-full bg-cyan-climb text-granite flex items-center justify-center font-bold text-[10px]">
-                Z
-              </span>
-              <span>Crux / Zone</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2 text-[11px] text-chalk font-light">
-            <span className="w-5 h-5 rounded-full bg-redpoint text-white flex items-center justify-center font-bold text-[10px]">
-              T
-            </span>
-            <span>{isMultiPitch ? 'Puncak (Summit)' : 'Top Out'}</span>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Grade & Discipline Pill — top left */}
-      <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-30">
-        <div className="glass bg-black/70 backdrop-blur-md rounded-2xl p-2.5 md:p-3 border border-white/10">
-          <div className="text-[9px] font-mono text-slate-ash uppercase tracking-widest mb-1 flex items-center gap-1.5">
-            {isSport && <Mountain size={11} className="text-lime" />}
-            {isMultiPitch && <Layers size={11} className="text-project" />}
-            {!isSport && !isMultiPitch && <Compass size={11} className="text-cyan-climb" />}
-            <span>
-              {isMultiPitch
-                ? `MULTI PITCH (${problem.totalPitches || 4} PITCHES)`
-                : isSport
-                ? 'SPORT CLIMBING'
-                : 'BOULDERING'}
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-lime text-xl md:text-2xl font-black">{problem.grade}</span>
-            <span className="text-slate-ash text-xs md:text-sm font-bold">/ {problem.fontGrade}</span>
           </div>
         </div>
-      </div>
 
-      {/* Problem name or Multi-Pitch Active Info Card — bottom overlay */}
-      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5 bg-gradient-to-t from-granite via-granite/85 to-transparent z-20">
+        {/* Route Title & Multi-pitch info */}
         {isMultiPitch && activePitch ? (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-crag/95 border border-project/50 rounded-2xl p-3 md:p-3.5 backdrop-blur-md flex items-start justify-between gap-3 shadow-2xl"
+            className="bg-crag/95 border border-project/50 rounded-2xl p-3 backdrop-blur-md flex items-start justify-between gap-3 shadow-2xl"
           >
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -458,11 +403,37 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
             </button>
           </motion.div>
         ) : (
-          <div>
-            <div className="text-[10px] font-mono text-slate-ash uppercase tracking-widest mb-0.5">
-              Jalur Pemanjatan Terpetakan
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-[10px] font-mono text-slate-ash uppercase tracking-widest">
+                Jalur Pemanjatan Terpetakan
+              </div>
+              <h2 className="text-chalk font-black text-lg md:text-2xl leading-tight">{problem.name}</h2>
             </div>
-            <h2 className="text-chalk font-black text-lg md:text-2xl">{problem.name}</h2>
+            {/* Desktop Zoom buttons */}
+            <div className="hidden md:flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/15">
+              <button
+                onClick={() => setScale((s) => Math.min(s + 0.25, 2.5))}
+                className="w-7 h-7 rounded-lg bg-crag flex items-center justify-center text-chalk hover:bg-crag-light transition-colors"
+                title="Zoom In"
+              >
+                <ZoomIn size={14} />
+              </button>
+              <button
+                onClick={() => setScale((s) => Math.max(s - 0.25, 1))}
+                className="w-7 h-7 rounded-lg bg-crag flex items-center justify-center text-chalk hover:bg-crag-light transition-colors"
+                title="Zoom Out"
+              >
+                <ZoomOut size={14} />
+              </button>
+              <button
+                onClick={() => setScale(1)}
+                className="w-7 h-7 rounded-lg bg-crag flex items-center justify-center text-chalk hover:bg-crag-light transition-colors"
+                title="Reset Zoom"
+              >
+                <RotateCcw size={13} />
+              </button>
+            </div>
           </div>
         )}
       </div>
