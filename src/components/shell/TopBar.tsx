@@ -395,6 +395,15 @@ export default function TopBar({
                     Aksi Cepat
                   </span>
 
+                  {role === 'gym_admin' && (
+                    <button
+                      onClick={() => handleNavClick('/admin')}
+                      className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold border border-cyan-500/40 text-cyan-500 hover:bg-cyan-500/10 transition-colors"
+                    >
+                      <Store size={14} /> Buka Dashboard POS Kasir Gym
+                    </button>
+                  )}
+
                   <button
                     onClick={() => handleNavClick('/beta')}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
@@ -419,82 +428,6 @@ export default function TopBar({
                     <span>Catat Log Ascent</span>
                   </button>
                 </div>
-              </div>
-
-              {/* Drawer Bottom: User Profile / Auth Area */}
-              <div className="pt-4 border-t border-black/10 dark:border-white/10 space-y-2 mt-4">
-                {role === 'gym_admin' && (
-                  <button
-                    onClick={() => handleNavClick('/admin')}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold border border-cyan-500/40 text-cyan-500 hover:bg-cyan-500/10 transition-colors"
-                  >
-                    <Store size={14} /> Buka Dashboard POS Kasir Gym
-                  </button>
-                )}
-
-                {role === 'super_admin' && (
-                  <div className={`p-2.5 rounded-xl border text-[11px] font-medium flex items-center gap-2 ${
-                    isSandstone ? 'border-[#1a1815]/20 text-[#1a1815]' : 'border-lime/30 text-lime'
-                  }`}>
-                    <Crown size={14} />
-                    <span>Mode Pemilik Web: Akses penuh verifikasi & kurasi jalur</span>
-                  </div>
-                )}
-
-                {role === 'guest' ? (
-                  <button
-                    onClick={() => {
-                      setShowDrawer(false)
-                      openAuthModal('Silakan masuk untuk mengakses profil dan logbook Anda.')
-                    }}
-                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs transition-all border ${
-                      isSandstone
-                        ? 'border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
-                        : 'border-lime text-lime hover:bg-lime/10'
-                    }`}
-                  >
-                    <LogIn size={15} />
-                    <span>Masuk / Daftar Akun</span>
-                  </button>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-xl border flex items-center justify-center overflow-hidden ${
-                        isSandstone ? 'border-[#1a1815]/20 text-[#1a1815]' : 'border-white/15 text-chalk'
-                      }`}>
-                        {user?.avatar ? (
-                          <img src={user.avatar} alt="User" className="w-full h-full object-cover" />
-                        ) : role === 'super_admin' ? (
-                          <Crown size={18} className="text-lime" />
-                        ) : role === 'gym_admin' ? (
-                          <Store size={18} className="text-project" />
-                        ) : (
-                          <User size={18} />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="font-bold text-xs truncate">{user?.name || 'Climber'}</div>
-                        <div className="text-[10px] opacity-70 truncate">
-                          {role === 'super_admin'
-                            ? '👑 Pemilik Web / Kurator'
-                            : role === 'gym_admin'
-                              ? `🏢 ${gymTenant?.name || 'Admin POS'}`
-                              : user?.handle || 'Climber'}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        logout()
-                        setShowDrawer(false)
-                      }}
-                      className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-medium text-redpoint hover:bg-redpoint/10 transition-colors border border-redpoint/30"
-                    >
-                      <LogOut size={13} /> Reset ke Guest
-                    </button>
-                  </div>
-                )}
               </div>
             </motion.div>
           </div>
