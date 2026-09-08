@@ -196,18 +196,44 @@ export default function TopBar({
               {/* Drawer Top Header: Logo, Theme Switcher, Close X */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src="/jalur-logo.png"
-                      alt="Jalur"
-                      className={`h-7 md:h-8 w-auto object-contain ${
-                        isSandstone ? 'mix-blend-multiply' : 'invert mix-blend-screen'
+                  {/* Left: User Account Info */}
+                  <button
+                    onClick={() => {
+                      if (role === 'guest') {
+                        setShowDrawer(false)
+                        openAuthModal('Silakan masuk atau daftar akun.')
+                      }
+                    }}
+                    className="flex items-center gap-2.5 text-left group min-w-0 mr-2"
+                    title={role === 'guest' ? 'Klik untuk Masuk / Daftar' : 'Profil Akun'}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-xl border flex items-center justify-center overflow-hidden flex-shrink-0 transition-transform group-hover:scale-105 ${
+                        isSandstone ? 'border-[#1a1815]/30 text-[#1a1815] bg-black/5' : 'border-white/20 text-chalk bg-white/5'
                       }`}
-                    />
-                  </div>
+                    >
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="User" className="w-full h-full object-cover" />
+                      ) : role === 'super_admin' ? (
+                        <Crown size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+                      ) : role === 'gym_admin' ? (
+                        <Store size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-project'} />
+                      ) : (
+                        <User size={15} />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-bold text-xs block leading-tight truncate group-hover:underline">
+                        {role === 'guest' ? 'Akun Tamu' : user?.name || 'Climber'}
+                      </span>
+                      <span className="text-[9px] font-mono uppercase tracking-wider opacity-60 block truncate">
+                        {role === 'guest' ? 'Klik utk Masuk' : role === 'super_admin' ? '👑 Super Admin' : role === 'gym_admin' ? '🏢 Gym Admin' : '🧗 Climber'}
+                      </span>
+                    </div>
+                  </button>
 
-                  <div className="flex items-center gap-2">
-                    {/* Theme Switcher */}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {/* Theme Switcher: Granite / Sandstone */}
                     <button
                       onClick={toggleTheme}
                       className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border ${
@@ -215,12 +241,12 @@ export default function TopBar({
                           ? 'border-[#1a1815]/30 bg-transparent text-[#1a1815] hover:bg-[#1a1815]/10'
                           : 'border-white/15 bg-transparent text-chalk hover:bg-white/10'
                       }`}
-                      title="Ganti Tema (Sandstone / Dark)"
+                      title="Ganti Tema (Sandstone / Granite)"
                     >
                       {isSandstone ? (
                         <>
                           <Moon size={13} />
-                          <span>Dark</span>
+                          <span>Granite</span>
                         </>
                       ) : (
                         <>
@@ -233,13 +259,14 @@ export default function TopBar({
                     {/* Close Button */}
                     <button
                       onClick={() => setShowDrawer(false)}
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
                         isSandstone
                           ? 'hover:bg-[#1a1815]/10 text-[#1a1815]'
                           : 'hover:bg-white/10 text-chalk'
                       }`}
+                      aria-label="Tutup Menu"
                     >
-                      <X size={20} strokeWidth={2.2} />
+                      <X size={18} strokeWidth={2.2} />
                     </button>
                   </div>
                 </div>

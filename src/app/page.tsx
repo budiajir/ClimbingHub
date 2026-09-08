@@ -71,7 +71,7 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <span className={`w-2.5 h-2.5 rounded-full ${isSandstone ? 'bg-[#d95338]' : 'bg-lime'}`} />
             <span className={`text-xs font-medium tracking-wide ${isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'}`}>
-              {isSandstone ? 'Mode Topo Guidebook (Sandstone) Aktif' : 'Mode Dark Granite Aktif'}
+              {isSandstone ? 'Mode Topo Guidebook (Sandstone) Aktif' : 'Mode Granite Aktif'}
             </span>
           </div>
           <button
@@ -82,7 +82,7 @@ export default function HomePage() {
                 : 'bg-transparent border-lime/40 text-lime hover:border-lime'
             }`}
           >
-            <span>{isSandstone ? 'Ganti ke 🌑 Dark' : 'Ganti ke 📜 Sandstone'}</span>
+            <span>{isSandstone ? 'Ganti ke 🌑 Granite' : 'Ganti ke 📜 Sandstone'}</span>
           </button>
         </div>
       </div>

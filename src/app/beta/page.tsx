@@ -381,11 +381,11 @@ function BetaPageContent() {
             <div className="flex items-center gap-2">
               <button
                 onClick={toggleTheme}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
-                  isSandstone ? 'bg-[#1a1815]/10 text-[#1a1815]' : 'bg-crag text-chalk'
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
+                  isSandstone ? 'bg-[#1a1815]/10 text-[#1a1815]' : 'bg-crag text-chalk border border-white/10'
                 }`}
               >
-                {isSandstone ? '📜 Sandstone' : '🌑 Dark'}
+                {isSandstone ? '📜 Sandstone' : '🌑 Granite'}
               </button>
 
               {level === 'topo' && (
