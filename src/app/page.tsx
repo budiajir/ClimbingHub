@@ -27,7 +27,7 @@ import { useTheme } from '@/lib/theme-context'
 
 export default function HomePage() {
   const { role, openAuthModal } = useAuth()
-  const { isSandstone, toggleTheme } = useTheme()
+  const { isSandstone } = useTheme()
   const [showLogModal, setShowLogModal] = useState(false)
   const { gyms } = useGyms()
   const { cragRegions } = useCragRegions()
@@ -58,34 +58,8 @@ export default function HomePage() {
     <div className={`pb-16 md:pb-24 transition-colors duration-300 ${
       isSandstone ? 'bg-[#d2c5ae] text-[#1a1815]' : 'bg-[#12161A] text-chalk'
     }`}>
-      {/* 1. TOP HERO BANNER (Clean, Polos Judul ClimbingHub Indonesia di atas foto tebing) */}
+      {/* 1. TOP HERO BANNER (Clean, Polos Judul Jalur di atas foto tebing) */}
       <HeroBanner />
-
-      {/* QUICK THEME TOGGLE BANNER */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-4">
-        <div className={`p-3 rounded-2xl border flex items-center justify-between transition-colors ${
-          isSandstone
-            ? 'bg-white/40 border-[#1a1815]/15 text-[#1a1815]'
-            : 'bg-crag/80 border-white/5 text-chalk'
-        }`}>
-          <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${isSandstone ? 'bg-[#d95338]' : 'bg-lime'}`} />
-            <span className={`text-xs font-medium tracking-wide ${isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'}`}>
-              {isSandstone ? 'Mode Topo Guidebook (Sandstone) Aktif' : 'Mode Granite Aktif'}
-            </span>
-          </div>
-          <button
-            onClick={toggleTheme}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-medium transition-all touch-ripple border ${
-              isSandstone
-                ? 'bg-transparent border-[#1a1815]/30 text-[#1a1815] hover:border-[#1a1815]'
-                : 'bg-transparent border-lime/40 text-lime hover:border-lime'
-            }`}
-          >
-            <span>{isSandstone ? 'Ganti ke 🌑 Granite' : 'Ganti ke 📜 Sandstone'}</span>
-          </button>
-        </div>
-      </div>
 
       {/* MAIN VERTICAL FEED ACCORDING TO USER SKETCH */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 space-y-10 md:space-y-14 pt-6 md:pt-8">
