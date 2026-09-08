@@ -52,9 +52,10 @@ function BetaPageContent() {
     const regionParam = searchParams.get('region') || searchParams.get('crag')
 
     if (problemParam) {
+      const pParam = problemParam.toLowerCase()
       for (const reg of regions) {
         for (const sec of reg.sectors) {
-          const match = sec.problems.find(p => p.id === problemParam)
+          const match = sec.problems.find(p => p.id.toLowerCase() === pParam || p.name.toLowerCase() === pParam)
           if (match) {
             setSelectedRegion(reg.id)
             setSelectedSector(sec.id)
@@ -66,8 +67,9 @@ function BetaPageContent() {
         }
       }
     } else if (sectorParam) {
+      const sParam = sectorParam.toLowerCase()
       for (const reg of regions) {
-        const secMatch = reg.sectors.find(s => s.id === sectorParam)
+        const secMatch = reg.sectors.find(s => s.id.toLowerCase() === sParam || s.name.toLowerCase() === sParam)
         if (secMatch) {
           setSelectedRegion(reg.id)
           setSelectedSector(secMatch.id)
@@ -76,7 +78,8 @@ function BetaPageContent() {
         }
       }
     } else if (regionParam) {
-      const regMatch = regions.find(r => r.id === regionParam)
+      const rParam = regionParam.toLowerCase()
+      const regMatch = regions.find(r => r.id.toLowerCase() === rParam || r.name.toLowerCase() === rParam || r.id.toLowerCase().includes(rParam) || rParam.includes(r.id.toLowerCase()))
       if (regMatch) {
         setSelectedRegion(regMatch.id)
         setLevel('sectors')

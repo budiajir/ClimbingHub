@@ -28,7 +28,7 @@ export default function CragFeed() {
             transition={{ delay: i * 0.1 }}
             className="flex-shrink-0 w-52 md:w-auto"
           >
-            <Link href={`/beta?crag=${crag.id}`}>
+            <Link href={`/beta?region=${crag.id}`}>
               <div className="relative h-72 md:h-80 rounded-2xl overflow-hidden touch-ripple group hover:shadow-card-hover transition-all border border-white/10">
                 {/* Full-frame image — No gradient */}
                 <div
