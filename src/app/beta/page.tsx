@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info } from 'lucide-react'
 import { Problem, CragRegion, RouteDiscipline } from '@/lib/mock-data'
@@ -17,7 +18,8 @@ import { useTheme } from '@/lib/theme-context'
 
 type ViewLevel = 'regions' | 'sectors' | 'problems' | 'topo'
 
-export default function BetaPage() {
+function BetaPageContent() {
+  const searchParams = useSearchParams()
   const { role, openAuthModal } = useAuth()
   const { cragRegions, loading: cragsLoading } = useCragRegions()
   const { isSandstone, toggleTheme } = useTheme()
@@ -40,6 +42,47 @@ export default function BetaPage() {
       setRegions(cragRegions)
     }
   }, [cragRegions])
+
+  // Handle URL deep linking (e.g. /beta?region=...&sector=...&problem=...)
+  useEffect(() => {
+    if (!regions || regions.length === 0) return
+
+    const problemParam = searchParams.get('problem') || searchParams.get('id')
+    const sectorParam = searchParams.get('sector')
+    const regionParam = searchParams.get('region') || searchParams.get('crag')
+
+    if (problemParam) {
+      for (const reg of regions) {
+        for (const sec of reg.sectors) {
+          const match = sec.problems.find(p => p.id === problemParam)
+          if (match) {
+            setSelectedRegion(reg.id)
+            setSelectedSector(sec.id)
+            setSelectedProblem(match.id)
+            setLevel('topo')
+            setShowSheet(true)
+            return
+          }
+        }
+      }
+    } else if (sectorParam) {
+      for (const reg of regions) {
+        const secMatch = reg.sectors.find(s => s.id === sectorParam)
+        if (secMatch) {
+          setSelectedRegion(reg.id)
+          setSelectedSector(secMatch.id)
+          setLevel('problems')
+          return
+        }
+      }
+    } else if (regionParam) {
+      const regMatch = regions.find(r => r.id === regionParam)
+      if (regMatch) {
+        setSelectedRegion(regMatch.id)
+        setLevel('sectors')
+      }
+    }
+  }, [searchParams, regions])
 
   const triggerLogAscent = () => {
     if (!canLogAscent(role)) {
@@ -972,5 +1015,13 @@ export default function BetaPage() {
       </AnimatePresence>
       </div>
     </div>
+  )
+}
+
+export default function BetaPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Mountain className="animate-spin text-lime" size={32} /></div>}>
+      <BetaPageContent />
+    </Suspense>
   )
 }

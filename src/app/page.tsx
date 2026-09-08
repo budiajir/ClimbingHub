@@ -46,6 +46,8 @@ export default function HomePage() {
     r.sectors.flatMap(s =>
       s.problems.map(p => ({
         ...p,
+        regionId: r.id,
+        sectorId: s.id,
         cragName: r.name,
         sectorName: s.name,
       }))
@@ -319,7 +321,7 @@ export default function HomePage() {
             {cragRegions.map(crag => (
               <Link
                 key={crag.id}
-                href="/beta"
+                href={`/beta?region=${crag.id}`}
                 className="w-72 md:w-auto flex-shrink-0 group block"
               >
                 <div className="relative h-48 md:h-56 rounded-2xl overflow-hidden border border-white/10 group-hover:border-project/40 transition-all shadow-xl">
@@ -389,7 +391,7 @@ export default function HomePage() {
               return (
                 <Link
                   key={problem.id}
-                  href="/beta"
+                  href={`/beta?region=${problem.regionId}&sector=${problem.sectorId}&problem=${problem.id}`}
                   className={`w-72 md:w-auto flex-shrink-0 rounded-2xl p-4 transition-all flex flex-col justify-between group ${
                     isSandstone
                       ? 'bg-transparent border border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
