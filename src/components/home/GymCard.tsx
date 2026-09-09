@@ -56,14 +56,14 @@ export default function GymCard() {
                   />
 
                   {/* Rating badge */}
-                  <div className="absolute top-3 right-3 glass bg-black/60 backdrop-blur-md rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/10">
+                  <div className="absolute top-3 right-3 bg-black/60 rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/10">
                     <Star size={11} className="text-lime fill-lime" />
                     <span className="text-chalk text-xs font-bold">{gym.rating}</span>
                     <span className="text-slate-ash text-[10px] font-light">({gym.reviewCount})</span>
                   </div>
 
                   {/* City badge */}
-                  <div className="absolute top-3 left-3 glass bg-black/60 backdrop-blur-md rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/10">
+                  <div className="absolute top-3 left-3 bg-black/60 rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/10">
                     <MapPin size={10} className="text-slate-ash" />
                     <span className="text-chalk text-[10px] font-light">{gym.city}</span>
                   </div>
@@ -92,10 +92,6 @@ export default function GymCard() {
                         <div className="flex items-center gap-1">
                           <span className="text-slate-ash text-[10px] font-light">Afternoon</span>
                           <SlotBadge remaining={gym.slots.afternoon} total={gym.maxSlots.afternoon} />
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-slate-ash text-[10px] font-light">Evening</span>
-                          <SlotBadge remaining={gym.slots.evening} total={gym.maxSlots.evening} />
                         </div>
                       </div>
                     </div>

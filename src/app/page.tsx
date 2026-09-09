@@ -99,10 +99,9 @@ export default function HomePage() {
                     className="h-36 bg-cover bg-center relative"
                     style={{ backgroundImage: `url(${comm.image})` }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                     <div className="absolute top-2.5 right-2.5 flex gap-1">
                       {comm.tags.slice(0, 2).map(tag => (
-                        <span key={tag} className="text-[9px] bg-black/60 backdrop-blur-sm border border-white/20 px-2 py-0.5 rounded-md text-chalk uppercase font-light">
+                        <span key={tag} className="text-[9px] bg-black/60 border border-white/20 px-2 py-0.5 rounded-md text-chalk uppercase font-light">
                           {tag}
                         </span>
                       ))}
@@ -207,8 +206,7 @@ export default function HomePage() {
                     className="h-36 bg-cover bg-center relative"
                     style={{ backgroundImage: `url(${gym.image})` }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                    <div className="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/15 flex items-center gap-1 text-xs">
+                    <div className="absolute top-2.5 right-2.5 bg-black/60 px-2 py-0.5 rounded-lg border border-white/15 flex items-center gap-1 text-xs">
                       <Star size={11} className="text-lime fill-lime" />
                       <span className="font-bold text-chalk">{gym.rating}</span>
                     </div>
@@ -238,15 +236,6 @@ export default function HomePage() {
                       </span>
                     </div>
 
-                    {/* Live Slot Bar */}
-                    <div className={`p-2 rounded-xl border text-[11px] flex justify-between items-center font-light ${
-                      isSandstone ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]' : 'bg-transparent border-white/10 text-slate-ash'
-                    }`}>
-                      <span>Evening Slots:</span>
-                      <span className={`font-bold font-mono ${isSandstone ? 'text-[#1a1815]' : 'text-cyan-climb'}`}>
-                        {gym.slots.evening} / {gym.maxSlots.evening} Slots Left
-                      </span>
-                    </div>
                   </div>
                 </div>
 
@@ -290,45 +279,69 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Mobile: Horizontal scrollable cards / Desktop: 3 cols */}
-          <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+          {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
+          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
             {cragRegions.map(crag => (
               <Link
                 key={crag.id}
                 href={`/beta?region=${crag.id}`}
-                className="w-72 md:w-auto flex-shrink-0 group block"
+                className={`w-72 md:w-auto flex-shrink-0 rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border ${
+                  isSandstone
+                    ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
+                    : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
+                }`}
               >
-                <div className="relative h-48 md:h-56 rounded-2xl overflow-hidden border border-white/10 group-hover:border-project/40 transition-all shadow-xl">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${crag.image})` }}
-                  />
-                  <div className="absolute inset-0 bg-black/40" />
-
-                  {/* Top Badge */}
-                  <div className="absolute top-3 left-3 right-3 flex justify-between items-center text-[10px] font-light">
-                    <span className="glass bg-black/60 px-2.5 py-1 rounded-md text-white border border-white/10 uppercase">
-                      {crag.province}
-                    </span>
-                    <span className="glass bg-black/60 px-2.5 py-1 rounded-md text-lime border border-lime/30 font-bold uppercase">
-                      {crag.sectorCount} Sectors
-                    </span>
+                <div>
+                  <div className="h-36 md:h-40 overflow-hidden relative">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                      style={{ backgroundImage: `url(${crag.image})` }}
+                    />
                   </div>
 
-                  {/* Bottom Info */}
-                  <div className="absolute bottom-3 left-3 right-3 p-3.5 glass bg-black/60 backdrop-blur-md rounded-xl border border-white/15">
-                    <h3 className="text-chalk font-bold text-lg group-hover:text-lime transition-colors leading-tight">
-                      {crag.name}
-                    </h3>
-                    <div className="flex items-center justify-between text-xs mt-1">
-                      <span className="text-white/80 font-light">
-                        {crag.problemCount} Verified Problems
-                      </span>
-                      <span className="text-lime font-bold flex items-center gap-0.5">
-                        View Topo <ChevronRight size={13} />
+                  <div className="p-4 space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className={`font-bold text-base transition-colors ${
+                          isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
+                        }`}>
+                          {crag.name}
+                        </h3>
+                        <div className={`flex items-center gap-1 text-xs font-light ${
+                          isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                        }`}>
+                          <MapPin size={11} />
+                          <span>{crag.province}</span>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        isSandstone ? 'border-[#1a1815]/30 text-[#1a1815]' : 'border-lime/40 text-lime'
+                      }`}>
+                        {crag.sectorCount} Sectors
                       </span>
                     </div>
+
+                    <p className={`text-xs font-light line-clamp-2 leading-relaxed ${
+                      isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
+                    }`}>
+                      {crag.description || `Premier outdoor bouldering destination in ${crag.province} with ${crag.sectorCount} verified sectors.`}
+                    </p>
                   </div>
+                </div>
+
+                <div className={`p-4 pt-0 flex items-center justify-between text-xs border-t ${
+                  isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+                }`}>
+                  <span className={`font-light text-[11px] ${
+                    isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                  }`}>
+                    {crag.problemCount} Verified Problems
+                  </span>
+                  <span className={`font-bold flex items-center gap-0.5 ${
+                    isSandstone ? 'text-[#1a1815]' : 'text-lime'
+                  }`}>
+                    View Topo <ChevronRight size={13} />
+                  </span>
                 </div>
               </Link>
             ))}

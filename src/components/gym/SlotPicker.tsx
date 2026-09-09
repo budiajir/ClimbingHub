@@ -25,7 +25,6 @@ export interface BookingData {
 const sessions = [
   { key: 'morning' as const, label: 'Morning', time: '07:00 – 10:00', icon: '🌅' },
   { key: 'afternoon' as const, label: 'Afternoon', time: '11:00 – 14:00', icon: '☀️' },
-  { key: 'evening' as const, label: 'Evening', time: '15:00 – 20:00', icon: '🌆' },
 ]
 
 const addonItems = [

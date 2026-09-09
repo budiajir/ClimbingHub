@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin } from 'lucide-react'
 import { Problem, CragRegion, RouteDiscipline } from '@/lib/mock-data'
 import { useCragRegions, insertRoute, insertCragRegion, insertSector } from '@/lib/use-data'
 import { gradeColors } from '@/lib/tokens'
@@ -600,7 +600,7 @@ function BetaPageContent() {
                 </div>
               )}
 
-              {/* 3. CARD VIEW (Hero Full-Frame Cards) */}
+              {/* 3. CARD VIEW (Hero Clean Cards) */}
               {viewMode === 'card' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 my-4">
                   {displayedRegions.map((r, i) => (
@@ -613,39 +613,63 @@ function BetaPageContent() {
                         setSelectedRegion(r.id)
                         setLevel('sectors')
                       }}
-                      className="w-full text-left group"
+                      className={`w-full text-left rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border ${
+                        isSandstone
+                          ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
+                          : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
+                      }`}
                     >
-                      <div className="relative h-56 md:h-72 rounded-2xl overflow-hidden touch-ripple border border-white/10 group-hover:border-lime/30 transition-all">
-                        <div
-                          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                          style={{ backgroundImage: `url(${r.image})` }}
-                        />
-
-                        {/* Top Metadata */}
-                        <div className="absolute top-3 left-4 right-4 flex justify-between">
-                          <span className="text-[10px] font-light text-white/80 uppercase tracking-widest glass bg-black/50 px-2.5 py-1 rounded-md border border-white/10 backdrop-blur-md">
-                            {r.province}
-                          </span>
-                          <span className="text-[10px] font-light text-lime uppercase tracking-widest glass bg-black/50 px-2.5 py-1 rounded-md border border-lime/30 font-bold backdrop-blur-md">
-                            {r.sectorCount} SECTORS
-                          </span>
+                      <div>
+                        <div className="h-44 md:h-52 overflow-hidden relative w-full">
+                          <div
+                            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                            style={{ backgroundImage: `url(${r.image})` }}
+                          />
                         </div>
 
-                        {/* Bottom Metadata Glass Card */}
-                        <div className="absolute bottom-3 left-3 right-3 p-4 glass bg-black/50 backdrop-blur-md rounded-xl border border-white/15">
-                          <h2 className="text-chalk font-bold text-xl md:text-2xl mb-1 group-hover:text-lime transition-colors">
-                            {r.name}
-                          </h2>
-                          <div className="flex items-center justify-between">
+                        <div className="p-4 space-y-2">
+                          <div className="flex items-start justify-between">
                             <div>
-                              <span className="text-lime font-bold text-base">{r.problemCount}</span>
-                              <span className="text-white/60 text-[10px] uppercase ml-1.5 font-light">Routes & Boulders</span>
+                              <h2 className={`font-bold text-lg md:text-xl transition-colors ${
+                                isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
+                              }`}>
+                                {r.name}
+                              </h2>
+                              <div className={`flex items-center gap-1 text-xs font-light ${
+                                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                              }`}>
+                                <MapPin size={11} />
+                                <span>{r.province}</span>
+                              </div>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-lime/20 border border-lime/30 flex items-center justify-center group-hover:bg-lime group-hover:text-granite transition-colors">
-                              <ChevronRight size={18} className="text-lime group-hover:text-granite" />
-                            </div>
+                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                              isSandstone ? 'border-[#1a1815]/30 text-[#1a1815]' : 'border-lime/40 text-lime'
+                            }`}>
+                              {r.sectorCount} Sectors
+                            </span>
                           </div>
+
+                          <p className={`text-xs font-light line-clamp-2 leading-relaxed ${
+                            isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
+                          }`}>
+                            {(r as any).description || `Premier outdoor bouldering destination in ${r.province} with ${r.sectorCount} verified sectors.`}
+                          </p>
                         </div>
+                      </div>
+
+                      <div className={`p-4 pt-0 flex items-center justify-between text-xs border-t ${
+                        isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+                      }`}>
+                        <span className={`font-light text-[11px] ${
+                          isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                        }`}>
+                          {r.problemCount} Verified Problems
+                        </span>
+                        <span className={`font-bold flex items-center gap-0.5 ${
+                          isSandstone ? 'text-[#1a1815]' : 'text-lime'
+                        }`}>
+                          Open Guide <ChevronRight size={13} />
+                        </span>
                       </div>
                     </motion.button>
                   ))}
@@ -664,14 +688,26 @@ function BetaPageContent() {
             className="px-4 md:px-0 space-y-4"
           >
             <div>
-              <h2 className="text-chalk font-bold text-xl md:text-2xl">{region.name}</h2>
-              <p className="text-slate-ash text-xs font-light">Select a crag sector to view verified boulder problems</p>
+              <h2 className={`font-bold text-xl md:text-2xl ${
+                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+              }`}>
+                {region.name}
+              </h2>
+              <p className={`text-xs font-light ${
+                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+              }`}>
+                Select a crag sector to view verified boulder problems
+              </p>
             </div>
 
             {region.sectors.length === 0 ? (
-              <div className="bg-crag rounded-2xl p-12 text-center border border-white/5 space-y-3">
-                <Mountain size={36} className="text-slate-ash mx-auto" />
-                <p className="text-slate-ash text-sm font-light">Sectors for this crag are currently being mapped.</p>
+              <div className={`rounded-2xl p-12 text-center border space-y-3 ${
+                isSandstone ? 'bg-transparent border-[#1a1815]/20' : 'bg-crag border-white/5'
+              }`}>
+                <Mountain size={36} className={isSandstone ? 'text-[#1a1815]/40 mx-auto' : 'text-slate-ash mx-auto'} />
+                <p className={`text-sm font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                  Sectors for this crag are currently being mapped.
+                </p>
                 {canCreateCragRoute(role) && (
                   <button
                     onClick={() => setShowAddRouteModal(true)}
@@ -690,7 +726,11 @@ function BetaPageContent() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.08 }}
                     onClick={() => { setSelectedSector(s.id); setLevel('problems') }}
-                    className="w-full text-left bg-crag border border-white/5 rounded-2xl overflow-hidden touch-ripple hover:border-lime/30 transition-all group"
+                    className={`w-full text-left rounded-2xl overflow-hidden touch-ripple transition-all group border ${
+                      isSandstone
+                        ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
+                        : 'bg-crag border-white/5 hover:border-lime/30 text-chalk'
+                    }`}
                   >
                     <div
                       className="h-44 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
@@ -698,13 +738,23 @@ function BetaPageContent() {
                     />
                     <div className="p-4 flex items-center justify-between">
                       <div>
-                        <h3 className="text-chalk font-bold text-base group-hover:text-lime transition-colors">
+                        <h3 className={`font-bold text-base transition-colors ${
+                          isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
+                        }`}>
                           {s.name}
                         </h3>
-                        <p className="text-slate-ash text-xs font-light">{s.problems.length} Mapped Problems</p>
+                        <p className={`text-xs font-light ${
+                          isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                        }`}>
+                          {s.problems.length} Mapped Problems
+                        </p>
                       </div>
-                      <div className="w-8 h-8 rounded-full bg-granite border border-white/5 flex items-center justify-center group-hover:bg-lime group-hover:text-granite transition-colors">
-                        <ChevronRight size={16} className="text-slate-ash group-hover:text-granite" />
+                      <div className={`w-8 h-8 rounded-full border flex items-center justify-center transition-colors ${
+                        isSandstone
+                          ? 'border-[#1a1815]/20 text-[#1a1815] group-hover:bg-[#1a1815] group-hover:text-[#d2c5ae]'
+                          : 'bg-granite border-white/5 text-slate-ash group-hover:bg-lime group-hover:text-granite'
+                      }`}>
+                        <ChevronRight size={16} />
                       </div>
                     </div>
                   </motion.button>
@@ -725,8 +775,14 @@ function BetaPageContent() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-chalk font-bold text-xl md:text-2xl">{sector.name}</h2>
-                <p className="text-slate-ash text-xs font-light">
+                <h2 className={`font-bold text-xl md:text-2xl ${
+                  isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                }`}>
+                  {sector.name}
+                </h2>
+                <p className={`text-xs font-light ${
+                  isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                }`}>
                   Showing {filteredProblems.length} verified boulder problems
                 </p>
               </div>
@@ -742,16 +798,17 @@ function BetaPageContent() {
             </div>
 
             {filteredProblems.length === 0 ? (
-              <div className="bg-crag rounded-2xl p-10 text-center border border-white/5 space-y-2">
-                <Mountain size={32} className="text-slate-ash mx-auto" />
-                <p className="text-chalk text-sm font-bold">No boulder problems in this sector yet</p>
-                <p className="text-slate-ash text-xs font-light">Explore other sectors or submit a new problem.</p>
+              <div className={`rounded-2xl p-10 text-center border space-y-2 ${
+                isSandstone ? 'bg-transparent border-[#1a1815]/20' : 'bg-crag border-white/5'
+              }`}>
+                <Mountain size={32} className={isSandstone ? 'text-[#1a1815]/40 mx-auto' : 'text-slate-ash mx-auto'} />
+                <p className={`text-sm font-bold ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>No boulder problems in this sector yet</p>
+                <p className={`text-xs font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>Explore other sectors or submit a new problem.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {filteredProblems.map((p, i) => {
                   const gradeColor = gradeColors[p.grade] || '#94A3B8'
-                  const discipline = p.discipline || 'bouldering'
 
                   return (
                     <motion.button
@@ -760,7 +817,11 @@ function BetaPageContent() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.06 }}
                       onClick={() => { setSelectedProblem(p.id); setLevel('topo'); setShowSheet(true) }}
-                      className="w-full text-left bg-crag border border-white/5 rounded-2xl p-4 flex items-center gap-3.5 touch-ripple hover:bg-crag-light hover:border-lime/30 transition-all group relative overflow-hidden"
+                      className={`w-full text-left rounded-2xl p-4 flex items-center gap-3.5 touch-ripple transition-all group relative overflow-hidden border ${
+                        isSandstone
+                          ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
+                          : 'bg-crag border-white/5 hover:bg-crag-light hover:border-lime/30 text-chalk'
+                      }`}
                     >
                       {/* Grade pill */}
                       <div
@@ -770,7 +831,9 @@ function BetaPageContent() {
                         <span className="font-bold text-sm md:text-base leading-none" style={{ color: gradeColor }}>
                           {p.grade}
                         </span>
-                        <span className="text-slate-ash text-[10px] font-light mt-0.5">{p.fontGrade}</span>
+                        <span className={`text-[10px] font-light mt-0.5 ${
+                          isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                        }`}>{p.fontGrade}</span>
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -781,12 +844,20 @@ function BetaPageContent() {
                           </span>
                         </div>
 
-                        <h3 className="text-chalk font-bold text-sm md:text-base truncate group-hover:text-lime transition-colors">
+                        <h3 className={`font-bold text-sm md:text-base truncate transition-colors ${
+                          isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
+                        }`}>
                           {p.name}
                         </h3>
-                        <p className="text-slate-ash text-[11px] font-light truncate">FA: {p.fa} · {p.ascentCount} ascents</p>
+                        <p className={`text-[11px] font-light truncate ${
+                          isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                        }`}>
+                          FA: {p.fa} · {p.ascentCount} ascents
+                        </p>
                       </div>
-                      <ChevronRight size={18} className="text-slate-ash group-hover:text-lime flex-shrink-0" />
+                      <ChevronRight size={18} className={`flex-shrink-0 ${
+                        isSandstone ? 'text-[#1a1815]/60 group-hover:text-[#1a1815]' : 'text-slate-ash group-hover:text-lime'
+                      }`} />
                     </motion.button>
                   )
                 })}
@@ -800,15 +871,23 @@ function BetaPageContent() {
           <motion.div key="topo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 md:px-0">
             {/* Desktop Problem Switcher Pills */}
             <div className="hidden lg:flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
-              <span className="text-slate-ash text-xs font-light uppercase tracking-wider mr-2">Problems in sector:</span>
+              <span className={`text-xs font-light uppercase tracking-wider mr-2 ${
+                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+              }`}>
+                Problems in sector:
+              </span>
               {sector.problems.map(p => (
                 <button
                   key={p.id}
                   onClick={() => setSelectedProblem(p.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs transition-all ${
                     selectedProblem === p.id
-                      ? 'bg-lime text-granite shadow-lime-glow-sm font-bold'
-                      : 'bg-crag text-slate-ash hover:text-chalk border border-white/5 font-light'
+                      ? isSandstone
+                        ? 'bg-[#1a1815] text-[#d2c5ae] font-bold'
+                        : 'bg-lime text-granite shadow-lime-glow-sm font-bold'
+                      : isSandstone
+                        ? 'border border-[#1a1815]/20 text-[#1a1815] hover:bg-[#1a1815]/10 font-light'
+                        : 'bg-crag text-slate-ash hover:text-chalk border border-white/5 font-light'
                   }`}
                 >
                   {p.name} ({p.grade})
@@ -827,9 +906,15 @@ function BetaPageContent() {
               </div>
 
               {/* Right Column: Desktop Inspector Panel */}
-              <div className="hidden lg:flex lg:col-span-5 flex-col bg-crag border border-white/5 rounded-2xl p-6 h-[640px] overflow-y-auto justify-between">
+              <div className={`hidden lg:flex lg:col-span-5 flex-col rounded-2xl p-6 h-[640px] overflow-y-auto justify-between border ${
+                isSandstone
+                  ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+                  : 'bg-crag border-white/5 text-chalk'
+              }`}>
                 <div>
-                  <div className="flex items-start justify-between mb-4 border-b border-white/5 pb-4">
+                  <div className={`flex items-start justify-between mb-4 border-b pb-4 ${
+                    isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+                  }`}>
                     <div>
                       {/* Boulder Badge */}
                       <div className="flex items-center gap-1.5 mb-1.5">

@@ -26,6 +26,7 @@ export interface CragRegion {
   sectorCount: number
   problemCount: number
   sectors: Sector[]
+  description?: string
 }
 
 export interface Sector {

@@ -102,13 +102,12 @@ export default function GymsPage() {
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                     style={{ backgroundImage: `url(${gym.image})` }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/15">
+                  <div className="absolute top-3 left-3 bg-black/60 rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/15">
                     <Star size={11} className="text-lime fill-lime" />
                     <span className="text-chalk text-xs font-bold">{gym.rating}</span>
                     <span className="text-slate-ash text-[10px] font-light">({gym.reviewCount})</span>
                   </div>
-                  <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/15">
+                  <div className="absolute top-3 right-3 bg-black/60 rounded-full px-2.5 py-1 flex items-center gap-1 border border-white/15">
                     <MapPin size={10} className="text-slate-ash" />
                     <span className="text-chalk text-[10px] font-light">{gym.city}</span>
                   </div>
@@ -168,7 +167,7 @@ export default function GymsPage() {
                       isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                     }`}>
                       <Clock size={12} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
-                      <span>{gym.slots.morning + gym.slots.afternoon + gym.slots.evening} slots available</span>
+                      <span>{gym.slots.morning + gym.slots.afternoon} slots available</span>
                     </div>
                     <span className={`text-xs font-medium tracking-wide group-hover:underline ${
                       isSandstone ? 'text-[#1a1815]' : 'text-lime'
