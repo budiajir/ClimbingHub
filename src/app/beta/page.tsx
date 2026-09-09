@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin } from 'lucide-react'
@@ -29,6 +29,8 @@ function BetaPageContent() {
   const [selectedSector, setSelectedSector] = useState<string | null>(null)
   const [selectedProblem, setSelectedProblem] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'card'>('list')
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0)
+  const cardSliderRef = useRef<HTMLDivElement>(null)
   const [expandedRegionId, setExpandedRegionId] = useState<string | null>(null)
 
   const [showSheet, setShowSheet] = useState(false)
@@ -261,6 +263,39 @@ function BetaPageContent() {
     }
   }).filter(r => r.sectors.length > 0 || r.problemCount > 0)
 
+  const handleCardScroll = () => {
+    if (!cardSliderRef.current) return
+    const container = cardSliderRef.current
+    const scrollLeft = container.scrollLeft
+    const cardEl = container.firstElementChild as HTMLElement
+    if (!cardEl) return
+    const cardWidth = cardEl.offsetWidth + 16
+    const index = Math.round(scrollLeft / cardWidth)
+    setActiveSlideIndex(Math.max(0, Math.min(index, displayedRegions.length - 1)))
+  }
+
+  const scrollToIndex = (index: number) => {
+    if (!cardSliderRef.current) return
+    const container = cardSliderRef.current
+    const cards = container.children
+    if (cards[index]) {
+      (cards[index] as HTMLElement).scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      })
+      setActiveSlideIndex(index)
+    }
+  }
+
+  const scrollPrev = () => {
+    scrollToIndex(Math.max(0, activeSlideIndex - 1))
+  }
+
+  const scrollNext = () => {
+    scrollToIndex(Math.min(displayedRegions.length - 1, activeSlideIndex + 1))
+  }
+
   return (
     <div
       className={`min-h-[90vh] transition-colors duration-300 ${
@@ -293,10 +328,10 @@ function BetaPageContent() {
                 </span>
 
                 <div className="flex items-center gap-1">
-                  {/* Mode 1: Single Card */}
+                  {/* Mode 1: Slide Bar / Card */}
                   <button
                     onClick={() => setViewMode('card')}
-                    title="Card Mode"
+                    title="Slide Bar Mode"
                     className={`p-1.5 rounded-lg transition-all ${
                       viewMode === 'card'
                         ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
@@ -601,79 +636,144 @@ function BetaPageContent() {
                 </div>
               )}
 
-              {/* 3. CARD VIEW (Hero Clean Cards) */}
+              {/* 3. CARD SLIDE BAR VIEW */}
               {viewMode === 'card' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 my-4">
-                  {displayedRegions.map((r, i) => (
-                    <motion.button
-                      key={r.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.08 }}
-                      onClick={() => {
-                        setSelectedRegion(r.id)
-                        setLevel('sectors')
-                      }}
-                      className={`w-full text-left rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border ${
-                        isSandstone
-                          ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
-                          : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
-                      }`}
-                    >
-                      <div>
-                        <div className="h-44 md:h-52 overflow-hidden relative w-full">
-                          <div
-                            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                            style={{ backgroundImage: `url(${r.image})` }}
-                          />
-                        </div>
-
-                        <div className="p-4 space-y-2">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h2 className={`font-bold text-lg md:text-xl transition-colors ${
-                                isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
-                              }`}>
-                                {r.name}
-                              </h2>
-                              <div className={`flex items-center gap-1 text-xs font-light ${
-                                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                              }`}>
-                                <MapPin size={11} />
-                                <span>{r.province}</span>
-                              </div>
-                            </div>
-                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                              isSandstone ? 'border-[#1a1815]/30 text-[#1a1815]' : 'border-lime/40 text-lime'
-                            }`}>
-                              {r.sectorCount} Sectors
-                            </span>
+                <div className="relative my-4">
+                  {/* Horizontal Slide Bar */}
+                  <div
+                    ref={cardSliderRef}
+                    onScroll={handleCardScroll}
+                    className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory py-2 -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth"
+                  >
+                    {displayedRegions.map((r, i) => (
+                      <motion.button
+                        key={r.id}
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        onClick={() => {
+                          setSelectedRegion(r.id)
+                          setLevel('sectors')
+                        }}
+                        className={`w-[85vw] sm:w-[380px] md:w-[440px] flex-shrink-0 snap-center text-left rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border shadow-sm ${
+                          isSandstone
+                            ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
+                            : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
+                        }`}
+                      >
+                        <div>
+                          <div className="h-48 sm:h-56 md:h-64 overflow-hidden relative w-full">
+                            <div
+                              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                              style={{ backgroundImage: `url(${r.image})` }}
+                            />
                           </div>
 
-                          <p className={`text-xs font-light line-clamp-2 leading-relaxed ${
-                            isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
-                          }`}>
-                            {(r as any).description || `Premier outdoor bouldering destination in ${r.province} with ${r.sectorCount} verified sectors.`}
-                          </p>
+                          <div className="p-4 space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <h2 className={`font-bold text-lg md:text-xl transition-colors ${
+                                  isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
+                                }`}>
+                                  {r.name}
+                                </h2>
+                                <div className={`flex items-center gap-1 text-xs font-light mt-0.5 ${
+                                  isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                                }`}>
+                                  <MapPin size={11} />
+                                  <span>{r.province}</span>
+                                </div>
+                              </div>
+                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${
+                                isSandstone ? 'border-[#1a1815]/30 text-[#1a1815]' : 'border-lime/40 text-lime'
+                              }`}>
+                                {r.sectorCount} Sectors
+                              </span>
+                            </div>
+
+                            <p className={`text-xs font-light line-clamp-2 leading-relaxed ${
+                              isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
+                            }`}>
+                              {(r as any).description || `Premier outdoor bouldering destination in ${r.province} with ${r.sectorCount} verified sectors.`}
+                            </p>
+                          </div>
                         </div>
+
+                        <div className={`p-4 pt-3 flex items-center justify-between text-xs border-t ${
+                          isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+                        }`}>
+                          <span className={`font-light text-[11px] ${
+                            isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                          }`}>
+                            {r.problemCount} Verified Problems
+                          </span>
+                          <span className={`font-bold flex items-center gap-0.5 ${
+                            isSandstone ? 'text-[#1a1815]' : 'text-lime'
+                          }`}>
+                            Open Guide <ChevronRight size={13} />
+                          </span>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+
+                  {/* Slide Navigation Controls & Indicator */}
+                  {displayedRegions.length > 1 && (
+                    <div className="flex items-center justify-between mt-3 px-1">
+                      {/* Pagination Indicator Dots */}
+                      <div className="flex items-center gap-1.5">
+                        {displayedRegions.map((r, idx) => (
+                          <button
+                            key={r.id}
+                            onClick={() => scrollToIndex(idx)}
+                            aria-label={`Go to slide ${idx + 1}`}
+                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                              activeSlideIndex === idx
+                                ? isSandstone ? 'w-6 bg-[#1a1815]' : 'w-6 bg-lime'
+                                : isSandstone ? 'w-2 bg-[#1a1815]/20 hover:bg-[#1a1815]/40' : 'w-2 bg-white/20 hover:bg-white/40'
+                            }`}
+                          />
+                        ))}
                       </div>
 
-                      <div className={`p-4 pt-0 flex items-center justify-between text-xs border-t ${
-                        isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
-                      }`}>
-                        <span className={`font-light text-[11px] ${
-                          isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                        }`}>
-                          {r.problemCount} Verified Problems
+                      {/* Counter and Next/Prev Arrows */}
+                      <div className="flex items-center gap-2.5">
+                        <span className={`text-[11px] font-mono tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+                          {activeSlideIndex + 1} / {displayedRegions.length}
                         </span>
-                        <span className={`font-bold flex items-center gap-0.5 ${
-                          isSandstone ? 'text-[#1a1815]' : 'text-lime'
-                        }`}>
-                          Open Guide <ChevronRight size={13} />
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={scrollPrev}
+                            disabled={activeSlideIndex === 0}
+                            className={`p-1.5 rounded-full border transition-all ${
+                              activeSlideIndex === 0
+                                ? 'opacity-25 cursor-not-allowed border-transparent'
+                                : isSandstone
+                                  ? 'border-[#1a1815]/20 hover:bg-[#1a1815]/10 text-[#1a1815]'
+                                  : 'border-white/10 hover:bg-white/10 text-chalk'
+                            }`}
+                            title="Previous crag"
+                          >
+                            <ChevronLeft size={16} />
+                          </button>
+                          <button
+                            onClick={scrollNext}
+                            disabled={activeSlideIndex >= displayedRegions.length - 1}
+                            className={`p-1.5 rounded-full border transition-all ${
+                              activeSlideIndex >= displayedRegions.length - 1
+                                ? 'opacity-25 cursor-not-allowed border-transparent'
+                                : isSandstone
+                                  ? 'border-[#1a1815]/20 hover:bg-[#1a1815]/10 text-[#1a1815]'
+                                  : 'border-white/10 hover:bg-white/10 text-chalk'
+                            }`}
+                            title="Next crag"
+                          >
+                            <ChevronRight size={16} />
+                          </button>
+                        </div>
                       </div>
-                    </motion.button>
-                  ))}
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>
