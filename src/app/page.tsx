@@ -56,7 +56,7 @@ export default function HomePage() {
 
   return (
     <div className={`pb-16 md:pb-24 transition-colors duration-300 ${
-      isSandstone ? 'bg-[#d2c5ae] text-[#1a1815]' : 'bg-[#12161A] text-chalk'
+      isSandstone ? 'bg-[#d2c5ae] text-[#1a1815]' : 'bg-[#23262C] text-chalk'
     }`}>
       {/* 1. TOP HERO BANNER */}
       <HeroBanner />

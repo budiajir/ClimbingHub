@@ -3,14 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --color-granite: #12161A;
-  --color-crag: #1E242B;
-  --color-lime: #CCFF00;
+  --color-graphite-900: #23262C;
+  --color-graphite-700: #3A3F47;
+  --color-cloud-zink: #D1D5DB;
+  --color-safety-orange: #FE7733;
+  --color-neon-sprout: #B1FA63;
+  --color-paper-white: #FFFFFF;
+
+  --color-granite: #23262C;
+  --color-crag: #3A3F47;
+  --color-lime: #B1FA63;
   --color-cyan: #06B6D4;
-  --color-red: #EF4444;
-  --color-orange: #FF6B00;
-  --color-chalk: #F8FAFC;
-  --color-slate: #94A3B8;
+  --color-red: #FE7733;
+  --color-orange: #FE7733;
+  --color-chalk: #FFFFFF;
+  --color-slate: #D1D5DB;
   --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -20,15 +27,15 @@
 }
 
 html {
-  background-color: #12161A;
-  color: #F8FAFC;
+  background-color: #23262C;
+  color: #FFFFFF;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 body {
-  background-color: #12161A;
+  background-color: #23262C;
   min-height: 100vh;
   min-height: 100dvh;
   overscroll-behavior: none;
@@ -66,14 +73,14 @@ body {
   height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #12161A;
+  background: #23262C;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E242B;
+  background: #3A3F47;
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #D1D5DB;
 }
 
 /* Hide scrollbar for horizontal scrolls */
@@ -94,17 +101,17 @@ body {
 
 /* Frosted glass */
 .glass {
-  background: rgba(30, 36, 43, 0.7);
+  background: rgba(35, 38, 44, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 /* Lime badge */
 .badge-lime {
-  background: rgba(204,255,0,0.15);
-  color: #CCFF00;
-  border: 1px solid rgba(204,255,0,0.3);
+  background: rgba(177, 250, 99, 0.15);
+  color: #B1FA63;
+  border: 1px solid rgba(177, 250, 99, 0.3);
 }
 
 /* Grade badges */

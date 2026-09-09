@@ -153,7 +153,7 @@ export default function MobileNav() {
             "transition-colors duration-300",
             isSandstone
               ? "bg-[#b8ab96] border-t border-[#1a1815]/20 shadow-lg"
-              : "bg-[#181d22]/95 backdrop-blur-lg border-t border-white/10",
+              : "bg-[#23262C]/95 backdrop-blur-lg border-t border-white/10",
           )}
           style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
         >
@@ -264,7 +264,7 @@ export default function MobileNav() {
               className={`fixed inset-0 z-50 flex flex-col justify-between p-4 sm:p-6 rounded-none overflow-y-auto ${
                 isSandstone
                   ? "bg-[#cfc2ab] text-[#1a1815]"
-                  : "bg-[#12161A] text-chalk"
+                  : "bg-[#23262C] text-chalk"
               }`}
               style={{
                 paddingTop: "max(env(safe-area-inset-top), 16px)",

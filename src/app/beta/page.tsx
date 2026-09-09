@@ -266,7 +266,7 @@ function BetaPageContent() {
       className={`min-h-[90vh] transition-colors duration-300 ${
         isSandstone
           ? 'bg-[#d2c5ae] text-[#1a1815]'
-          : 'bg-[#12161A] text-chalk'
+          : 'bg-[#23262C] text-chalk'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-4">

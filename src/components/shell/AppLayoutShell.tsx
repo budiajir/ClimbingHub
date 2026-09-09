@@ -13,7 +13,7 @@ export default function AppLayoutShell({ children }: { children: React.ReactNode
       className={`min-h-screen transition-colors duration-300 ${
         isSandstone
           ? 'bg-[#d2c5ae] text-[#1a1815]'
-          : 'bg-[#12161A] text-chalk'
+          : 'bg-[#23262C] text-chalk'
       }`}
     >
       <TopBar showSearch />

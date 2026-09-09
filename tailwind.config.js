@@ -8,28 +8,33 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Primary Background
-        'granite': '#12161A',
-        // Card / Surface
-        'crag': '#1E242B',
-        'crag-light': '#252C36',
-        // Primary Accent
-        'lime': '#CCFF00',
-        'lime-dim': '#A8D400',
-        // Secondary Accents
+        // Official Brand Color Palette
+        'graphite-900': '#23262C',
+        'graphite-700': '#3A3F47',
+        'cloud-zink': '#D1D5DB',
+        'safety-orange': '#FE7733',
+        'neon-sprout': '#B1FA63',
+        'paper-white': '#FFFFFF',
+
+        // Theme Mappings
+        'granite': '#23262C',       // Graphite 900
+        'crag': '#3A3F47',          // Graphite 700
+        'crag-light': '#4A505A',
+        'lime': '#B1FA63',          // Neon Sprout
+        'lime-dim': '#9FE350',
+        'slate-ash': '#D1D5DB',     // Cloud Zink
+        'project': '#FE7733',       // Safety Orange
+        'chalk': '#FFFFFF',         // Paper White
+        'redpoint': '#FE7733',      // Safety Orange
         'cyan-climb': '#06B6D4',
-        'redpoint': '#EF4444',
-        'project': '#FF6B00',
-        // Text
-        'chalk': '#F8FAFC',
-        'slate-ash': '#94A3B8',
+
         // Grading colors
-        'grade-vb': '#94A3B8',
+        'grade-vb': '#D1D5DB',
         'grade-v1': '#86EFAC',
         'grade-v2': '#4ADE80',
         'grade-v3': '#FDE047',
         'grade-v4': '#FACC15',
-        'grade-v5': '#FB923C',
+        'grade-v5': '#FE7733',
         'grade-v6': '#F87171',
         'grade-v7': '#EF4444',
         'grade-v8': '#C026D3',
@@ -52,12 +57,12 @@ module.exports = {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'hero-gradient': 'linear-gradient(180deg, transparent 0%, #12161A 100%)',
-        'card-gradient': 'linear-gradient(135deg, #1E242B 0%, #12161A 100%)',
+        'hero-gradient': 'linear-gradient(180deg, transparent 0%, #23262C 100%)',
+        'card-gradient': 'linear-gradient(135deg, #3A3F47 0%, #23262C 100%)',
       },
       boxShadow: {
-        'lime-glow': '0 0 20px rgba(204, 255, 0, 0.3)',
-        'lime-glow-sm': '0 0 10px rgba(204, 255, 0, 0.2)',
+        'lime-glow': '0 0 20px rgba(177, 250, 99, 0.35)',
+        'lime-glow-sm': '0 0 10px rgba(177, 250, 99, 0.25)',
         'cyan-glow': '0 0 20px rgba(6, 182, 212, 0.3)',
         'card': '0 4px 24px rgba(0,0,0,0.4)',
         'card-hover': '0 8px 32px rgba(0,0,0,0.6)',
@@ -78,8 +83,8 @@ module.exports = {
       },
       keyframes: {
         'pulse-lime': {
-          '0%, 100%': { boxShadow: '0 0 10px rgba(204,255,0,0.2)' },
-          '50%': { boxShadow: '0 0 25px rgba(204,255,0,0.5)' },
+          '0%, 100%': { boxShadow: '0 0 10px rgba(177,250,99,0.25)' },
+          '50%': { boxShadow: '0 0 25px rgba(177,250,99,0.5)' },
         },
         'slide-up': {
           '0%': { transform: 'translateY(100%)' },

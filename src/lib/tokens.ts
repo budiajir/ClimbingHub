@@ -2,46 +2,54 @@
 // Single source of truth for all design decisions
 
 export const colors = {
-  // Backgrounds
-  granite: '#12161A',
-  crag: '#1E242B',
-  cragLight: '#252C36',
-  cragBorder: '#2E3743',
+  // Official Brand Color Palette
+  graphite900: '#23262C',
+  graphite700: '#3A3F47',
+  cloudZink: '#D1D5DB',
+  safetyOrange: '#FE7733',
+  neonSprout: '#B1FA63',
+  paperWhite: '#FFFFFF',
+
+  // Theme Mappings
+  granite: '#23262C',
+  crag: '#3A3F47',
+  cragLight: '#4A505A',
+  cragBorder: '#4E5661',
 
   // Accents
-  lime: '#CCFF00',
-  limeDim: '#A8D400',
-  limeAlpha: 'rgba(204,255,0,0.15)',
+  lime: '#B1FA63',
+  limeDim: '#9FE350',
+  limeAlpha: 'rgba(177,250,99,0.15)',
 
   cyan: '#06B6D4',
   cyanAlpha: 'rgba(6,182,212,0.15)',
 
-  redpoint: '#EF4444',
-  redpointAlpha: 'rgba(239,68,68,0.15)',
+  redpoint: '#FE7733',
+  redpointAlpha: 'rgba(254,119,51,0.15)',
 
-  project: '#FF6B00',
-  projectAlpha: 'rgba(255,107,0,0.15)',
+  project: '#FE7733',
+  projectAlpha: 'rgba(254,119,51,0.15)',
 
   // Text
-  chalk: '#F8FAFC',
-  chalkDim: '#CBD5E1',
-  slateAsh: '#94A3B8',
-  slateDeep: '#64748B',
+  chalk: '#FFFFFF',
+  chalkDim: '#D1D5DB',
+  slateAsh: '#D1D5DB',
+  slateDeep: '#9CA3AF',
 } as const
 
 // Ascent type color mapping
 export const ascentColors = {
-  flash: { bg: 'rgba(204,255,0,0.15)', text: '#CCFF00', border: 'rgba(204,255,0,0.3)' },
+  flash: { bg: 'rgba(177,250,99,0.15)', text: '#B1FA63', border: 'rgba(177,250,99,0.3)' },
   onsight: { bg: 'rgba(6,182,212,0.15)', text: '#06B6D4', border: 'rgba(6,182,212,0.3)' },
-  redpoint: { bg: 'rgba(239,68,68,0.15)', text: '#EF4444', border: 'rgba(239,68,68,0.3)' },
-  repeat: { bg: 'rgba(148,163,184,0.15)', text: '#94A3B8', border: 'rgba(148,163,184,0.3)' },
+  redpoint: { bg: 'rgba(254,119,51,0.15)', text: '#FE7733', border: 'rgba(254,119,51,0.3)' },
+  repeat: { bg: 'rgba(209,213,219,0.15)', text: '#D1D5DB', border: 'rgba(209,213,219,0.3)' },
 } as const
 
 export type AscentType = keyof typeof ascentColors
 
 // Grade color scale (V-scale)
 export const gradeColors: Record<string, string> = {
-  'VB': '#94A3B8',
+  'VB': '#D1D5DB',
   'V0': '#86EFAC',
   'V1': '#4ADE80',
   'V2': '#A3E635',

@@ -89,7 +89,7 @@ export default function TopBar({
             ? 'bg-transparent'
             : isSandstone
               ? 'bg-[#cfc2ab] text-[#1a1815]'
-              : 'bg-[#12161A] text-chalk border-b border-white/5'
+              : 'bg-[#23262C] text-chalk border-b border-white/5'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
@@ -241,12 +241,12 @@ export default function TopBar({
                           ? 'border-[#1a1815]/30 bg-transparent text-[#1a1815] hover:bg-[#1a1815]/10'
                           : 'border-white/15 bg-transparent text-chalk hover:bg-white/10'
                       }`}
-                      title="Toggle Theme (Sandstone / Granite)"
+                      title="Toggle Theme (Sandstone / Graphite)"
                     >
                       {isSandstone ? (
                         <>
                           <Moon size={13} />
-                          <span>Granite</span>
+                          <span>Graphite</span>
                         </>
                       ) : (
                         <>
