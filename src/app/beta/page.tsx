@@ -455,14 +455,15 @@ function BetaPageContent() {
                                   setSelectedRegion(r.id)
                                   setLevel('sectors')
                                 }}
-                                className={`px-3.5 md:px-4 py-1 md:py-1.5 rounded-full text-[16px] md:text-[20px] font-semibold flex items-center gap-1.5 transition-all ${
+                                className={`px-3 py-1 md:py-1.5 rounded-full flex items-center gap-1.5 transition-all ${
                                   isSandstone
                                     ? 'border border-[#1a1815]/20 text-[#1a1815]/90 hover:bg-[#1a1815]/10'
                                     : 'bg-crag hover:bg-crag-light text-chalk border border-white/5'
                                 }`}
                               >
-                                <span>{r.problemCount} Problems</span>
-                                <ChevronRight size={18} />
+                                <span className="text-[9px] font-medium">Problems</span>
+                                <span className="text-[11px] md:text-xs font-bold">{r.problemCount}</span>
+                                <ChevronRight size={14} />
                               </button>
                             </div>
                           </div>
