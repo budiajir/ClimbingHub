@@ -291,7 +291,7 @@ function BetaPageContent() {
       (cards[index] as HTMLElement).scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
-        inline: 'center',
+        inline: 'start',
       })
       setActiveSlideIndex(index)
     }
@@ -815,30 +815,30 @@ function BetaPageContent() {
               {/* 3. CARD SLIDE BAR VIEW */}
               {!showMyAscentsView && viewMode === 'card' && (
                 <div className="relative my-4">
-                  {/* Horizontal Slide Bar */}
+                  {/* Horizontal Slide Bar (Full-Width Cards) */}
                   <div
                     ref={cardSliderRef}
                     onScroll={handleCardScroll}
-                    className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory py-2 -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth"
+                    className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory py-1 scroll-smooth w-full"
                   >
                     {displayedRegions.map((r, i) => (
                       <motion.button
                         key={r.id}
-                        initial={{ opacity: 0, scale: 0.96 }}
+                        initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.05 }}
+                        transition={{ delay: i * 0.04 }}
                         onClick={() => {
                           setSelectedRegion(r.id)
                           setLevel('sectors')
                         }}
-                        className={`w-[85vw] sm:w-[380px] md:w-[440px] flex-shrink-0 snap-center text-left rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border shadow-sm ${
+                        className={`w-full min-w-full flex-shrink-0 snap-start text-left rounded-2xl sm:rounded-3xl overflow-hidden transition-all flex flex-col justify-between group border shadow-sm ${
                           isSandstone
                             ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
                             : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
                         }`}
                       >
                         <div>
-                          <div className="h-48 sm:h-56 md:h-64 overflow-hidden relative w-full">
+                          <div className="h-56 sm:h-64 md:h-72 overflow-hidden relative w-full">
                             <div
                               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                               style={{ backgroundImage: `url(${r.image})` }}
@@ -897,16 +897,16 @@ function BetaPageContent() {
                   {displayedRegions.length > 1 && (
                     <div className="flex items-center justify-between mt-3 px-1">
                       {/* Pagination Indicator Dots */}
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 overflow-hidden max-w-[140px] sm:max-w-[220px]">
                         {displayedRegions.map((r, idx) => (
                           <button
                             key={r.id}
                             onClick={() => scrollToIndex(idx)}
                             aria-label={`Go to slide ${idx + 1}`}
-                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                            className={`h-1.5 flex-shrink-0 rounded-full transition-all duration-300 ${
                               activeSlideIndex === idx
-                                ? isSandstone ? 'w-6 bg-[#1a1815]' : 'w-6 bg-lime'
-                                : isSandstone ? 'w-2 bg-[#1a1815]/20 hover:bg-[#1a1815]/40' : 'w-2 bg-white/20 hover:bg-white/40'
+                                ? isSandstone ? 'w-5 bg-[#1a1815]' : 'w-5 bg-lime'
+                                : isSandstone ? 'w-1.5 bg-[#1a1815]/25 hover:bg-[#1a1815]/50' : 'w-1.5 bg-white/20 hover:bg-white/40'
                             }`}
                           />
                         ))}
