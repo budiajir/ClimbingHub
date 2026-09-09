@@ -3,24 +3,26 @@
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2 } from 'lucide-react'
 import { Problem, CragRegion, RouteDiscipline } from '@/lib/mock-data'
 import { useCragRegions, insertRoute, insertCragRegion, insertSector } from '@/lib/use-data'
 import { gradeColors } from '@/lib/tokens'
 import TopoCanvas from '@/components/beta/TopoCanvas'
 import ProblemSheet from '@/components/beta/ProblemSheet'
 import LogAscentModal from '@/components/beta/LogAscentModal'
+import AscentShareModal from '@/components/beta/AscentShareModal'
 import AddRouteModal, { NewRegionData, NewSectorData } from '@/components/beta/AddRouteModal'
 import RoadmapContributeModal from '@/components/beta/RoadmapContributeModal'
 import { useAuth } from '@/lib/auth-context'
 import { canLogAscent, canCreateCragRoute } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
+import { UserAscent, getUserAscents, saveUserAscent, deleteUserAscent } from '@/lib/user-ascents'
 
 type ViewLevel = 'regions' | 'sectors' | 'problems' | 'topo'
 
 function BetaPageContent() {
   const searchParams = useSearchParams()
-  const { role, openAuthModal } = useAuth()
+  const { role, user, openAuthModal } = useAuth()
   const { cragRegions, loading: cragsLoading } = useCragRegions()
   const { isSandstone, toggleTheme } = useTheme()
   const [regions, setRegions] = useState<CragRegion[]>([])
@@ -35,6 +37,9 @@ function BetaPageContent() {
 
   const [showSheet, setShowSheet] = useState(false)
   const [showLogModal, setShowLogModal] = useState(false)
+  const [activeShareAscent, setActiveShareAscent] = useState<UserAscent | null>(null)
+  const [userAscents, setUserAscents] = useState<UserAscent[]>([])
+  const [showMyAscentsView, setShowMyAscentsView] = useState(false)
   const [showAddRouteModal, setShowAddRouteModal] = useState(false)
   const [showRoadmapModal, setShowRoadmapModal] = useState(false)
   const [desktopTab, setDesktopTab] = useState<'overview' | 'beta' | 'specs' | 'access'>('overview')
@@ -44,6 +49,10 @@ function BetaPageContent() {
       setRegions(cragRegions)
     }
   }, [cragRegions])
+
+  useEffect(() => {
+    setUserAscents(getUserAscents(user?.id))
+  }, [user])
 
   // Handle URL deep linking (e.g. /beta?region=...&sector=...&problem=...)
   useEffect(() => {
@@ -319,75 +328,124 @@ function BetaPageContent() {
                 </h1>
               </div>
 
-              {/* VIEW MODE Section matching Illustrator mockup */}
-              <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
-                <span className={`text-[9px] sm:text-[10px] md:text-xs uppercase font-bold tracking-widest ${
-                  isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
-                }`}>
-                  VIEW MODE
-                </span>
+              {/* VIEW MODE Section matching Illustrator mockup (shown in Explore Crags mode) */}
+              {!showMyAscentsView ? (
+                <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+                  <span className={`text-[9px] sm:text-[10px] md:text-xs uppercase font-bold tracking-widest ${
+                    isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                  }`}>
+                    VIEW MODE
+                  </span>
 
-                <div className="flex items-center gap-1">
-                  {/* Mode 1: Slide Bar / Card */}
-                  <button
-                    onClick={() => setViewMode('card')}
-                    title="Slide Bar Mode"
-                    className={`p-1.5 rounded-lg transition-all ${
-                      viewMode === 'card'
-                        ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
-                        : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                    }`}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={viewMode === 'card' ? '2.5' : '1.8'} strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2" />
-                    </svg>
-                  </button>
-
-                  {/* Mode 2: Grid Mode (2x2) */}
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    title="Grid Mode"
-                    className={`p-1.5 rounded-lg transition-all ${
-                      viewMode === 'grid'
-                        ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
-                        : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                    }`}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={viewMode === 'grid' ? '2.5' : '1.8'} strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="7" height="7" rx="1" />
-                      <rect x="14" y="3" width="7" height="7" rx="1" />
-                      <rect x="14" y="14" width="7" height="7" rx="1" />
-                      <rect x="3" y="14" width="7" height="7" rx="1" />
-                    </svg>
-                  </button>
-
-                  {/* Mode 3: List Mode (active in mockup with orange accent) */}
-                  <button
-                    onClick={() => setViewMode('list')}
-                    title="Minimalist List Mode"
-                    className={`p-1.5 rounded-lg transition-all ${
-                      viewMode === 'list'
-                        ? isSandstone ? 'bg-[#1a1815]/10 text-[#d95338]' : 'bg-lime/20 text-[#d95338]'
-                        : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                    }`}
-                  >
-                    <svg
-                      width="20"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke={viewMode === 'list' ? '#d95338' : 'currentColor'}
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
+                  <div className="flex items-center gap-1">
+                    {/* Mode 1: Slide Bar / Card */}
+                    <button
+                      onClick={() => setViewMode('card')}
+                      title="Slide Bar Mode"
+                      className={`p-1.5 rounded-lg transition-all ${
+                        viewMode === 'card'
+                          ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
+                          : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+                      }`}
                     >
-                      <line x1="3" y1="5" x2="21" y2="5" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                      <line x1="3" y1="15" x2="21" y2="15" />
-                      <line x1="3" y1="20" x2="21" y2="20" />
-                    </svg>
-                  </button>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={viewMode === 'card' ? '2.5' : '1.8'} strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                      </svg>
+                    </button>
+
+                    {/* Mode 2: Grid Mode (2x2) */}
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      title="Grid Mode"
+                      className={`p-1.5 rounded-lg transition-all ${
+                        viewMode === 'grid'
+                          ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
+                          : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+                      }`}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={viewMode === 'grid' ? '2.5' : '1.8'} strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                      </svg>
+                    </button>
+
+                    {/* Mode 3: List Mode (active in mockup with orange accent) */}
+                    <button
+                      onClick={() => setViewMode('list')}
+                      title="Minimalist List Mode"
+                      className={`p-1.5 rounded-lg transition-all ${
+                        viewMode === 'list'
+                          ? isSandstone ? 'bg-[#1a1815]/10 text-[#d95338]' : 'bg-lime/20 text-[#d95338]'
+                          : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+                      }`}
+                    >
+                      <svg
+                        width="20"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={viewMode === 'list' ? '#d95338' : 'currentColor'}
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                      >
+                        <line x1="3" y1="5" x2="21" y2="5" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                        <line x1="3" y1="15" x2="21" y2="15" />
+                        <line x1="3" y1="20" x2="21" y2="20" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-mono px-2.5 py-1 rounded-full border ${
+                    isSandstone ? 'border-[#1a1815]/20 text-[#1a1815]' : 'border-lime/30 text-lime bg-lime/10'
+                  }`}>
+                    {userAscents.length} Logged Sends
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* TAB SELECTION: [ Explore Crags | 🏆 Personal Beta Book ] */}
+            <div className="flex items-center gap-2 pt-1 border-b border-black/10 dark:border-white/10 pb-2.5">
+              <button
+                onClick={() => setShowMyAscentsView(false)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  !showMyAscentsView
+                    ? isSandstone ? 'bg-[#1a1815] text-white shadow-sm' : 'bg-lime text-granite shadow-lime-glow-sm'
+                    : isSandstone ? 'text-[#1a1815]/60 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+                }`}
+              >
+                Explore Crags
+              </button>
+              <button
+                onClick={() => {
+                  if (role === 'guest') {
+                    openAuthModal('Please sign in or register to view your personal Beta Book and logged ascents.')
+                    return
+                  }
+                  setShowMyAscentsView(true)
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  showMyAscentsView
+                    ? isSandstone ? 'bg-[#1a1815] text-white shadow-sm' : 'bg-lime text-granite shadow-lime-glow-sm'
+                    : isSandstone ? 'text-[#1a1815]/60 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+                }`}
+              >
+                <span>🏆 Personal Beta Book</span>
+                {userAscents.length > 0 && (
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono leading-none ${
+                    showMyAscentsView
+                      ? isSandstone ? 'bg-white/30 text-white' : 'bg-black/20 text-granite'
+                      : isSandstone ? 'bg-[#1a1815]/10 text-[#1a1815]' : 'bg-white/10 text-lime'
+                  }`}>
+                    {userAscents.length}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         ) : (
@@ -444,8 +502,126 @@ function BetaPageContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
+              {/* PERSONAL BETA BOOK (MY ASCENTS) */}
+              {showMyAscentsView && (
+                <div className="space-y-4 my-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className={`font-bold text-xl ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
+                        My Logged Ascents
+                      </h2>
+                      <p className={`text-xs font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                        Daftar rute bouldering yang telah Anda taklukkan beserta kartu grafis Strava-style
+                      </p>
+                    </div>
+                  </div>
+
+                  {userAscents.length === 0 ? (
+                    <div className={`rounded-2xl p-10 text-center border space-y-3 ${
+                      isSandstone ? 'border-[#1a1815]/20 bg-white/20' : 'border-white/10 bg-crag'
+                    }`}>
+                      <Award size={40} className={`mx-auto ${isSandstone ? 'text-[#1a1815]/40' : 'text-slate-ash'}`} />
+                      <h3 className={`font-bold text-base ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
+                        Belum Ada Ascent yang Dicatat
+                      </h3>
+                      <p className={`text-xs max-w-md mx-auto font-light leading-relaxed ${
+                        isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                      }`}>
+                        Kunjungi rute bouldering di crag mana saja, lalu klik tombol <b>Log Ascent</b> untuk menyimpan riwayat pendakian dan langsung mendapatkan kartu hadiah otomatis!
+                      </p>
+                      <button
+                        onClick={() => setShowMyAscentsView(false)}
+                        className="px-4 py-2 bg-lime text-granite text-xs font-bold rounded-xl shadow-lime-glow-sm"
+                      >
+                        Jelajahi Jalur Crag
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {userAscents.map(ascent => (
+                        <div
+                          key={ascent.id}
+                          className={`rounded-2xl overflow-hidden border transition-all flex flex-col justify-between ${
+                            isSandstone
+                              ? 'border-[#1a1815]/20 bg-white/30 text-[#1a1815]'
+                              : 'border-white/10 bg-crag text-chalk'
+                          }`}
+                        >
+                          {/* Thumbnail */}
+                          <div className="h-44 relative bg-black/40 overflow-hidden">
+                            {ascent.photoUrl ? (
+                              <img
+                                src={ascent.photoUrl}
+                                alt={ascent.problemName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-slate-ash">
+                                <Mountain size={32} />
+                              </div>
+                            )}
+                            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/75 text-lime backdrop-blur-sm border border-lime/30">
+                                {ascent.ascentType.toUpperCase()}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/75 text-white backdrop-blur-sm border border-white/20">
+                                {ascent.grade}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Info */}
+                          <div className="p-3.5 space-y-1.5 flex-1">
+                            <h3 className="font-bold text-base">{ascent.problemName}</h3>
+                            <div className={`flex items-center gap-1 text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                              <MapPin size={12} />
+                              <span className="truncate">{ascent.location}</span>
+                            </div>
+                            <div className={`text-[11px] font-light flex items-center justify-between pt-1 ${
+                              isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                            }`}>
+                              <span>Setter: {ascent.setter || 'Curated'}</span>
+                              <span>{ascent.date}</span>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className={`p-3 pt-2 border-t flex items-center justify-between gap-2 ${
+                            isSandstone ? 'border-[#1a1815]/10' : 'border-white/5'
+                          }`}>
+                            <button
+                              onClick={() => setActiveShareAscent(ascent)}
+                              className="flex-1 py-1.5 px-3 rounded-xl bg-lime hover:bg-lime-dim text-granite text-xs font-bold flex items-center justify-center gap-1.5 shadow-lime-glow-sm transition-all"
+                            >
+                              <Share2 size={13} />
+                              <span>Download / Share Card</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Hapus catatan ascent rute "${ascent.problemName}"?`)) {
+                                  deleteUserAscent(ascent.id)
+                                  setUserAscents(prev => prev.filter(a => a.id !== ascent.id))
+                                }
+                              }}
+                              className={`p-2 rounded-xl border transition-colors ${
+                                isSandstone
+                                  ? 'border-[#1a1815]/20 hover:bg-red-500/10 text-red-600'
+                                  : 'border-white/10 hover:bg-red-500/10 text-red-400'
+                              }`}
+                              title="Hapus Ascent"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* 1. MINIMALIST LIST VIEW (Matching the Adobe Illustrator Mockup) */}
-              {viewMode === 'list' && (
+              {!showMyAscentsView && viewMode === 'list' && (
                 <div className={`divide-y transition-colors my-2 ${
                   isSandstone
                     ? 'divide-[#1a1815]/25 border-t border-b border-[#1a1815]/25'
@@ -602,7 +778,7 @@ function BetaPageContent() {
               )}
 
               {/* 2. GRID VIEW (Compact 2-3 Columns) */}
-              {viewMode === 'grid' && (
+              {!showMyAscentsView && viewMode === 'grid' && (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 my-4">
                   {displayedRegions.map(r => (
                     <button
@@ -637,7 +813,7 @@ function BetaPageContent() {
               )}
 
               {/* 3. CARD SLIDE BAR VIEW */}
-              {viewMode === 'card' && (
+              {!showMyAscentsView && viewMode === 'card' && (
                 <div className="relative my-4">
                   {/* Horizontal Slide Bar */}
                   <div
@@ -1174,10 +1350,47 @@ function BetaPageContent() {
             problemName={problem.name}
             grade={problem.grade}
             fontGrade={problem.fontGrade}
+            setter={problem.setter || problem.fa}
+            location={`${region?.name || 'Crag'} · ${sector?.name || 'Sector'}`}
+            defaultImageUrl={problem.imageUrl || sector?.image || region?.image}
+            markers={problem.markers}
+            problemId={problem.id}
+            discipline={problem.discipline || 'bouldering'}
             onClose={() => setShowLogModal(false)}
             onSubmit={data => {
-              console.log('Ascent logged:', data)
+              const saved = saveUserAscent({
+                userId: user?.id || 'guest',
+                problemId: problem.id,
+                problemName: problem.name,
+                grade: data.gradeVote || problem.grade,
+                fontGrade: problem.fontGrade,
+                setter: problem.setter || problem.fa || 'Curated Crag',
+                location: `${region?.name || 'Crag'} · ${sector?.name || 'Sector'}`,
+                ascentType: data.type,
+                gradeVote: data.gradeVote,
+                note: data.note,
+                photoUrl: data.photoUrl || problem.imageUrl || sector?.image,
+                markers: problem.markers || [],
+                discipline: problem.discipline || 'bouldering',
+              })
+              setUserAscents(prev => [saved, ...prev])
               setShowLogModal(false)
+              setActiveShareAscent(saved)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Ascent Share Modal (Strava-Style Share Card Reward) */}
+      <AnimatePresence>
+        {activeShareAscent && (
+          <AscentShareModal
+            ascent={activeShareAscent}
+            onClose={() => setActiveShareAscent(null)}
+            onViewPersonalBetaBook={() => {
+              setActiveShareAscent(null)
+              setLevel('regions')
+              setShowMyAscentsView(true)
             }}
           />
         )}

@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import HeroBanner from '@/components/home/HeroBanner'
 import LogAscentModal from '@/components/beta/LogAscentModal'
+import AscentShareModal from '@/components/beta/AscentShareModal'
+import { UserAscent, saveUserAscent } from '@/lib/user-ascents'
 import {
   Users,
   Mountain,
@@ -29,6 +31,7 @@ export default function HomePage() {
   const { role, openAuthModal } = useAuth()
   const { isSandstone } = useTheme()
   const [showLogModal, setShowLogModal] = useState(false)
+  const [activeShareAscent, setActiveShareAscent] = useState<UserAscent | null>(null)
   const { gyms } = useGyms()
   const { cragRegions } = useCragRegions()
   const { communities } = useCommunities()
@@ -441,14 +444,39 @@ export default function HomePage() {
       {/* Quick Log Modal */}
       {showLogModal && (
         <LogAscentModal
-          problemName="Quick Log"
+          problemName="Quick Send"
           grade="V4"
           fontGrade="6B"
+          setter="Curated Setter"
+          location="Indonesian Bouldering"
           onClose={() => setShowLogModal(false)}
           onSubmit={data => {
-            console.log('Logged:', data)
+            const saved = saveUserAscent({
+              userId: 'user-1',
+              problemId: 'quick-send',
+              problemName: 'Quick Send',
+              grade: data.gradeVote || 'V4',
+              fontGrade: '6B',
+              setter: 'Curated Setter',
+              location: 'Indonesian Bouldering',
+              ascentType: data.type,
+              gradeVote: data.gradeVote,
+              note: data.note,
+              photoUrl: data.photoUrl,
+              markers: [],
+              discipline: 'bouldering',
+            })
             setShowLogModal(false)
+            setActiveShareAscent(saved)
           }}
+        />
+      )}
+
+      {/* Ascent Share Modal */}
+      {activeShareAscent && (
+        <AscentShareModal
+          ascent={activeShareAscent}
+          onClose={() => setActiveShareAscent(null)}
         />
       )}
     </div>
