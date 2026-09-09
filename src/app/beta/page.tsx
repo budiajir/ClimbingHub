@@ -484,7 +484,7 @@ function BetaPageContent() {
               {level === 'topo' && (
                 <button
                   onClick={triggerLogAscent}
-                  className="hidden lg:flex items-center gap-1.5 bg-lime text-granite px-4 py-2 rounded-xl text-xs font-bold shadow-lime-glow-sm hover:bg-lime-dim transition-colors"
+                  className="flex items-center gap-1.5 bg-lime text-granite px-3 py-1.5 rounded-xl text-xs font-bold shadow-lime-glow-sm hover:bg-lime-dim transition-colors"
                 >
                   Log Ascent
                 </button>
@@ -1145,7 +1145,7 @@ function BetaPageContent() {
 
         {/* Level 4: Topo Viewer */}
         {level === 'topo' && problem && sector && (
-          <motion.div key="topo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 md:px-0">
+          <motion.div key="topo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 md:px-0 pb-24 lg:pb-8">
             {/* Desktop Problem Switcher Pills */}
             <div className="hidden lg:flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
               <span className={`text-xs font-light uppercase tracking-wider mr-2 ${
@@ -1179,6 +1179,7 @@ function BetaPageContent() {
                 <TopoCanvas
                   problem={problem}
                   imageUrl={sector.image}
+                  onLogAscent={triggerLogAscent}
                 />
               </div>
 

@@ -9,6 +9,7 @@ import { useTheme } from '@/lib/theme-context'
 interface TopoCanvasProps {
   problem: Problem
   imageUrl: string
+  onLogAscent?: () => void
 }
 
 const markerStyle: Record<string, { bg: string; text: string; glow: string; label: string }> = {
@@ -94,7 +95,7 @@ function TopoMarkerPin({
   )
 }
 
-export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
+export default function TopoCanvas({ problem, imageUrl, onLogAscent }: TopoCanvasProps) {
   const { theme } = useTheme()
   const isSandstone = theme === 'sandstone'
   const [scale, setScale] = useState(1)
@@ -577,6 +578,18 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
                 `Pitch ${activePitch} climbing segment leading to the belay anchor.`}
             </p>
           </motion.div>
+        )}
+
+        {/* Log Ascent / Telah Menyelesaikan Rute Button */}
+        {onLogAscent && (
+          <div className="pt-3 border-t border-black/10 dark:border-white/10 mt-2">
+            <button
+              onClick={onLogAscent}
+              className="w-full py-3 px-4 rounded-xl bg-lime hover:bg-lime-dim text-granite font-bold text-sm flex items-center justify-center gap-2 shadow-lime-glow-sm transition-all touch-ripple"
+            >
+              <span>🎉 Log Ascent / Telah Menyelesaikan Rute</span>
+            </button>
+          </div>
         )}
       </div>
     </div>
