@@ -69,28 +69,7 @@ export default function CommunityDirectory() {
                 <div
                   className="h-36 bg-cover bg-center relative"
                   style={{ backgroundImage: `url(${comm.image})` }}
-                >
-                  <div className={`absolute inset-0 ${
-                    isSandstone
-                      ? 'bg-gradient-to-t from-[#f4efe6] via-[#f4efe6]/30 to-transparent'
-                      : 'bg-gradient-to-t from-crag/95 via-crag/40 to-transparent'
-                  }`} />
-                  {/* Tags */}
-                  <div className="absolute top-2.5 right-2.5 flex gap-1 flex-wrap justify-end">
-                    {comm.tags.slice(0, 2).map(tag => (
-                      <span
-                        key={tag}
-                        className={`text-[9px] font-light px-2 py-0.5 rounded-md uppercase tracking-wide ${
-                          isSandstone
-                            ? 'bg-[#1a1815]/80 text-[#e6ded2]'
-                            : 'glass text-chalk/90'
-                        }`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                />
 
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-2">
@@ -124,7 +103,7 @@ export default function CommunityDirectory() {
                   </p>
 
                   {/* Members preview */}
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2">
                     <div className="flex -space-x-2">
                       {comm.members.slice(0, 3).map(m => (
                         <div
@@ -141,15 +120,6 @@ export default function CommunityDirectory() {
                       +{comm.memberCount - 3} climbers
                     </span>
                   </div>
-
-                  {/* Homebase */}
-                  <div className={`text-xs mb-4 p-2 rounded-xl border font-light ${
-                    isSandstone
-                      ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
-                      : 'bg-transparent border-white/10 text-slate-ash'
-                  }`}>
-                    🏟️ Homebase: <span className={isSandstone ? 'text-[#1a1815] font-medium' : 'text-chalk font-normal'}>{comm.homebase}</span>
-                  </div>
                 </div>
               </div>
 
@@ -159,17 +129,25 @@ export default function CommunityDirectory() {
                   href={comm.whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 flex items-center justify-center gap-1.5 h-10 bg-transparent border border-[#25D366] rounded-xl text-[#16a34a] dark:text-[#25D366] text-xs font-medium tracking-wide touch-ripple hover:bg-[#25D366]/10 transition-colors"
+                  className={`flex-1 flex items-center justify-center gap-1.5 h-10 bg-transparent border rounded-xl text-xs font-medium tracking-wide touch-ripple transition-colors ${
+                    isSandstone
+                      ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
+                      : 'border-white/10 hover:border-white/30 text-chalk'
+                  }`}
                 >
-                  <MessageCircle size={15} /> WhatsApp
+                  <MessageCircle size={15} className="text-[#25D366]" /> WhatsApp
                 </a>
                 <a
                   href={comm.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 flex items-center justify-center gap-1.5 h-10 bg-transparent border border-[#E1306C] rounded-xl text-[#E1306C] text-xs font-medium tracking-wide touch-ripple hover:bg-[#E1306C]/10 transition-colors"
+                  className={`flex-1 flex items-center justify-center gap-1.5 h-10 bg-transparent border rounded-xl text-xs font-medium tracking-wide touch-ripple transition-colors ${
+                    isSandstone
+                      ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
+                      : 'border-white/10 hover:border-white/30 text-chalk'
+                  }`}
                 >
-                  <Instagram size={15} /> Instagram
+                  <Instagram size={15} className="text-[#E1306C]" /> Instagram
                 </a>
               </div>
             </motion.div>

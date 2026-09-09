@@ -98,15 +98,7 @@ export default function HomePage() {
                   <div
                     className="h-36 bg-cover bg-center relative"
                     style={{ backgroundImage: `url(${comm.image})` }}
-                  >
-                    <div className="absolute top-2.5 right-2.5 flex gap-1">
-                      {comm.tags.slice(0, 2).map(tag => (
-                        <span key={tag} className="text-[9px] bg-black/60 border border-white/20 px-2 py-0.5 rounded-md text-chalk uppercase font-light">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  />
 
                   <div className="p-4 space-y-2">
                     <div className="flex items-start justify-between">
@@ -136,12 +128,6 @@ export default function HomePage() {
                     }`}>
                       {comm.description}
                     </p>
-
-                    <div className={`text-[11px] p-2 rounded-xl border font-light truncate ${
-                      isSandstone ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]' : 'bg-transparent border-white/10 text-slate-ash'
-                    }`}>
-                      🏟️ <span className="font-normal">{comm.homebase}</span>
-                    </div>
                   </div>
                 </div>
 
@@ -150,17 +136,25 @@ export default function HomePage() {
                     href={comm.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 h-9 bg-transparent border border-[#25D366] rounded-xl text-[#16a34a] dark:text-[#25D366] text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#25D366]/10 transition-colors"
+                    className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors ${
+                      isSandstone
+                        ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
+                        : 'border-white/10 hover:border-white/30 text-chalk'
+                    }`}
                   >
-                    <MessageCircle size={14} /> WhatsApp
+                    <MessageCircle size={14} className="text-[#25D366]" /> WhatsApp
                   </a>
                   <a
                     href={comm.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 h-9 bg-transparent border border-[#E1306C] rounded-xl text-[#E1306C] text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#E1306C]/10 transition-colors"
+                    className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors ${
+                      isSandstone
+                        ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
+                        : 'border-white/10 hover:border-white/30 text-chalk'
+                    }`}
                   >
-                    <Instagram size={14} /> Instagram
+                    <Instagram size={14} className="text-[#E1306C]" /> Instagram
                   </a>
                 </div>
               </div>
