@@ -24,7 +24,7 @@ export default function GymDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
         <div className="w-8 h-8 border-2 border-lime border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-slate-ash text-sm font-light">Memuat informasi gym...</p>
+        <p className="text-slate-ash text-sm font-light">Loading gym details...</p>
       </div>
     )
   }
@@ -39,7 +39,7 @@ export default function GymDetailPage() {
           href="/gyms"
           className="flex items-center gap-1.5 text-xs text-slate-ash hover:text-lime font-light tracking-wide transition-colors"
         >
-          <ChevronLeft size={16} /> Kembali ke Gym Directory
+          <ChevronLeft size={16} /> Back to Gym Directory
         </Link>
       </div>
 
@@ -70,7 +70,7 @@ export default function GymDetailPage() {
                 <div className="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">
                   <Star size={13} className="text-lime fill-lime" />
                   <span className="text-chalk font-bold text-sm">{gym.rating}</span>
-                  <span className="text-slate-ash text-xs font-light">({gym.reviewCount} ulasan)</span>
+                  <span className="text-slate-ash text-xs font-light">({gym.reviewCount} reviews)</span>
                 </div>
                 <div className="flex items-center gap-1 text-slate-ash text-xs font-light bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">
                   <MapPin size={11} className="text-lime" /> {gym.city}, {gym.province}
@@ -83,7 +83,7 @@ export default function GymDetailPage() {
           <div className="px-4 md:px-0 space-y-6">
             {/* Description */}
             <div className="bg-crag rounded-2xl p-5 border border-white/5">
-              <h2 className="text-chalk font-bold text-base mb-2">Tentang Gym</h2>
+              <h2 className="text-chalk font-bold text-base mb-2">About Gym</h2>
               <p className="text-chalk/80 text-sm font-normal leading-relaxed">{gym.description}</p>
               <div className="mt-3 text-xs text-slate-ash font-light flex items-center gap-1.5">
                 <MapPin size={13} className="text-lime" />
@@ -93,7 +93,7 @@ export default function GymDetailPage() {
 
             {/* Facilities */}
             <div className="bg-crag rounded-2xl p-5 border border-white/5">
-              <p className="text-slate-ash text-xs uppercase tracking-wider mb-3 font-light">Fasilitas Lengkap</p>
+              <p className="text-slate-ash text-xs uppercase tracking-wider mb-3 font-light">Amenities & Facilities</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                 {gym.facilities.map(f => (
                   <div key={f} className="flex items-center gap-2 text-xs text-chalk font-normal bg-granite p-2.5 rounded-xl border border-white/5">
@@ -140,12 +140,12 @@ export default function GymDetailPage() {
           <div className="bg-crag border border-white/10 lg:border-lime/20 rounded-3xl p-5 md:p-6 lg:sticky lg:top-24 shadow-card">
             <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
               <div>
-                <h2 className="text-chalk font-bold text-lg md:text-xl">Reservasi Sesi</h2>
-                <p className="text-slate-ash text-xs font-light">Pilih jam, kuota & rental add-ons</p>
+                <h2 className="text-chalk font-bold text-lg md:text-xl">Book a Session</h2>
+                <p className="text-slate-ash text-xs font-light">Select time slot, climbers & rental add-ons</p>
               </div>
               <div className="text-right">
                 <span className="text-lime font-bold text-xl">Rp {gym.pricePerSession.toLocaleString('id-ID')}</span>
-                <span className="text-slate-ash text-xs font-light block">/orang</span>
+                <span className="text-slate-ash text-xs font-light block">/person</span>
               </div>
             </div>
 

@@ -12,7 +12,7 @@ function SlotBadge({ remaining, total }: { remaining: number; total: number }) {
 
   return (
     <span className={`text-[10px] font-light px-2 py-0.5 rounded-full border ${bg} ${color}`}>
-      {remaining > 0 ? `${remaining} slot` : 'PENUH'}
+      {remaining > 0 ? `${remaining} slots` : 'FULL'}
     </span>
   )
 }
@@ -26,13 +26,13 @@ export default function GymCard() {
           <h2 className="text-chalk font-bold text-base md:text-xl tracking-tight flex items-center gap-2">
             Featured Bouldering Gyms
           </h2>
-          <p className="text-slate-ash text-[11px] md:text-xs font-light">Sesi tersedia & live quota booking hari ini</p>
+          <p className="text-slate-ash text-[11px] md:text-xs font-light">Available sessions & live quota booking today</p>
         </div>
         <Link
           href="/gyms"
           className="flex items-center gap-1 text-lime text-xs md:text-sm font-light tracking-wide touch-ripple hover:underline"
         >
-          Lihat Semua <ChevronRight size={14} />
+          View All <ChevronRight size={14} />
         </Link>
       </div>
 
@@ -86,15 +86,15 @@ export default function GymCard() {
                       </div>
                       <div className="flex items-center justify-between gap-1 flex-wrap">
                         <div className="flex items-center gap-1">
-                          <span className="text-slate-ash text-[10px] font-light">Pagi</span>
+                          <span className="text-slate-ash text-[10px] font-light">Morning</span>
                           <SlotBadge remaining={gym.slots.morning} total={gym.maxSlots.morning} />
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="text-slate-ash text-[10px] font-light">Siang</span>
+                          <span className="text-slate-ash text-[10px] font-light">Afternoon</span>
                           <SlotBadge remaining={gym.slots.afternoon} total={gym.maxSlots.afternoon} />
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="text-slate-ash text-[10px] font-light">Sore</span>
+                          <span className="text-slate-ash text-[10px] font-light">Evening</span>
                           <SlotBadge remaining={gym.slots.evening} total={gym.maxSlots.evening} />
                         </div>
                       </div>
@@ -105,12 +105,12 @@ export default function GymCard() {
                   <div className="flex items-center justify-between pt-2 border-t border-white/5">
                     <div>
                       <span className="text-chalk font-bold text-base md:text-lg">
-                        Rp {gym.pricePerSession.toLocaleString('id-ID')}
+                        Rp {gym.pricePerSession.toLocaleString('en-US')}
                       </span>
-                      <span className="text-slate-ash text-[11px] font-light">/sesi</span>
+                      <span className="text-slate-ash text-[11px] font-light">/session</span>
                     </div>
                     <button className="bg-lime text-granite text-xs font-light tracking-wide px-4 py-2 rounded-xl hover:bg-lime-dim transition-all shadow-lime-glow-sm group-hover:scale-105 touch-ripple">
-                      Book Sesi
+                      Book Session
                     </button>
                   </div>
                 </div>

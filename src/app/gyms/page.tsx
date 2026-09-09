@@ -37,7 +37,7 @@ export default function GymsPage() {
           <p className={`text-xs md:text-sm font-light ${
             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
           }`}>
-            Direktori & Reservasi Sesi Wall Climbing & Bouldering Indonesia
+            Indonesian Climbing & Bouldering Gym Directory & Session Booking
           </p>
         </div>
 
@@ -51,7 +51,7 @@ export default function GymsPage() {
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Cari gym atau kota..."
+            placeholder="Search gym or city..."
             className={`flex-1 bg-transparent text-xs md:text-sm font-normal focus:outline-none ${
               isSandstone
                 ? 'text-[#1a1815] placeholder:text-[#1a1815]/40'
@@ -77,7 +77,7 @@ export default function GymsPage() {
                   : 'bg-transparent border-white/10 text-slate-ash hover:text-chalk hover:border-white/20 font-light'
             }`}
           >
-            {city === 'all' ? 'Semua Kota' : city}
+            {city === 'all' ? 'All Cities' : city}
           </button>
         ))}
       </div>
@@ -125,7 +125,7 @@ export default function GymsPage() {
                       <span className={`font-bold text-sm ${
                         isSandstone ? 'text-[#1a1815]' : 'text-lime'
                       }`}>
-                        Rp {(gym.pricePerSession / 1000).toFixed(0)}k<span className={`text-[10px] font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>/sesi</span>
+                        Rp {(gym.pricePerSession / 1000).toFixed(0)}k<span className={`text-[10px] font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>/session</span>
                       </span>
                     </div>
                     <p className={`text-xs font-normal line-clamp-2 mb-3 ${
@@ -168,12 +168,12 @@ export default function GymsPage() {
                       isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                     }`}>
                       <Clock size={12} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
-                      <span>{gym.slots.morning + gym.slots.afternoon + gym.slots.evening} slot tersedia</span>
+                      <span>{gym.slots.morning + gym.slots.afternoon + gym.slots.evening} slots available</span>
                     </div>
                     <span className={`text-xs font-medium tracking-wide group-hover:underline ${
                       isSandstone ? 'text-[#1a1815]' : 'text-lime'
                     }`}>
-                      Pesan Tiket →
+                      Book Session →
                     </span>
                   </div>
                 </div>

@@ -53,10 +53,10 @@ export default function AuthModal() {
               <Lock size={18} />
             </div>
             <h3 className="text-chalk font-bold text-xl">
-              {tab === 'login' ? 'Masuk ke Jalur' : 'Daftar Akun Climber'}
+              {tab === 'login' ? 'Sign in to Jalur' : 'Create Climber Account'}
             </h3>
             <p className="text-slate-ash text-xs font-light mt-1">
-              {authModalReason || 'Nikmati fitur Log Ascent, simpan wishlist tebing, dan gabung mabar komunitas.'}
+              {authModalReason || 'Unlock Ascent Logging, save wishlist crags, and join community sessions.'}
             </p>
           </div>
 
@@ -70,7 +70,7 @@ export default function AuthModal() {
                   : 'text-slate-ash hover:text-chalk font-light'
               }`}
             >
-              Masuk
+              Sign In
             </button>
             <button
               onClick={() => setTab('register')}
@@ -80,7 +80,7 @@ export default function AuthModal() {
                   : 'text-slate-ash hover:text-chalk font-light'
               }`}
             >
-              Daftar Akun
+              Sign Up
             </button>
           </div>
 
@@ -89,13 +89,13 @@ export default function AuthModal() {
             {tab === 'register' && (
               <div>
                 <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
-                  Nama Lengkap
+                  Full Name
                 </label>
                 <div className="flex items-center gap-2 bg-granite border border-white/5 rounded-xl px-3 py-2.5 focus-within:border-lime/40">
                   <User size={15} className="text-slate-ash" />
                   <input
                     required
-                    placeholder="cth: Ahmad Rizki"
+                    placeholder="e.g. Alex Honnold"
                     value={name}
                     onChange={e => setName(e.target.value)}
                     className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"
@@ -123,7 +123,7 @@ export default function AuthModal() {
 
             <div>
               <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
-                Kata Sandi
+                Password
               </label>
               <div className="flex items-center gap-2 bg-granite border border-white/5 rounded-xl px-3 py-2.5 focus-within:border-lime/40">
                 <Lock size={15} className="text-slate-ash" />
@@ -142,7 +142,7 @@ export default function AuthModal() {
               type="submit"
               className="w-full py-3 bg-lime text-granite font-light tracking-wide rounded-xl shadow-lime-glow-sm hover:bg-lime-dim transition-all text-xs font-bold mt-2"
             >
-              {tab === 'login' ? 'Masuk Sekarang' : 'Daftar Akun Baru'}
+              {tab === 'login' ? 'Sign In Now' : 'Create Account'}
             </button>
           </form>
 
@@ -153,7 +153,7 @@ export default function AuthModal() {
               className="w-full py-2.5 bg-granite border border-white/10 hover:border-lime/30 text-chalk text-xs rounded-xl flex items-center justify-center gap-2 transition-all group"
             >
               <Sparkles size={14} className="text-lime group-hover:scale-110 transition-transform" />
-              <span className="font-light">Masuk Instan (Demo Climber)</span>
+              <span className="font-light">Instant Sign In (Demo Climber)</span>
             </button>
           </div>
 
@@ -165,7 +165,7 @@ export default function AuthModal() {
               className="text-[11px] text-slate-ash hover:text-lime font-light transition-colors inline-flex items-center gap-1"
             >
               <Building2 size={12} />
-              <span>Pemilik / Pengelola Gym? <b>Daftarkan Gym Partner</b> →</span>
+              <span>Gym Owner or Manager? <b>Register Gym Partner</b> →</span>
             </Link>
           </div>
         </motion.div>

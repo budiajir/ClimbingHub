@@ -7,7 +7,7 @@ import AuthModal from '@/components/auth/AuthModal'
 
 export const metadata: Metadata = {
   title: 'Jalur — Bouldering & Climbing Community',
-  description: 'Platform climbing dan bouldering untuk komunitas panjat tebing Indonesia. Topo database, gym booking, beta videos & community meetups.',
+  description: 'The premier bouldering and rock climbing platform. Interactive topo database, gym passes, beta logs, and climber community.',
 }
 
 export const viewport: Viewport = {
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="id">
+    <html lang="en">
       <body className="antialiased selection:bg-lime selection:text-granite">
         <ThemeProvider>
           <AuthProvider>

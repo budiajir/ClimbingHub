@@ -17,8 +17,8 @@ export default function AdminLoginPage() {
     e.preventDefault()
     loginAsGymAdmin({
       name: 'Vertigo Boulder Gym',
-      city: 'Jakarta Selatan',
-      picName: email.split('@')[0] || 'Admin Gym',
+      city: 'South Jakarta',
+      picName: email.split('@')[0] || 'Gym Admin',
     })
     router.push('/admin')
   }
@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
         href="/"
         className="inline-flex items-center gap-1.5 text-xs text-slate-ash hover:text-chalk font-light transition-colors"
       >
-        <ChevronLeft size={15} /> Kembali ke Beranda
+        <ChevronLeft size={15} /> Back to Home
       </Link>
 
       <div className="bg-crag border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl space-y-5">
@@ -43,17 +43,17 @@ export default function AdminLoginPage() {
             <Store size={24} />
           </div>
           <h1 className="text-chalk font-bold text-xl md:text-2xl">
-            Login Mitra Climbing Gym
+            Gym Partner Sign In
           </h1>
           <p className="text-slate-ash text-xs font-light">
-            Portal private untuk kasir POS, scanner QR ticket, dan manajemen slot sesi gym Anda.
+            Private portal for POS cashier, QR ticket scanner, and session quota management.
           </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-3.5">
           <div>
             <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
-              Email Pengelola Gym
+              Gym Manager Email
             </label>
             <div className="flex items-center gap-2 bg-granite border border-white/5 rounded-xl px-3 py-2.5 focus-within:border-lime/40">
               <Mail size={15} className="text-slate-ash" />
@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
 
           <div>
             <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
-              Kata Sandi
+              Password
             </label>
             <div className="flex items-center gap-2 bg-granite border border-white/5 rounded-xl px-3 py-2.5 focus-within:border-lime/40">
               <Lock size={15} className="text-slate-ash" />
@@ -87,9 +87,9 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            className="w-full py-3 bg-lime text-granite font-light tracking-wide rounded-xl shadow-lime-glow-sm hover:bg-lime-dim transition-all text-xs font-bold mt-2"
+            className="w-full py-3 bg-lime text-granite font-bold tracking-wide rounded-xl shadow-lime-glow-sm hover:bg-lime-dim transition-all text-xs mt-2"
           >
-            Masuk ke Dashboard Gym
+            Sign In to Gym Dashboard
           </button>
         </form>
 
@@ -99,15 +99,15 @@ export default function AdminLoginPage() {
             className="w-full py-2.5 bg-granite border border-white/10 hover:border-lime/30 text-chalk text-xs rounded-xl flex items-center justify-center gap-2 transition-all group"
           >
             <Sparkles size={14} className="text-lime group-hover:scale-110 transition-transform" />
-            <span className="font-light">Masuk Instan (Demo Admin Vertigo Gym)</span>
+            <span className="font-light">Instant Demo Access (Vertigo Gym Admin)</span>
           </button>
         </div>
 
         <div className="text-center pt-2">
           <p className="text-xs text-slate-ash font-light">
-            Belum punya akun mitra?{' '}
+            Don't have a partner account?{' '}
             <Link href="/admin/register" className="text-lime hover:underline font-bold">
-              Daftarkan Gym Baru
+              Register New Gym
             </Link>
           </p>
         </div>

@@ -83,7 +83,7 @@ export default function LogAscentModal({
 
           {/* Ascent type selector */}
           <div className="mb-5">
-            <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 font-light">Tipe Ascent</p>
+            <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 font-light">Ascent Style</p>
             <div className="grid grid-cols-2 gap-2">
               {ascentTypes.map(({ key, label, icon: Icon, desc }) => {
                 const colors = ascentColors[key]
@@ -116,7 +116,7 @@ export default function LogAscentModal({
 
           {/* Grade Vote */}
           <div className="mb-5">
-            <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 font-light">Grade Vote</p>
+            <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 font-light">Grade Consensus Vote</p>
             <div className="flex gap-2">
               {gradeOptions.map(g => {
                 const color = gradeColors[g] || '#94A3B8'
@@ -128,7 +128,7 @@ export default function LogAscentModal({
                     className={`flex-1 h-10 rounded-xl text-sm font-bold transition-all border touch-ripple`}
                     style={{
                       backgroundColor: isSelected ? color + '20' : 'transparent',
-                      borderColor: isSelected ? color + '60' : 'rgba(255,255,255,0.05)',
+                      borderColor: isSelected ? color + '60' : 'rgba(255,255,0,0.05)',
                       color: isSelected ? color : '#94A3B8',
                     }}
                   >
@@ -142,12 +142,12 @@ export default function LogAscentModal({
           {/* Note */}
           <div className="mb-5">
             <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1 font-light">
-              <MessageSquare size={11} /> Catatan (Opsional)
+              <MessageSquare size={11} /> Personal Notes (Optional)
             </p>
             <textarea
               value={note}
               onChange={e => setNote(e.target.value)}
-              placeholder="Crux di gerakan ke-3, pakai heel hook kiri..."
+              placeholder="Crux on the 3rd move, used a solid left heel hook..."
               className="w-full bg-granite border border-white/5 rounded-xl p-3 text-chalk text-sm font-normal resize-none focus:outline-none focus:border-lime/30 placeholder:font-light placeholder:text-slate-ash/50"
               rows={2}
             />

@@ -35,7 +35,7 @@ export default function HomePage() {
 
   const handleFABPress = () => {
     if (!canLogAscent(role)) {
-      openAuthModal('Silakan masuk atau daftar akun untuk mencatat Log Ascent pemanjatan Anda.')
+      openAuthModal('Please sign in or create an account to log your climbing ascents.')
     } else {
       setShowLogModal(true)
     }
@@ -58,14 +58,14 @@ export default function HomePage() {
     <div className={`pb-16 md:pb-24 transition-colors duration-300 ${
       isSandstone ? 'bg-[#d2c5ae] text-[#1a1815]' : 'bg-[#12161A] text-chalk'
     }`}>
-      {/* 1. TOP HERO BANNER (Clean, Polos Judul Jalur di atas foto tebing) */}
+      {/* 1. TOP HERO BANNER */}
       <HeroBanner />
 
-      {/* MAIN VERTICAL FEED ACCORDING TO USER SKETCH */}
+      {/* MAIN VERTICAL FEED */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 space-y-10 md:space-y-14 pt-6 md:pt-8">
 
         {/* ============================================================ */}
-        {/* SECTION 1: COMMUNITY (Sesuai Sketsa: "Community" + Cards)    */}
+        {/* SECTION 1: COMMUNITY                                         */}
         {/* ============================================================ */}
         <section className="space-y-4">
           <div>
@@ -79,7 +79,7 @@ export default function HomePage() {
             <p className={`text-xs md:text-sm font-light mt-0.5 ${
               isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
             }`}>
-              Squad bouldering lokal, teman mabar, dan koneksi komunitas
+              Local bouldering squads, session buddies, and climber networks
             </p>
           </div>
 
@@ -169,11 +169,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* PEMBATAS GARIS (Sesuai Garis Horizontal Sketsa) */}
+        {/* DIVIDER LINE */}
         <div className={isSandstone ? 'border-t border-[#1a1815]/20' : 'border-t border-white/10'} />
 
         {/* ============================================================ */}
-        {/* SECTION 2: BOULDER GYM (Sesuai Sketsa: "Boulder Gym" + Cards)*/}
+        {/* SECTION 2: BOULDER GYM                                       */}
         {/* ============================================================ */}
         <section className="space-y-4">
           <div>
@@ -181,13 +181,13 @@ export default function HomePage() {
               <h2 className={`text-2xl md:text-3xl font-bold tracking-tight transition-colors ${
                 isSandstone ? 'text-[#1a1815] group-hover:opacity-75' : 'text-chalk group-hover:text-cyan-climb'
               }`}>
-                Boulder Gym
+                Boulder Gyms
               </h2>
             </Link>
             <p className={`text-xs md:text-sm font-light mt-0.5 ${
               isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
             }`}>
-              Direktori climbing gym, fasilitas modern, dan live kuota sesi
+              Climbing gym directory, modern facilities, and live session slots
             </p>
           </div>
 
@@ -232,9 +232,9 @@ export default function HomePage() {
                     <div className={`flex items-center justify-between text-xs pt-1 border-t ${
                       isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
                     }`}>
-                      <span className={`font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>Mulai dari</span>
+                      <span className={`font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>Starts from</span>
                       <span className={`font-bold font-mono ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
-                        Rp {gym.pricePerSession.toLocaleString('id-ID')}/sesi
+                        Rp {gym.pricePerSession.toLocaleString('en-US')}/session
                       </span>
                     </div>
 
@@ -242,9 +242,9 @@ export default function HomePage() {
                     <div className={`p-2 rounded-xl border text-[11px] flex justify-between items-center font-light ${
                       isSandstone ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]' : 'bg-transparent border-white/10 text-slate-ash'
                     }`}>
-                      <span>Sore Kuota:</span>
+                      <span>Evening Slots:</span>
                       <span className={`font-bold font-mono ${isSandstone ? 'text-[#1a1815]' : 'text-cyan-climb'}`}>
-                        {gym.slots.evening} / {gym.maxSlots.evening} Slot Tersisa
+                        {gym.slots.evening} / {gym.maxSlots.evening} Slots Left
                       </span>
                     </div>
                   </div>
@@ -259,7 +259,7 @@ export default function HomePage() {
                         : 'bg-transparent border-cyan-climb/60 hover:bg-cyan-climb/10 text-cyan-climb'
                     }`}
                   >
-                    <span>Pesan Sesi Gym</span>
+                    <span>Book Gym Pass</span>
                     <ArrowRight size={13} />
                   </Link>
                 </div>
@@ -268,11 +268,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* PEMBATAS GARIS (Sesuai Garis Horizontal Sketsa) */}
+        {/* DIVIDER LINE */}
         <div className={isSandstone ? 'border-t border-[#1a1815]/20' : 'border-t border-white/10'} />
 
         {/* ============================================================ */}
-        {/* SECTION 3: CRAGS (Sesuai Sketsa: "Crags" + Cards)            */}
+        {/* SECTION 3: CRAGS                                             */}
         {/* ============================================================ */}
         <section className="space-y-4">
           <div>
@@ -286,7 +286,7 @@ export default function HomePage() {
             <p className={`text-xs md:text-sm font-light mt-0.5 ${
               isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
             }`}>
-              Destinasi tebing alam, formasi karst, dan akses pemanjatan outdoor
+              Natural crags, karst formations, and outdoor climbing destinations
             </p>
           </div>
 
@@ -311,7 +311,7 @@ export default function HomePage() {
                       {crag.province}
                     </span>
                     <span className="glass bg-black/60 px-2.5 py-1 rounded-md text-lime border border-lime/30 font-bold uppercase">
-                      {crag.sectorCount} Sektor
+                      {crag.sectorCount} Sectors
                     </span>
                   </div>
 
@@ -322,10 +322,10 @@ export default function HomePage() {
                     </h3>
                     <div className="flex items-center justify-between text-xs mt-1">
                       <span className="text-white/80 font-light">
-                        {crag.problemCount} Jalur Terverifikasi
+                        {crag.problemCount} Verified Problems
                       </span>
                       <span className="text-lime font-bold flex items-center gap-0.5">
-                        Buka Topo <ChevronRight size={13} />
+                        View Topo <ChevronRight size={13} />
                       </span>
                     </div>
                   </div>
@@ -335,11 +335,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* PEMBATAS GARIS (Sesuai Garis Horizontal Sketsa) */}
+        {/* DIVIDER LINE */}
         <div className={isSandstone ? 'border-t border-[#1a1815]/20' : 'border-t border-white/10'} />
 
         {/* ============================================================ */}
-        {/* SECTION 4: PROBLEMS (Sesuai Sketsa: "Problems" + Cards)      */}
+        {/* SECTION 4: PROBLEMS                                          */}
         {/* ============================================================ */}
         <section className="space-y-4">
           <div>
@@ -353,7 +353,7 @@ export default function HomePage() {
             <p className={`text-xs md:text-sm font-light mt-0.5 ${
               isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
             }`}>
-              Katalog jalur boulder & topo tebing Indonesia
+              Catalog of verified boulder problems & topo betas
             </p>
           </div>
 
@@ -415,12 +415,12 @@ export default function HomePage() {
                     <span className={`font-light text-[11px] ${
                       isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                     }`}>
-                      {problem.ascentCount} climber send
+                      {problem.ascentCount} logged sends
                     </span>
                     <span className={`font-bold flex items-center gap-0.5 ${
                       isSandstone ? 'text-[#1a1815]' : 'text-lime'
                     }`}>
-                      Lihat Topo <ChevronRight size={13} />
+                      View Topo <ChevronRight size={13} />
                     </span>
                   </div>
                 </Link>

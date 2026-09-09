@@ -29,22 +29,22 @@ export default function AdminDashboardPage() {
           <Lock size={32} />
         </motion.div>
 
-        <div className="space-y-2">
+          <div className="space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-redpoint/10 border border-redpoint/20 text-redpoint text-xs font-mono font-light uppercase">
             <ShieldAlert size={13} /> Private Merchant Gate · 403 Forbidden
           </div>
           <h1 className="text-chalk font-bold text-2xl md:text-3xl">
-            Dashboard Khusus Admin Gym
+            Gym Admin Portal
           </h1>
           <p className="text-slate-ash text-xs md:text-sm font-light max-w-md mx-auto leading-relaxed">
-            Dashboard ini tidak dapat diakses oleh publik ataupun akun climber reguler. Halaman ini diproteksi khusus untuk mitra pengelola dan kasir climbing gym berlisensi.
+            This dashboard is not accessible to the public or regular climber accounts. It is reserved exclusively for registered gym partners, staff, and cashiers.
           </p>
         </div>
 
         {/* Action Options */}
         <div className="bg-crag border border-white/5 rounded-2xl p-5 space-y-3 text-left">
           <p className="text-[11px] text-slate-ash font-light uppercase tracking-wider mb-2">
-            Pilihan Akses Mitra Gym:
+            Gym Partner Access Options:
           </p>
 
           <Link
@@ -57,10 +57,10 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <span className="text-chalk font-bold text-sm block group-hover:text-lime transition-colors">
-                  Masuk Akun Pengelola Gym
+                  Sign In to Gym Account
                 </span>
                 <span className="text-[11px] text-slate-ash font-light">
-                  Sudah terdaftar sebagai mitra climbing gym
+                  Already registered as a climbing gym partner
                 </span>
               </div>
             </div>
@@ -77,10 +77,10 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <span className="text-chalk font-bold text-sm block group-hover:text-cyan-climb transition-colors">
-                  Daftarkan Gym Baru
+                  Register New Gym
                 </span>
                 <span className="text-[11px] text-slate-ash font-light">
-                  Aktivasi dashboard mandiri untuk gym Anda
+                  Activate a self-managed dashboard for your facility
                 </span>
               </div>
             </div>
@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
               onClick={() => loginAsGymAdmin()}
               className="w-full py-2.5 bg-lime/10 border border-lime/30 text-lime rounded-xl text-xs font-bold hover:bg-lime/20 transition-all text-center"
             >
-              ⚡ Buka Langsung (Mode Demo Admin Gym)
+              ⚡ Quick Launch (Gym Admin Demo Mode)
             </button>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function AdminDashboardPage() {
           href="/"
           className="inline-flex items-center gap-1.5 text-xs text-slate-ash hover:text-chalk font-light transition-colors"
         >
-          <ChevronLeft size={14} /> Kembali ke Halaman Utama Publik
+          <ChevronLeft size={14} /> Back to Public Home
         </Link>
       </div>
     )
@@ -111,7 +111,7 @@ export default function AdminDashboardPage() {
   // IF AUTHORIZED (GYM ADMIN): Render Tenant-Isolated Dashboard
   const currentGym = gymTenant || {
     name: 'Vertigo Boulder Gym',
-    city: 'Jakarta Selatan',
+    city: 'South Jakarta',
     picName: 'Adi Prasetyo',
   }
 
@@ -133,7 +133,7 @@ export default function AdminDashboardPage() {
               </span>
             </div>
             <p className="text-slate-ash text-xs font-light">
-              Admin: <span className="text-chalk">{currentGym.picName}</span> · Lokasi: <span className="text-chalk">{currentGym.city}</span>
+              Admin: <span className="text-chalk">{currentGym.picName}</span> · Location: <span className="text-chalk">{currentGym.city}</span>
             </p>
           </div>
         </div>

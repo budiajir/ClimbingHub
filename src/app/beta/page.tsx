@@ -89,7 +89,7 @@ function BetaPageContent() {
 
   const triggerLogAscent = () => {
     if (!canLogAscent(role)) {
-      openAuthModal('Silakan masuk atau daftar akun untuk mencatat Log Ascent pemanjatan.')
+      openAuthModal('Please sign in or create an account to log your climbing ascents.')
     } else {
       setShowLogModal(true)
     }
@@ -101,7 +101,7 @@ function BetaPageContent() {
     } else if (role === 'registered') {
       setShowRoadmapModal(true)
     } else {
-      openAuthModal('Silakan masuk atau daftar akun untuk mengakses fitur kurasi jalur tebing.')
+      openAuthModal('Please sign in or create an account to access route curation features.')
     }
   }
 
@@ -125,7 +125,7 @@ function BetaPageContent() {
           sectors: [
             {
               id: sectorId,
-              name: newSectorData?.name || 'Sektor 1',
+              name: newSectorData?.name || 'Sector 1',
               image: newSectorData?.image || newRoute.imageUrl || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
               problems: [newRoute],
             },
@@ -189,7 +189,7 @@ function BetaPageContent() {
         await insertSector({
           id: sectorId,
           cragId: regionId,
-          name: newSectorData?.name || 'Sektor 1',
+          name: newSectorData?.name || 'Sector 1',
           image: newSectorData?.image || newRoute.imageUrl,
         })
       }
@@ -418,13 +418,13 @@ function BetaPageContent() {
                 }`}>
                   {displayedRegions.length === 0 ? (
                     <div className="py-12 text-center">
-                      <p className="text-sm opacity-60">Tidak ada tebing untuk filter disiplin ini.</p>
+                      <p className="text-sm opacity-60">No crags found for this category.</p>
                     </div>
                   ) : (
                     displayedRegions.map(r => {
                       const isExpanded = expandedRegionId === r.id
                       return (
-                        <div key={r.id} className="py-3.5 md:py-4.5 transition-colors">
+                         <div key={r.id} className="py-3.5 md:py-4.5 transition-colors">
                           <div className="flex items-center justify-between gap-3">
                             {/* Left: Plus and Region Name */}
                             <button
@@ -461,7 +461,7 @@ function BetaPageContent() {
                                     : 'bg-crag hover:bg-crag-light text-chalk border border-white/5'
                                 }`}
                               >
-                                <span>{r.problemCount} Jalur</span>
+                                <span>{r.problemCount} Problems</span>
                                 <ChevronRight size={18} />
                               </button>
                             </div>
@@ -480,7 +480,7 @@ function BetaPageContent() {
                                   <span className={`text-xs font-bold uppercase tracking-wider ${
                                     isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                                   }`}>
-                                    Sektor ({r.sectors.length}):
+                                    Sectors ({r.sectors.length}):
                                   </span>
                                   {r.sectors.map(s => (
                                     <button
@@ -507,7 +507,7 @@ function BetaPageContent() {
                                     <p className={`text-[11px] font-bold uppercase tracking-wider ${
                                       isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
                                     }`}>
-                                      Jalur Terkenal:
+                                      Popular Problems:
                                     </p>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                       {r.sectors[0].problems.slice(0, 3).map(p => (
@@ -552,7 +552,7 @@ function BetaPageContent() {
                                         : 'bg-lime text-granite hover:bg-lime-dim'
                                     }`}
                                   >
-                                    Buka Panduan {r.name} ›
+                                    Open {r.name} Guide ›
                                   </button>
                                 </div>
                               </motion.div>
@@ -588,12 +588,12 @@ function BetaPageContent() {
                       <div className="p-3">
                         <div className="flex items-center justify-between gap-1 text-[10px] opacity-70 mb-1">
                           <span>{r.province}</span>
-                          <span>{r.sectorCount} Sektor</span>
+                          <span>{r.sectorCount} Sectors</span>
                         </div>
                         <h3 className="font-bold text-sm md:text-base truncate group-hover:underline">
                           {r.name}
                         </h3>
-                        <p className="text-xs opacity-80 mt-1">{r.problemCount} Jalur</p>
+                        <p className="text-xs opacity-80 mt-1">{r.problemCount} Problems</p>
                       </div>
                     </button>
                   ))}
@@ -627,7 +627,7 @@ function BetaPageContent() {
                             {r.province}
                           </span>
                           <span className="text-[10px] font-light text-lime uppercase tracking-widest glass bg-black/50 px-2.5 py-1 rounded-md border border-lime/30 font-bold backdrop-blur-md">
-                            {r.sectorCount} SEKTORS
+                            {r.sectorCount} SECTORS
                           </span>
                         </div>
 
@@ -665,19 +665,19 @@ function BetaPageContent() {
           >
             <div>
               <h2 className="text-chalk font-bold text-xl md:text-2xl">{region.name}</h2>
-              <p className="text-slate-ash text-xs font-light">Pilih sektor tebing untuk melihat daftar jalur pemanjatan</p>
+              <p className="text-slate-ash text-xs font-light">Select a crag sector to view verified boulder problems</p>
             </div>
 
             {region.sectors.length === 0 ? (
               <div className="bg-crag rounded-2xl p-12 text-center border border-white/5 space-y-3">
                 <Mountain size={36} className="text-slate-ash mx-auto" />
-                <p className="text-slate-ash text-sm font-light">Sektor untuk tebing ini sedang dalam proses pemetaan topo.</p>
+                <p className="text-slate-ash text-sm font-light">Sectors for this crag are currently being mapped.</p>
                 {canCreateCragRoute(role) && (
                   <button
                     onClick={() => setShowAddRouteModal(true)}
                     className="px-4 py-2 bg-lime text-granite text-xs font-bold rounded-xl shadow-lime-glow-sm"
                   >
-                    + Tambah Jalur Pertama
+                    + Add First Problem
                   </button>
                 )}
               </div>
@@ -701,7 +701,7 @@ function BetaPageContent() {
                         <h3 className="text-chalk font-bold text-base group-hover:text-lime transition-colors">
                           {s.name}
                         </h3>
-                        <p className="text-slate-ash text-xs font-light">{s.problems.length} Jalur Terpetakan</p>
+                        <p className="text-slate-ash text-xs font-light">{s.problems.length} Mapped Problems</p>
                       </div>
                       <div className="w-8 h-8 rounded-full bg-granite border border-white/5 flex items-center justify-center group-hover:bg-lime group-hover:text-granite transition-colors">
                         <ChevronRight size={16} className="text-slate-ash group-hover:text-granite" />
@@ -727,7 +727,7 @@ function BetaPageContent() {
               <div>
                 <h2 className="text-chalk font-bold text-xl md:text-2xl">{sector.name}</h2>
                 <p className="text-slate-ash text-xs font-light">
-                  Menampilkan {filteredProblems.length} jalur pemanjatan terverifikasi
+                  Showing {filteredProblems.length} verified boulder problems
                 </p>
               </div>
 
@@ -736,7 +736,7 @@ function BetaPageContent() {
                   onClick={() => setShowAddRouteModal(true)}
                   className="px-3 py-1.5 bg-lime text-granite rounded-xl text-xs font-bold shadow-lime-glow-sm flex items-center gap-1"
                 >
-                  <Plus size={14} /> Tambah di Sektor Ini
+                  <Plus size={14} /> Add to This Sector
                 </button>
               )}
             </div>
@@ -744,8 +744,8 @@ function BetaPageContent() {
             {filteredProblems.length === 0 ? (
               <div className="bg-crag rounded-2xl p-10 text-center border border-white/5 space-y-2">
                 <Mountain size={32} className="text-slate-ash mx-auto" />
-                <p className="text-chalk text-sm font-bold">Tidak ada jalur untuk filter disiplin ini</p>
-                <p className="text-slate-ash text-xs font-light">Pilih tab "Semua Jalur" untuk melihat seluruh rute di sektor ini.</p>
+                <p className="text-chalk text-sm font-bold">No boulder problems in this sector yet</p>
+                <p className="text-slate-ash text-xs font-light">Explore other sectors or submit a new problem.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -800,7 +800,7 @@ function BetaPageContent() {
           <motion.div key="topo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 md:px-0">
             {/* Desktop Problem Switcher Pills */}
             <div className="hidden lg:flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
-              <span className="text-slate-ash text-xs font-light uppercase tracking-wider mr-2">Routes in sector:</span>
+              <span className="text-slate-ash text-xs font-light uppercase tracking-wider mr-2">Problems in sector:</span>
               {sector.problems.map(p => (
                 <button
                   key={p.id}
@@ -857,7 +857,7 @@ function BetaPageContent() {
                       { key: 'overview' as const, label: 'Overview', icon: ThumbsUp },
                       { key: 'specs' as const, label: 'Specs', icon: Layers },
                       { key: 'beta' as const, label: 'Beta Video', icon: Video },
-                      { key: 'access' as const, label: 'Izin', icon: ShieldAlert },
+                      { key: 'access' as const, label: 'Access', icon: ShieldAlert },
                     ].map(({ key, label, icon: Icon }) => (
                       <button
                         key={key}
@@ -907,13 +907,13 @@ function BetaPageContent() {
                           <span className="text-sm font-bold text-cyan-climb">{problem.startType || 'Sit Start'}</span>
                         </div>
                         <div className="bg-granite p-3 rounded-xl">
-                          <span className="text-[10px] text-slate-ash uppercase block">Crashpad</span>
+                          <span className="text-[10px] text-slate-ash uppercase block">Crashpads</span>
                           <span className="text-xs font-bold text-cyan-climb">{problem.padRecommendation || '2 Pads'}</span>
                         </div>
                       </div>
                       <div className="bg-granite p-3 rounded-xl">
-                        <span className="text-[10px] text-slate-ash uppercase block">Pendaratan / Landing</span>
-                        <span className="text-xs text-chalk">{problem.landingQuality || 'Bebatuan datar berumput'}</span>
+                        <span className="text-[10px] text-slate-ash uppercase block">Landing Quality</span>
+                        <span className="text-xs text-chalk">{problem.landingQuality || 'Flat grassy ground'}</span>
                       </div>
                     </div>
                   )}
@@ -932,7 +932,7 @@ function BetaPageContent() {
                       ) : (
                         <div className="aspect-video bg-granite rounded-xl flex flex-col items-center justify-center gap-2">
                           <Video size={28} className="text-slate-ash" />
-                          <p className="text-slate-ash text-sm font-light">Belum ada video rekaman beta</p>
+                          <p className="text-slate-ash text-sm font-light">No beta video recorded yet</p>
                         </div>
                       )}
                     </div>
@@ -943,12 +943,12 @@ function BetaPageContent() {
                       <div className="bg-project/10 border border-project/20 rounded-xl p-3 flex gap-3">
                         <ShieldAlert size={16} className="text-project flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-project text-xs font-bold mb-1">Izin & Akses Tebing</p>
+                          <p className="text-project text-xs font-bold mb-1">Access & Crag Etiquette</p>
                           <p className="text-chalk/80 text-xs font-normal leading-relaxed">{problem.accessInfo}</p>
                         </div>
                       </div>
                       <div className="bg-granite rounded-xl p-3">
-                        <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-1 font-light">Kontak Lokal / Warga Adat</p>
+                        <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-1 font-light">Local Contact / Area Host</p>
                         <p className="text-chalk text-xs font-medium">{problem.localContact}</p>
                       </div>
                     </div>

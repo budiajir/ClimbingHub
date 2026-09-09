@@ -30,10 +30,10 @@ export default function ProblemSheet({ problem, onLogAscent, onClose }: ProblemS
   const totalVotes = problem.gradeVotes.reduce((acc, v) => acc + v.votes, 0)
 
   const tabs: { key: 'overview' | 'beta' | 'specs' | 'access'; label: string }[] = [
-    { key: 'overview', label: 'Ringkasan' },
-    { key: 'specs', label: 'Spesifikasi Rute' },
+    { key: 'overview', label: 'Overview' },
+    { key: 'specs', label: 'Specs' },
     { key: 'beta', label: 'Beta Video' },
-    { key: 'access', label: 'Izin & Akses' },
+    { key: 'access', label: 'Access & Guidelines' },
   ]
 
   const discipline = problem.discipline || 'bouldering'
@@ -106,7 +106,7 @@ export default function ProblemSheet({ problem, onLogAscent, onClose }: ProblemS
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { label: 'Ascents', value: problem.ascentCount, color: 'text-lime' },
-                  { label: 'Setter / Tim', value: problem.setter.split(' ')[0], color: 'text-cyan-climb' },
+                  { label: 'Route Setter', value: problem.setter.split(' ')[0], color: 'text-cyan-climb' },
                   { label: 'Votes', value: totalVotes, color: 'text-chalk' },
                 ].map(stat => (
                   <div key={stat.label} className="bg-granite rounded-xl p-2.5 text-center">
@@ -147,13 +147,13 @@ export default function ProblemSheet({ problem, onLogAscent, onClose }: ProblemS
                     <span className="text-sm font-bold text-cyan-climb">{problem.startType || 'Sit Start (SS)'}</span>
                   </div>
                   <div className="bg-granite p-3 rounded-xl">
-                    <span className="text-[10px] text-slate-ash uppercase block">Rekomendasi Crashpad</span>
+                    <span className="text-[10px] text-slate-ash uppercase block">Recommended Pads</span>
                     <span className="text-xs font-bold text-cyan-climb">{problem.padRecommendation || '2 Pads'}</span>
                   </div>
                 </div>
                 <div className="bg-granite p-3 rounded-xl">
-                  <span className="text-[10px] text-slate-ash uppercase block">Kondisi Pendaratan (Landing)</span>
-                  <span className="text-xs font-normal text-chalk">{problem.landingQuality || 'Bebatuan datar berumput'}</span>
+                  <span className="text-[10px] text-slate-ash uppercase block">Landing Conditions</span>
+                  <span className="text-xs font-normal text-chalk">{problem.landingQuality || 'Flat grassy ground'}</span>
                 </div>
               </div>
             </motion.div>
@@ -178,7 +178,7 @@ export default function ProblemSheet({ problem, onLogAscent, onClose }: ProblemS
               ) : (
                 <div className="aspect-video bg-granite rounded-xl flex flex-col items-center justify-center gap-2">
                   <Award size={28} className="text-slate-ash" />
-                  <p className="text-slate-ash text-sm font-light">Belum ada beta video</p>
+                  <p className="text-slate-ash text-sm font-light">No beta video yet</p>
                   <button className="text-lime text-xs font-light flex items-center gap-1">
                     <ExternalLink size={12} /> Upload Beta
                   </button>
@@ -198,13 +198,13 @@ export default function ProblemSheet({ problem, onLogAscent, onClose }: ProblemS
               <div className="bg-project/10 border border-project/20 rounded-xl p-3 flex gap-3">
                 <AlertCircle size={16} className="text-project flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-project text-xs font-bold mb-1">Izin & Akses</p>
+                  <p className="text-project text-xs font-bold mb-1">Access & Guidelines</p>
                   <p className="text-chalk/80 text-sm font-normal leading-relaxed">{problem.accessInfo}</p>
                 </div>
               </div>
 
               <div className="bg-crag-light rounded-xl p-3">
-                <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-1 font-light">Kontak Lokal / Warga Adat</p>
+                <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-1 font-light">Local Contact / Area Host</p>
                 <p className="text-chalk text-sm font-medium">{problem.localContact}</p>
               </div>
             </motion.div>

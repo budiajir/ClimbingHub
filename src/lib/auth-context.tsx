@@ -36,7 +36,7 @@ const defaultSuperAdmin: ClimberUser = {
   email: 'owner@climbhub.id',
   handle: '@climbhub_admin',
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80',
-  gradeMax: 'Pemilik Website',
+  gradeMax: 'Platform Owner',
   ascentsCount: 156,
 }
 
@@ -185,7 +185,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const openAuthModal = (reason?: string) => {
-    setAuthModalReason(reason || 'Silakan masuk atau daftar akun untuk melanjutkan.')
+    setAuthModalReason(reason || 'Please sign in or create an account to continue.')
     setIsAuthModalOpen(true)
   }
 

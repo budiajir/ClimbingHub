@@ -11,7 +11,7 @@ export default function CragFeed() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-chalk font-bold text-base md:text-xl tracking-tight">Top Indonesian Crags</h2>
-          <p className="text-slate-ash text-[11px] md:text-xs font-light">Destinasi outdoor bouldering terbaik di Indonesia</p>
+          <p className="text-slate-ash text-[11px] md:text-xs font-light">Premier outdoor bouldering destinations in Indonesia</p>
         </div>
         <Link href="/beta" className="flex items-center gap-1 text-lime text-xs md:text-sm font-light hover:underline tracking-wide">
           Beta Book <ChevronRight size={14} />
@@ -54,7 +54,7 @@ export default function CragFeed() {
                       </div>
                       <div>
                         <div className="text-chalk text-sm md:text-base font-bold">{crag.sectorCount}</div>
-                        <div className="text-white/50 text-[9px] uppercase tracking-wide font-light">Sektors</div>
+                        <div className="text-white/50 text-[9px] uppercase tracking-wide font-light">Sectors</div>
                       </div>
                     </div>
                     <div className="w-8 h-8 rounded-full bg-lime/20 border border-lime/30 flex items-center justify-center group-hover:bg-lime group-hover:text-granite transition-colors">

@@ -57,7 +57,7 @@ export default function TopBar({
   const handleLogAscentClick = () => {
     setShowDrawer(false)
     if (!canLogAscent(role)) {
-      openAuthModal('Silakan masuk atau daftar akun untuk mencatat Log Ascent pemanjatan.')
+      openAuthModal('Please sign in or create an account to log your ascents.')
     } else if (onLogAscent) {
       onLogAscent()
     } else {
@@ -74,10 +74,10 @@ export default function TopBar({
   }
 
   const rolesConfig: { key: UserRole; label: string; sub: string; icon: React.ElementType }[] = [
-    { key: 'guest', label: 'Public (Guest)', sub: 'Tamu publik', icon: Eye },
-    { key: 'registered', label: 'Climber', sub: 'Log ascent aktif', icon: UserCheck },
-    { key: 'super_admin', label: 'Super Admin', sub: 'Owner & kurator', icon: Crown },
-    { key: 'gym_admin', label: 'Gym Admin', sub: 'Dashboard POS', icon: Store },
+    { key: 'guest', label: 'Public (Guest)', sub: 'Read-only access', icon: Eye },
+    { key: 'registered', label: 'Climber', sub: 'Active ascent logger', icon: UserCheck },
+    { key: 'super_admin', label: 'Super Admin', sub: 'Owner & curator', icon: Crown },
+    { key: 'gym_admin', label: 'Gym Admin', sub: 'POS & slot dashboard', icon: Store },
   ]
 
   return (
@@ -99,7 +99,7 @@ export default function TopBar({
             <button
               onClick={() => {
                 if (role === 'guest') {
-                  openAuthModal('Silakan masuk atau daftar akun untuk profil dan logbook Anda.')
+                  openAuthModal('Please sign in or create an account for your profile and logbook.')
                 } else {
                   setShowDrawer(true)
                 }
@@ -109,8 +109,8 @@ export default function TopBar({
                   ? 'border-[#1a1815]/30 hover:border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
                   : 'border-white/20 hover:border-lime text-chalk hover:text-lime hover:bg-white/5'
               }`}
-              title={role === 'guest' ? 'Masuk / Akun' : user?.name || 'Profil Akun'}
-              aria-label="Akun Pengguna"
+              title={role === 'guest' ? 'Sign In / Account' : user?.name || 'User Profile'}
+              aria-label="User Account"
             >
               {user?.avatar ? (
                 <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover rounded-xl" />
@@ -146,8 +146,8 @@ export default function TopBar({
                   ? 'hover:bg-[#1a1815]/10 text-[#1a1815]'
                   : 'hover:bg-white/10 text-chalk'
               }`}
-              title="Buka Menu"
-              aria-label="Buka Menu Navigasi"
+              title="Open Menu"
+              aria-label="Open Navigation Menu"
             >
               <span
                 className={`w-6 h-[2.5px] rounded-full transition-all ${
@@ -201,11 +201,11 @@ export default function TopBar({
                     onClick={() => {
                       if (role === 'guest') {
                         setShowDrawer(false)
-                        openAuthModal('Silakan masuk atau daftar akun.')
+                        openAuthModal('Please sign in or create an account.')
                       }
                     }}
                     className="flex items-center gap-2.5 text-left group min-w-0 mr-2"
-                    title={role === 'guest' ? 'Klik untuk Masuk / Daftar' : 'Profil Akun'}
+                    title={role === 'guest' ? 'Click to Sign In / Sign Up' : 'User Profile'}
                   >
                     <div
                       className={`w-8 h-8 rounded-xl border flex items-center justify-center overflow-hidden flex-shrink-0 transition-transform group-hover:scale-105 ${
@@ -224,10 +224,10 @@ export default function TopBar({
                     </div>
                     <div className="min-w-0">
                       <span className="font-bold text-xs block leading-tight truncate group-hover:underline">
-                        {role === 'guest' ? 'Akun Tamu' : user?.name || 'Climber'}
+                        {role === 'guest' ? 'Guest Account' : user?.name || 'Climber'}
                       </span>
                       <span className="text-[9px] font-mono uppercase tracking-wider opacity-60 block truncate">
-                        {role === 'guest' ? 'Klik utk Masuk' : role === 'super_admin' ? '👑 Super Admin' : role === 'gym_admin' ? '🏢 Gym Admin' : '🧗 Climber'}
+                        {role === 'guest' ? 'Click to Sign In' : role === 'super_admin' ? '👑 Super Admin' : role === 'gym_admin' ? '🏢 Gym Admin' : '🧗 Climber'}
                       </span>
                     </div>
                   </button>
@@ -241,7 +241,7 @@ export default function TopBar({
                           ? 'border-[#1a1815]/30 bg-transparent text-[#1a1815] hover:bg-[#1a1815]/10'
                           : 'border-white/15 bg-transparent text-chalk hover:bg-white/10'
                       }`}
-                      title="Ganti Tema (Sandstone / Granite)"
+                      title="Toggle Theme (Sandstone / Granite)"
                     >
                       {isSandstone ? (
                         <>
@@ -264,7 +264,7 @@ export default function TopBar({
                           ? 'hover:bg-[#1a1815]/10 text-[#1a1815]'
                           : 'hover:bg-white/10 text-chalk'
                       }`}
-                      aria-label="Tutup Menu"
+                      aria-label="Close Menu"
                     >
                       <X size={18} strokeWidth={2.2} />
                     </button>
@@ -283,7 +283,7 @@ export default function TopBar({
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="Cari spot boulder, tebing, gym..."
+                    placeholder="Search boulder spots, crags, gyms..."
                     className={`w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border outline-none transition-all ${
                       isSandstone
                         ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/50 focus:border-[#1a1815]'
@@ -295,14 +295,14 @@ export default function TopBar({
                 {/* Main Navigation Links */}
                 <div className="space-y-1.5 pt-1">
                   <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 px-2 block">
-                    Menu Utama
+                    Main Menu
                   </span>
 
                   {[
-                    { href: '/', label: 'Explore Tebing', sub: 'Eksplorasi destinasi panjat', icon: Compass },
-                    { href: '/beta', label: 'Boulder & Topo', sub: 'Beta Book & database jalur', icon: BookOpen },
-                    { href: '/gyms', label: 'Gym Directory', sub: 'Boulder & Climbing Gym', icon: Building2 },
-                    { href: '/community', label: 'Community', sub: 'Forum & partner pemanjat', icon: Users },
+                    { href: '/', label: 'Explore Crags', sub: 'Discover climbing destinations', icon: Compass },
+                    { href: '/beta', label: 'Boulders & Topo', sub: 'Beta Book & route database', icon: BookOpen },
+                    { href: '/gyms', label: 'Gym Directory', sub: 'Bouldering & climbing gyms', icon: Building2 },
+                    { href: '/community', label: 'Community', sub: 'Climber network & partners', icon: Users },
                   ].map(item => {
                     const Icon = item.icon
                     const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
@@ -344,16 +344,16 @@ export default function TopBar({
                   })}
                 </div>
 
-                {/* ROLE SWITCHER / MODE PENGGUNA */}
+                {/* ROLE SWITCHER / USER MODE */}
                 <div className="pt-2 space-y-2 border-t border-black/10 dark:border-white/10">
                   <div className="flex items-center justify-between px-2">
                     <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 block">
-                      Pilih Role Pengguna
+                      Switch User Role
                     </span>
                     <span className={`text-[9px] px-1.5 py-0.5 rounded border uppercase font-mono font-bold ${
                       isSandstone ? 'border-[#1a1815]/30 text-[#1a1815]' : 'border-lime/30 text-lime'
                     }`}>
-                      Aktif: {role}
+                      Active: {role}
                     </span>
                   </div>
 
@@ -392,7 +392,7 @@ export default function TopBar({
                 {/* Action Links */}
                 <div className="pt-2 space-y-1.5 border-t border-black/10 dark:border-white/10">
                   <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 px-2 block">
-                    Aksi Cepat
+                    Quick Actions
                   </span>
 
                   {role === 'gym_admin' && (
@@ -400,7 +400,7 @@ export default function TopBar({
                       onClick={() => handleNavClick('/admin')}
                       className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold border border-cyan-500/40 text-cyan-500 hover:bg-cyan-500/10 transition-colors"
                     >
-                      <Store size={14} /> Buka Dashboard POS Kasir Gym
+                      <Store size={14} /> Open Gym POS Cashier Dashboard
                     </button>
                   )}
 
@@ -413,7 +413,7 @@ export default function TopBar({
                     }`}
                   >
                     <Plus size={15} />
-                    <span>+ Tambah Jalur Boulder</span>
+                    <span>+ Submit Boulder Problem</span>
                   </button>
 
                   <button
@@ -425,7 +425,7 @@ export default function TopBar({
                     }`}
                   >
                     <BookOpen size={15} />
-                    <span>Catat Log Ascent</span>
+                    <span>Log Boulder Ascent</span>
                   </button>
                 </div>
               </div>

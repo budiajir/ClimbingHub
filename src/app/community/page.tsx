@@ -13,7 +13,7 @@ export default function CommunityPage() {
             Climbing Communities & Squads <Sparkles size={22} className="text-lime" />
           </h1>
           <p className="text-slate-ash text-xs md:text-sm font-light mt-1">
-            Direktori resmi boulder squad lokal dan komunitas panjat tebing di Indonesia
+            Official directory of local bouldering squads and climbing clubs across Indonesia
           </p>
         </div>
       </div>

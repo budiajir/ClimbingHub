@@ -66,7 +66,7 @@ export default function AddRouteModal({
   // Tebing Baru (New Crag) state
   const [isCreatingNewRegion, setIsCreatingNewRegion] = useState(false)
   const [newRegionName, setNewRegionName] = useState('')
-  const [newRegionProvince, setNewRegionProvince] = useState('Jawa Barat')
+  const [newRegionProvince, setNewRegionProvince] = useState('West Java')
 
   // Sektor Baru (New Sector) state
   const [isCreatingNewSector, setIsCreatingNewSector] = useState(false)
@@ -97,18 +97,18 @@ export default function AddRouteModal({
   // Multi-pitch specific
   const [totalPitches, setTotalPitches] = useState(3)
   const [totalHeight, setTotalHeight] = useState('120m')
-  const [descentInfo, setDescentInfo] = useState('Rapel tali ganda 60m via stasiun anchor berantai.')
+  const [descentInfo, setDescentInfo] = useState('60m double rope rappel via chained anchor stations.')
   const [pitches, setPitches] = useState<PitchDetail[]>([
-    { pitchNumber: 1, grade: '5.9', length: '35m', description: 'Slab friction awalan' },
-    { pitchNumber: 2, grade: '5.10c', length: '40m', description: 'Crux vertikal di pilar tengah' },
-    { pitchNumber: 3, grade: '5.10a', length: '45m', description: 'Teras atas menuju finish' },
+    { pitchNumber: 1, grade: '5.9', length: '35m', description: 'Opening friction slab' },
+    { pitchNumber: 2, grade: '5.10c', length: '40m', description: 'Vertical crux on center pillar' },
+    { pitchNumber: 3, grade: '5.10a', length: '45m', description: 'Upper terrace to finish' },
   ])
 
   // Boulder specific
   const [vGrade, setVGrade] = useState('V5')
   const [boulderFont, setBoulderFont] = useState('6C')
   const [padRecommendation, setPadRecommendation] = useState('2 Crashpads + 1 Spotter')
-  const [landingQuality, setLandingQuality] = useState('Rata berpasir')
+  const [landingQuality, setLandingQuality] = useState('Flat sandy base')
   const [startType, setStartType] = useState<'Sit Start (SS)' | 'Stand Start'>('Sit Start (SS)')
 
   // PHOTO & TOPO DRAWING STATE
@@ -230,15 +230,15 @@ export default function AddRouteModal({
 
   const handleProceedToTopo = () => {
     if (isCreatingNewRegion && !newRegionName.trim()) {
-      setValidationError('Silakan isi nama tebing baru.')
+      setValidationError('Please enter a crag name.')
       return
     }
     if ((isCreatingNewRegion || isCreatingNewSector) && !newSectorName.trim()) {
-      setValidationError('Silakan isi nama sektor baru.')
+      setValidationError('Please enter a sector name.')
       return
     }
     if (!name.trim()) {
-      setValidationError('Silakan isi nama jalur / rute pemanjatan.')
+      setValidationError('Please enter a route / problem name.')
       return
     }
     setValidationError(null)
@@ -261,7 +261,7 @@ export default function AddRouteModal({
       finalRegionId = `crag-${Date.now()}`
       newRegionData = {
         id: finalRegionId,
-        name: newRegionName.trim() || 'Tebing Baru',
+        name: newRegionName.trim() || 'New Crag',
         province: newRegionProvince.trim() || 'Indonesia',
         image: activePhoto,
       }
@@ -271,7 +271,7 @@ export default function AddRouteModal({
       finalSectorId = `sector-${Date.now()}`
       newSectorData = {
         id: finalSectorId,
-        name: newSectorName.trim() || 'Sektor 1',
+        name: newSectorName.trim() || 'Sector 1',
         image: activePhoto,
       }
     }
@@ -283,12 +283,12 @@ export default function AddRouteModal({
       grade: discipline === 'bouldering' ? vGrade : grade,
       fontGrade: discipline === 'bouldering' ? boulderFont : fontGrade,
       setter: 'Chief Route Curator (Owner)',
-      fa: fa || 'Tim Ekspedisi Tebing Alam',
+      fa: fa || 'Rock Climbing Expedition Team',
       faDate: new Date().toISOString().split('T')[0],
-      description: description || 'Jalur tebing terverifikasi resmi oleh kurator Jalur.',
+      description: description || 'Official crag route verified by Jalur curators.',
       imageUrl: activePhoto,
       accessInfo: accessInfo || (isCreatingNewRegion ? `${newRegionName} Access` : `${currentRegion?.name} Crag Access`),
-      localContact: localContact || 'Pemandu Lokal / Pengelola Tebing',
+      localContact: localContact || 'Local Guide / Crag Caretaker',
       ascentCount: 0,
       gradeVotes: [{ grade: discipline === 'bouldering' ? vGrade : grade, votes: 1 }],
       markers: markers.length > 0 ? markers : [
@@ -352,12 +352,12 @@ export default function AddRouteModal({
             <div className="w-16 h-16 rounded-full bg-lime/20 border border-lime/40 text-lime flex items-center justify-center mx-auto text-3xl font-bold shadow-lime-glow">
               <CheckCircle2 size={36} />
             </div>
-            <h2 className="text-chalk font-bold text-2xl">Jalur & Topo Berhasil Diterbitkan!</h2>
+            <h2 className="text-chalk font-bold text-2xl">Route & Topo Published!</h2>
             <p className="text-slate-ash text-xs font-light">
-              Rute <b>{name}</b> ({discipline.toUpperCase()}) di{' '}
+              Route <b>{name}</b> ({discipline.toUpperCase()}) at{' '}
               <b>{isCreatingNewRegion ? newRegionName : currentRegion?.name}</b> ·{' '}
               <b>{isCreatingNewSector || isCreatingNewRegion ? newSectorName : currentSector?.name}</b>{' '}
-              beserta foto & garis topo visual telah aktif di katalog tebing.
+              along with photo & topo line are now live in the crag guide.
             </p>
           </div>
         ) : (
@@ -365,10 +365,10 @@ export default function AddRouteModal({
             {/* Header Badge */}
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-lime/10 border border-lime/30 text-lime text-xs font-mono font-light uppercase mb-2">
-                <ShieldCheck size={14} /> Kurator Resmi · Pemilik Website
+                <ShieldCheck size={14} /> Official Curator · Website Admin
               </div>
               <h2 className="text-chalk font-bold text-xl md:text-2xl">
-                Tambah Jalur & Gambar Topo Tebing
+                Add Route & Draw Cliff Topo
               </h2>
             </div>
 
@@ -384,7 +384,7 @@ export default function AddRouteModal({
                 }`}
               >
                 <Mountain size={14} />
-                <span>1. Detail & Spesifikasi</span>
+                <span>1. Details & Specs</span>
               </button>
               <button
                 type="button"
@@ -396,7 +396,7 @@ export default function AddRouteModal({
                 }`}
               >
                 <MousePointerClick size={14} />
-                <span>2. Foto & Gambar Jalur ({markers.length} Titik)</span>
+                <span>2. Photo & Topo Line ({markers.length} Points)</span>
               </button>
             </div>
 
@@ -406,13 +406,13 @@ export default function AddRouteModal({
                 {/* 3 DISCIPLINE SELECTOR PILLS */}
                 <div>
                   <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-2">
-                    Pilih Tipe / Disiplin Jalur Pemanjatan
+                    Select Climbing Discipline
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { key: 'sport', label: '1. Sport Climbing', sub: 'Single Pitch (Tali)', icon: Mountain },
-                      { key: 'multipitch', label: '2. Multi Pitch', sub: 'Dinding Bersambung', icon: Layers },
-                      { key: 'bouldering', label: '3. Bouldering', sub: 'Bongkahan (Crashpad)', icon: Compass },
+                      { key: 'sport', label: '1. Sport Climbing', sub: 'Single Pitch (Roped)', icon: Mountain },
+                      { key: 'multipitch', label: '2. Multi Pitch', sub: 'Continuous Wall', icon: Layers },
+                      { key: 'bouldering', label: '3. Bouldering', sub: 'Boulder (Crashpad)', icon: Compass },
                     ].map(item => {
                       const Icon = item.icon
                       const isSelected = discipline === item.key
@@ -445,7 +445,7 @@ export default function AddRouteModal({
                     <div className="flex items-center justify-between">
                       <label className="text-[11px] text-slate-ash uppercase tracking-wider font-bold flex items-center gap-1.5">
                         <Mountain size={13} className="text-lime" />
-                        Kawasan Tebing (Crag Region)
+                        Crag Region
                       </label>
                       <button
                         type="button"
@@ -464,7 +464,7 @@ export default function AddRouteModal({
                         }`}
                       >
                         <Plus size={12} />
-                        {isCreatingNewRegion ? 'Pilih Tebing yang Ada' : '+ Buat Tebing Baru'}
+                        {isCreatingNewRegion ? 'Select Existing Crag' : '+ Create New Crag'}
                       </button>
                     </div>
 
@@ -488,7 +488,7 @@ export default function AddRouteModal({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 p-3 rounded-xl bg-crag/90 border border-lime/30">
                         <div>
                           <label className="text-[10px] text-lime uppercase font-bold block mb-1">
-                            Nama Tebing Baru *
+                            New Crag Name *
                           </label>
                           <input
                             required
@@ -497,13 +497,13 @@ export default function AddRouteModal({
                               setNewRegionName(e.target.value)
                               setValidationError(null)
                             }}
-                            placeholder="cth: Tebing Parang, Tebing Uluwatu"
+                            placeholder="e.g. Parang Wall, Uluwatu Crag"
                             className="w-full bg-granite border border-white/10 rounded-lg px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-lime/40 placeholder:text-slate-ash/50"
                           />
                         </div>
                         <div>
                           <label className="text-[10px] text-slate-ash uppercase block mb-1">
-                            Provinsi / Wilayah *
+                            Province / Region *
                           </label>
                           <input
                             required
@@ -512,7 +512,7 @@ export default function AddRouteModal({
                               setNewRegionProvince(e.target.value)
                               setValidationError(null)
                             }}
-                            placeholder="cth: Jawa Barat, Bali, DI Yogyakarta"
+                            placeholder="e.g. West Java, Bali, Yogyakarta"
                             className="w-full bg-granite border border-white/10 rounded-lg px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-lime/40 placeholder:text-slate-ash/50"
                           />
                         </div>
@@ -525,7 +525,7 @@ export default function AddRouteModal({
                     <div className="flex items-center justify-between">
                       <label className="text-[11px] text-slate-ash uppercase tracking-wider font-bold flex items-center gap-1.5">
                         <Layers size={13} className="text-cyan-climb" />
-                        Sektor Tebing
+                        Crag Sector
                       </label>
                       {!isCreatingNewRegion && (
                         <button
@@ -541,7 +541,7 @@ export default function AddRouteModal({
                           }`}
                         >
                           <Plus size={12} />
-                          {isCreatingNewSector ? 'Pilih Sektor yang Ada' : '+ Buat Sektor Baru'}
+                          {isCreatingNewSector ? 'Select Existing Sector' : '+ Create New Sector'}
                         </button>
                       )}
                     </div>
@@ -561,7 +561,7 @@ export default function AddRouteModal({
                     ) : (
                       <div className="p-3 rounded-xl bg-crag/90 border border-cyan-climb/30">
                         <label className="text-[10px] text-cyan-climb uppercase font-bold block mb-1">
-                          Nama Sektor Baru {isCreatingNewRegion ? '(Sektor Pertama)' : ''} *
+                          New Sector Name {isCreatingNewRegion ? '(First Sector)' : ''} *
                         </label>
                         <input
                           required
@@ -570,7 +570,7 @@ export default function AddRouteModal({
                             setNewSectorName(e.target.value)
                             setValidationError(null)
                           }}
-                          placeholder="cth: Sektor A — Dinding Utama, Menara Barat, Goa Bawah"
+                          placeholder="e.g. Sector A — Main Wall, West Tower, Lower Cave"
                           className="w-full bg-granite border border-white/10 rounded-lg px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-cyan-climb/40 placeholder:text-slate-ash/50"
                         />
                       </div>
@@ -582,11 +582,11 @@ export default function AddRouteModal({
                 <div className="space-y-3">
                   <div>
                     <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
-                      Nama Jalur / Rute
+                      Route / Problem Name
                     </label>
                     <input
                       required
-                      placeholder="cth: Pilar Merah, Sunset Boulevard, Dragon Backbone"
+                      placeholder="e.g. Red Pillar, Sunset Boulevard, Dragon Backbone"
                       value={name}
                       onChange={e => setName(e.target.value)}
                       className="w-full bg-granite border border-white/5 rounded-xl px-3 py-2.5 text-chalk text-xs font-normal focus:outline-none focus:border-lime/40 placeholder:font-light"
@@ -599,7 +599,7 @@ export default function AddRouteModal({
                         First Ascensionist (FA)
                       </label>
                       <input
-                        placeholder="cth: Adi Prasetyo (2022)"
+                        placeholder="e.g. Alex Megos (2022)"
                         value={fa}
                         onChange={e => setFa(e.target.value)}
                         className="w-full bg-granite border border-white/5 rounded-xl px-3 py-2 text-chalk text-xs font-normal focus:outline-none focus:border-lime/40"
@@ -607,10 +607,10 @@ export default function AddRouteModal({
                     </div>
                     <div>
                       <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
-                        Kontak Kuncen / Pemandu Lokal
+                        Local Guide / Caretaker Contact
                       </label>
                       <input
-                        placeholder="cth: Pak Asep (+6281234567)"
+                        placeholder="e.g. Local Caretaker (+6281234567)"
                         value={localContact}
                         onChange={e => setLocalContact(e.target.value)}
                         className="w-full bg-granite border border-white/5 rounded-xl px-3 py-2 text-chalk text-xs font-normal focus:outline-none focus:border-lime/40"
@@ -623,12 +623,12 @@ export default function AddRouteModal({
                 {discipline === 'sport' && (
                   <div className="bg-granite/80 border border-lime/20 rounded-2xl p-4 space-y-3">
                     <div className="flex items-center gap-2 text-lime font-bold text-xs uppercase tracking-wider">
-                      <Mountain size={14} /> Spesifikasi Sport Climbing (Single Pitch)
+                      <Mountain size={14} /> Sport Climbing Specs (Single Pitch)
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Grade YDS</label>
+                        <label className="text-[10px] text-slate-ash uppercase block mb-1">YDS Grade</label>
                         <input
                           value={grade}
                           onChange={e => setGrade(e.target.value)}
@@ -637,7 +637,7 @@ export default function AddRouteModal({
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Grade French</label>
+                        <label className="text-[10px] text-slate-ash uppercase block mb-1">French Grade</label>
                         <input
                           value={fontGrade}
                           onChange={e => setFontGrade(e.target.value)}
@@ -646,7 +646,7 @@ export default function AddRouteModal({
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Tinggi / Pitch (m)</label>
+                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Pitch Length (m)</label>
                         <input
                           value={pitchLength}
                           onChange={e => setPitchLength(e.target.value)}
@@ -655,7 +655,7 @@ export default function AddRouteModal({
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Jumlah Bolt</label>
+                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Bolt Count</label>
                         <input
                           type="number"
                           value={boltCount}
@@ -667,7 +667,7 @@ export default function AddRouteModal({
                     </div>
 
                     <div>
-                      <label className="text-[10px] text-slate-ash uppercase block mb-1">Tipe Anchor Top Stasiun</label>
+                      <label className="text-[10px] text-slate-ash uppercase block mb-1">Top Anchor Station Type</label>
                       <input
                         value={anchorType}
                         onChange={e => setAnchorType(e.target.value)}
@@ -682,20 +682,20 @@ export default function AddRouteModal({
                   <div className="bg-granite/80 border border-project/20 rounded-2xl p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-project font-bold text-xs uppercase tracking-wider">
-                        <Layers size={14} /> Spesifikasi Multi Pitch
+                        <Layers size={14} /> Multi-Pitch Specs
                       </div>
                       <button
                         type="button"
                         onClick={handleAddPitch}
                         className="text-[11px] px-2.5 py-1 bg-project/10 text-project border border-project/30 rounded-lg hover:bg-project/20 transition-colors flex items-center gap-1 font-bold"
                       >
-                        <Plus size={12} /> Tambah Pitch
+                        <Plus size={12} /> Add Pitch
                       </button>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Total Ketinggian (m)</label>
+                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Total Height (m)</label>
                         <input
                           value={totalHeight}
                           onChange={e => setTotalHeight(e.target.value)}
@@ -728,13 +728,13 @@ export default function AddRouteModal({
                             className="w-20 bg-granite border border-white/5 rounded px-2 py-1 text-xs text-chalk font-mono focus:outline-none"
                           />
                           <input
-                            placeholder="Panjang"
+                            placeholder="Length"
                             value={p.length}
                             onChange={e => handlePitchChange(idx, 'length', e.target.value)}
                             className="w-20 bg-granite border border-white/5 rounded px-2 py-1 text-xs text-chalk focus:outline-none"
                           />
                           <input
-                            placeholder="Catatan pitch"
+                            placeholder="Pitch notes"
                             value={p.description}
                             onChange={e => handlePitchChange(idx, 'description', e.target.value)}
                             className="flex-1 bg-granite border border-white/5 rounded px-2 py-1 text-xs text-chalk focus:outline-none"
@@ -757,7 +757,7 @@ export default function AddRouteModal({
                 {discipline === 'bouldering' && (
                   <div className="bg-granite/80 border border-cyan-climb/20 rounded-2xl p-4 space-y-3">
                     <div className="flex items-center gap-2 text-cyan-climb font-bold text-xs uppercase tracking-wider">
-                      <Compass size={14} /> Spesifikasi Bouldering
+                      <Compass size={14} /> Bouldering Specs
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -780,7 +780,7 @@ export default function AddRouteModal({
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Tipe Start</label>
+                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Start Type</label>
                         <select
                           value={startType}
                           onChange={e => setStartType(e.target.value as 'Sit Start (SS)' | 'Stand Start')}
@@ -791,7 +791,7 @@ export default function AddRouteModal({
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Rekomendasi Pad</label>
+                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Pad Recommendation</label>
                         <input
                           value={padRecommendation}
                           onChange={e => setPadRecommendation(e.target.value)}
@@ -817,7 +817,7 @@ export default function AddRouteModal({
                   onClick={handleProceedToTopo}
                   className="w-full py-3.5 bg-lime text-granite font-bold tracking-wide rounded-xl shadow-lime-glow hover:bg-lime-dim transition-all text-xs flex items-center justify-center gap-2 mt-3"
                 >
-                  <span>Lanjut: Upload Foto & Gambar Jalur Topo</span>
+                  <span>Continue: Upload Photo & Draw Topo Line</span>
                   <ArrowRight size={16} />
                 </button>
               </div>
@@ -829,7 +829,7 @@ export default function AddRouteModal({
                 {/* Source Selection Buttons */}
                 <div className="bg-granite p-3 rounded-2xl border border-white/5 space-y-2.5">
                   <span className="text-[11px] text-slate-ash uppercase tracking-wider font-light block">
-                    Pilih Sumber Foto Tebing:
+                    Choose Cliff Photo Source:
                   </span>
                   <div className="flex gap-2 flex-wrap">
                     <button
@@ -842,7 +842,7 @@ export default function AddRouteModal({
                       }`}
                     >
                       <ImageIcon size={13} />
-                      <span>Foto Sektor Bawaan</span>
+                      <span>Default Sector Photo</span>
                     </button>
 
                     <button
@@ -858,7 +858,7 @@ export default function AddRouteModal({
                       }`}
                     >
                       <Upload size={13} />
-                      <span>Upload dari File ({uploadedImage ? 'Terpasang' : 'Pilih Foto'})</span>
+                      <span>Upload File ({uploadedImage ? 'Uploaded' : 'Choose Photo'})</span>
                     </button>
 
                     <button
@@ -870,7 +870,7 @@ export default function AddRouteModal({
                           : 'bg-crag border-white/5 text-slate-ash hover:text-chalk'
                       }`}
                     >
-                      <span>Link URL</span>
+                      <span>Image URL</span>
                     </button>
                   </div>
 
@@ -885,7 +885,7 @@ export default function AddRouteModal({
 
                   {photoSource === 'url' && (
                     <input
-                      placeholder="Tempel link URL foto tebing (https://...)"
+                      placeholder="Paste cliff photo URL link (https://...)"
                       value={imageUrlInput}
                       onChange={e => setImageUrlInput(e.target.value)}
                       className="w-full bg-crag border border-white/10 rounded-xl px-3 py-2 text-xs text-chalk focus:outline-none focus:border-lime/40"
@@ -897,7 +897,7 @@ export default function AddRouteModal({
                 <div className="flex items-center justify-between flex-wrap gap-2 bg-granite/70 p-2.5 rounded-2xl border border-white/5">
                   <div className="flex items-center gap-1.5">
                     <span className="text-[10px] text-slate-ash uppercase font-light mr-1">
-                      Mode Titik:
+                      Point Mode:
                     </span>
                     <button
                       type="button"
@@ -926,7 +926,7 @@ export default function AddRouteModal({
                           discipline === 'multipitch' ? 'bg-project' : 'bg-cyan-climb'
                         }`}
                       />
-                      {discipline === 'multipitch' ? 'Stasiun Pitch (P1, P2...)' : 'Bolt (B)'}
+                      {discipline === 'multipitch' ? 'Pitch Station (P1, P2...)' : 'Bolt (B)'}
                     </button>
                     <button
                       type="button"
@@ -947,7 +947,7 @@ export default function AddRouteModal({
                       onClick={handleUndoMarker}
                       disabled={markers.length === 0}
                       className="p-1.5 rounded-lg bg-crag border border-white/5 text-slate-ash hover:text-chalk disabled:opacity-30"
-                      title="Undo Titik Terakhir"
+                      title="Undo Last Point"
                     >
                       <Undo2 size={14} />
                     </button>
@@ -956,7 +956,7 @@ export default function AddRouteModal({
                       onClick={handleResetMarkers}
                       disabled={markers.length === 0}
                       className="p-1.5 rounded-lg bg-crag border border-white/5 text-slate-ash hover:text-redpoint disabled:opacity-30"
-                      title="Hapus Semua Titik"
+                      title="Reset All Points"
                     >
                       <RotateCcw size={14} />
                     </button>
@@ -1078,16 +1078,16 @@ export default function AddRouteModal({
                     <div className="absolute bottom-2 left-3 right-3 pointer-events-none flex justify-between items-center text-[10px] font-mono text-white/90 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15">
                       <span className="flex items-center gap-1.5">
                         <MousePointerClick size={12} className="text-lime" />
-                        Klik foto untuk meletakkan titik{' '}
+                        Click photo to place{' '}
                         {activeMarkerTool === 'S'
-                          ? 'Start Dasar'
+                          ? 'Start Point'
                           : activeMarkerTool === 'T'
                           ? 'Top Out'
                           : discipline === 'multipitch'
-                          ? 'Stasiun Belay Pitch'
+                          ? 'Belay Station'
                           : 'Bolt'}
                       </span>
-                      <span className="text-lime font-bold">{markers.length} Titik Terpasang</span>
+                      <span className="text-lime font-bold">{markers.length} Points Placed</span>
                     </div>
                   </div>
                 </div>
@@ -1100,7 +1100,7 @@ export default function AddRouteModal({
                     className="w-1/3 py-3.5 bg-granite border border-white/10 hover:border-lime/30 text-chalk font-light rounded-xl text-xs flex items-center justify-center gap-1.5"
                   >
                     <ArrowLeft size={15} />
-                    <span>Kembali</span>
+                    <span>Back</span>
                   </button>
 
                   <button
@@ -1108,7 +1108,7 @@ export default function AddRouteModal({
                     className="w-2/3 py-3.5 bg-lime text-granite font-bold tracking-wide rounded-xl shadow-lime-glow hover:bg-lime-dim transition-all text-xs flex items-center justify-center gap-2"
                   >
                     <CheckCircle2 size={16} />
-                    <span>Terbitkan Rute & Topo Sekarang 🚀</span>
+                    <span>Publish Route & Topo 🚀</span>
                   </button>
                 </div>
               </div>

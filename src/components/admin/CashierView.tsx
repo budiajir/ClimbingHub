@@ -79,7 +79,7 @@ export default function CashierView() {
           {/* Divider */}
           <div className="flex items-center gap-3 mb-4">
             <div className="flex-1 h-px bg-white/5" />
-            <span className="text-slate-ash text-xs font-light">atau validasi booking code</span>
+            <span className="text-slate-ash text-xs font-light">or enter booking code manually</span>
             <div className="flex-1 h-px bg-white/5" />
           </div>
 
@@ -91,16 +91,16 @@ export default function CashierView() {
                 value={code}
                 onChange={e => setCode(e.target.value.toUpperCase())}
                 onKeyDown={e => e.key === 'Enter' && verify()}
-                placeholder="Booking Code (cth: CLIMB001)"
+                placeholder="Booking Code (e.g. CLIMB001)"
                 className="flex-1 bg-transparent py-3 text-chalk text-sm font-mono focus:outline-none placeholder:font-light placeholder:text-slate-ash/40"
               />
             </div>
             <button
               onClick={() => verify()}
               disabled={loading || !code}
-              className="px-5 bg-lime text-granite rounded-xl font-light tracking-wide text-sm disabled:opacity-50 touch-ripple transition-all hover:bg-lime-dim min-w-[76px]"
+              className="px-5 bg-lime text-granite rounded-xl font-bold tracking-wide text-sm disabled:opacity-50 touch-ripple transition-all hover:bg-lime-dim min-w-[76px]"
             >
-              {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Verifikasi'}
+              {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Verify'}
             </button>
           </div>
 
@@ -133,7 +133,7 @@ export default function CashierView() {
             </div>
             <div className="text-chalk font-bold text-3xl md:text-4xl">{dailyStats.visitors}</div>
             <div className="text-lime text-xs flex items-center gap-1 mt-1 font-light">
-              <TrendingUp size={12} /> +12% vs kemarin
+              <TrendingUp size={12} /> +12% vs yesterday
             </div>
           </div>
           <div className="bg-crag border border-white/5 rounded-2xl p-4 md:p-5">
@@ -142,7 +142,7 @@ export default function CashierView() {
               <span className="text-slate-ash text-xs font-light">Revenue Today</span>
             </div>
             <div className="text-chalk font-bold text-2xl md:text-3xl">
-              Rp {(dailyStats.revenue / 1000000).toFixed(2)}jt
+              Rp {(dailyStats.revenue / 1000000).toFixed(2)}M
             </div>
             <div className="text-slate-ash text-xs font-light mt-1">Rp {dailyStats.revenue.toLocaleString('id-ID')}</div>
           </div>
@@ -174,12 +174,12 @@ export default function CashierView() {
                     result.status === 'success' ? 'text-lime' :
                     result.status === 'used' ? 'text-project' : 'text-redpoint'
                   }`}>
-                    {result.status === 'success' ? '✅ TIKET VALID — Silakan Masuk!' :
-                     result.status === 'used' ? '⚠️ PERINGATAN: Tiket Sudah Digunakan' : '❌ KODE TIKET TIDAK DITEMUKAN'}
+                    {result.status === 'success' ? '✅ VALID TICKET — Welcome In!' :
+                     result.status === 'used' ? '⚠️ WARNING: Ticket Already Used' : '❌ TICKET CODE NOT FOUND'}
                   </p>
                   {result.status !== 'invalid' && (
                     <div className="space-y-0.5">
-                      <p className="text-chalk font-bold text-sm">{result.visitorName} ({result.qty} Pengunjung)</p>
+                      <p className="text-chalk font-bold text-sm">{result.visitorName} ({result.qty} Climbers)</p>
                       <p className="text-slate-ash text-xs font-normal">{result.session}</p>
                       <p className="text-slate-ash text-xs font-light">{result.gymName}</p>
                     </div>
@@ -197,7 +197,7 @@ export default function CashierView() {
         <div className="bg-crag border border-white/5 rounded-2xl p-4 md:p-5">
           <div className="flex items-center gap-2 mb-3">
             <History size={16} className="text-slate-ash" />
-            <h4 className="text-chalk font-bold text-sm">Riwayat Check-In Terakhir</h4>
+            <h4 className="text-chalk font-bold text-sm">Recent Check-In History</h4>
           </div>
           <div className="space-y-2">
             {recentCheckIns.map(item => (
@@ -208,7 +208,7 @@ export default function CashierView() {
                   </div>
                   <div>
                     <div className="text-chalk font-bold">{item.name}</div>
-                    <div className="text-slate-ash text-[10px] font-light">{item.session} · {item.qty} orang</div>
+                    <div className="text-slate-ash text-[10px] font-light">{item.session} · {item.qty} climbers</div>
                   </div>
                 </div>
                 <div className="text-right">

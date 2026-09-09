@@ -41,7 +41,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
 
   const selectedDate = new Date()
   selectedDate.setDate(selectedDate.getDate() + 1)
-  const dateStr = selectedDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })
+  const dateStr = selectedDate.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })
 
   const addonsTotal = Object.entries(addons).reduce((sum, [key, qty]) => {
     const item = addonItems.find(a => a.key === key)
@@ -57,7 +57,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
     <div className="space-y-4">
       {/* Session picker */}
       <div>
-        <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 font-light">Pilih Sesi — {dateStr}</p>
+        <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 font-light">Select Session — {dateStr}</p>
         <div className="grid grid-cols-3 gap-2">
           {sessions.map(s => {
             const remaining = gym.slots[s.key]
@@ -86,7 +86,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
                     isFull ? 'text-redpoint font-bold' : pct > 50 ? 'text-lime' : 'text-project'
                   }`}
                 >
-                  {isFull ? 'PENUH' : `${remaining} slot`}
+                  {isFull ? 'FULL' : `${remaining} slots`}
                 </div>
                 {/* Mini quota bar */}
                 <div className="mt-1.5 h-0.5 bg-white/10 rounded-full overflow-hidden">
@@ -107,7 +107,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
       {/* Quantity */}
       <div>
         <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1 font-light">
-          <Users size={11} /> Jumlah Tiket
+          <Users size={11} /> Climber Passes
         </p>
         <div className="flex items-center gap-4 bg-granite rounded-xl p-3">
           <button
@@ -129,7 +129,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
       {/* Add-ons */}
       <div>
         <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1 font-light">
-          <ShoppingBag size={11} /> Rental Add-ons (Opsional)
+          <ShoppingBag size={11} /> Rental Add-ons (Optional)
         </p>
         <div className="space-y-2">
           {addonItems.map(item => {
@@ -170,7 +170,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
       <div className="bg-lime/5 border border-lime/10 rounded-xl p-4">
         <div className="space-y-1.5 mb-3">
           <div className="flex justify-between text-sm">
-            <span className="text-slate-ash font-light">Tiket Masuk ({quantity}x)</span>
+            <span className="text-slate-ash font-light">Day Pass ({quantity}x)</span>
             <span className="text-chalk font-normal">Rp {(gym.pricePerSession * quantity).toLocaleString('id-ID')}</span>
           </div>
           {Object.entries(addons).filter(([, qty]) => qty > 0).map(([key, qty]) => {
@@ -204,9 +204,9 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
             totalPrice: total,
           })
         }
-        className="w-full h-14 bg-lime text-granite font-light tracking-wide rounded-xl shadow-lime-glow text-base touch-ripple hover:bg-lime-dim transition-colors"
+        className="w-full h-14 bg-lime text-granite font-bold tracking-wide rounded-xl shadow-lime-glow text-base touch-ripple hover:bg-lime-dim transition-colors"
       >
-        Checkout & Bayar
+        Checkout & Pay
       </button>
     </div>
   )

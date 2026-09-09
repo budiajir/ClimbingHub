@@ -57,9 +57,9 @@ export default function ETicket({ booking, bookingCode, onClose }: ETicketProps)
           {/* Booking details */}
           <div className="grid grid-cols-2 gap-3 mb-5 text-sm">
             {[
-              { icon: Calendar, label: 'Tanggal', value: booking.date.split(',')[0] || booking.date },
-              { icon: Clock, label: 'Sesi', value: `${booking.sessionLabel} · ${booking.sessionTime}` },
-              { icon: Users, label: 'Tiket', value: `${booking.quantity} orang` },
+              { icon: Calendar, label: 'Date', value: booking.date.split(',')[0] || booking.date },
+              { icon: Clock, label: 'Session', value: `${booking.sessionLabel} · ${booking.sessionTime}` },
+              { icon: Users, label: 'Passes', value: `${booking.quantity} climbers` },
               { icon: MapPin, label: 'Venue', value: booking.gymName.split(' ').slice(0, 2).join(' ') },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="bg-granite rounded-xl p-2.5">
@@ -84,13 +84,13 @@ export default function ETicket({ booking, bookingCode, onClose }: ETicketProps)
             <div className="mt-3 text-center">
               <p className="text-granite text-xs font-light text-slate-ash/70">Booking Code</p>
               <p className="text-granite font-bold text-xl tracking-widest font-mono">{bookingCode}</p>
-              <p className="text-granite/40 text-[10px] font-light">Tunjukkan ke kasir saat check-in</p>
+              <p className="text-granite/40 text-[10px] font-light">Show to front desk cashier upon check-in</p>
             </div>
           </div>
 
           {/* Total */}
           <div className="flex justify-between items-center mb-5 bg-lime/5 border border-lime/10 rounded-xl p-3">
-            <span className="text-slate-ash text-sm font-light">Total Dibayar</span>
+            <span className="text-slate-ash text-sm font-light">Total Paid</span>
             <span className="text-lime font-bold text-lg">
               Rp {booking.totalPrice.toLocaleString('id-ID')}
             </span>
@@ -99,16 +99,16 @@ export default function ETicket({ booking, bookingCode, onClose }: ETicketProps)
           {/* Actions */}
           <div className="flex gap-2">
             <button className="flex-1 h-11 bg-crag-light rounded-xl flex items-center justify-center gap-2 text-slate-ash text-sm font-light tracking-wide touch-ripple hover:text-chalk transition-colors">
-              <Download size={16} /> Simpan
+              <Download size={16} /> Save
             </button>
             <button className="flex-1 h-11 bg-crag-light rounded-xl flex items-center justify-center gap-2 text-slate-ash text-sm font-light tracking-wide touch-ripple hover:text-chalk transition-colors">
               <Share2 size={16} /> Share
             </button>
             <button
               onClick={onClose}
-              className="flex-1 h-11 bg-lime rounded-xl text-granite text-sm font-light tracking-wide touch-ripple hover:bg-lime-dim transition-colors"
+              className="flex-1 h-11 bg-lime rounded-xl text-granite text-sm font-bold tracking-wide touch-ripple hover:bg-lime-dim transition-colors"
             >
-              Selesai
+              Done
             </button>
           </div>
         </div>

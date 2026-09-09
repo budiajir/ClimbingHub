@@ -41,10 +41,10 @@ function TopoMarkerPin({
 
   const tooltipLabel = isMultiPitch
     ? marker.type === 'S'
-      ? 'Dasar Tebing / Start P1'
+      ? 'Base / Start P1'
       : marker.type === 'T'
-      ? `Stasiun Puncak / Top Out (P${totalMarkers - 1})`
-      : `Stasiun Belay ${displayLabel} (Anchor)`
+      ? `Summit / Top Out (P${totalMarkers - 1})`
+      : `Belay Station ${displayLabel} (Anchor)`
     : `${style.label} (${marker.x.toFixed(0)}%, ${marker.y.toFixed(0)}%)`
 
   return (
@@ -145,7 +145,7 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
   return (
     <div className="space-y-4">
       {/* ============================================================ */}
-      {/* 1. PHOTO CANVAS AREA (100% CLEAN - NO TEXT OBSTRUCTING PHOTO) */}
+      {/* 1. PHOTO CANVAS AREA                                         */}
       {/* ============================================================ */}
       <div
         ref={containerRef}
@@ -204,7 +204,7 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
                 style={{ filter: 'drop-shadow(0 0 3px rgba(0,0,0,0.85))' }}
               />
 
-              {/* MULTI PITCH: Highlighted active pitch segment (Pure White bold) */}
+              {/* MULTI PITCH: Highlighted active pitch segment */}
               {isMultiPitch && activePitch && problem.markers.length >= 2 && (
                 (() => {
                   const segIdx = activePitch - 1
@@ -298,13 +298,13 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
           </div>
         </motion.div>
 
-        {/* FLOATING ZOOM CONTROLS (VISIBLE ON MOBILE & DESKTOP) */}
+        {/* FLOATING ZOOM CONTROLS */}
         <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/75 backdrop-blur-md p-1 rounded-xl border border-white/20 z-30 shadow-2xl">
           <button
             onClick={handleZoomOut}
             disabled={scale <= 1}
             className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-transparent flex items-center justify-center text-white transition-all touch-ripple"
-            title="Perkecil (-)"
+            title="Zoom Out (-)"
             aria-label="Zoom Out"
           >
             <ZoomOut size={15} />
@@ -313,7 +313,7 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
           <button
             onClick={handleResetZoom}
             className="px-2 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-[11px] font-mono font-bold text-white transition-all"
-            title="Klik untuk reset zoom (1.0x)"
+            title="Click to reset zoom (1.0x)"
           >
             {scale.toFixed(1)}x
           </button>
@@ -322,7 +322,7 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
             onClick={handleZoomIn}
             disabled={scale >= 3}
             className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-transparent flex items-center justify-center text-white transition-all touch-ripple"
-            title="Perbesar (+)"
+            title="Zoom In (+)"
             aria-label="Zoom In"
           >
             <ZoomIn size={15} />
@@ -350,7 +350,7 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
                   : 'bg-black/75 text-slate-ash hover:text-chalk border border-white/10'
               }`}
             >
-              Semua Pitch ({problem.pitchBreakdown.length}P)
+              All Pitches ({problem.pitchBreakdown.length}P)
             </button>
             {problem.pitchBreakdown.map((p) => {
               const isSelected = activePitch === p.pitchNumber
@@ -474,7 +474,7 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
               isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
             }`}
           >
-            Legenda Topo:
+            Topo Legend:
           </span>
 
           <div className="flex items-center gap-3 flex-wrap">
@@ -487,7 +487,7 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
                   isSandstone ? 'text-[#1a1815]' : 'text-chalk'
                 }`}
               >
-                {isMultiPitch ? 'Dasar Jalur' : 'Titik Start'}
+                {isMultiPitch ? 'Base / Start' : 'Start'}
               </span>
             </div>
 
@@ -501,7 +501,7 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
                     isSandstone ? 'text-[#1a1815]' : 'text-chalk'
                   }`}
                 >
-                  Baut (Bolt)
+                  Bolt
                 </span>
               </div>
             )}
@@ -568,13 +568,13 @@ export default function TopoCanvas({ problem, imageUrl }: TopoCanvasProps) {
               </span>
               {activePitchDetail && (
                 <span className="font-mono text-xs font-bold">
-                  Grade: {activePitchDetail.grade} · Panjang: {activePitchDetail.length}
+                  Grade: {activePitchDetail.grade} · Length: {activePitchDetail.length}
                 </span>
               )}
             </div>
             <p className="text-xs font-light leading-relaxed">
               {activePitchDetail?.description ||
-                `Segmen pemanjatan Pitch ${activePitch} menuju stasiun anchor.`}
+                `Pitch ${activePitch} climbing segment leading to the belay anchor.`}
             </p>
           </motion.div>
         )}

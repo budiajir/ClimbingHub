@@ -33,7 +33,7 @@ export default function CommunityDirectory() {
                   : 'bg-crag text-slate-ash hover:text-chalk border border-white/5 font-light'
             }`}
           >
-            {city === 'all' ? 'Semua Kota' : city}
+            {city === 'all' ? 'All Cities' : city}
           </button>
         ))}
       </div>
@@ -46,7 +46,7 @@ export default function CommunityDirectory() {
           }`}>
             Climbing Squads & Clubs
             <span className={`text-xs font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-              ({filtered.length} komunitas)
+              ({filtered.length} communities)
             </span>
           </h2>
         </div>

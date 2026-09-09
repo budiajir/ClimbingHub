@@ -280,7 +280,7 @@ export default function MobileNav() {
                       ? "border-[#1a1815] bg-[#ded3be] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#ded3be]"
                       : "border-white/20 bg-granite text-chalk hover:border-lime hover:bg-lime hover:text-granite"
                   }`}
-                  title="Tutup"
+                  title="Close"
                 >
                   <X size={20} strokeWidth={2.2} />
                 </button>
@@ -300,7 +300,7 @@ export default function MobileNav() {
               <div className="space-y-6 pt-4">
                 {/* 2 Square Boxes */}
                 <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto w-full px-2">
-                  {/* 1. Problem Box (Kotak Putih, Logo Hitam) */}
+                  {/* 1. Problem Box (White Box, Black Logo) */}
                   <button
                     onClick={() =>
                       handleCreateOption(() => {
@@ -321,12 +321,12 @@ export default function MobileNav() {
                     </span>
                   </button>
 
-                  {/* 2. Ascent Box (Kotak Putih, Logo Hitam) */}
+                  {/* 2. Ascent Box (White Box, Black Logo) */}
                   <button
                     onClick={() =>
                       handleCreateOption(() => {
                         if (role === "guest") {
-                          openAuthModal("Silakan masuk untuk mencatat Ascent.");
+                          openAuthModal("Please sign in to log your ascent.");
                         } else {
                           router.push("/beta");
                         }
@@ -354,7 +354,7 @@ export default function MobileNav() {
                     className={`w-12 h-12 flex items-center justify-center transition-transform hover:scale-110 ${
                       isSandstone ? "text-[#d95338]" : "text-lime"
                     }`}
-                    title="Tutup Menu"
+                    title="Close Menu"
                   >
                     <CreateIcon size={32} />
                   </button>

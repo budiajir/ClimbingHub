@@ -39,14 +39,14 @@ export default function SlotManager() {
           <h3 className="text-chalk font-bold text-base flex items-center gap-2">
             <Sliders size={18} className="text-lime" /> Slot & Price Manager
           </h3>
-          <p className="text-slate-ash text-xs font-light">Atur kuota harian & tarif per sesi</p>
+          <p className="text-slate-ash text-xs font-light">Manage daily quotas & session rates</p>
         </div>
         <button
           onClick={handleSave}
-          className="flex items-center gap-1.5 bg-lime text-granite px-4 py-2 rounded-xl text-xs font-light tracking-wide shadow-lime-glow-sm touch-ripple hover:bg-lime-dim transition-colors"
+          className="flex items-center gap-1.5 bg-lime text-granite px-4 py-2 rounded-xl text-xs font-bold tracking-wide shadow-lime-glow-sm touch-ripple hover:bg-lime-dim transition-colors"
         >
           {saved ? <CheckCircle2 size={15} /> : <Save size={15} />}
-          {saved ? 'Tersimpan!' : 'Simpan Perubahan'}
+          {saved ? 'Saved!' : 'Save Changes'}
         </button>
       </div>
 
@@ -90,14 +90,14 @@ export default function SlotManager() {
                     onChange={e => handleUpdate(index, 'quota', parseInt(e.target.value) || 0)}
                     className="w-full bg-transparent text-chalk font-bold text-lg focus:outline-none"
                   />
-                  <span className="text-slate-ash text-xs font-light">slot</span>
+                  <span className="text-slate-ash text-xs font-light">slots</span>
                 </div>
               </div>
 
               {/* Session Price */}
               <div className="bg-granite rounded-xl p-2.5 border border-white/5">
                 <div className="flex items-center gap-1 text-slate-ash text-[10px] uppercase tracking-wider mb-1 font-light">
-                  <DollarSign size={11} className="text-lime" /> Tarif (IDR)
+                  <DollarSign size={11} className="text-lime" /> Rate (IDR)
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-slate-ash text-xs font-light">Rp</span>

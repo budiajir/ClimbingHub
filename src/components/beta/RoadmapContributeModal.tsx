@@ -33,13 +33,13 @@ export default function RoadmapContributeModal({ onClose }: RoadmapContributeMod
             <Mountain size={28} />
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-lime/10 border border-lime/30 text-lime text-xs font-mono font-light uppercase">
-            <Clock size={13} /> Roadmap Kontribusi Komunitas
+            <Clock size={13} /> Roadmap · Community Contributions
           </div>
           <h2 className="text-chalk font-bold text-xl md:text-2xl">
-            Kurasi Jalur Tebing Alam Resmi
+            Official Outdoor Crag Curation
           </h2>
           <p className="text-slate-ash text-xs md:text-sm font-light leading-relaxed">
-            Terima kasih atas antusiasme Anda, <b>{user?.name || 'Climber'}</b>! Saat ini, penambahan jalur tebing alam dikurasi secara eksklusif oleh <b>Pemilik Website & Tim Kurator Resmi Jalur</b>.
+            Thank you for your enthusiasm, <b>{user?.name || 'Climber'}</b>! Currently, adding outdoor crag routes is curated exclusively by <b>Site Administrators & Official Jalur Curators</b>.
           </p>
         </div>
 
@@ -47,17 +47,17 @@ export default function RoadmapContributeModal({ onClose }: RoadmapContributeMod
         <div className="bg-granite/70 border border-white/5 rounded-2xl p-4 space-y-3 text-xs text-slate-ash font-light leading-relaxed">
           <div className="text-chalk font-bold flex items-center gap-2">
             <ShieldCheck size={16} className="text-lime" />
-            Mengapa Kurasi Jalur Terpusat Saat Ini?
+            Why Centralized Route Curation?
           </div>
           <ul className="space-y-2 list-disc list-inside">
             <li>
-              <b className="text-chalk font-normal">Standar Keselamatan Tebing</b>: Verifikasi kondisi baut pengaman (*bolts/hangers*), integritas batuan kapur/granit, dan tipe anchor.
+              <b className="text-chalk font-normal">Crag Safety Standards</b>: Hardware verification (bolts/hangers), rock integrity, and anchor setups.
             </li>
             <li>
-              <b className="text-chalk font-normal">Perizinan Adat & Kuncen Lokal</b>: Menjaga kearifan lokal dan aturan akses di tebing Citatah, Harau, dan Parang.
+              <b className="text-chalk font-normal">Local Access & Etiquette</b>: Respecting local land-use agreements and guidelines across crags.
             </li>
             <li>
-              <b className="text-chalk font-normal">Akurasi Topo & Grade</b>: Menghindari duplikasi nama jalur dan memastikan konsensus grade yang akurat.
+              <b className="text-chalk font-normal">Topo Accuracy & Consensus</b>: Preventing duplicates and maintaining reliable grade consensus.
             </li>
           </ul>
         </div>
@@ -69,10 +69,10 @@ export default function RoadmapContributeModal({ onClose }: RoadmapContributeMod
           </div>
           <div>
             <span className="text-xs font-bold text-chalk block">
-              Akun Anda Terdaftar untuk Akses Awal
+              Your Account is Registered for Early Access
             </span>
             <span className="text-[11px] text-slate-ash font-light">
-              Fitur pengajuan jalur komunitas (*Crowdsourced Beta Submission*) akan dibuka bertahap untuk akun terdaftar.
+              Crowdsourced route submission will be rolled out gradually to registered climbers.
             </span>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function RoadmapContributeModal({ onClose }: RoadmapContributeMod
         {/* Quick Demo Switcher Button */}
         <div className="pt-2 border-t border-white/5">
           <p className="text-[11px] text-slate-ash font-light text-center mb-2">
-            Ingin mencoba fitur input jalur tebing sekarang?
+            Want to test the route creation tool right now?
           </p>
           <button
             onClick={() => {
@@ -90,7 +90,7 @@ export default function RoadmapContributeModal({ onClose }: RoadmapContributeMod
             className="w-full py-2.5 bg-granite border border-white/10 hover:border-lime/40 text-chalk text-xs rounded-xl flex items-center justify-center gap-2 transition-all group font-light"
           >
             <ShieldCheck size={14} className="text-lime group-hover:scale-110 transition-transform" />
-            <span>Beralih ke Mode <b>Pemilik Website (Super Admin)</b> ⚡</span>
+            <span>Switch to <b>Website Owner (Super Admin)</b> Mode ⚡</span>
           </button>
         </div>
       </motion.div>
