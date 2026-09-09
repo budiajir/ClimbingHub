@@ -166,7 +166,7 @@ export default function MobileNav() {
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
                 isCragsActive
                   ? isSandstone
-                    ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] scale-110"
+                    ? "text-[#1a1815] scale-110 font-bold"
                     : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
                   : isSandstone
                     ? "text-[#1a1815]/70 hover:text-[#1a1815]"
@@ -184,10 +184,10 @@ export default function MobileNav() {
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
                 isBouldersActive
                   ? isSandstone
-                    ? "text-[#1a1815] scale-110"
+                    ? "text-[#1a1815] scale-110 font-bold"
                     : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
                   : isSandstone
-                    ? "text-[#1a1815]/60 hover:text-[#1a1815]"
+                    ? "text-[#1a1815]/70 hover:text-[#1a1815]"
                     : "text-slate-ash hover:text-chalk",
               )}
             >
@@ -202,11 +202,11 @@ export default function MobileNav() {
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
                 showCreateSheet
                   ? isSandstone
-                    ? "text-[#d95338] scale-125"
-                    : "text-lime scale-125"
+                    ? "text-[#1a1815] scale-110 font-bold"
+                    : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
                   : isSandstone
-                    ? "text-white hover:text-white/80"
-                    : "text-white hover:text-white/80",
+                    ? "text-[#1a1815]/70 hover:text-[#1a1815]"
+                    : "text-slate-ash hover:text-chalk",
               )}
             >
               <CreateIcon size={28} />
@@ -220,7 +220,7 @@ export default function MobileNav() {
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
                 isGymActive
                   ? isSandstone
-                    ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] scale-110"
+                    ? "text-[#1a1815] scale-110 font-bold"
                     : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
                   : isSandstone
                     ? "text-[#1a1815]/70 hover:text-[#1a1815]"
@@ -238,7 +238,7 @@ export default function MobileNav() {
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
                 isCommunityActive
                   ? isSandstone
-                    ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] scale-110"
+                    ? "text-[#1a1815] scale-110 font-bold"
                     : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
                   : isSandstone
                     ? "text-[#1a1815]/70 hover:text-[#1a1815]"
