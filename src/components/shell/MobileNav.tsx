@@ -261,13 +261,13 @@ export default function MobileNav() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 30 }}
               transition={{ duration: 0.22, ease: "easeOut" }}
-              className={`fixed inset-0 z-50 flex flex-col justify-between p-6 rounded-none ${
+              className={`fixed inset-0 z-50 flex flex-col justify-between p-4 sm:p-6 rounded-none overflow-y-auto ${
                 isSandstone
                   ? "bg-[#cfc2ab] text-[#1a1815]"
                   : "bg-[#12161A] text-chalk"
               }`}
               style={{
-                paddingTop: "max(env(safe-area-inset-top), 24px)",
+                paddingTop: "max(env(safe-area-inset-top), 16px)",
                 paddingBottom: "max(env(safe-area-inset-bottom), 16px)",
               }}
             >
@@ -275,31 +275,31 @@ export default function MobileNav() {
               <div className="flex items-center justify-end">
                 <button
                   onClick={() => setShowCreateSheet(false)}
-                  className={`w-10 h-10 rounded-none flex items-center justify-center border transition-all ${
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-none flex items-center justify-center border transition-all ${
                     isSandstone
                       ? "border-[#1a1815] bg-[#ded3be] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#ded3be]"
                       : "border-white/20 bg-granite text-chalk hover:border-lime hover:bg-lime hover:text-granite"
                   }`}
                   title="Close"
                 >
-                  <X size={20} strokeWidth={2.2} />
+                  <X size={18} strokeWidth={2.2} />
                 </button>
               </div>
 
-              {/* Upper Section: Larger Left-Justified English Text (covering the hero area) */}
-              <div className="pt-2 sm:pt-4 px-2 text-left space-y-6 max-w-lg">
-                <p className="text-[42px] sm:text-[38px] md:text-[42px] font-semibold leading-[1.12] tracking-tight">
+              {/* Upper Section: Responsive Left-Justified Text */}
+              <div className="pt-2 sm:pt-4 px-2 text-left space-y-3 sm:space-y-5 max-w-lg">
+                <p className="text-[22px] sm:text-[28px] md:text-[36px] font-semibold leading-[1.18] tracking-tight">
                   You can propose a new route in Problem.
                 </p>
-                <p className="text-[42px] sm:text-[38px] md:text-[42px] font-semibold leading-[1.12] tracking-tight">
+                <p className="text-[22px] sm:text-[28px] md:text-[36px] font-semibold leading-[1.18] tracking-tight">
                   You can submit your beta in Ascent.
                 </p>
               </div>
 
-              {/* Bottom Section: 2 White Square Boxes with Black Logo & Labels Underneath */}
-              <div className="space-y-6 pt-4">
+              {/* Bottom Section: 2 Square Boxes with Black Logo & Labels Underneath */}
+              <div className="space-y-4 sm:space-y-6 pt-3">
                 {/* 2 Square Boxes */}
-                <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto w-full px-2">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-[260px] sm:max-w-sm mx-auto w-full px-1">
                   {/* 1. Problem Box (White Box, Black Logo) */}
                   <button
                     onClick={() =>
@@ -307,13 +307,13 @@ export default function MobileNav() {
                         router.push("/beta");
                       })
                     }
-                    className="flex flex-col items-center gap-2.5 group touch-ripple text-center"
+                    className="flex flex-col items-center gap-2 group touch-ripple text-center"
                   >
-                    <div className="w-full aspect-square bg-white text-black border-2 border-black rounded-none flex items-center justify-center shadow-md transition-all group-hover:scale-[1.02] group-active:scale-95">
-                      <BoulderIcon size={40} className="text-black" />
+                    <div className="w-full aspect-square max-w-[105px] sm:max-w-[130px] bg-white text-black border-2 border-black rounded-none flex items-center justify-center shadow-md transition-all group-hover:scale-[1.02] group-active:scale-95">
+                      <BoulderIcon size={32} className="text-black" />
                     </div>
                     <span
-                      className={`font-bold text-lg tracking-wide transition-colors ${
+                      className={`font-bold text-sm sm:text-base tracking-wide transition-colors ${
                         isSandstone ? "text-[#1a1815]" : "text-white"
                       }`}
                     >
@@ -332,13 +332,13 @@ export default function MobileNav() {
                         }
                       })
                     }
-                    className="flex flex-col items-center gap-2.5 group touch-ripple text-center"
+                    className="flex flex-col items-center gap-2 group touch-ripple text-center"
                   >
-                    <div className="w-full aspect-square bg-white text-black border-2 border-black rounded-none flex items-center justify-center shadow-md transition-all group-hover:scale-[1.02] group-active:scale-95">
-                      <BookOpen size={38} className="text-black" />
+                    <div className="w-full aspect-square max-w-[105px] sm:max-w-[130px] bg-white text-black border-2 border-black rounded-none flex items-center justify-center shadow-md transition-all group-hover:scale-[1.02] group-active:scale-95">
+                      <BookOpen size={30} className="text-black" />
                     </div>
                     <span
-                      className={`font-bold text-lg tracking-wide transition-colors ${
+                      className={`font-bold text-sm sm:text-base tracking-wide transition-colors ${
                         isSandstone ? "text-[#1a1815]" : "text-white"
                       }`}
                     >
@@ -351,12 +351,12 @@ export default function MobileNav() {
                 <div className="pt-2 border-t border-white/10 flex items-center justify-center">
                   <button
                     onClick={() => setShowCreateSheet(false)}
-                    className={`w-12 h-12 flex items-center justify-center transition-transform hover:scale-110 ${
+                    className={`w-10 h-10 flex items-center justify-center transition-transform hover:scale-110 ${
                       isSandstone ? "text-[#d95338]" : "text-lime"
                     }`}
                     title="Close Menu"
                   >
-                    <CreateIcon size={32} />
+                    <CreateIcon size={28} />
                   </button>
                 </div>
               </div>
