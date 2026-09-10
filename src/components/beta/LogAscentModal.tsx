@@ -22,6 +22,7 @@ interface LogAscentModalProps {
     gradeVote: string
     note: string
     photoUrl?: string
+    videoUrl?: string
   }) => void
 }
 
@@ -46,13 +47,51 @@ export default function LogAscentModal({
   const [gradeVote, setGradeVote] = useState(grade)
   const [note, setNote] = useState('')
   const [photoUrl, setPhotoUrl] = useState<string>(defaultImageUrl || '')
+  const [videoUrl, setVideoUrl] = useState<string>('')
+  const [isVideo, setIsVideo] = useState(false)
   const [hasCustomPhoto, setHasCustomPhoto] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
+    if (!file) return
+
+    if (file.type.startsWith('video/')) {
+      setIsVideo(true)
+      const url = URL.createObjectURL(file)
+      setVideoUrl(url)
+
+      // Capture frame from video for share card
+      const video = document.createElement('video')
+      video.crossOrigin = 'anonymous'
+      video.src = url
+      video.muted = true
+      video.playsInline = true
+      video.currentTime = 0.5
+
+      video.onloadeddata = () => {
+        video.currentTime = Math.min(1.0, (video.duration || 2) / 2)
+      }
+
+      video.onseeked = () => {
+        try {
+          const c = document.createElement('canvas')
+          c.width = video.videoWidth || 720
+          c.height = video.videoHeight || 1280
+          const ctx = c.getContext('2d')
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, c.width, c.height)
+            const thumbUrl = c.toDataURL('image/jpeg', 0.85)
+            setPhotoUrl(thumbUrl)
+            setHasCustomPhoto(true)
+          }
+        } catch (err) {
+          console.warn('Could not extract video frame, keeping default photo:', err)
+        }
+      }
+    } else {
+      setIsVideo(false)
       const reader = new FileReader()
       reader.onload = ev => {
         if (ev.target?.result) {
@@ -72,6 +111,7 @@ export default function LogAscentModal({
         gradeVote,
         note,
         photoUrl: photoUrl || defaultImageUrl,
+        videoUrl: videoUrl || undefined,
       })
       onClose()
     }, 800)
@@ -155,21 +195,21 @@ export default function LogAscentModal({
             </div>
           </div>
 
-          {/* Send Photo Upload (For Strava Share Badge) */}
+          {/* Send Photo / Video Upload (For Strava Share Badge & Beta Book) */}
           <div className="mb-5 p-3 rounded-2xl bg-granite/70 border border-white/5 space-y-2.5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-chalk text-xs font-bold flex items-center gap-1.5">
-                  <Camera size={13} className="text-lime" /> Foto Pendakian (Share Card)
+                  <Camera size={13} className="text-lime" /> Foto / Video Pendakian
                 </p>
                 <p className="text-slate-ash text-[10px] font-light">
-                  Akan digenerate otomatis menjadi kartu grafis Strava-style
+                  Foto atau cuplikan video akan digenerate otomatis ke kartu Strava-style
                 </p>
               </div>
               <input
                 type="file"
                 ref={fileInputRef}
-                accept="image/*"
+                accept="image/*,video/*"
                 className="hidden"
                 onChange={handleFileUpload}
               />
@@ -178,7 +218,7 @@ export default function LogAscentModal({
                 onClick={() => fileInputRef.current?.click()}
                 className="px-2.5 py-1 rounded-lg bg-lime/15 hover:bg-lime/25 text-lime border border-lime/30 text-xs font-bold transition-colors"
               >
-                {hasCustomPhoto ? 'Ganti Foto' : '+ Pilih Foto'}
+                {hasCustomPhoto ? (isVideo ? 'Ganti Video' : 'Ganti Foto') : '+ Foto / Video'}
               </button>
             </div>
 
@@ -186,22 +226,24 @@ export default function LogAscentModal({
               <div className="relative h-28 w-full rounded-xl overflow-hidden border border-white/10 group">
                 <img
                   src={photoUrl}
-                  alt="Send photo"
+                  alt="Send media preview"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-between p-2 opacity-90 group-hover:opacity-100 transition-opacity">
-                  <span className="text-[10px] text-white/90 bg-black/60 px-2 py-0.5 rounded-md backdrop-blur-xs">
-                    {hasCustomPhoto ? 'Foto Galeri Kamu' : 'Foto Resmi Boulder'}
+                  <span className="text-[10px] text-white/90 bg-black/60 px-2 py-0.5 rounded-md backdrop-blur-xs flex items-center gap-1">
+                    {isVideo ? '🎬 Video Beta Terpilih' : hasCustomPhoto ? 'Foto Galeri Kamu' : 'Foto Resmi Boulder'}
                   </span>
                   {hasCustomPhoto && (
                     <button
                       type="button"
                       onClick={() => {
                         setPhotoUrl(defaultImageUrl || '')
+                        setVideoUrl('')
+                        setIsVideo(false)
                         setHasCustomPhoto(false)
                       }}
                       className="p-1 rounded-lg bg-red-500/80 hover:bg-red-500 text-white"
-                      title="Hapus foto"
+                      title="Hapus media"
                     >
                       <Trash2 size={13} />
                     </button>

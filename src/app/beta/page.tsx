@@ -598,13 +598,18 @@ function BetaPageContent() {
                                 <Mountain size={32} />
                               </div>
                             )}
-                            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/75 text-lime backdrop-blur-sm border border-lime/30">
                                 {ascent.ascentType.toUpperCase()}
                               </span>
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/75 text-white backdrop-blur-sm border border-white/20">
                                 {ascent.grade}
                               </span>
+                              {ascent.videoUrl && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/75 text-amber-300 backdrop-blur-sm border border-amber-300/40 flex items-center gap-1">
+                                  <Video size={10} /> VIDEO
+                                </span>
+                              )}
                             </div>
                           </div>
 
@@ -1409,6 +1414,7 @@ function BetaPageContent() {
                 gradeVote: data.gradeVote,
                 note: data.note,
                 photoUrl: data.photoUrl || problem.imageUrl || sector?.image,
+                videoUrl: data.videoUrl,
                 markers: problem.markers || [],
                 discipline: problem.discipline || 'bouldering',
               })

@@ -18,6 +18,7 @@ export interface UserAscent {
   gradeVote: string
   note?: string
   photoUrl?: string
+  videoUrl?: string
   markers: TopoMarker[]
   discipline?: string
 }

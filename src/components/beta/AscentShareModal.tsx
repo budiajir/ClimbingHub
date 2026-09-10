@@ -123,13 +123,20 @@ export default function AscentShareModal({
     ctx.fillRect(0, H - 760, W, 760)
 
     // 3. Draw Topo Route Line (Line Jalur)
+    // Map markers to safe photo area (y: 220 to 1380) so route markers and lines NEVER collide with bottom card or route name!
+    const topoTop = 220
+    const topoBottom = 1380
+    const topoHeight = topoBottom - topoTop
+    const topoLeft = 80
+    const topoWidth = W - 160
+
     if (showTopoLine && ascent.markers && ascent.markers.length >= 2) {
       ctx.save()
       ctx.beginPath()
 
       const pts = ascent.markers.map(m => ({
-        x: (m.x / 100) * W,
-        y: (m.y / 100) * H,
+        x: topoLeft + (m.x / 100) * topoWidth,
+        y: topoTop + (m.y / 100) * topoHeight,
         type: m.type,
       }))
 
@@ -198,12 +205,26 @@ export default function AscentShareModal({
         logoImg.src = '/jalur-logo.png'
       })
 
-      if (logoImg.width > 0) {
-        // Draw white tinted logo
-        ctx.save()
-        ctx.filter = 'brightness(0) invert(1)'
-        ctx.drawImage(logoImg, 72, 80, 160, 52)
-        ctx.restore()
+      if (logoImg.width > 0 && logoImg.height > 0) {
+        // Render crisp pure white logo with transparent background using offscreen canvas (NO white box!)
+        const off = document.createElement('canvas')
+        off.width = logoImg.width
+        off.height = logoImg.height
+        const offCtx = off.getContext('2d')
+        if (offCtx) {
+          offCtx.drawImage(logoImg, 0, 0)
+          const imgData = offCtx.getImageData(0, 0, off.width, off.height)
+          const d = imgData.data
+          for (let i = 0; i < d.length; i += 4) {
+            const brightness = (d[i] + d[i + 1] + d[i + 2]) / 3
+            d[i] = 255
+            d[i + 1] = 255
+            d[i + 2] = 255
+            d[i + 3] = Math.max(0, 255 - brightness)
+          }
+          offCtx.putImageData(imgData, 0, 0)
+          ctx.drawImage(off, 72, 75, 175, 58)
+        }
       } else {
         // Fallback typography logo
         ctx.fillStyle = '#FFFFFF'
@@ -219,7 +240,7 @@ export default function AscentShareModal({
       ctx.fillText('JALUR', 72, 120)
     }
 
-    // Location (Crag & Sector) - Top Right or below logo
+    // Location (Crag & Sector) - Top Right
     ctx.textAlign = 'right'
     ctx.fillStyle = '#FFFFFF'
     ctx.font = '700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -230,103 +251,148 @@ export default function AscentShareModal({
     ctx.font = '400 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     ctx.fillText('OFFICIAL CRAG ASCENT', W - 72, 135)
 
-    // 5. Draw Bottom Section: Strava-Style Metrics & Route Info
-    const baseY = H - 540
+    // 5. Draw Bottom Card: Strava-Style Metrics & Route Info (Frosted & collision-free)
+    const cardX = 48
+    const cardY = 1420
+    const cardW = W - 96
+    const cardH = 430
+    const cardR = 32
 
-    // Style Badge Pill (e.g. FLASH ⚡️)
+    // Frosted dark card backdrop to protect text from any background artifacts
+    ctx.save()
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'
+    ctx.shadowBlur = 30
+    ctx.shadowOffsetY = 10
+    ctx.fillStyle = 'rgba(18, 20, 26, 0.90)'
+    ctx.beginPath()
+    ctx.roundRect(cardX, cardY, cardW, cardH, cardR)
+    ctx.fill()
+
+    // Elegant subtle card border
+    ctx.shadowBlur = 0
+    ctx.shadowOffsetY = 0
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)'
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+    ctx.restore()
+
+    // Card Row 1: Style Badge (Left) & Setter Name (Right)
+    const row1Y = cardY + 32
     ctx.save()
     const badgeText = `${styleInfo.label} ${styleInfo.icon}`
-    ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    const badgeWidth = ctx.measureText(badgeText).width + 36
-    const badgeHeight = 44
-    const badgeX = 72
-    const badgeY = baseY
+    ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    const badgeWidth = ctx.measureText(badgeText).width + 32
+    const badgeHeight = 40
+    const badgeX = cardX + 32
+    const badgeY = row1Y
 
-    // Pill background
+    // Badge Pill
     ctx.fillStyle = styleInfo.color + '25'
-    ctx.strokeStyle = styleInfo.color + '80'
-    ctx.lineWidth = 2
+    ctx.strokeStyle = styleInfo.color + '90'
+    ctx.lineWidth = 1.5
     ctx.beginPath()
-    ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 22)
+    ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 20)
     ctx.fill()
     ctx.stroke()
 
-    // Pill text
+    // Badge Text
     ctx.fillStyle = styleInfo.color
     ctx.textAlign = 'left'
     ctx.textBaseline = 'middle'
-    ctx.fillText(badgeText, badgeX + 18, badgeY + badgeHeight / 2 + 1)
+    ctx.fillText(badgeText, badgeX + 16, badgeY + badgeHeight / 2 + 1)
+
+    // Route Setter (Right-aligned, auto-truncated so it NEVER collides with badge)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+    ctx.font = '600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    ctx.textAlign = 'right'
+    ctx.textBaseline = 'middle'
+    const setterText = ascent.setter ? `SET BY ${ascent.setter.toUpperCase()}` : 'VERIFIED OUTDOOR BOULDER'
+    const maxSetterWidth = cardW - badgeWidth - 100
+    let truncatedSetter = setterText
+    if (ctx.measureText(truncatedSetter).width > maxSetterWidth) {
+      while (ctx.measureText(truncatedSetter + '...').width > maxSetterWidth && truncatedSetter.length > 5) {
+        truncatedSetter = truncatedSetter.slice(0, -1)
+      }
+      truncatedSetter += '...'
+    }
+    ctx.fillText(truncatedSetter, cardX + cardW - 32, badgeY + badgeHeight / 2 + 1)
     ctx.restore()
 
-    // 1. Nama Jalur (Route Name) - Large Bold Headline
+    // Card Row 2: Route Name (Large Bold Headline)
     ctx.fillStyle = '#FFFFFF'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'alphabetic'
-    ctx.font = '900 68px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'
-    ctx.shadowBlur = 12
-    ctx.fillText(ascent.problemName, 72, baseY + 120)
+    ctx.font = '900 58px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'
+    ctx.shadowBlur = 10
+    let nameToDraw = ascent.problemName
+    const maxNameWidth = cardW - 64
+    if (ctx.measureText(nameToDraw).width > maxNameWidth) {
+      ctx.font = '900 46px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }
+    ctx.fillText(nameToDraw, cardX + 32, cardY + 130)
     ctx.shadowBlur = 0
 
-    // 2. Nama Route Setter
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)'
-    ctx.font = '500 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.letterSpacing = '1px'
-    const setterText = ascent.setter ? `SET BY ${ascent.setter.toUpperCase()}` : 'VERIFIED OUTDOOR BOULDER'
-    ctx.fillText(setterText, 72, baseY + 165)
-
-    // Divider Line (thin elegant line)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'
+    // Card Divider Line
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)'
     ctx.lineWidth = 1.5
     ctx.beginPath()
-    ctx.moveTo(72, baseY + 200)
-    ctx.lineTo(W - 72, baseY + 200)
+    ctx.moveTo(cardX + 32, cardY + 165)
+    ctx.lineTo(cardX + cardW - 32, cardY + 165)
     ctx.stroke()
 
-    // 3. Strava 3-Column Metrics (Grade, Discipline, Date)
-    const statsY = baseY + 250
-    const colWidth = (W - 144) / 3
+    // Card Row 3: 3 Non-colliding Columns (Grade, Discipline, Date)
+    const statsLabelY = cardY + 205
+    const statsValueY = cardY + 255
 
-    // Column 1: GRADE
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
-    ctx.font = '600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    // Col 1: GRADE (Left-aligned at cardX + 32)
+    ctx.textAlign = 'left'
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    ctx.font = '700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText('GRADE', 72, statsY)
+    ctx.fillText('GRADE', cardX + 32, statsLabelY)
 
     ctx.fillStyle = '#FFFFFF'
-    ctx.font = '900 52px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.fillText(ascent.grade, 72, statsY + 60)
+    ctx.font = '900 46px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    ctx.fillText(ascent.grade, cardX + 32, statsValueY)
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
-    ctx.font = '500 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.fillText(ascent.fontGrade ? `/ ${ascent.fontGrade}` : '', 72 + ctx.measureText(ascent.grade).width + 12, statsY + 60)
+    if (ascent.fontGrade) {
+      const gradeW = ctx.measureText(ascent.grade).width
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
+      ctx.font = '600 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      ctx.fillText(`/ ${ascent.fontGrade}`, cardX + 32 + gradeW + 10, statsValueY)
+    }
 
-    // Column 2: ASCENT STYLE
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
-    ctx.font = '600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    // Col 2: DISCIPLINE (Center-aligned at W / 2)
+    ctx.textAlign = 'center'
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    ctx.font = '700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText('DISCIPLINE', 72 + colWidth, statsY)
+    ctx.fillText('DISCIPLINE', W / 2, statsLabelY)
 
     ctx.fillStyle = '#FFFFFF'
-    ctx.font = '900 52px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.fillText((ascent.discipline || 'Boulder').toUpperCase(), 72 + colWidth, statsY + 60)
+    ctx.font = '800 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    ctx.letterSpacing = '1px'
+    ctx.fillText((ascent.discipline || 'BOULDER').toUpperCase(), W / 2, statsValueY)
 
-    // Column 3: TANGGAL (Date)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
-    ctx.font = '600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    // Col 3: DATE (Right-aligned at cardX + cardW - 32)
+    ctx.textAlign = 'right'
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    ctx.font = '700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText('DATE', 72 + colWidth * 2, statsY)
+    ctx.fillText('DATE', cardX + cardW - 32, statsLabelY)
 
     ctx.fillStyle = '#FFFFFF'
-    ctx.font = '900 48px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.fillText(ascent.date, 72 + colWidth * 2, statsY + 60)
+    ctx.font = '800 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    ctx.letterSpacing = '0.5px'
+    ctx.fillText(ascent.date, cardX + cardW - 32, statsValueY)
 
-    // 4. Bottom Footer tag
+    // Footer tag inside card
     ctx.textAlign = 'center'
     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
-    ctx.font = '500 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.letterSpacing = '3px'
-    ctx.fillText('LOGGED ON BETA BOOK · JALUR CLIMBING COMMUNITY', W / 2, H - 65)
+    ctx.font = '600 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    ctx.letterSpacing = '2px'
+    ctx.fillText('LOGGED ON BETA BOOK · JALUR CLIMBING COMMUNITY', W / 2, cardY + cardH - 35)
 
     // Export to Data URL
     const url = canvas.toDataURL('image/png', 0.95)
@@ -353,6 +419,19 @@ export default function AscentShareModal({
     }
   }
 
+  // Direct file download helper
+  const triggerDirectDownload = () => {
+    const filename = `jalur-ascent-${ascent.problemName.toLowerCase().replace(/\s+/g, '-')}.png`
+    if (generatedDataUrl) {
+      const link = document.createElement('a')
+      link.href = generatedDataUrl
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  }
+
   // Save / Share handler
   const handleSaveToPhone = async () => {
     setSavingStatus('saving')
@@ -371,37 +450,34 @@ export default function AscentShareModal({
       const filename = `jalur-ascent-${ascent.problemName.toLowerCase().replace(/\s+/g, '-')}.png`
       const file = new File([blob], filename, { type: 'image/png' })
 
-      // 1. Try Native Web Share API (opens iOS Share Sheet with "Save Image" to Photos!)
-      if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `Ascent: ${ascent.problemName} (${ascent.grade})`,
-          text: `Crushed ${ascent.problemName} (${ascent.grade}) at ${ascent.location}! #JalurBeta #Climbing`,
-        })
-        setSavingStatus('saved')
-        setTimeout(() => setSavingStatus('idle'), 3000)
-        return
+      // 1. Try Native Web Share API (opens native iOS Share Sheet with "Save Image" to Photos!)
+      if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `Ascent: ${ascent.problemName} (${ascent.grade})`,
+            text: `Crushed ${ascent.problemName} (${ascent.grade}) at ${ascent.location}! #JalurBeta #Climbing`,
+          })
+          setSavingStatus('saved')
+          setTimeout(() => setSavingStatus('idle'), 3000)
+          return
+        } catch (shareErr: any) {
+          // If user cancelled/dismissed iOS share sheet, do NOT force fallback download into Files
+          if (shareErr?.name === 'AbortError') {
+            setSavingStatus('idle')
+            return
+          }
+          throw shareErr
+        }
       }
 
-      // 2. Direct File Download fallback (saves to phone downloads / camera roll)
-      const downloadLink = document.createElement('a')
-      downloadLink.href = URL.createObjectURL(blob)
-      downloadLink.download = filename
-      document.body.appendChild(downloadLink)
-      downloadLink.click()
-      document.body.removeChild(downloadLink)
-
+      // 2. Direct File Download fallback (for desktop or browsers without Web Share)
+      triggerDirectDownload()
       setSavingStatus('saved')
       setTimeout(() => setSavingStatus('idle'), 3000)
     } catch (err) {
-      console.warn('Share sheet cancelled or failed, falling back to download:', err)
-      // Standard download fallback
-      if (generatedDataUrl) {
-        const link = document.createElement('a')
-        link.href = generatedDataUrl
-        link.download = `jalur-ascent-${ascent.problemName.toLowerCase().replace(/\s+/g, '-')}.png`
-        link.click()
-      }
+      console.warn('Share or download error:', err)
+      triggerDirectDownload()
       setSavingStatus('saved')
       setTimeout(() => setSavingStatus('idle'), 3000)
     }
@@ -501,7 +577,7 @@ export default function AscentShareModal({
 
           {/* Action Buttons */}
           <div className="space-y-2">
-            {/* Primary: Save to Phone / Download */}
+            {/* Primary: Native Share / Save to Camera Roll */}
             <button
               onClick={handleSaveToPhone}
               disabled={isGenerating}
@@ -509,39 +585,59 @@ export default function AscentShareModal({
             >
               {savingStatus === 'saved' ? (
                 <>
-                  <Check size={18} /> Tersimpan ke Galeri Foto!
+                  <Check size={18} /> Berhasil Dibagikan / Disimpan!
                 </>
               ) : savingStatus === 'saving' ? (
                 <>
-                  <RefreshCw size={18} className="animate-spin" /> Menyiapkan gambar...
+                  <RefreshCw size={18} className="animate-spin" /> Menyiapkan kartu...
                 </>
               ) : (
                 <>
-                  <Download size={18} /> Download / Save to Photos
+                  <Share2 size={18} /> Simpan ke Foto / Bagikan
                 </>
               )}
             </button>
 
-            {/* Secondary: View in My Beta Book */}
-            {onViewPersonalBetaBook ? (
+            {/* Direct Download button */}
+            <div className="flex gap-2">
               <button
-                onClick={() => {
-                  onClose()
-                  onViewPersonalBetaBook()
-                }}
-                className="w-full py-2.5 px-4 rounded-xl border border-white/10 hover:border-white/20 text-slate-ash hover:text-chalk text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                onClick={triggerDirectDownload}
+                disabled={isGenerating || !generatedDataUrl}
+                className="flex-1 py-2 px-3 rounded-xl border border-white/10 hover:border-white/20 text-slate-ash hover:text-chalk text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
               >
-                <Award size={14} className="text-lime" />
-                Lihat di Beta Book Personal Saya
+                <Download size={14} /> Unduh File PNG
               </button>
-            ) : (
-              <button
-                onClick={onClose}
-                className="w-full py-2.5 px-4 rounded-xl border border-white/10 hover:border-white/20 text-slate-ash hover:text-chalk text-xs font-medium transition-colors"
-              >
-                Selesai
-              </button>
-            )}
+
+              {onViewPersonalBetaBook ? (
+                <button
+                  onClick={() => {
+                    onClose()
+                    onViewPersonalBetaBook()
+                  }}
+                  className="flex-1 py-2 px-3 rounded-xl border border-white/10 hover:border-white/20 text-slate-ash hover:text-chalk text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <Award size={14} className="text-lime" /> Beta Book Saya
+                </button>
+              ) : (
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-2 px-3 rounded-xl border border-white/10 hover:border-white/20 text-slate-ash hover:text-chalk text-xs font-medium transition-colors"
+                >
+                  Selesai
+                </button>
+              )}
+            </div>
+
+            {/* iPhone Safari Photos Guidance Note */}
+            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-left space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-chalk">
+                <span>💡</span>
+                <span>Tips Masuk ke Galeri Foto iPhone:</span>
+              </div>
+              <p className="text-[10px] text-slate-ash leading-relaxed">
+                Di iPhone Safari, klik tombol <b>Simpan ke Foto / Bagikan</b> lalu pilih menu <strong className="text-chalk">"Save Image / Simpan Gambar"</strong>. Atau Anda juga bisa <b>tekan & tahan (hold)</b> gambar kartu di atas lalu pilih <strong className="text-lime">"Simpan ke Foto"</strong> agar masuk langsung ke Galeri Foto.
+              </p>
+            </div>
           </div>
         </motion.div>
       </motion.div>
