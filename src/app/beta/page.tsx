@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2 } from 'lucide-react'
 import { Problem, CragRegion, RouteDiscipline } from '@/lib/mock-data'
@@ -21,6 +21,7 @@ import { UserAscent, getUserAscents, saveUserAscent, deleteUserAscent } from '@/
 type ViewLevel = 'regions' | 'sectors' | 'problems' | 'topo'
 
 function BetaPageContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const { role, user, openAuthModal } = useAuth()
   const { cragRegions, loading: cragsLoading } = useCragRegions()
@@ -53,6 +54,17 @@ function BetaPageContent() {
   useEffect(() => {
     setUserAscents(getUserAscents(user?.id))
   }, [user])
+
+  // Listen to open-personal-beta-book event from TopBar account logo
+  useEffect(() => {
+    const handleOpenBetaBook = () => {
+      setShowMyAscentsView(true)
+      setLevel('regions')
+      setShowSheet(false)
+    }
+    window.addEventListener('open-personal-beta-book', handleOpenBetaBook)
+    return () => window.removeEventListener('open-personal-beta-book', handleOpenBetaBook)
+  }, [])
 
   // Handle URL deep linking (e.g. /beta?region=...&sector=...&problem=...)
   useEffect(() => {
@@ -95,6 +107,15 @@ function BetaPageContent() {
         setSelectedRegion(regMatch.id)
         setLevel('sectors')
       }
+    }
+
+    const viewParam = searchParams.get('view')
+    if (viewParam === 'my-ascents' || viewParam === 'betabook') {
+      setShowMyAscentsView(true)
+      setLevel('regions')
+      setShowSheet(false)
+    } else if (viewParam === 'crags' || viewParam === 'boulders') {
+      setShowMyAscentsView(false)
     }
 
     const actionParam = searchParams.get('action')
@@ -346,19 +367,54 @@ function BetaPageContent() {
         {/* TOP LEVEL NAVIGATION & CONTROLS */}
         {level === 'regions' ? (
           <div className="space-y-4 mb-4">
-            {/* Headline Row: Clean "Boulder" (large) & "VIEW MODE" toolbar (Always Single Row) */}
-            <div className="flex items-center justify-between gap-2 pt-1">
-              {/* Category / Discipline Title — Clean "Boulder" */}
-              <div>
-                <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight ${
-                  isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                }`}>
-                  Boulder
-                </h1>
-              </div>
+            {showMyAscentsView ? (
+              /* Personal Beta Book Header */
+              <div className="flex items-center justify-between gap-2 pt-1 border-b border-black/10 dark:border-white/10 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center ${
+                    isSandstone ? 'border-[#1a1815]/20 bg-white/40 text-[#1a1815]' : 'border-white/10 bg-white/5 text-chalk'
+                  }`}>
+                    <span className="text-xl">🏆</span>
+                  </div>
+                  <div>
+                    <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight ${
+                      isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                    }`}>
+                      Personal Beta Book
+                    </h1>
+                    <p className={`text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                      {userAscents.length} Logged {userAscents.length === 1 ? 'Send' : 'Sends'}
+                    </p>
+                  </div>
+                </div>
 
-              {/* VIEW MODE Section matching Illustrator mockup (shown in Explore Crags mode) */}
-              {!showMyAscentsView ? (
+                <button
+                  onClick={() => {
+                    setShowMyAscentsView(false)
+                    router.replace('/beta')
+                  }}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+                    isSandstone
+                      ? 'border-[#1a1815]/30 bg-transparent text-[#1a1815] hover:bg-[#1a1815]/10'
+                      : 'border-white/20 bg-transparent text-chalk hover:bg-white/10'
+                  }`}
+                >
+                  ← Back to Boulders
+                </button>
+              </div>
+            ) : (
+              /* Headline Row: Clean "Boulder" (large) & "VIEW MODE" toolbar (Always Single Row) */
+              <div className="flex items-center justify-between gap-2 pt-1">
+                {/* Category / Discipline Title — Clean "Boulder" */}
+                <div>
+                  <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight ${
+                    isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                  }`}>
+                    Boulder
+                  </h1>
+                </div>
+
+                {/* VIEW MODE Section matching Illustrator mockup */}
                 <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
                   <span className={`text-[9px] sm:text-[10px] md:text-xs uppercase font-bold tracking-widest ${
                     isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
@@ -427,55 +483,8 @@ function BetaPageContent() {
                     </button>
                   </div>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs font-mono px-2.5 py-1 rounded-full border ${
-                    isSandstone ? 'border-[#1a1815]/20 text-[#1a1815]' : 'border-lime/30 text-lime bg-lime/10'
-                  }`}>
-                    {userAscents.length} Logged Sends
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* TAB SELECTION: [ Explore Crags | 🏆 Personal Beta Book ] */}
-            <div className="flex items-center gap-2 pt-1 border-b border-black/10 dark:border-white/10 pb-2.5">
-              <button
-                onClick={() => setShowMyAscentsView(false)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  !showMyAscentsView
-                    ? isSandstone ? 'bg-[#1a1815] text-white shadow-sm' : 'bg-lime text-granite shadow-lime-glow-sm'
-                    : isSandstone ? 'text-[#1a1815]/60 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                }`}
-              >
-                Explore Crags
-              </button>
-              <button
-                onClick={() => {
-                  if (role === 'guest') {
-                    openAuthModal('Please sign in or register to view your personal Beta Book and logged ascents.')
-                    return
-                  }
-                  setShowMyAscentsView(true)
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  showMyAscentsView
-                    ? isSandstone ? 'bg-[#1a1815] text-white shadow-sm' : 'bg-lime text-granite shadow-lime-glow-sm'
-                    : isSandstone ? 'text-[#1a1815]/60 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                }`}
-              >
-                <span>🏆 Personal Beta Book</span>
-                {userAscents.length > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono leading-none ${
-                    showMyAscentsView
-                      ? isSandstone ? 'bg-white/30 text-white' : 'bg-black/20 text-granite'
-                      : isSandstone ? 'bg-[#1a1815]/10 text-[#1a1815]' : 'bg-white/10 text-lime'
-                  }`}>
-                    {userAscents.length}
-                  </span>
-                )}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         ) : (
           /* Breadcrumb Header when in Sectors, Problems, or Topo */

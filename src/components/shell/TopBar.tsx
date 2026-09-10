@@ -23,6 +23,7 @@ import {
   Eye,
   UserCheck,
   Check,
+  Award,
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuth } from '@/lib/auth-context'
@@ -51,6 +52,15 @@ export default function TopBar({
 
   const handleNavClick = (href: string) => {
     setShowDrawer(false)
+    if (href.includes('view=my-ascents')) {
+      if (role === 'guest') {
+        openAuthModal('Please sign in or register to view your Personal Beta Book.')
+        return
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('open-personal-beta-book'))
+      }
+    }
     router.push(href)
   }
 
@@ -94,14 +104,17 @@ export default function TopBar({
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-14 md:h-16 grid grid-cols-3 items-center">
-          {/* Left: User Account Button */}
+          {/* Left: User Account Button (Personal Beta Book) */}
           <div className="flex items-center justify-start">
             <button
               onClick={() => {
                 if (role === 'guest') {
-                  openAuthModal('Please sign in or create an account for your profile and logbook.')
+                  openAuthModal('Please sign in or register to view your Personal Beta Book and logged ascents.')
                 } else {
-                  setShowDrawer(true)
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('open-personal-beta-book'))
+                  }
+                  router.push('/beta?view=my-ascents')
                 }
               }}
               className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center transition-all border ${
@@ -109,8 +122,8 @@ export default function TopBar({
                   ? 'border-[#1a1815]/30 hover:border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
                   : 'border-white/20 hover:border-lime text-chalk hover:text-lime hover:bg-white/5'
               }`}
-              title={role === 'guest' ? 'Sign In / Account' : user?.name || 'User Profile'}
-              aria-label="User Account"
+              title={role === 'guest' ? 'Sign In / Personal Beta Book' : `${user?.name || 'Climber'} · Personal Beta Book`}
+              aria-label="Personal Beta Book"
             >
               {user?.avatar ? (
                 <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover rounded-xl" />
@@ -199,13 +212,18 @@ export default function TopBar({
                   {/* Left: User Account Info */}
                   <button
                     onClick={() => {
+                      setShowDrawer(false)
                       if (role === 'guest') {
-                        setShowDrawer(false)
-                        openAuthModal('Please sign in or create an account.')
+                        openAuthModal('Please sign in or register to view your Personal Beta Book and logged ascents.')
+                      } else {
+                        if (typeof window !== 'undefined') {
+                          window.dispatchEvent(new CustomEvent('open-personal-beta-book'))
+                        }
+                        router.push('/beta?view=my-ascents')
                       }
                     }}
                     className="flex items-center gap-2.5 text-left group min-w-0 mr-2"
-                    title={role === 'guest' ? 'Click to Sign In / Sign Up' : 'User Profile'}
+                    title={role === 'guest' ? 'Click to Sign In / Sign Up' : 'Personal Beta Book'}
                   >
                     <div
                       className={`w-8 h-8 rounded-xl border flex items-center justify-center overflow-hidden flex-shrink-0 transition-transform group-hover:scale-105 ${
@@ -227,7 +245,7 @@ export default function TopBar({
                         {role === 'guest' ? 'Guest Account' : user?.name || 'Climber'}
                       </span>
                       <span className="text-[9px] font-mono uppercase tracking-wider opacity-60 block truncate">
-                        {role === 'guest' ? 'Click to Sign In' : role === 'super_admin' ? '👑 Super Admin' : role === 'gym_admin' ? '🏢 Gym Admin' : '🧗 Climber'}
+                        {role === 'guest' ? 'Click to Sign In' : role === 'super_admin' ? '👑 Super Admin' : role === 'gym_admin' ? '🏢 Gym Admin' : '🧗 Climber · Beta Book'}
                       </span>
                     </div>
                   </button>
@@ -301,6 +319,7 @@ export default function TopBar({
                   {[
                     { href: '/', label: 'Explore Crags', sub: 'Discover climbing destinations', icon: Compass },
                     { href: '/beta', label: 'Boulders & Topo', sub: 'Beta Book & route database', icon: BookOpen },
+                    { href: '/beta?view=my-ascents', label: 'Personal Beta Book', sub: 'Your logged sends & ascent cards', icon: Award },
                     { href: '/gyms', label: 'Gym Directory', sub: 'Bouldering & climbing gyms', icon: Building2 },
                     { href: '/community', label: 'Community', sub: 'Climber network & partners', icon: Users },
                   ].map(item => {
