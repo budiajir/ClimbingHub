@@ -296,55 +296,68 @@ export default function MobileNav() {
                 </p>
               </div>
 
-              {/* Bottom Section: 2 Square Boxes with Black Logo & Labels Underneath */}
-              <div className="space-y-4 sm:space-y-6 pt-3">
-                {/* 2 Square Boxes */}
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-[260px] sm:max-w-sm mx-auto w-full px-1">
-                  {/* 1. Problem Box (White Box, Black Logo) */}
-                  <button
-                    onClick={() =>
-                      handleCreateOption(() => {
-                        router.push("/beta");
-                      })
-                    }
-                    className="flex flex-col items-center gap-2 group touch-ripple text-center"
-                  >
-                    <div className="w-full aspect-square max-w-[105px] sm:max-w-[130px] bg-white text-black border-2 border-black rounded-none flex items-center justify-center shadow-md transition-all group-hover:scale-[1.02] group-active:scale-95">
-                      <BoulderIcon size={32} className="text-black" />
-                    </div>
+              {/* Bottom Section: Quick Actions with Text Buttons */}
+              <div className="space-y-4 sm:space-y-5 pt-3 max-w-md mx-auto w-full px-2">
+                <div className="space-y-2.5">
+                  <div className="text-left px-1">
                     <span
-                      className={`font-bold text-sm sm:text-base tracking-wide transition-colors ${
-                        isSandstone ? "text-[#1a1815]" : "text-white"
+                      className={`text-[11px] sm:text-xs font-bold uppercase tracking-[0.14em] ${
+                        isSandstone ? "text-[#1a1815]/60" : "text-white/60"
                       }`}
                     >
-                      Problem
+                      QUICK ACTIONS
                     </span>
-                  </button>
+                  </div>
 
-                  {/* 2. Ascent Box (White Box, Black Logo) */}
-                  <button
-                    onClick={() =>
-                      handleCreateOption(() => {
-                        if (role === "guest") {
-                          openAuthModal("Please sign in to log your ascent.");
-                        } else {
-                          router.push("/beta");
-                        }
-                      })
-                    }
-                    className="flex flex-col items-center gap-2 group touch-ripple text-center"
-                  >
-                    <div className="w-full aspect-square max-w-[105px] sm:max-w-[130px] bg-white text-black border-2 border-black rounded-none flex items-center justify-center shadow-md transition-all group-hover:scale-[1.02] group-active:scale-95">
-                      <BookOpen size={30} className="text-black" />
-                    </div>
-                    <span
-                      className={`font-bold text-sm sm:text-base tracking-wide transition-colors ${
-                        isSandstone ? "text-[#1a1815]" : "text-white"
-                      }`}
+                  <div className="flex flex-col gap-2.5 sm:gap-3 w-full">
+                    {/* 1. Submit Boulder Problem */}
+                    <button
+                      onClick={() =>
+                        handleCreateOption(() => {
+                          if (role === "guest") {
+                            openAuthModal("Please sign in or create an account to submit boulder problems.");
+                          } else {
+                            router.push("/beta?action=submit");
+                          }
+                        })
+                      }
+                      className={clsx(
+                        "flex items-center gap-3 w-full px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl border transition-all text-left group touch-ripple",
+                        isSandstone
+                          ? "border-[#8c8273] bg-[#cfc2ab] hover:bg-[#ded3be] text-[#1a1815]"
+                          : "border-white/20 bg-white/5 hover:bg-white/10 text-white"
+                      )}
                     >
-                      Ascent
-                    </span>
-                  </button>
+                      <Plus size={19} strokeWidth={2.4} className="shrink-0" />
+                      <span className="font-bold text-sm sm:text-base tracking-tight">
+                        + Submit Boulder Problem
+                      </span>
+                    </button>
+
+                    {/* 2. Log Boulder Ascent */}
+                    <button
+                      onClick={() =>
+                        handleCreateOption(() => {
+                          if (role === "guest") {
+                            openAuthModal("Please sign in to log your ascent.");
+                          } else {
+                            router.push("/beta?action=log");
+                          }
+                        })
+                      }
+                      className={clsx(
+                        "flex items-center gap-3 w-full px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl border transition-all text-left group touch-ripple",
+                        isSandstone
+                          ? "border-[#d95338] bg-[#d95338]/10 hover:bg-[#d95338]/15 text-[#d95338]"
+                          : "border-[#ff6b4a] bg-[#ff6b4a]/10 hover:bg-[#ff6b4a]/20 text-[#ff6b4a]"
+                      )}
+                    >
+                      <BookOpen size={19} strokeWidth={2.2} className="shrink-0" />
+                      <span className="font-bold text-sm sm:text-base tracking-tight">
+                        Log Boulder Ascent
+                      </span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Bottom Nav Bar Divider and + Trigger */}
@@ -352,7 +365,7 @@ export default function MobileNav() {
                   <button
                     onClick={() => setShowCreateSheet(false)}
                     className={`w-10 h-10 flex items-center justify-center transition-transform hover:scale-110 ${
-                      isSandstone ? "text-[#d95338]" : "text-lime"
+                      isSandstone ? "text-[#1a1815]" : "text-lime"
                     }`}
                     title="Close Menu"
                   >

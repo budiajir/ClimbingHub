@@ -96,7 +96,36 @@ function BetaPageContent() {
         setLevel('sectors')
       }
     }
-  }, [searchParams, regions])
+
+    const actionParam = searchParams.get('action')
+    if (actionParam === 'submit' || actionParam === 'add-route') {
+      if (canCreateCragRoute(role)) {
+        setShowAddRouteModal(true)
+      } else if (role === 'registered') {
+        setShowRoadmapModal(true)
+      } else {
+        openAuthModal('Please sign in or create an account to access route curation features.')
+      }
+    } else if (actionParam === 'log') {
+      if (!selectedProblem) {
+        const firstReg = regions[0]
+        const firstSec = firstReg?.sectors[0]
+        const firstProb = firstSec?.problems[0]
+        if (firstProb) {
+          setSelectedRegion(firstReg.id)
+          setSelectedSector(firstSec.id)
+          setSelectedProblem(firstProb.id)
+          setLevel('topo')
+          setShowSheet(true)
+        }
+      }
+      if (!canLogAscent(role)) {
+        openAuthModal('Please sign in or create an account to log your climbing ascents.')
+      } else {
+        setShowLogModal(true)
+      }
+    }
+  }, [searchParams, regions, role])
 
   const triggerLogAscent = () => {
     if (!canLogAscent(role)) {
