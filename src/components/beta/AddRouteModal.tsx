@@ -332,7 +332,7 @@ export default function AddRouteModal({
   const lineColor = discipline === 'multipitch' ? '#FF6B00' : discipline === 'sport' ? '#CCFF00' : '#06B6D4'
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 md:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 md:p-6 overflow-y-auto">
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 15 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}

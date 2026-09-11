@@ -147,7 +147,7 @@ export default function MobileNav() {
   return (
     <>
       {/* BOTTOM NAVIGATION BAR */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 pb-safe md:hidden">
         <div
           className={clsx(
             "transition-colors duration-300",
@@ -254,14 +254,14 @@ export default function MobileNav() {
       {/* FULL-SCREEN CREATE OVERLAY (COVERS BACKGROUND COMPLETELY) */}
       <AnimatePresence>
         {showCreateSheet && (
-          <div className="fixed inset-0 z-50 flex flex-col justify-between md:hidden">
+          <div className="fixed inset-0 z-[110] flex flex-col justify-between md:hidden">
             {/* 100% Opaque Solid Full-Screen Panel */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 30 }}
               transition={{ duration: 0.22, ease: "easeOut" }}
-              className={`fixed inset-0 z-50 flex flex-col justify-between p-4 sm:p-6 rounded-none overflow-y-auto ${
+              className={`fixed inset-0 z-[110] flex flex-col justify-between p-4 sm:p-6 rounded-none overflow-y-auto ${
                 isSandstone
                   ? "bg-[#cfc2ab] text-[#1a1815]"
                   : "bg-[#23262C] text-chalk"

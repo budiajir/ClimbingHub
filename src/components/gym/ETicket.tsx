@@ -22,7 +22,7 @@ export default function ETicket({ booking, bookingCode, onClose }: ETicketProps)
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 bg-black/80 flex items-end justify-center"
+      className="fixed inset-0 z-[100] bg-black/80 flex items-end justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >

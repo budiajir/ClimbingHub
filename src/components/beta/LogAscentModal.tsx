@@ -121,7 +121,7 @@ export default function LogAscentModal({
     <AnimatePresence>
       {/* Backdrop */}
       <motion.div
-        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
+        className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -129,7 +129,10 @@ export default function LogAscentModal({
       >
         {/* Modal */}
         <motion.div
-          className="w-full sm:max-w-lg bg-crag rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 max-h-[92vh] overflow-y-auto no-scrollbar"
+          className="w-full sm:max-w-lg bg-crag rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 max-h-[88vh] sm:max-h-[92vh] overflow-y-auto no-scrollbar shadow-2xl"
+          style={{
+            paddingBottom: 'max(env(safe-area-inset-bottom) + 20px, 36px)',
+          }}
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}

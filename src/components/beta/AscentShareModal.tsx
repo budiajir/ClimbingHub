@@ -486,7 +486,7 @@ export default function AscentShareModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+        className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -496,7 +496,10 @@ export default function AscentShareModal({
 
         {/* Modal Container */}
         <motion.div
-          className="relative w-full max-w-md bg-[#181A1F] border border-white/10 rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col my-auto max-h-[96vh]"
+          className="relative w-full max-w-md bg-[#181A1F] border border-white/10 rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col my-auto max-h-[90vh] overflow-y-auto no-scrollbar"
+          style={{
+            paddingBottom: 'max(env(safe-area-inset-bottom) + 16px, 20px)',
+          }}
           initial={{ scale: 0.92, y: 30 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.92, y: 30 }}
@@ -523,7 +526,7 @@ export default function AscentShareModal({
           {/* Card Preview (9:16 Aspect Phone Frame) */}
           <div className="relative my-3 flex justify-center items-center overflow-hidden rounded-2xl bg-black/50 border border-white/5 shadow-inner">
             {isGenerating && !generatedDataUrl ? (
-              <div className="h-80 flex flex-col items-center justify-center gap-2 text-slate-ash">
+              <div className="h-64 sm:h-80 flex flex-col items-center justify-center gap-2 text-slate-ash">
                 <RefreshCw size={24} className="animate-spin text-lime" />
                 <span className="text-xs font-light">Generating high-res card...</span>
               </div>
@@ -532,7 +535,7 @@ export default function AscentShareModal({
                 <img
                   src={generatedDataUrl}
                   alt="Ascent Badge Preview"
-                  className="w-auto h-[50vh] max-h-[460px] object-contain rounded-xl shadow-2xl transition-transform"
+                  className="w-auto h-[38vh] sm:h-[46vh] max-h-[420px] object-contain rounded-xl shadow-2xl transition-transform"
                 />
                 <div className="absolute bottom-2 left-0 right-0 text-center pointer-events-none">
                   <span className="bg-black/70 backdrop-blur-sm text-[10px] text-white/80 px-2.5 py-1 rounded-full border border-white/10">
