@@ -6,6 +6,7 @@ import { useParams, notFound } from 'next/navigation'
 import { ChevronLeft, Star, MapPin, Phone, Instagram, Check, ShieldCheck, Sparkles, Clock, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useGyms } from '@/lib/use-data'
+import { useTheme } from '@/lib/theme-context'
 import SlotPicker, { BookingData } from '@/components/gym/SlotPicker'
 import ETicket from '@/components/gym/ETicket'
 
@@ -16,6 +17,8 @@ function generateBookingCode() {
 export default function GymDetailPage() {
   const params = useParams()
   const { gyms, loading } = useGyms()
+  const { theme } = useTheme()
+  const isSandstone = theme === 'sandstone'
   const gym = gyms.find(g => g.id === params.id)
   const [booking, setBooking] = useState<BookingData | null>(null)
   const [bookingCode] = useState(generateBookingCode())
@@ -34,10 +37,14 @@ export default function GymDetailPage() {
   return (
     <div className="max-w-7xl mx-auto md:px-6 lg:px-8 pb-12">
       {/* Back button for desktop */}
-      <div className="hidden md:flex items-center gap-2 py-4 border-b border-white/5 mb-6">
+      <div className={`hidden md:flex items-center gap-2 py-4 border-b mb-6 ${
+        isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+      }`}>
         <Link
           href="/gyms"
-          className="flex items-center gap-1.5 text-xs text-slate-ash hover:text-lime font-light tracking-wide transition-colors"
+          className={`flex items-center gap-1.5 text-xs font-light tracking-wide transition-colors ${
+            isSandstone ? 'text-[#1a1815]/70 hover:text-[#1a1815]' : 'text-slate-ash hover:text-lime'
+          }`}
         >
           <ChevronLeft size={16} /> Back to Gym Directory
         </Link>
@@ -82,33 +89,51 @@ export default function GymDetailPage() {
           {/* Details Section */}
           <div className="px-4 md:px-0 space-y-6">
             {/* Description */}
-            <div className="bg-crag rounded-2xl p-5 border border-white/5">
-              <h2 className="text-chalk font-bold text-base mb-2">About Gym</h2>
-              <p className="text-chalk/80 text-sm font-normal leading-relaxed">{gym.description}</p>
-              <div className="mt-3 text-xs text-slate-ash font-light flex items-center gap-1.5">
-                <MapPin size={13} className="text-lime" />
-                <span className="text-chalk/90">{gym.address}</span>
+            <div className={`rounded-2xl p-5 border ${
+              isSandstone ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]' : 'bg-crag border-white/5'
+            }`}>
+              <h2 className={`font-bold text-base mb-2 ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>About Gym</h2>
+              <p className={`text-sm font-normal leading-relaxed ${isSandstone ? 'text-[#1a1815]/80' : 'text-chalk/80'}`}>{gym.description}</p>
+              <div className="mt-3 text-xs font-light flex items-center gap-1.5">
+                <MapPin size={13} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+                <span className={isSandstone ? 'text-[#1a1815]/90' : 'text-chalk/90'}>{gym.address}</span>
               </div>
             </div>
 
             {/* Facilities */}
-            <div className="bg-crag rounded-2xl p-5 border border-white/5">
-              <p className="text-slate-ash text-xs uppercase tracking-wider mb-3 font-light">Amenities & Facilities</p>
+            <div className={`rounded-2xl p-5 border ${
+              isSandstone ? 'bg-transparent border-[#1a1815]/20' : 'bg-crag border-white/5'
+            }`}>
+              <p className={`text-xs uppercase tracking-wider mb-3 font-light ${
+                isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+              }`}>Amenities & Facilities</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                 {gym.facilities.map(f => (
-                  <div key={f} className="flex items-center gap-2 text-xs text-chalk font-normal bg-granite p-2.5 rounded-xl border border-white/5">
-                    <Check size={13} className="text-lime flex-shrink-0" /> {f}
+                  <div key={f} className={`flex items-center gap-2 text-xs font-normal p-2.5 rounded-xl border ${
+                    isSandstone
+                      ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+                      : 'bg-granite border-white/5 text-chalk'
+                  }`}>
+                    <Check size={13} className={isSandstone ? 'text-[#1a1815]' : 'text-lime flex-shrink-0'} /> {f}
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Route Setters */}
-            <div className="bg-crag rounded-2xl p-5 border border-white/5">
-              <p className="text-slate-ash text-xs uppercase tracking-wider mb-3 font-light">Route Setters in Residence</p>
+            <div className={`rounded-2xl p-5 border ${
+              isSandstone ? 'bg-transparent border-[#1a1815]/20' : 'bg-crag border-white/5'
+            }`}>
+              <p className={`text-xs uppercase tracking-wider mb-3 font-light ${
+                isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+              }`}>Route Setters in Residence</p>
               <div className="flex flex-wrap gap-2">
                 {gym.routeSetters.map(setter => (
-                  <span key={setter} className="text-xs font-medium text-cyan-climb bg-cyan-climb/10 border border-cyan-climb/20 px-3 py-1.5 rounded-xl">
+                  <span key={setter} className={`text-xs font-medium px-3 py-1.5 rounded-xl border ${
+                    isSandstone
+                      ? 'text-[#1a1815] bg-[#1a1815]/10 border-[#1a1815]/20'
+                      : 'text-cyan-climb bg-cyan-climb/10 border-cyan-climb/20'
+                  }`}>
                     🧗‍♂️ {setter}
                   </span>
                 ))}
@@ -119,7 +144,11 @@ export default function GymDetailPage() {
             <div className="flex gap-3">
               <a
                 href={`tel:${gym.phone}`}
-                className="flex-1 flex items-center justify-center gap-2 h-11 bg-crag rounded-xl text-sm font-light text-slate-ash border border-white/5 touch-ripple hover:text-chalk hover:border-lime/30 transition-colors"
+                className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-light border touch-ripple transition-colors ${
+                  isSandstone
+                    ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815] hover:border-[#1a1815]/50'
+                    : 'bg-crag border-white/5 text-slate-ash hover:text-chalk hover:border-lime/30'
+                }`}
               >
                 <Phone size={15} /> {gym.phone}
               </a>
@@ -127,7 +156,11 @@ export default function GymDetailPage() {
                 href={`https://instagram.com/${gym.instagram.replace('@', '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 h-11 bg-crag rounded-xl text-sm font-light text-pink-400 border border-white/5 touch-ripple hover:border-pink-500/30 transition-colors"
+                className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-light border touch-ripple transition-colors ${
+                  isSandstone
+                    ? 'bg-transparent border-[#1a1815]/20 text-pink-600 hover:border-pink-500/50'
+                    : 'bg-crag border-white/5 text-pink-400 hover:border-pink-500/30'
+                }`}
               >
                 <Instagram size={15} /> {gym.instagram}
               </a>
@@ -137,15 +170,29 @@ export default function GymDetailPage() {
 
         {/* Right Column: Sticky Booking Card */}
         <div className="lg:col-span-5 px-4 md:px-0">
-          <div className="bg-crag border border-white/10 lg:border-lime/20 rounded-3xl p-5 md:p-6 lg:sticky lg:top-24 shadow-card">
-            <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+          <div className={`border rounded-3xl p-5 md:p-6 lg:sticky lg:top-24 shadow-card ${
+            isSandstone
+              ? 'bg-transparent border-[#1a1815]/25 text-[#1a1815]'
+              : 'bg-crag border-white/10 lg:border-lime/20'
+          }`}>
+            <div className={`flex items-center justify-between border-b pb-4 mb-4 ${
+              isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+            }`}>
               <div>
-                <h2 className="text-chalk font-bold text-lg md:text-xl">Book a Session</h2>
-                <p className="text-slate-ash text-xs font-light">Select time slot, climbers & rental add-ons</p>
+                <h2 className={`font-bold text-lg md:text-xl ${
+                  isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                }`}>Book a Session</h2>
+                <p className={`text-xs font-light ${
+                  isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                }`}>Select time slot, climbers & rental add-ons</p>
               </div>
               <div className="text-right">
-                <span className="text-lime font-bold text-xl">Rp {gym.pricePerSession.toLocaleString('id-ID')}</span>
-                <span className="text-slate-ash text-xs font-light block">/person</span>
+                <span className={`font-bold text-xl ${
+                  isSandstone ? 'text-[#1a1815]' : 'text-lime'
+                }`}>Rp {gym.pricePerSession.toLocaleString('id-ID')}</span>
+                <span className={`text-xs font-light block ${
+                  isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                }`}>/person</span>
               </div>
             </div>
 

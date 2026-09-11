@@ -18,19 +18,19 @@ export default function CommunityDirectory() {
   return (
     <div className="space-y-6">
       {/* City Filters */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 md:px-0">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
         {cities.map(city => (
           <button
             key={city}
             onClick={() => setFilterCity(city)}
-            className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs transition-all ${
+            className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs transition-all border ${
               filterCity === city
                 ? isSandstone
-                  ? 'bg-[#1a1815] text-[#e6ded2] font-bold'
-                  : 'bg-lime text-granite shadow-lime-glow-sm font-bold'
+                  ? 'bg-transparent border-[#1a1815] text-[#1a1815] font-bold'
+                  : 'bg-transparent border-lime text-lime font-bold'
                 : isSandstone
-                  ? 'bg-transparent text-[#1a1815]/70 hover:text-[#1a1815] border border-[#1a1815]/20 font-light'
-                  : 'bg-crag text-slate-ash hover:text-chalk border border-white/5 font-light'
+                  ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]/70 hover:border-[#1a1815]/40 font-light'
+                  : 'bg-transparent border-white/10 text-slate-ash hover:text-chalk hover:border-white/20 font-light'
             }`}
           >
             {city === 'all' ? 'All Cities' : city}
@@ -39,7 +39,7 @@ export default function CommunityDirectory() {
       </div>
 
       {/* Main Grid: Full Width Squads & Clubs Directory */}
-      <div className="px-4 md:px-0 space-y-4">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className={`font-bold text-base md:text-xl flex items-center gap-2 ${
             isSandstone ? 'text-[#1a1815]' : 'text-chalk'

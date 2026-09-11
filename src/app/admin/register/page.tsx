@@ -6,9 +6,12 @@ import { Building2, MapPin, Phone, User, CheckCircle2, ChevronLeft, Sparkles } f
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTheme } from '@/lib/theme-context'
 
 export default function AdminRegisterPage() {
   const { registerGym } = useAuth()
+  const { theme } = useTheme()
+  const isSandstone = theme === 'sandstone'
   const router = useRouter()
 
   const [gymName, setGymName] = useState('')
@@ -48,20 +51,30 @@ export default function AdminRegisterPage() {
     <div className="max-w-xl mx-auto px-4 py-12 md:py-20 space-y-6">
       <Link
         href="/"
-        className="inline-flex items-center gap-1.5 text-xs text-slate-ash hover:text-chalk font-light transition-colors"
+        className={`inline-flex items-center gap-1.5 text-xs font-light transition-colors ${
+          isSandstone ? 'text-[#1a1815]/70 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+        }`}
       >
         <ChevronLeft size={15} /> Back to Home
       </Link>
 
-      <div className="bg-crag border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+      <div className={`border rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 ${
+        isSandstone ? 'bg-transparent border-[#1a1815]/25 text-[#1a1815]' : 'bg-crag border-white/10'
+      }`}>
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-climb/10 border border-cyan-climb/30 text-cyan-climb text-xs font-mono font-light uppercase">
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-light uppercase border ${
+            isSandstone ? 'bg-[#1a1815]/10 border-[#1a1815]/30 text-[#1a1815]' : 'bg-cyan-climb/10 border-cyan-climb/30 text-cyan-climb'
+          }`}>
             <Building2 size={13} /> New Partner Registration
           </div>
-          <h1 className="text-chalk font-bold text-2xl md:text-3xl">
+          <h1 className={`font-bold text-2xl md:text-3xl ${
+            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+          }`}>
             Register Your Climbing Gym
           </h1>
-          <p className="text-slate-ash text-xs md:text-sm font-light leading-relaxed">
+          <p className={`text-xs md:text-sm font-light leading-relaxed ${
+            isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+          }`}>
             Get a self-managed dashboard for your facility: activate POS cashier & QR ticket scanners, manage session quotas, and monitor climber check-ins in real time.
           </p>
         </div>

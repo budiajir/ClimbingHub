@@ -6,9 +6,12 @@ import { Store, Lock, Mail, ChevronLeft, Sparkles, Building2 } from 'lucide-reac
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTheme } from '@/lib/theme-context'
 
 export default function AdminLoginPage() {
   const { loginAsGymAdmin } = useAuth()
+  const { theme } = useTheme()
+  const isSandstone = theme === 'sandstone'
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -32,20 +35,30 @@ export default function AdminLoginPage() {
     <div className="max-w-md mx-auto px-4 py-16 md:py-24 space-y-6">
       <Link
         href="/"
-        className="inline-flex items-center gap-1.5 text-xs text-slate-ash hover:text-chalk font-light transition-colors"
+        className={`inline-flex items-center gap-1.5 text-xs font-light transition-colors ${
+          isSandstone ? 'text-[#1a1815]/70 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+        }`}
       >
         <ChevronLeft size={15} /> Back to Home
       </Link>
 
-      <div className="bg-crag border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl space-y-5">
+      <div className={`border rounded-3xl p-6 md:p-8 shadow-2xl space-y-5 ${
+        isSandstone ? 'bg-transparent border-[#1a1815]/25 text-[#1a1815]' : 'bg-crag border-white/10'
+      }`}>
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-lime/10 border border-lime/20 flex items-center justify-center text-lime mx-auto shadow-lime-glow-sm">
+          <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center mx-auto shadow-lime-glow-sm ${
+            isSandstone ? 'bg-[#1a1815]/10 border-[#1a1815]/20 text-[#1a1815]' : 'bg-lime/10 border-lime/20 text-lime'
+          }`}>
             <Store size={24} />
           </div>
-          <h1 className="text-chalk font-bold text-xl md:text-2xl">
+          <h1 className={`font-bold text-xl md:text-2xl ${
+            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+          }`}>
             Gym Partner Sign In
           </h1>
-          <p className="text-slate-ash text-xs font-light">
+          <p className={`text-xs font-light ${
+            isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+          }`}>
             Private portal for POS cashier, QR ticket scanner, and session quota management.
           </p>
         </div>

@@ -8,11 +8,14 @@ import SlotManager from '@/components/admin/SlotManager'
 import { useAuth } from '@/lib/auth-context'
 import { canAccessGymAdmin } from '@/lib/permissions'
 import Link from 'next/link'
+import { useTheme } from '@/lib/theme-context'
 
 type AdminTab = 'cashier' | 'slots'
 
 export default function AdminDashboardPage() {
   const { role, gymTenant, loginAsGymAdmin } = useAuth()
+  const { theme } = useTheme()
+  const isSandstone = theme === 'sandstone'
   const [activeTab, setActiveTab] = useState<AdminTab>('cashier')
 
   const isAuthorized = canAccessGymAdmin(role)
@@ -33,10 +36,14 @@ export default function AdminDashboardPage() {
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-redpoint/10 border border-redpoint/20 text-redpoint text-xs font-mono font-light uppercase">
             <ShieldAlert size={13} /> Private Merchant Gate · 403 Forbidden
           </div>
-          <h1 className="text-chalk font-bold text-2xl md:text-3xl">
+          <h1 className={`font-bold text-2xl md:text-3xl ${
+            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+          }`}>
             Gym Admin Portal
           </h1>
-          <p className="text-slate-ash text-xs md:text-sm font-light max-w-md mx-auto leading-relaxed">
+          <p className={`text-xs md:text-sm font-light max-w-md mx-auto leading-relaxed ${
+            isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+          }`}>
             This dashboard is not accessible to the public or regular climber accounts. It is reserved exclusively for registered gym partners, staff, and cashiers.
           </p>
         </div>
@@ -118,22 +125,32 @@ export default function AdminDashboardPage() {
   return (
     <div className="max-w-6xl mx-auto p-4 md:px-6 lg:px-8 space-y-6">
       {/* Tenant Merchant Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
+      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4 ${
+        isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+      }`}>
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-lime/10 border border-lime/20 flex items-center justify-center text-lime font-bold shadow-lime-glow-sm">
+          <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center font-bold shadow-lime-glow-sm ${
+            isSandstone ? 'bg-[#1a1815]/10 border-[#1a1815]/20 text-[#1a1815]' : 'bg-lime/10 border-lime/20 text-lime'
+          }`}>
             <Store size={24} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-chalk font-bold text-lg md:text-2xl">
+              <h1 className={`font-bold text-lg md:text-2xl ${
+                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+              }`}>
                 {currentGym.name} POS
               </h1>
-              <span className="flex items-center gap-1 px-2.5 py-0.5 bg-lime/10 border border-lime/30 rounded-full text-lime text-[10px] font-mono font-light">
-                <span className="w-1.5 h-1.5 rounded-full bg-lime animate-ping" /> PRIVATE DASHBOARD
+              <span className={`flex items-center gap-1 px-2.5 py-0.5 border rounded-full text-[10px] font-mono font-light ${
+                isSandstone ? 'bg-[#1a1815]/10 border-[#1a1815]/30 text-[#1a1815]' : 'bg-lime/10 border-lime/30 text-lime'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full animate-ping ${isSandstone ? 'bg-[#1a1815]' : 'bg-lime'}`} /> PRIVATE DASHBOARD
               </span>
             </div>
-            <p className="text-slate-ash text-xs font-light">
-              Admin: <span className="text-chalk">{currentGym.picName}</span> · Location: <span className="text-chalk">{currentGym.city}</span>
+            <p className={`text-xs font-light ${
+              isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+            }`}>
+              Admin: <span className={isSandstone ? 'text-[#1a1815] font-medium' : 'text-chalk'}>{currentGym.picName}</span> · Location: <span className={isSandstone ? 'text-[#1a1815] font-medium' : 'text-chalk'}>{currentGym.city}</span>
             </p>
           </div>
         </div>
