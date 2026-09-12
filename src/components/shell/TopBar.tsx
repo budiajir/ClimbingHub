@@ -29,6 +29,7 @@ import clsx from 'clsx'
 import { useAuth } from '@/lib/auth-context'
 import { canLogAscent, canCreateCragRoute, UserRole } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
+import PolicyModal, { PolicyKey } from './PolicyModal'
 
 interface TopBarProps {
   title?: string
@@ -49,6 +50,8 @@ export default function TopBar({
   const { isSandstone, toggleTheme } = useTheme()
   const [showDrawer, setShowDrawer] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [policyKey, setPolicyKey] = useState<PolicyKey | null>(null)
+  const [showRoleSelector, setShowRoleSelector] = useState(false)
 
   const handleNavClick = (href: string) => {
     setShowDrawer(false)
@@ -177,10 +180,10 @@ export default function TopBar({
         </div>
       </header>
 
-      {/* ALL-IN-ONE 2-LINE SLIDE-OVER DRAWER MENU */}
+      {/* ALL-IN-ONE 2-LINE SLIDE-OVER DRAWER MENU (MOCKUP LAYOUT) */}
       <AnimatePresence>
         {showDrawer && (
-          <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="fixed inset-0 z-40 flex justify-end">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -196,262 +199,190 @@ export default function TopBar({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className={`relative z-10 w-full max-w-sm h-full flex flex-col justify-between p-5 md:p-6 shadow-2xl border-l overflow-y-auto ${
+              className={`relative z-10 w-full max-w-sm sm:max-w-md h-full flex flex-col justify-between p-6 sm:p-7 shadow-2xl border-l overflow-y-auto ${
                 isSandstone
                   ? 'bg-[#ded3be] border-[#1a1815]/20 text-[#1a1815]'
                   : 'bg-[#181d22] border-white/10 text-chalk'
               }`}
               style={{
-                paddingTop: 'max(env(safe-area-inset-top), 20px)',
-                paddingBottom: 'max(env(safe-area-inset-bottom), 120px)',
+                paddingTop: 'max(env(safe-area-inset-top), 24px)',
+                paddingBottom: 'max(env(safe-area-inset-bottom) + 80px, 96px)',
               }}
             >
-              {/* Drawer Top Header: Logo, Theme Switcher, Close X */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
-                  {/* Left: User Account Info */}
-                  <button
-                    onClick={() => {
-                      setShowDrawer(false)
-                      if (role === 'guest') {
-                        openAuthModal('Please sign in or register to view your Personal Beta Book and logged ascents.')
-                      } else {
-                        if (typeof window !== 'undefined') {
-                          window.dispatchEvent(new CustomEvent('open-personal-beta-book'))
-                        }
-                        router.push('/beta?view=my-ascents')
-                      }
-                    }}
-                    className="flex items-center gap-2.5 text-left group min-w-0 mr-2"
-                    title={role === 'guest' ? 'Click to Sign In / Sign Up' : 'Personal Beta Book'}
+              <div className="space-y-6">
+                {/* 1. TOP ROW: Segmented Pill Theme Switcher [ Granite | Sandstone ] & Clean Close X */}
+                <div className="flex items-center justify-between pt-1">
+                  {/* Segmented Pill */}
+                  <div
+                    className={`inline-flex items-center rounded-full p-1 border transition-colors ${
+                      isSandstone
+                        ? 'border-[#1a1815]/25 bg-[#cfc2ab]'
+                        : 'border-white/20 bg-black/40'
+                    }`}
                   >
-                    <div
-                      className={`w-8 h-8 rounded-xl border flex items-center justify-center overflow-hidden flex-shrink-0 transition-transform group-hover:scale-105 ${
-                        isSandstone ? 'border-[#1a1815]/30 text-[#1a1815] bg-black/5' : 'border-white/20 text-chalk bg-white/5'
-                      }`}
-                    >
-                      {user?.avatar ? (
-                        <img src={user.avatar} alt="User" className="w-full h-full object-cover" />
-                      ) : role === 'super_admin' ? (
-                        <Crown size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
-                      ) : role === 'gym_admin' ? (
-                        <Store size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-project'} />
-                      ) : (
-                        <User size={15} />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <span className="font-bold text-xs block leading-tight truncate group-hover:underline">
-                        {role === 'guest' ? 'Guest Account' : user?.name || 'Climber'}
-                      </span>
-                      <span className="text-[9px] font-mono uppercase tracking-wider opacity-60 block truncate">
-                        {role === 'guest' ? 'Click to Sign In' : role === 'super_admin' ? '👑 Super Admin' : role === 'gym_admin' ? '🏢 Gym Admin' : '🧗 Climber · Beta Book'}
-                      </span>
-                    </div>
-                  </button>
-
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    {/* Theme Switcher: Granite / Sandstone */}
+                    {/* Granite Option */}
                     <button
-                      onClick={toggleTheme}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border ${
-                        isSandstone
-                          ? 'border-[#1a1815]/30 bg-transparent text-[#1a1815] hover:bg-[#1a1815]/10'
-                          : 'border-white/15 bg-transparent text-chalk hover:bg-white/10'
+                      type="button"
+                      onClick={() => {
+                        if (isSandstone) toggleTheme()
+                      }}
+                      className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all ${
+                        !isSandstone
+                          ? 'bg-black text-white shadow-sm'
+                          : 'text-[#1a1815]/70 hover:text-[#1a1815]'
                       }`}
-                      title="Toggle Theme (Sandstone / Graphite)"
                     >
-                      {isSandstone ? (
-                        <>
-                          <Moon size={13} />
-                          <span>Graphite</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sun size={13} className="text-lime" />
-                          <span>Sandstone</span>
-                        </>
-                      )}
+                      Granite
                     </button>
 
-                    {/* Close Button */}
+                    {/* Sandstone Option */}
                     <button
-                      onClick={() => setShowDrawer(false)}
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
+                      type="button"
+                      onClick={() => {
+                        if (!isSandstone) toggleTheme()
+                      }}
+                      className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all ${
                         isSandstone
-                          ? 'hover:bg-[#1a1815]/10 text-[#1a1815]'
-                          : 'hover:bg-white/10 text-chalk'
+                          ? 'bg-[#1a1815] text-[#ded3be] shadow-sm'
+                          : 'text-slate-ash hover:text-chalk'
                       }`}
-                      aria-label="Close Menu"
                     >
-                      <X size={18} strokeWidth={2.2} />
+                      Sandstone
                     </button>
                   </div>
+
+                  {/* Clean Close X Button */}
+                  <button
+                    onClick={() => setShowDrawer(false)}
+                    className={`p-1.5 transition-opacity ${
+                      isSandstone
+                        ? 'text-[#1a1815] hover:opacity-60'
+                        : 'text-chalk hover:opacity-60'
+                    }`}
+                    aria-label="Close Menu"
+                  >
+                    <X size={26} strokeWidth={1.4} />
+                  </button>
                 </div>
 
-                {/* Quick Search */}
-                <form onSubmit={handleSearchSubmit} className="relative">
-                  <Search
-                    size={16}
-                    className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${
-                      isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
-                    }`}
-                  />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="Search boulder spots, crags, gyms..."
-                    className={`w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border outline-none transition-all ${
-                      isSandstone
-                        ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/50 focus:border-[#1a1815]'
-                        : 'bg-transparent border-white/10 text-chalk placeholder:text-slate-ash focus:border-lime/40'
-                    }`}
-                  />
+                {/* 2. SEARCH INPUT: Rounded Pill with 'SEARCH' Placeholder */}
+                <form onSubmit={handleSearchSubmit} className="pt-1">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="SEARCH"
+                      className={`w-full py-2.5 px-5 text-xs font-normal tracking-widest uppercase rounded-full border outline-none transition-all ${
+                        isSandstone
+                          ? 'bg-transparent border-[#1a1815]/25 text-[#1a1815] placeholder:text-[#1a1815]/40 focus:border-[#1a1815]'
+                          : 'bg-transparent border-white/20 text-chalk placeholder:text-white/40 focus:border-lime/40'
+                      }`}
+                    />
+                  </div>
                 </form>
 
-                {/* Main Navigation Links */}
-                <div className="space-y-1.5 pt-1">
-                  <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 px-2 block">
-                    Main Menu
-                  </span>
-
+                {/* 3. EDITORIAL TEXT NAVIGATION LINKS */}
+                <nav className="pt-2 sm:pt-4 space-y-3 sm:space-y-4">
                   {[
-                    { href: '/', label: 'Explore Crags', sub: 'Discover climbing destinations', icon: Compass },
-                    { href: '/beta', label: 'Boulders & Topo', sub: 'Beta Book & route database', icon: BookOpen },
-                    { href: '/beta?view=my-ascents', label: 'Personal Beta Book', sub: 'Your logged sends & ascent cards', icon: Award },
-                    { href: '/gyms', label: 'Gym Directory', sub: 'Bouldering & climbing gyms', icon: Building2 },
-                    { href: '/community', label: 'Community', sub: 'Climber network & partners', icon: Users },
-                  ].map(item => {
-                    const Icon = item.icon
-                    const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
-                    return (
-                      <button
-                        key={item.href}
-                        onClick={() => handleNavClick(item.href)}
-                        className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all border ${
-                          isActive
-                            ? isSandstone
-                              ? 'bg-transparent border-[#1a1815] text-[#1a1815] font-bold'
-                              : 'bg-transparent border-lime text-lime font-bold shadow-lime-glow-sm'
-                            : isSandstone
-                              ? 'bg-transparent border-transparent hover:border-[#1a1815]/20 text-[#1a1815]'
-                              : 'bg-transparent border-transparent hover:border-white/10 text-chalk'
-                        }`}
-                      >
-                        <div
-                          className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 border ${
-                            isActive
-                              ? isSandstone
-                                ? 'border-[#1a1815] text-[#1a1815]'
-                                : 'border-lime text-lime'
-                              : isSandstone
-                                ? 'border-[#1a1815]/20 text-[#1a1815]'
-                                : 'border-white/10 text-chalk'
-                          }`}
-                        >
-                          <Icon size={16} />
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold leading-tight">{item.label}</div>
-                          <div className={`text-[11px] ${isActive ? 'opacity-80' : 'opacity-60'}`}>
-                            {item.sub}
-                          </div>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
+                    { key: 'faq', label: 'F.A.Q' },
+                    { key: 'privacy', label: 'Privacy' },
+                    { key: 'guideline', label: 'Community Guideline' },
+                    { key: 'cancellation', label: 'Cancellation Policy' },
+                    { key: 'refund', label: 'Refund Policy' },
+                    { key: 'contact', label: 'Contact' },
+                    { key: 'about', label: 'About' },
+                  ].map(item => (
+                    <button
+                      key={item.key}
+                      onClick={() => {
+                        setPolicyKey(item.key as PolicyKey)
+                      }}
+                      className={`block w-full text-left text-[24px] sm:text-[28px] md:text-[30px] font-normal leading-tight tracking-tight transition-all hover:translate-x-1.5 ${
+                        isSandstone
+                          ? 'text-[#1a1815] hover:opacity-60'
+                          : 'text-chalk hover:text-lime'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </nav>
+              </div>
 
-                {/* ROLE SWITCHER / USER MODE */}
-                <div className="pt-2 space-y-2 border-t border-black/10 dark:border-white/10">
-                  <div className="flex items-center justify-between px-2">
-                    <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 block">
-                      Switch User Role
-                    </span>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded border uppercase font-mono font-bold ${
-                      isSandstone ? 'border-[#1a1815]/30 text-[#1a1815]' : 'border-lime/30 text-lime'
-                    }`}>
-                      Active: {role}
+              {/* 4. SUBTLE FOOTER: Role Switcher & User Account */}
+              <div className="pt-6 border-t border-black/10 dark:border-white/10 space-y-2.5 mt-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-bold ${
+                        isSandstone
+                          ? 'border-[#1a1815]/20 bg-black/5 text-[#1a1815]'
+                          : 'border-white/20 bg-white/5 text-chalk'
+                      }`}
+                    >
+                      {role === 'super_admin' ? '👑' : role === 'gym_admin' ? '🏢' : role === 'registered' ? '🧗' : '👁'}
+                    </div>
+                    <span className="text-xs font-medium">
+                      {role === 'guest' ? 'Guest' : user?.name || 'Climber'}
+                      <span className="opacity-50 text-[10px] ml-1.5 font-mono">({role})</span>
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setShowRoleSelector(!showRoleSelector)}
+                    className={`text-[11px] font-medium underline transition-opacity ${
+                      isSandstone ? 'text-[#1a1815] hover:opacity-70' : 'text-lime hover:opacity-70'
+                    }`}
+                  >
+                    {showRoleSelector ? 'Tutup' : 'Switch Role'}
+                  </button>
+                </div>
+
+                {showRoleSelector && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="grid grid-cols-2 gap-1.5 pt-1.5"
+                  >
                     {rolesConfig.map(r => {
-                      const Icon = r.icon
                       const isSelected = role === r.key
                       return (
                         <button
                           key={r.key}
-                          onClick={() => setRole(r.key)}
-                          className={`flex items-center gap-2 p-2.5 rounded-xl border text-left transition-all ${
+                          onClick={() => {
+                            setRole(r.key)
+                            setShowRoleSelector(false)
+                          }}
+                          className={`px-3 py-2 rounded-xl text-left text-xs border transition-all ${
                             isSelected
                               ? isSandstone
-                                ? 'bg-[#1a1815] text-[#ded3be] border-[#1a1815] shadow-sm font-bold'
-                                : 'bg-lime text-granite border-lime font-bold shadow-lime-glow-sm'
+                                ? 'bg-[#1a1815] text-[#ded3be] border-[#1a1815] font-bold'
+                                : 'bg-lime text-granite border-lime font-bold'
                               : isSandstone
-                                ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815] hover:border-[#1a1815]/50'
-                                : 'bg-transparent border-white/10 text-slate-ash hover:text-chalk hover:border-white/30'
+                                ? 'border-[#1a1815]/15 text-[#1a1815] hover:border-[#1a1815]/30'
+                                : 'border-white/10 text-slate-ash hover:text-chalk'
                           }`}
                         >
-                          <Icon size={14} className="flex-shrink-0" />
-                          <div className="min-w-0 flex-1">
-                            <div className="text-xs font-bold truncate leading-tight">{r.label}</div>
-                            <div className={`text-[9px] truncate ${isSelected ? 'opacity-90' : 'opacity-60'}`}>
-                              {r.sub}
-                            </div>
-                          </div>
-                          {isSelected && <Check size={12} className="flex-shrink-0" />}
+                          <div className="font-bold truncate">{r.label}</div>
                         </button>
                       )
                     })}
-                  </div>
-                </div>
-
-                {/* Action Links */}
-                <div className="pt-2 space-y-1.5 border-t border-black/10 dark:border-white/10">
-                  <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 px-2 block">
-                    Quick Actions
-                  </span>
-
-                  {role === 'gym_admin' && (
-                    <button
-                      onClick={() => handleNavClick('/admin')}
-                      className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold border border-cyan-500/40 text-cyan-500 hover:bg-cyan-500/10 transition-colors"
-                    >
-                      <Store size={14} /> Open Gym POS Cashier Dashboard
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() => handleNavClick('/beta')}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
-                      isSandstone
-                        ? 'border-[#1a1815]/30 hover:border-[#1a1815] text-[#1a1815] bg-transparent'
-                        : 'border-white/15 hover:border-white/30 text-chalk bg-transparent'
-                    }`}
-                  >
-                    <Plus size={15} />
-                    <span>+ Submit Boulder Problem</span>
-                  </button>
-
-                  <button
-                    onClick={handleLogAscentClick}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
-                      isSandstone
-                        ? 'border-[#d95338] text-[#d95338] hover:bg-[#d95338]/10 bg-transparent'
-                        : 'border-lime text-lime hover:bg-lime/10 bg-transparent'
-                    }`}
-                  >
-                    <BookOpen size={15} />
-                    <span>Log Boulder Ascent</span>
-                  </button>
-                </div>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      {/* Policy Modal Dialog */}
+      <PolicyModal
+        isOpen={policyKey !== null}
+        activeKey={policyKey}
+        onClose={() => setPolicyKey(null)}
+      />
     </>
   )
 }
