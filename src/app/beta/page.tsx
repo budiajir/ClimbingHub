@@ -456,13 +456,13 @@ function BetaPageContent() {
                       </svg>
                     </button>
 
-                    {/* Mode 3: List Mode (active in mockup with orange accent) */}
+                    {/* Mode 3: List Mode */}
                     <button
                       onClick={() => setViewMode('list')}
                       title="Minimalist List Mode"
                       className={`p-1.5 rounded-lg transition-all ${
                         viewMode === 'list'
-                          ? isSandstone ? 'bg-[#1a1815]/10 text-[#d95338]' : 'bg-lime/20 text-[#d95338]'
+                          ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
                           : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
                       }`}
                     >
@@ -471,8 +471,8 @@ function BetaPageContent() {
                         height="18"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke={viewMode === 'list' ? '#d95338' : 'currentColor'}
-                        strokeWidth="2.5"
+                        stroke="currentColor"
+                        strokeWidth={viewMode === 'list' ? '2.5' : '1.8'}
                         strokeLinecap="round"
                       >
                         <line x1="3" y1="5" x2="21" y2="5" />
