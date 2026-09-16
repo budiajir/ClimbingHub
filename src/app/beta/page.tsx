@@ -17,6 +17,7 @@ import { useAuth } from '@/lib/auth-context'
 import { canLogAscent, canCreateCragRoute } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
 import { UserAscent, getUserAscents, saveUserAscent, deleteUserAscent } from '@/lib/user-ascents'
+import Pictogram from '@/components/common/Pictogram'
 
 type ViewLevel = 'regions' | 'sectors' | 'problems' | 'topo'
 
@@ -433,9 +434,7 @@ function BetaPageContent() {
                           : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
                       }`}
                     >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={viewMode === 'card' ? '2.5' : '1.8'} strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                      </svg>
+                      <Pictogram name="view-mode-slide" size={18} />
                     </button>
 
                     {/* Mode 2: Grid Mode (2x2) */}
@@ -448,12 +447,7 @@ function BetaPageContent() {
                           : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
                       }`}
                     >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={viewMode === 'grid' ? '2.5' : '1.8'} strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="7" height="7" rx="1" />
-                        <rect x="14" y="3" width="7" height="7" rx="1" />
-                        <rect x="14" y="14" width="7" height="7" rx="1" />
-                        <rect x="3" y="14" width="7" height="7" rx="1" />
-                      </svg>
+                      <Pictogram name="view-mode-thumbnail" size={18} />
                     </button>
 
                     {/* Mode 3: List Mode */}
@@ -466,20 +460,7 @@ function BetaPageContent() {
                           : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
                       }`}
                     >
-                      <svg
-                        width="20"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={viewMode === 'list' ? '2.5' : '1.8'}
-                        strokeLinecap="round"
-                      >
-                        <line x1="3" y1="5" x2="21" y2="5" />
-                        <line x1="3" y1="10" x2="21" y2="10" />
-                        <line x1="3" y1="15" x2="21" y2="15" />
-                        <line x1="3" y1="20" x2="21" y2="20" />
-                      </svg>
+                      <Pictogram name="view-mode-list" size={18} />
                     </button>
                   </div>
                 </div>

@@ -15,116 +15,57 @@ import {
 import clsx from "clsx";
 import { useTheme } from "@/lib/theme-context";
 import { useAuth } from "@/lib/auth-context";
+import Pictogram from "@/components/common/Pictogram";
 
-// Custom Exact SVG Icons matching the user's design mockup
+// Custom Pictogram icons matching the user's Jalur.Picto published pack
 function CragIcon({
-  className,
-  size = 22,
-}: {
-  className?: string;
-  size?: number;
-}) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={className}
-    >
-      <path d="M6 19.5L8.5 4.5C8.65 4.2 8.95 4 9.3 4H13.8C14.2 4 14.55 4.2 14.7 4.55L18.7 9.55C18.9 9.8 19 10.15 19 10.5V19.2C19 19.65 18.65 20 18.2 20H6.8C6.35 20 6 19.65 6 19.2V19.5Z" />
-    </svg>
-  );
-}
-
-function BoulderIcon({
-  className,
-  size = 22,
-}: {
-  className?: string;
-  size?: number;
-}) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={className}
-    >
-      <path d="M7.8 18.2L4.2 13.1C3.9 12.7 3.9 12.2 4.2 11.8L8.6 5.8C8.9 5.3 9.5 5 10.1 5H16.4C17 5 17.5 5.3 17.8 5.8L20.3 11.3C20.6 11.9 20.5 12.6 20.1 13.1L16 18.2C15.6 18.7 15 19 14.4 19H9.4C8.8 19 8.2 18.7 7.8 18.2Z" />
-    </svg>
-  );
-}
-
-function CreateIcon({
   className,
   size = 24,
 }: {
   className?: string;
   size?: number;
 }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <line x1="12" y1="4" x2="12" y2="20" />
-      <line x1="4" y1="12" x2="20" y2="12" />
-    </svg>
-  );
+  return <Pictogram name="crag" size={size} className={className} alt="Crags" />;
+}
+
+function BoulderIcon({
+  className,
+  size = 24,
+}: {
+  className?: string;
+  size?: number;
+}) {
+  return <Pictogram name="problem" size={size} className={className} alt="Boulders" />;
+}
+
+function CreateIcon({
+  className,
+  size = 26,
+}: {
+  className?: string;
+  size?: number;
+}) {
+  return <Pictogram name="create" size={size} className={className} alt="Create" />;
 }
 
 function GymClimbingIcon({
   className,
-  size = 22,
+  size = 24,
 }: {
   className?: string;
   size?: number;
 }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={className}
-      fillRule="evenodd"
-      clipRule="evenodd"
-    >
-      <path d="M12 3.5L3.5 9.5V20.5H9V14.5C9 13.95 9.45 13.5 10 13.5H14C14.55 13.5 15 13.95 15 14.5V20.5H20.5V9.5L12 3.5Z" />
-    </svg>
-  );
+  return <Pictogram name="gym" size={size} className={className} alt="Gym Climbing" />;
 }
 
 function CommunityIcon({
   className,
-  size = 22,
+  size = 24,
 }: {
   className?: string;
   size?: number;
 }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={className}
-    >
-      <circle cx="15.5" cy="15.5" r="5.2" />
-      <circle cx="7.5" cy="7.5" r="3.8" />
-      <circle cx="17.2" cy="5.8" r="2.2" />
-      <circle cx="7.5" cy="17.5" r="1.8" />
-    </svg>
-  );
+  return <Pictogram name="community" size={size} className={className} alt="Community" />;
 }
 
 export default function MobileNav() {
@@ -282,7 +223,7 @@ export default function MobileNav() {
                   }`}
                   title="Close"
                 >
-                  <X size={18} strokeWidth={2.2} />
+                  <Pictogram name="x" size={18} />
                 </button>
               </div>
 
@@ -328,7 +269,7 @@ export default function MobileNav() {
                           : "border-white/20 bg-white/5 hover:bg-white/10 text-white"
                       )}
                     >
-                      <Plus size={19} strokeWidth={2.4} className="shrink-0" />
+                      <Pictogram name="problem" size={20} className="shrink-0" />
                       <span className="font-bold text-sm sm:text-base tracking-tight">
                         + Submit Boulder Problem
                       </span>
@@ -352,7 +293,7 @@ export default function MobileNav() {
                           : "border-[#ff6b4a] bg-[#ff6b4a]/10 hover:bg-[#ff6b4a]/20 text-[#ff6b4a]"
                       )}
                     >
-                      <BookOpen size={19} strokeWidth={2.2} className="shrink-0" />
+                      <Pictogram name="beta-book" size={20} className="shrink-0" />
                       <span className="font-bold text-sm sm:text-base tracking-tight">
                         Log Boulder Ascent
                       </span>

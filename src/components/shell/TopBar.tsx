@@ -30,6 +30,7 @@ import { useAuth } from '@/lib/auth-context'
 import { canLogAscent, canCreateCragRoute, UserRole } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
 import PolicyModal, { PolicyKey } from './PolicyModal'
+import Pictogram from '@/components/common/Pictogram'
 
 interface TopBarProps {
   title?: string
@@ -135,7 +136,7 @@ export default function TopBar({
               ) : role === 'gym_admin' ? (
                 <Store size={18} className={isSandstone ? 'text-[#1a1815]' : 'text-project'} />
               ) : (
-                <User size={18} />
+                <Pictogram name="profile-picture" size={20} />
               )}
             </button>
           </div>
@@ -153,11 +154,11 @@ export default function TopBar({
             </Link>
           </div>
 
-          {/* Right: Minimalist 2-Line Menu Icon (=) */}
+          {/* Right: Jalur Pictogram Menu Icon */}
           <div className="flex items-center justify-end">
             <button
               onClick={() => setShowDrawer(true)}
-              className={`w-10 h-10 flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl transition-all ${
+              className={`w-10 h-10 flex items-center justify-center p-2 rounded-xl transition-all ${
                 isSandstone
                   ? 'hover:bg-[#1a1815]/10 text-[#1a1815]'
                   : 'hover:bg-white/10 text-chalk'
@@ -165,16 +166,7 @@ export default function TopBar({
               title="Open Menu"
               aria-label="Open Navigation Menu"
             >
-              <span
-                className={`w-6 h-[2.5px] rounded-full transition-all ${
-                  isSandstone ? 'bg-[#1a1815]' : 'bg-chalk'
-                }`}
-              />
-              <span
-                className={`w-6 h-[2.5px] rounded-full transition-all ${
-                  isSandstone ? 'bg-[#1a1815]' : 'bg-chalk'
-                }`}
-              />
+              <Pictogram name="menu" size={24} />
             </button>
           </div>
         </div>
@@ -261,7 +253,7 @@ export default function TopBar({
                     }`}
                     aria-label="Close Menu"
                   >
-                    <X size={26} strokeWidth={1.4} />
+                    <Pictogram name="x" size={22} />
                   </button>
                 </div>
 
