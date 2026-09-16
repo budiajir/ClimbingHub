@@ -76,26 +76,13 @@ export default function CragsDirectoryPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-28 pt-4">
       {/* Header Section */}
-      <div className="py-4 md:py-8">
-        <div className="flex items-center gap-2 mb-2">
-          <span
-            className={`inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1 rounded-full border font-bold uppercase tracking-wider ${
-              isSandstone
-                ? "bg-[#1a1815]/5 border-[#1a1815]/15 text-[#1a1815]"
-                : "bg-lime/15 border-lime/30 text-lime"
-            }`}
-          >
-            <Pictogram name="crag" size={14} />
-            Direktori Kawasan Tebing
-          </span>
-        </div>
-
+      <div className="py-2 md:py-6">
         <h1
-          className={`text-2xl sm:text-3xl md:text-4xl font-black tracking-tight leading-tight ${
+          className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight ${
             isSandstone ? "text-[#1a1815]" : "text-chalk"
           }`}
         >
-          Crags Indonesia
+          Crags
         </h1>
 
         <p
