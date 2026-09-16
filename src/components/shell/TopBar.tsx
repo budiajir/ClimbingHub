@@ -58,7 +58,7 @@ export default function TopBar({
     setShowDrawer(false)
     if (href.includes('view=my-ascents')) {
       if (role === 'guest') {
-        openAuthModal('Please sign in or register to view your Personal Beta Book.')
+        openAuthModal('Please sign in or register to view your Sent Cards.')
         return
       }
       if (typeof window !== 'undefined') {
@@ -108,12 +108,12 @@ export default function TopBar({
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-14 md:h-16 grid grid-cols-3 items-center">
-          {/* Left: User Account Button (Personal Beta Book) */}
+          {/* Left: User Account Button (Sent Cards) */}
           <div className="flex items-center justify-start">
             <button
               onClick={() => {
                 if (role === 'guest') {
-                  openAuthModal('Please sign in or register to view your Personal Beta Book and logged ascents.')
+                  openAuthModal('Please sign in or register to view your Sent Cards and logged ascents.')
                 } else {
                   if (typeof window !== 'undefined') {
                     window.dispatchEvent(new CustomEvent('open-personal-beta-book'))
@@ -126,8 +126,8 @@ export default function TopBar({
                   ? 'border-[#1a1815]/30 hover:border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
                   : 'border-white/20 hover:border-lime text-chalk hover:text-lime hover:bg-white/5'
               }`}
-              title={role === 'guest' ? 'Sign In / Personal Beta Book' : `${user?.name || 'Climber'} · Personal Beta Book`}
-              aria-label="Personal Beta Book"
+              title={role === 'guest' ? 'Sign In / Sent Cards' : `${user?.name || 'Climber'} · Sent Cards`}
+              aria-label="Sent Cards"
             >
               {user?.avatar ? (
                 <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover rounded-xl" />

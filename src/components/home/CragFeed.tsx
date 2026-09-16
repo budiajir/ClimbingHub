@@ -30,7 +30,7 @@ export default function CragFeed() {
             isSandstone ? 'text-[#1a1815] font-semibold' : 'text-lime'
           }`}
         >
-          Beta Book <ChevronRight size={14} />
+          Problems <ChevronRight size={14} />
         </Link>
       </div>
 

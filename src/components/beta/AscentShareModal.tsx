@@ -392,7 +392,7 @@ export default function AscentShareModal({
     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
     ctx.font = '600 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText('LOGGED ON BETA BOOK · JALUR CLIMBING COMMUNITY', W / 2, cardY + cardH - 35)
+    ctx.fillText('LOGGED ON SENT CARDS · JALUR CLIMBING COMMUNITY', W / 2, cardY + cardH - 35)
 
     // Export to Data URL
     const url = canvas.toDataURL('image/png', 0.95)
@@ -619,7 +619,7 @@ export default function AscentShareModal({
                   }}
                   className="flex-1 py-2 px-3 rounded-xl border border-white/10 hover:border-white/20 text-slate-ash hover:text-chalk text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
                 >
-                  <Award size={14} className="text-lime" /> Beta Book Saya
+                  <Award size={14} className="text-lime" /> Sent Cards Saya
                 </button>
               ) : (
                 <button

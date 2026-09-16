@@ -289,7 +289,7 @@ const POLICY_DETAILS: Record<
           <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
             <h5 className="font-bold mb-1">🏔 Fitur Unggulan</h5>
             <p className="opacity-80">
-              Peta interaktif crags outdoor, topo garis jalur boulder, Personal Beta Book dengan rekam video send, reward kartu Strava-style otomatis, direktori gym dengan sistem booking slot kasir real-time.
+              Peta interaktif crags outdoor, topo garis jalur pemanjatan, Sent Cards dengan rekam video send, reward kartu Strava-style otomatis, direktori gym dengan sistem booking slot kasir real-time.
             </p>
           </div>
         </div>

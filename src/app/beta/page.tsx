@@ -369,39 +369,16 @@ function BetaPageContent() {
         {level === 'regions' ? (
           <div className="space-y-4 mb-4">
             {showMyAscentsView ? (
-              /* Personal Beta Book Header */
-              <div className="flex items-center justify-between gap-2 pt-1 border-b border-black/10 dark:border-white/10 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center ${
-                    isSandstone ? 'border-[#1a1815]/20 bg-white/40 text-[#1a1815]' : 'border-white/10 bg-white/5 text-chalk'
-                  }`}>
-                    <span className="text-xl">🏆</span>
-                  </div>
-                  <div>
-                    <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight ${
-                      isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                    }`}>
-                      Personal Beta Book
-                    </h1>
-                    <p className={`text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-                      {userAscents.length} Logged {userAscents.length === 1 ? 'Send' : 'Sends'}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setShowMyAscentsView(false)
-                    router.replace('/beta')
-                  }}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
-                    isSandstone
-                      ? 'border-[#1a1815]/30 bg-transparent text-[#1a1815] hover:bg-[#1a1815]/10'
-                      : 'border-white/20 bg-transparent text-chalk hover:bg-white/10'
-                  }`}
-                >
-                  ← Back to Problems
-                </button>
+              /* Sent Cards Header */
+              <div className="pt-1 border-b border-black/10 dark:border-white/10 pb-3">
+                <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight ${
+                  isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                }`}>
+                  Sent Cards
+                </h1>
+                <p className={`text-xs mt-0.5 ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                  {userAscents.length} Logged {userAscents.length === 1 ? 'Send' : 'Sends'}
+                </p>
               </div>
             ) : (
               /* Headline Row: Clean "Problems" (large) & toolbar without "VIEW MODE" text */
