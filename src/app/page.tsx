@@ -14,13 +14,14 @@ import {
   Star,
   Layers,
   Compass,
-  MessageCircle,
   Instagram,
+  UserPlus,
   Sparkles,
   ArrowRight,
 } from 'lucide-react'
 import Link from 'next/link'
-import { Problem } from '@/lib/mock-data'
+import { Problem, Community } from '@/lib/mock-data'
+import RequestToJoinModal from '@/components/community/RequestToJoinModal'
 import { useGyms, useCragRegions, useCommunities } from '@/lib/use-data'
 import { gradeColors } from '@/lib/tokens'
 import { useAuth } from '@/lib/auth-context'
@@ -32,6 +33,7 @@ export default function HomePage() {
   const { isSandstone } = useTheme()
   const [showLogModal, setShowLogModal] = useState(false)
   const [activeShareAscent, setActiveShareAscent] = useState<UserAscent | null>(null)
+  const [selectedJoinCommunity, setSelectedJoinCommunity] = useState<Community | null>(null)
   const { gyms } = useGyms()
   const { cragRegions } = useCragRegions()
   const { communities } = useCommunities()
@@ -135,23 +137,22 @@ export default function HomePage() {
                 </div>
 
                 <div className="p-4 pt-0 flex gap-2">
-                  <a
-                    href={comm.whatsapp}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors ${
+                  <button
+                    type="button"
+                    onClick={() => setSelectedJoinCommunity(comm)}
+                    className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors touch-ripple ${
                       isSandstone
                         ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
-                        : 'border-white/10 hover:border-white/30 text-chalk'
+                        : 'border-white/10 hover:border-lime/40 text-chalk'
                     }`}
                   >
-                    <MessageCircle size={14} className="text-[#25D366]" /> WhatsApp
-                  </a>
+                    <UserPlus size={14} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} /> Request to Join
+                  </button>
                   <a
                     href={comm.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors ${
+                    className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors touch-ripple ${
                       isSandstone
                         ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
                         : 'border-white/10 hover:border-white/30 text-chalk'
@@ -479,6 +480,14 @@ export default function HomePage() {
           onClose={() => setActiveShareAscent(null)}
         />
       )}
+
+      {/* Request To Join Modal */}
+      <RequestToJoinModal
+        isOpen={!!selectedJoinCommunity}
+        community={selectedJoinCommunity}
+        onClose={() => setSelectedJoinCommunity(null)}
+        onSuccess={() => {}}
+      />
     </div>
   )
 }
