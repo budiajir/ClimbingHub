@@ -1218,19 +1218,23 @@ function BetaPageContent() {
                     isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
                   }`}>
                     <div>
-                      {/* Boulder Badge */}
+                      {/* 1. Category Badge */}
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-climb/20 text-cyan-climb border border-cyan-climb/30 font-bold">
-                          BOULDERING · {problem.startType || 'Sit Start'}
+                        <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-climb/20 text-cyan-climb border border-cyan-climb/30 font-bold uppercase">
+                          {problem.category || (problem.discipline === 'sport' ? 'lead' : problem.discipline === 'multipitch' ? 'trad' : 'boulder')} · {problem.startType || 'Sit Start'}
                         </span>
                       </div>
 
+                      {/* 6. Grade Jalur & 2. Nama Jalur */}
                       <div className="flex items-center gap-2">
                         <span className="text-lime font-bold text-2xl">{problem.grade}</span>
                         <span className="text-slate-ash text-sm font-light">/ {problem.fontGrade}</span>
                       </div>
                       <h2 className="text-chalk font-bold text-2xl">{problem.name}</h2>
-                      <p className="text-slate-ash text-xs font-light">FA: {problem.fa} · {problem.faDate}</p>
+                      {/* 3. Route Setter + Tahun */}
+                      <p className="text-slate-ash text-xs font-light">
+                        Setter: <span className="font-medium text-chalk">{problem.setterYear || `${problem.setter || problem.fa} (${problem.faDate || '2023'})`}</span>
+                      </p>
                     </div>
                     <div className="bg-granite px-3 py-1.5 rounded-xl border border-white/5 text-right">
                       <div className="text-lime font-bold text-lg">{problem.ascentCount}</div>
@@ -1243,7 +1247,7 @@ function BetaPageContent() {
                     {[
                       { key: 'overview' as const, label: 'Overview', icon: ThumbsUp },
                       { key: 'specs' as const, label: 'Specs', icon: Layers },
-                      { key: 'beta' as const, label: 'Beta Video', icon: Video },
+                      { key: 'beta' as const, label: 'Beta', icon: Video },
                       { key: 'access' as const, label: 'Access', icon: ShieldAlert },
                     ].map(({ key, label, icon: Icon }) => (
                       <button
@@ -1288,25 +1292,59 @@ function BetaPageContent() {
 
                   {desktopTab === 'specs' && (
                     <div className="space-y-3">
+                      {/* 7. Tinggi Jalur & 8. Titik Pegangan */}
                       <div className="grid grid-cols-2 gap-2">
                         <div className="bg-granite p-3 rounded-xl">
-                          <span className="text-[10px] text-slate-ash uppercase block">Start Stance</span>
-                          <span className="text-sm font-bold text-cyan-climb">{problem.startType || 'Sit Start'}</span>
+                          <span className="text-[10px] text-slate-ash uppercase block">7. Tinggi Jalur</span>
+                          <span className="text-sm font-bold text-lime font-mono">
+                            {problem.height || problem.pitchLength || problem.totalHeight || '4.2m'}
+                          </span>
                         </div>
                         <div className="bg-granite p-3 rounded-xl">
-                          <span className="text-[10px] text-slate-ash uppercase block">Crashpads</span>
-                          <span className="text-xs font-bold text-cyan-climb">{problem.padRecommendation || '2 Pads'}</span>
+                          <span className="text-[10px] text-slate-ash uppercase block">8. Titik Pegangan</span>
+                          <span className="text-sm font-bold text-cyan-climb font-mono">
+                            ~{problem.holdsCount || (problem.markers?.length ? problem.markers.length * 3 : 14)} Holds
+                          </span>
                         </div>
                       </div>
+
+                      {/* 8. Hold Details */}
+                      {problem.holdDetails && (
+                        <div className="bg-granite p-3 rounded-xl">
+                          <span className="text-[10px] text-slate-ash uppercase block mb-1">Karakter Pegangan</span>
+                          <p className="text-xs text-chalk/90 leading-relaxed">{problem.holdDetails}</p>
+                        </div>
+                      )}
+
+                      {/* 9. Jumlah Anchor (Lead) / Crashpads */}
                       <div className="bg-granite p-3 rounded-xl">
-                        <span className="text-[10px] text-slate-ash uppercase block">Landing Quality</span>
-                        <span className="text-xs text-chalk">{problem.landingQuality || 'Flat grassy ground'}</span>
+                        <span className="text-[10px] text-slate-ash uppercase block mb-1">9. Jumlah Anchor & Pengaman</span>
+                        {problem.category === 'lead' || problem.category === 'trad' || problem.discipline === 'sport' || problem.discipline === 'multipitch' ? (
+                          <div className="text-xs text-chalk space-y-1">
+                            <div><span className="text-lime font-bold font-mono">{problem.anchorCount || problem.boltCount || 9} Bolts</span> (Stainless Expansion)</div>
+                            <div className="text-slate-ash text-[11px]">{problem.anchorType || 'Double Ring Chain Anchor'}</div>
+                          </div>
+                        ) : (
+                          <div className="text-xs text-chalk space-y-1">
+                            <div><span className="text-cyan-climb font-bold">{problem.padRecommendation || '2 Crashpads'}</span> recommended</div>
+                            <div className="text-slate-ash text-[11px]">Pendaratan: {problem.landingQuality || 'Flat grassy ground'}</div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
 
                   {desktopTab === 'beta' && (
-                    <div>
+                    <div className="space-y-3">
+                      {/* 10. Beta Text */}
+                      {problem.betaText && (
+                        <div className="bg-granite p-3 rounded-xl border border-white/5">
+                          <span className="text-[10px] text-lime uppercase font-bold block mb-1">Crux & Sequence Beta</span>
+                          <p className="text-xs text-chalk/90 leading-relaxed">{problem.betaText}</p>
+                        </div>
+                      )}
+
+                      {/* Beta Video */}
                       {problem.betaVideoUrl ? (
                         <div className="rounded-xl overflow-hidden aspect-video border border-white/5">
                           <iframe
@@ -1342,13 +1380,31 @@ function BetaPageContent() {
                   )}
                 </div>
 
-                {/* Bottom Action */}
-                <button
-                  onClick={triggerLogAscent}
-                  className="w-full h-12 bg-lime text-granite font-light tracking-wide rounded-xl shadow-lime-glow text-sm hover:bg-lime-dim transition-colors mt-4 font-bold"
-                >
-                  Log My Ascent 🎉
-                </button>
+                {/* Problems Call To Actions (2 CTAs): 1. Submit Sent | 2. Set New Route */}
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  {/* CTA 1: Submit Sent */}
+                  <button
+                    onClick={triggerLogAscent}
+                    className="h-12 bg-lime text-granite font-bold rounded-xl shadow-lime-glow text-xs sm:text-sm hover:bg-lime-dim transition-all flex items-center justify-center gap-1.5"
+                  >
+                    Submit Sent 🎉
+                  </button>
+
+                  {/* CTA 2: Set New Route */}
+                  <button
+                    onClick={() => {
+                      if (canCreateCragRoute(role)) {
+                        setShowAddRouteModal(true)
+                      } else {
+                        setShowRoadmapModal(true)
+                      }
+                    }}
+                    className="h-12 border border-white/20 text-chalk font-bold rounded-xl hover:bg-white/5 hover:border-lime/40 text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <Plus size={15} />
+                    Set New Route
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1359,6 +1415,13 @@ function BetaPageContent() {
                   <ProblemSheet
                     problem={problem}
                     onLogAscent={triggerLogAscent}
+                    onSetNewRoute={() => {
+                      if (canCreateCragRoute(role)) {
+                        setShowAddRouteModal(true)
+                      } else {
+                        setShowRoadmapModal(true)
+                      }
+                    }}
                     onClose={() => setShowSheet(false)}
                   />
                 )}

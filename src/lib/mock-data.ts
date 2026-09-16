@@ -27,16 +27,52 @@ export interface CragRegion {
   problemCount: number
   sectors: Sector[]
   description?: string
+  // 1. Peta lokasi + link gmaps
+  coordinates?: { lat: number; lng: number }
+  gmapsUrl?: string
+  mapEmbedUrl?: string
+  // 2. How to Get There
+  howToGetThere?: {
+    driveInfo: string
+    hikeDuration: string
+    parkingInfo: string
+    publicTransit?: string
+  }
+  // 3. Who to Contact
+  whoToContact?: {
+    name: string
+    role: string
+    phone: string
+    basecampName: string
+    basecampAddress?: string
+  }
+  // 4. Jenis Batuan
+  rockType?: {
+    type: string
+    texture: string
+    features: string
+    ethics?: string
+  }
+  // 5. Perkiraan Cuaca
+  weatherForecast?: {
+    condition: string
+    tempAvg: string
+    bestSeason: string
+    humidity?: string
+    rainNotes?: string
+  }
 }
 
 export interface Sector {
   id: string
   name: string
   image: string
+  description?: string
   problems: Problem[]
 }
 
-export type RouteDiscipline = 'sport' | 'multipitch' | 'bouldering'
+export type RouteCategory = 'lead' | 'trad' | 'boulder'
+export type RouteDiscipline = 'sport' | 'multipitch' | 'bouldering' | 'lead' | 'trad' | 'boulder'
 
 export interface PitchDetail {
   pitchNumber: number
@@ -48,14 +84,24 @@ export interface PitchDetail {
 export interface Problem {
   id: string
   name: string
-  discipline: RouteDiscipline // 'sport' | 'multipitch' | 'bouldering'
+  category?: RouteCategory // 'lead' | 'trad' | 'boulder'
+  sectorName?: string
+  sectorId?: string
+  discipline: RouteDiscipline
   grade: string
   fontGrade: string
   setter: string
+  setterYear?: string // e.g. "Andi Wahyu (2019)"
   fa: string
   faDate: string
   description: string
-  imageUrl?: string // Custom photo uploaded for this specific route
+  imageUrl?: string
+  height?: string // e.g. "4.5m" or "24m"
+  holdsCount?: number // e.g. 14 pegangan
+  holdDetails?: string // e.g. "2 start crimps, 1 undercling, 1 pinch, 2 jugs to top"
+  anchorCount?: number // e.g. 9 bolts + 1 double ring anchor
+  anchorType?: string // e.g. "Double Ring Chain Anchor with steel carabiners"
+  betaText?: string
   betaVideoUrl?: string
   accessInfo: string
   localContact: string
@@ -63,18 +109,14 @@ export interface Problem {
   gradeVotes: { grade: string; votes: number }[]
   markers: TopoMarker[]
   // Discipline Specific attributes:
-  // 1. Sport Climbing / Single Pitch
-  pitchLength?: string // e.g. "24m"
-  boltCount?: number // e.g. 9
-  anchorType?: string // e.g. "Double Ring Chain Anchor"
-  // 2. Multi Pitch
-  totalPitches?: number // e.g. 4
-  totalHeight?: string // e.g. "160m"
+  pitchLength?: string
+  boltCount?: number
+  totalPitches?: number
+  totalHeight?: string
   pitchBreakdown?: PitchDetail[]
-  descentInfo?: string // e.g. "4x Rappels via chained anchor stations with 2x60m ropes"
-  // 3. Bouldering
-  padRecommendation?: string // e.g. "2 - 3 Crashpads + 1 Spotter"
-  landingQuality?: string // e.g. "Flat sandy"
+  descentInfo?: string
+  padRecommendation?: string
+  landingQuality?: string
   startType?: 'Sit Start (SS)' | 'Stand Start'
 }
 
@@ -200,6 +242,36 @@ export const cragRegions: CragRegion[] = [
     image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
     sectorCount: 8,
     problemCount: 147,
+    description: "Kawasan karst legendaris di Padalarang dengan formasi tebing kapur purba berusia jutaan tahun. Pusat pelatihan dan eksplorasi bouldering serta sport climbing terfavorit di Jawa Barat.",
+    coordinates: { lat: -6.8375, lng: 107.4589 },
+    gmapsUrl: "https://maps.google.com/?q=-6.8375,107.4589",
+    mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.439872583861!2d107.4563251!3d-6.8375!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e4cbb5b0c7db%3A0x6b1f2382f7c2225!2sTebing%20Citatah%2090!5e0!3m2!1sid!2sid!4v1700000000000",
+    howToGetThere: {
+      driveInfo: "Dari Bandung atau Jakarta via Tol Purbaleunyi, keluar di Gerbang Tol Padalarang. Ikuti Jalan Raya Cipatat menuju kawasan Gua Pawon / Citatah (~15 menit dari gerbang tol). Jalan beraspal mulus dapat diakses kendaraan roda 2 dan roda 4.",
+      hikeDuration: "5 - 10 menit jalan kaki santai dari area parkir basecamp menuju dasar tebing sektor panjat.",
+      parkingInfo: "Area parkir luas untuk mobil dan motor di Basecamp Pawon / Saung Panjat Citatah 90 (Rp 5.000 roda 2, Rp 15.000 roda 4).",
+      publicTransit: "Kereta Cepat Whoosh stasiun Padalarang atau KRL Commuter Line Bandung Raya, disambung angkot Padalarang-Rajamandala (turun di pertigaan Gua Pawon)."
+    },
+    whoToContact: {
+      name: "Kang Asep Kurnia",
+      role: "Ketua Pengelola Tebing & Senior Guide FPTI Jabar",
+      phone: "+6281234567890",
+      basecampName: "Basecamp Saung Panjat Citatah 90",
+      basecampAddress: "Kampung Cibukur RT 02/RW 11, Desa Gunung Masigit, Kec. Cipatat, Kab. Bandung Barat"
+    },
+    rockType: {
+      type: "Karst Limestone (Batu Gamping Karst Padat)",
+      texture: "Batu kapur tajam berpori padat dengan pocket dalam, tufas masif alami, crimps bertebing overhang, dan batuan atap yang kokoh.",
+      features: "Didominasi overhang bouldering cave di sektor Gua Pawon serta vertical pocket face di Tebing 90 & 125.",
+      ethics: "Gunakan magnesium secukupnya dan bersihkan bekas tick mark dengan sikat berbulu halus (nylon/horsehair). Dilarang keras melakukan chipping batuan."
+    },
+    weatherForecast: {
+      condition: "Cerah Berawan",
+      tempAvg: "26°C - 31°C",
+      bestSeason: "Mei hingga Oktober (Musim Kemarau). Sektor dalam Gua Pawon tetap terlindung saat hujan gerimis.",
+      humidity: "68%",
+      rainNotes: "Permukaan batuan luar licin jika terkena hujan lebat; disarankan memanjat di area overhang terlindung saat cuaca mendung."
+    },
     sectors: [
       {
         id: 'citatah-sektor-a',
@@ -209,19 +281,27 @@ export const cragRegions: CragRegion[] = [
           {
             id: 'citatah-a-1',
             name: 'Batu Merah Direct',
+            category: 'boulder',
             discipline: 'bouldering',
             grade: 'V5',
             fontGrade: '6C',
+            setter: 'Andi Wahyu',
+            setterYear: 'Andi Wahyu (2019)',
+            fa: 'Rizky Fauzan',
+            faDate: '2019-03-15',
+            height: '4.2m',
+            holdsCount: 12,
+            holdDetails: '2 crimps awal tajam, 1 undercling kanan, 1 pinch stabil di zona tengah, dyno ke upper lip sloper, 2 finish jugs mantap.',
+            anchorCount: 0,
+            anchorType: 'Top-out Ledge Mantle',
             padRecommendation: '2 Crashpads + 1 Spotter',
             landingQuality: 'Flat grassy ground',
             startType: 'Sit Start (SS)',
-            setter: 'Andi Wahyu',
-            fa: 'Rizky Fauzan',
-            faDate: '2019-03-15',
             description: 'Powerful boulder problem on the red limestone overhang of Pawon Cave. Crux moves through a positive undercling to a dynamic pop for the upper lip.',
+            betaText: 'Mulai dari sit start pegangan crimp ganda. Kunci tumit (heel hook) kanan pada tonjolan batu bawah, rengkuh undercling dalam dengan tangan kiri, ledakkan tenaga dyno ke sloper bibir tebing, lalu mantle kaki kanan untuk berdiri di atas.',
             betaVideoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
             accessInfo: 'From Padalarang, follow the signs to Gua Pawon (~3 km). Park at the main tourist lot. Walk 10 minutes to the sector base.',
-            localContact: 'Pak Asep (Local Guide): +6281234567',
+            localContact: 'Kang Asep (Local Guide): +6281234567890',
             ascentCount: 89,
             gradeVotes: [
               { grade: 'V4', votes: 12 },
@@ -229,26 +309,69 @@ export const cragRegions: CragRegion[] = [
               { grade: 'V6', votes: 18 },
             ],
             markers: [
-              { id: 'm1', type: 'S', x: 25, y: 78 },
-              { id: 'm2', type: 'Z', x: 45, y: 52 },
-              { id: 'm3', type: 'T', x: 62, y: 20 },
+              { id: 'm1', type: 'S', x: 25, y: 78, label: 'Start (Crimp)' },
+              { id: 'm2', type: 'Z', x: 45, y: 52, label: 'Crux Undercling' },
+              { id: 'm3', type: 'T', x: 62, y: 20, label: 'Top-out Jug' },
+            ],
+          },
+          {
+            id: 'citatah-lead-1',
+            name: 'Pawon Super Crack & Face',
+            category: 'lead',
+            discipline: 'sport',
+            grade: '5.11b',
+            fontGrade: '6c+',
+            setter: 'Iqbal & Tim FPTI',
+            setterYear: 'Iqbal & Tim FPTI (2018)',
+            fa: 'Iqbal',
+            faDate: '2018-05-12',
+            height: '24m',
+            holdsCount: 36,
+            holdDetails: '10 finger crack jams di seksi bawah, rest ledge di baut 5, crux micro-crimps dan tufa pinch di baut 7, 2 finish bucket jugs.',
+            anchorCount: 10,
+            boltCount: 9,
+            anchorType: 'Double Ring Stainless Chain Anchor dengan carabiner baja',
+            description: 'Jalur lead sport climbing favorit di Tebing Citatah. Menantang ketahanan lengan (endurance) dan ketepatan footwork di dinding kapur 90 derajat.',
+            betaText: 'Bawa 10 set quickdraw dan tali minimal 60 meter. Crux berada di antara baut ke-6 dan ke-7; gunakan tufa pinch kiri dan high-step kaki kanan ke celah kecil untuk meraih crimp atas.',
+            betaVideoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+            accessInfo: 'Terletak di sektor tengah tebing Pawon, 15 meter dari pintu masuk gua.',
+            localContact: 'Kang Asep: +6281234567890',
+            ascentCount: 112,
+            gradeVotes: [
+              { grade: '5.11a', votes: 14 },
+              { grade: '5.11b', votes: 52 },
+              { grade: '5.11c', votes: 20 },
+            ],
+            markers: [
+              { id: 'lead-s', type: 'S', x: 28, y: 92, label: 'Start' },
+              { id: 'lead-b1', type: 'B', x: 30, y: 75, label: 'Bolt 1-3' },
+              { id: 'lead-crux', type: 'Z', x: 34, y: 48, label: 'Crux Bolt 7' },
+              { id: 'lead-anc', type: 'T', x: 36, y: 15, label: 'Anchor' },
             ],
           },
           {
             id: 'citatah-a-2',
             name: 'Kuda Laut (Seahorse)',
+            category: 'boulder',
             discipline: 'bouldering',
             grade: 'V6',
             fontGrade: '7A',
+            setter: 'Sari Dewi',
+            setterYear: 'Sari Dewi (2020)',
+            fa: 'Sari Dewi',
+            faDate: '2020-07-22',
+            height: '3.8m',
+            holdsCount: 10,
+            holdDetails: 'Dual compression slopers, 2 heel hook features, 1 undercling, 1 mantle lip.',
+            anchorCount: 0,
+            anchorType: 'Top-out Boulder Mantle',
             padRecommendation: '2 Crashpads + 1 Spotter',
             landingQuality: 'Flat grassy rocks',
             startType: 'Sit Start (SS)',
-            setter: 'Sari Dewi',
-            fa: 'Sari Dewi',
-            faDate: '2020-07-22',
             description: 'Steep compression sloper roof problem. Demands strong heel hooking and sustained core tension to pull through the lip mantle.',
+            betaText: 'Problem kompresi sloper murni di atap 45 derajat. Gunakan toe hook kiri untuk menahan rotasi tubuh saat transisi ke lip mantle.',
             accessInfo: 'Same access as Sector A, located 20m left of Batu Merah.',
-            localContact: 'Pak Asep: +6281234567',
+            localContact: 'Kang Asep: +6281234567890',
             ascentCount: 34,
             gradeVotes: [
               { grade: 'V5', votes: 8 },
@@ -330,6 +453,36 @@ export const cragRegions: CragRegion[] = [
     image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
     sectorCount: 5,
     problemCount: 89,
+    description: "Lembah tebing granit dan andesit raksasa setinggi 100-300 meter yang menjulang di antara hamparan sawah hijau Minangkabau. Surga panjat alam Indonesia dengan nuansa pemandangan kelas dunia.",
+    coordinates: { lat: -0.1011, lng: 100.6722 },
+    gmapsUrl: "https://maps.google.com/?q=-0.1011,100.6722",
+    mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.817345383561!2d100.6700!3d-0.1011!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2fd5373a6a9b441f%3A0x8e82d8c303ea!2sLembah%20Harau!5e0!3m2!1sid!2sid!4v1700000000000",
+    howToGetThere: {
+      driveInfo: "Dari Bandara Internasional Minangkabau (BIM) Padang, berkendara sekitar 2,5 - 3 jam menuju Kota Payakumbuh, lalu lanjut 15 menit menuju Lembah Harau via jalan beraspal.",
+      hikeDuration: "2 - 15 menit jalan kaki santai menyusuri pematang sawah dari homestay atau tempat parkir ke kaki tebing.",
+      parkingInfo: "Parkir tersedia di area homestay, gerbang wisata Lembah Harau, dan spot basecamp Echo Valley.",
+      publicTransit: "Travel rute Padang - Payakumbuh, dilanjutkan angkutan pedesaan atau ojek ke gerbang cagar alam Harau."
+    },
+    whoToContact: {
+      name: "Mak Etek & Sutan Harau",
+      role: "Pemandu Senior Lembah Harau & Komunitas Harau Climbers",
+      phone: "+6281345678901",
+      basecampName: "Echo Valley Homestay & Climber Camp",
+      basecampAddress: "Nagari Tarantang, Kec. Harau, Kab. Lima Puluh Kota, Sumatera Barat"
+    },
+    rockType: {
+      type: "Breccia Granit & Batuan Andesit Vertikal",
+      texture: "Batuan andesit dan granit masif dengan friction tinggi, micro crystal crimps, rekahan crack alami, dan dinding tegak 90 derajat.",
+      features: "Tebing tinggi ratusan meter cocok untuk multipitch, trad climbing crack, serta boulder-boulder raksasa di dasar lembah.",
+      ethics: "Menghormati kearifan lokal masyarakat Nagari Tarantang. Jaga kebersihan lembah dan jangan meninggalkan sampah bungkus tape/makanan."
+    },
+    weatherForecast: {
+      condition: "Sejuk Tropis",
+      tempAvg: "23°C - 28°C",
+      bestSeason: "Juni hingga September. Suhu pagi dan sore sangat nyaman untuk memanjat.",
+      humidity: "72%",
+      rainNotes: "Hujan pegunungan tropis dapat terjadi di sore hari; disarankan memulai sesi panjat pagi hari pukul 07:00."
+    },
     sectors: [
       {
         id: 'harau-echo',
@@ -339,16 +492,24 @@ export const cragRegions: CragRegion[] = [
           {
             id: 'harau-multi-1',
             name: 'Echo Valley Boulder',
+            category: 'boulder',
             discipline: 'bouldering',
             grade: 'V7',
             fontGrade: '7A+',
+            setter: 'Pierre & Mak Etek',
+            setterYear: 'Pierre & Mak Etek (2017)',
+            fa: 'Pierre & Mak Etek (2017)',
+            faDate: '2017-08-17',
+            height: '4.8m',
+            holdsCount: 14,
+            holdDetails: 'Underclings ganda batu granit merah, compression slopers di pinggir kristal, finish mantle atas padat.',
+            anchorCount: 0,
+            anchorType: 'Top-out Highball Ledge',
             padRecommendation: '3 Crashpads + 2 Spotters',
             landingQuality: 'Flat grassy meadow',
             startType: 'Sit Start (SS)',
-            setter: 'Indo-French Expedition',
-            fa: 'Pierre & Mak Etek (2017)',
-            faDate: '2017-08-17',
             description: 'Stunning red granite boulder sitting in the valley floor. Features powerful underclings leading to delicate compression slopers.',
+            betaText: 'Batu granit merah unik di dasar lembah. Gunakan friksi sol sepatu dengan menekan tumit pada ledge bawah, jepit sloper kristal dan dorong badan ke atas tanpa ragu.',
             accessInfo: 'Enter Lembah Harau reserve. Walk 15 minutes from Homestay Abdi toward the base of Echo Wall.',
             localContact: 'Mak Etek (Local Guide): +6281345678901',
             ascentCount: 28,
@@ -358,24 +519,64 @@ export const cragRegions: CragRegion[] = [
               { grade: 'V8', votes: 4 },
             ],
             markers: [
-              { id: 'mh-start', type: 'S', x: 45, y: 92, label: 'S' },
-              { id: 'mh-p1', type: 'Z', x: 47, y: 62, label: 'Z' },
-              { id: 'mh-top', type: 'T', x: 50, y: 12, label: 'T' },
+              { id: 'mh-start', type: 'S', x: 45, y: 92, label: 'Start (Undercling)' },
+              { id: 'mh-p1', type: 'Z', x: 47, y: 62, label: 'Crux Compression' },
+              { id: 'mh-top', type: 'T', x: 50, y: 12, label: 'Top Mantle' },
+            ],
+          },
+          {
+            id: 'harau-trad-1',
+            name: 'Sarasah Splitter Crack',
+            category: 'trad',
+            discipline: 'multipitch',
+            grade: '5.10c',
+            fontGrade: '6b',
+            setter: 'Ekspedisi Harau',
+            setterYear: 'Ekspedisi Harau (2015)',
+            fa: 'Bambang & Tim',
+            faDate: '2015-06-20',
+            height: '45m',
+            holdsCount: 52,
+            holdDetails: 'Hand jams konsisten ukuran #2 dan #3 Camalot, finger lock di crux pitch 1, rest platform di teras tengah.',
+            anchorCount: 2,
+            anchorType: 'Trad Gear Anchor & Tree / Bolted Rappel Station',
+            description: 'Jalur trad climbing rekahan crack murni legendaris di dinding andesit Sarasah Harau. Membutuhkan penempatan cam aktif yang solid.',
+            betaText: 'Bawa satu set lengkap cams (#0.4 hingga #4) dan double set ukuran #2. Jamming tangan sangat bersih; pastikan memakai tape gloves.',
+            accessInfo: 'Terletak di sisi kiri air terjun Sarasah Bunta, 10 menit jalan kaki.',
+            localContact: 'Mak Etek: +6281345678901',
+            ascentCount: 16,
+            gradeVotes: [
+              { grade: '5.10b', votes: 3 },
+              { grade: '5.10c', votes: 11 },
+              { grade: '5.10d', votes: 2 },
+            ],
+            markers: [
+              { id: 'ht-s', type: 'S', x: 42, y: 94, label: 'Crack Base' },
+              { id: 'ht-p1', type: 'Z', x: 44, y: 55, label: 'Crux Finger Lock' },
+              { id: 'ht-top', type: 'T', x: 46, y: 10, label: 'Pitch 1 Anchor' },
             ],
           },
           {
             id: 'harau-sport-1',
             name: 'Echo Chamber Sloper',
+            category: 'boulder',
             discipline: 'bouldering',
             grade: 'V6',
             fontGrade: '7A',
+            setter: 'Doni Pratama',
+            setterYear: 'Doni Pratama (2020)',
+            fa: 'Doni Pratama (2020)',
+            faDate: '2020-09-12',
+            height: '3.6m',
+            holdsCount: 8,
+            holdDetails: 'Micro-crystal crimps dan rounded granite slopers.',
+            anchorCount: 0,
+            anchorType: 'Top-out',
             padRecommendation: '2 Crashpads',
             landingQuality: 'Flat sand base',
             startType: 'Sit Start (SS)',
-            setter: 'Doni Pratama',
-            fa: 'Doni Pratama (2020)',
-            faDate: '2020-09-12',
             description: 'Friction-dependent problem on polished granite with micro-crystal crimps. Tests finger strength and precise body positioning.',
+            betaText: 'Sangat bergantung pada suhu batuan dan kebersihan sol sepatu. Bersihkan debu granit sebelum start.',
             accessInfo: 'Base of Echo Valley Wall.',
             localContact: 'Mak Etek: +6281345678901',
             ascentCount: 19,
@@ -384,8 +585,8 @@ export const cragRegions: CragRegion[] = [
               { grade: 'V6', votes: 13 },
             ],
             markers: [
-              { id: 'hs1', type: 'S', x: 30, y: 85 },
-              { id: 'hs2', type: 'T', x: 35, y: 22 },
+              { id: 'hs1', type: 'S', x: 30, y: 85, label: 'Start' },
+              { id: 'hs2', type: 'T', x: 35, y: 22, label: 'Top' },
             ],
           },
         ],
@@ -399,6 +600,36 @@ export const cragRegions: CragRegion[] = [
     image: 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=1200&q=80',
     sectorCount: 12,
     problemCount: 203,
+    description: "Kawasan tebing karang laut eksotis di pesisir Samudra Hindia Gunungkidul dengan 200+ jalur panjat. Menawarkan sensasi memanjat ditemani deburan ombak dan panorama matahari terbenam spektakuler.",
+    coordinates: { lat: -8.1819, lng: 110.6833 },
+    gmapsUrl: "https://maps.google.com/?q=-8.1819,110.6833",
+    mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3950.482718294621!2d110.6811!3d-8.1819!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7bc449ad681997%3A0x6b7722bb0b7123!2sPantai%20Siung!5e0!3m2!1sid!2sid!4v1700000000000",
+    howToGetThere: {
+      driveInfo: "Dari pusat kota Yogyakarta menuju arah Wonosari, lanjut ke Tepus via Jl. Baron dan Jl. Pantai Siung (sekitar 2 jam berkendara). Jalan beraspal mulus berkelok khas perbukitan karst.",
+      hikeDuration: "2 - 5 menit jalan kaki langsung dari bibir pantai dan warung warga menuju sektor-sektor tebing.",
+      parkingInfo: "Area parkir pinggir pantai sangat luas, dikelola karang taruna Desa Purwodadi (Rp 5.000 roda 2, Rp 10.000 roda 4).",
+      publicTransit: "Bus Damri / Shuttle wisata Yogyakarta - Pantai Baron / Wonosari, dilanjutkan sewa motor atau carter ojek lokal ke Pantai Siung."
+    },
+    whoToContact: {
+      name: "Pak Sumarno & Mas Arif",
+      role: "Pengelola Basecamp Panjat Siung & Perintis Jalur FPTI DIY",
+      phone: "+6281298765432",
+      basecampName: "Basecamp Panjat Tebing Pantai Siung",
+      basecampAddress: "Dusun Duwet, Desa Purwodadi, Kec. Tepus, Kab. Gunungkidul, D.I. Yogyakarta"
+    },
+    rockType: {
+      type: "Karst Karang Pesisir Laut (Marine Limestone)",
+      texture: "Batuan kapur laut sangat keras dengan pocket tajam bergerigi, water-eroded jugs, slopers berlapis garam, dan overhang kokoh.",
+      features: "Dinding tepi laut dengan angin semilir, sektor boulder pasir pantai, serta rute single-pitch sport climbing bersertifikasi hanger stainless.",
+      ethics: "Periksa korosi hanger baut karena pengaruh udara garam laut. Bersihkan chalk dari batuan agar tidak terakumulasi garam."
+    },
+    weatherForecast: {
+      condition: "Cerah Berangin",
+      tempAvg: "27°C - 32°C",
+      bestSeason: "April hingga November (Musim ombak tenang & langit cerah berbintang).",
+      humidity: "75%",
+      rainNotes: "Perhatikan pasang surut air laut untuk sektor boulder bawah pantai; aman saat air laut surut di pagi dan sore hari."
+    },
     sectors: [
       {
         id: 'siung-karang',
@@ -408,16 +639,24 @@ export const cragRegions: CragRegion[] = [
           {
             id: 'siung-boulder-1',
             name: 'Ocean Breaker',
+            category: 'boulder',
             discipline: 'bouldering',
             grade: 'V5',
             fontGrade: '6C',
+            setter: 'Jogja Local',
+            setterYear: 'Bambang S. (2019)',
+            fa: 'Bambang S. (2019)',
+            faDate: '2019-05-10',
+            height: '4.0m',
+            holdsCount: 11,
+            holdDetails: 'Underclings pocket karang laut, rail crimp tengah, mantle flat pasir.',
+            anchorCount: 0,
+            anchorType: 'Top-out',
             padRecommendation: '2 Crashpads',
             landingQuality: 'Flat sandy beach',
             startType: 'Sit Start (SS)',
-            setter: 'Jogja Local',
-            fa: 'Bambang S. (2019)',
-            faDate: '2019-05-10',
             description: 'Iconic karst boulder sitting right at the shoreline. Excellent sandy landing with ocean views and wave crashes behind you.',
+            betaText: 'Perhatikan kondisi ombak saat mendekat ke boulder ini. Grip sangat baik karena erosi air laut, namun waspadai ketajaman batuan karang.',
             accessInfo: 'East side of Siung Beach, 5 minutes walk from the main parking area.',
             localContact: 'Mas Danang (FPTI Siung): +6285678901234',
             ascentCount: 52,
@@ -427,34 +666,44 @@ export const cragRegions: CragRegion[] = [
               { grade: 'V6', votes: 7 },
             ],
             markers: [
-              { id: 'sb1', type: 'S', x: 40, y: 80 },
-              { id: 'sb2', type: 'T', x: 45, y: 25 },
+              { id: 'sb1', type: 'S', x: 40, y: 80, label: 'Start' },
+              { id: 'sb2', type: 'T', x: 45, y: 25, label: 'Top' },
             ],
           },
           {
             id: 'siung-sport-1',
-            name: 'Karst Coastal Roof',
-            discipline: 'bouldering',
-            grade: 'V4',
-            fontGrade: '6B',
-            padRecommendation: '2 Crashpads',
-            landingQuality: 'Flat sandy beach',
-            startType: 'Sit Start (SS)',
+            name: 'Karst Coastal Roof & Pockets',
+            category: 'lead',
+            discipline: 'sport',
+            grade: '5.10d',
+            fontGrade: '6b+',
             setter: 'FPTI DIY',
+            setterYear: 'FPTI DIY (2015)',
             fa: 'FPTI Team (2015)',
             faDate: '2015-04-12',
-            description: 'Steep coastal overhang with incut pockets and juggy top out on solid seaside limestone.',
-            accessInfo: 'West cliff sector of Siung Beach.',
+            height: '18m',
+            holdsCount: 26,
+            holdDetails: 'Pockets karang tajam, 2 knee bars di rest station, 1 crux sidepull menuju baut 5.',
+            anchorCount: 8,
+            boltCount: 7,
+            anchorType: 'Marine Grade 316 Stainless Steel Double Ring Anchor',
+            padRecommendation: '2 Crashpads',
+            landingQuality: 'Flat sandy beach',
+            startType: 'Stand Start',
+            description: 'Rute lead sport climbing tepi laut dengan pemandangan langsung ke Samudra Hindia. Karang laut ber-pocket kokoh dan angin laut yang segar.',
+            betaText: 'Rute lead sport ikonik tepi pantai. 7 baut stainless steel tahan garam laut. Bawa tali minimal 50 meter dan 8 set quickdraw.',
+            accessInfo: 'Tebing barat Pantai Siung, 3 menit dari bibir pantai.',
             localContact: 'Mas Danang: +6285678901234',
             ascentCount: 115,
             gradeVotes: [
-              { grade: 'V3', votes: 20 },
-              { grade: 'V4', votes: 85 },
-              { grade: 'V5', votes: 10 },
+              { grade: '5.10c', votes: 20 },
+              { grade: '5.10d', votes: 85 },
+              { grade: '5.11a', votes: 10 },
             ],
             markers: [
-              { id: 'ss1', type: 'S', x: 55, y: 88 },
-              { id: 'ss2', type: 'T', x: 58, y: 20 },
+              { id: 'ss1', type: 'S', x: 55, y: 88, label: 'Start' },
+              { id: 'ss2', type: 'B', x: 56, y: 55, label: 'Bolt 4' },
+              { id: 'ss3', type: 'T', x: 58, y: 20, label: 'Anchor' },
             ],
           },
         ],

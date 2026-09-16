@@ -1,86 +1,258 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Play, AlertCircle, ThumbsUp, ChevronRight, Award, ExternalLink, Mountain, Layers, Compass, ShieldCheck } from 'lucide-react'
-import { Problem } from '@/lib/mock-data'
+import {
+  X,
+  Play,
+  AlertCircle,
+  ThumbsUp,
+  Award,
+  ExternalLink,
+  Mountain,
+  Layers,
+  Compass,
+  Plus,
+  ShieldCheck,
+  MapPin,
+  Ruler,
+  Anchor,
+  Hand,
+  Calendar,
+  CheckCircle2,
+  Video,
+  Info,
+} from 'lucide-react'
+import { Problem, TopoMarker } from '@/lib/mock-data'
+import { useTheme } from '@/lib/theme-context'
+import Pictogram from '@/components/common/Pictogram'
 
 interface ProblemSheetProps {
   problem: Problem
   onLogAscent: () => void
+  onSetNewRoute?: () => void
   onClose: () => void
 }
 
-function GradeBar({ grade, votes, totalVotes }: { grade: string; votes: number; totalVotes: number }) {
-  const pct = Math.round((votes / totalVotes) * 100)
+function GradeBar({
+  grade,
+  votes,
+  totalVotes,
+  isSandstone,
+}: {
+  grade: string
+  votes: number
+  totalVotes: number
+  isSandstone: boolean
+}) {
+  const pct = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0
   return (
     <div className="flex items-center gap-2 text-xs">
-      <span className="font-mono text-slate-ash w-10 text-right font-light">{grade}</span>
-      <div className="flex-1 h-1.5 bg-crag-light rounded-full overflow-hidden">
-        <div className="h-full bg-lime rounded-full" style={{ width: `${pct}%` }} />
+      <span className={`font-mono w-10 text-right font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+        {grade}
+      </span>
+      <div className={`flex-1 h-1.5 rounded-full overflow-hidden ${isSandstone ? 'bg-[#1a1815]/10' : 'bg-crag-light'}`}>
+        <div
+          className={`h-full rounded-full ${isSandstone ? 'bg-[#1a1815]' : 'bg-lime'}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
-      <span className="font-mono text-chalk w-8 text-right font-normal">{pct}%</span>
+      <span className={`font-mono w-8 text-right font-normal ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
+        {pct}%
+      </span>
     </div>
   )
 }
 
-export default function ProblemSheet({ problem, onLogAscent, onClose }: ProblemSheetProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'beta' | 'specs' | 'access'>('overview')
+export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onClose }: ProblemSheetProps) {
+  const { theme } = useTheme()
+  const isSandstone = theme === 'sandstone'
+  const [activeTab, setActiveTab] = useState<'specs' | 'topo' | 'beta' | 'access'>('specs')
 
-  const totalVotes = problem.gradeVotes.reduce((acc, v) => acc + v.votes, 0)
+  const totalVotes = (problem.gradeVotes || []).reduce((acc, v) => acc + v.votes, 0)
 
-  const tabs: { key: 'overview' | 'beta' | 'specs' | 'access'; label: string }[] = [
-    { key: 'overview', label: 'Overview' },
-    { key: 'specs', label: 'Specs' },
-    { key: 'beta', label: 'Beta Video' },
-    { key: 'access', label: 'Access & Guidelines' },
+  // 1. Category
+  const category =
+    problem.category ||
+    (problem.discipline === 'sport' || problem.discipline === 'lead'
+      ? 'lead'
+      : problem.discipline === 'multipitch' || problem.discipline === 'trad'
+      ? 'trad'
+      : 'boulder')
+
+  // 3. Setter + Tahun
+  const setterDisplay = problem.setterYear || `${problem.setter || problem.fa || 'Local Climber'} (${problem.faDate || '2023'})`
+
+  // 7. Tinggi Jalur
+  const heightDisplay = problem.height || problem.pitchLength || problem.totalHeight || (category === 'boulder' ? '4.2m' : '22m')
+
+  // 8. Titik + Jumlah Pegangan
+  const holdsCountDisplay = problem.holdsCount || (problem.markers && problem.markers.length > 0 ? problem.markers.length * 3 : 14)
+  const holdDetailsDisplay =
+    problem.holdDetails ||
+    (category === 'boulder'
+      ? 'Dual crimp sit start, balance footwork to undercling crux, jug top-out'
+      : 'Positive crimp sequence leading to rest pocket, crimpy headwall to ring anchor')
+
+  // 9. Jumlah Anchor (lead)
+  const isLeadOrTrad = category === 'lead' || category === 'trad' || problem.discipline === 'sport' || problem.discipline === 'multipitch'
+  const anchorCountDisplay = problem.anchorCount || problem.boltCount || (isLeadOrTrad ? 9 : undefined)
+  const anchorTypeDisplay = problem.anchorType || (isLeadOrTrad ? 'Double Ring Stainless Chain Anchor' : 'N/A (Bouldering Crashpad landing)')
+
+  const tabs: { key: 'specs' | 'topo' | 'beta' | 'access'; label: string }[] = [
+    { key: 'specs', label: '1. Specs & Jalur' },
+    { key: 'topo', label: '2. Foto & Topo' },
+    { key: 'beta', label: '3. Beta & Crux' },
+    { key: 'access', label: '4. Akses & Etika' },
   ]
 
-  const discipline = problem.discipline || 'bouldering'
+  // Topo marker style helper
+  const markerColors: Record<string, { bg: string; text: string; label: string }> = {
+    S: { bg: '#CCFF00', text: '#12161A', label: 'Start' },
+    B: { bg: '#06B6D4', text: '#12161A', label: 'Bolt' },
+    Z: { bg: '#FE7733', text: '#FFFFFF', label: 'Crux' },
+    P: { bg: '#A855F7', text: '#FFFFFF', label: 'Pitch' },
+    T: { bg: '#EF4444', text: '#FFFFFF', label: 'Top' },
+  }
+
+  const markers = problem.markers || [
+    { id: 'm-1', type: 'S' as const, x: 25, y: 82, label: 'Start' },
+    { id: 'm-2', type: 'Z' as const, x: 42, y: 52, label: 'Crux' },
+    { id: 'm-3', type: 'T' as const, x: 60, y: 18, label: 'Top' },
+  ]
 
   return (
     <motion.div
-      className="fixed bottom-0 left-0 right-0 bg-crag rounded-t-3xl border-t border-white/10 z-40 overflow-hidden shadow-2xl"
-      style={{ maxHeight: '78vh' }}
+      className={`fixed bottom-0 left-0 right-0 rounded-t-3xl border-t z-40 overflow-hidden shadow-2xl transition-colors ${
+        isSandstone
+          ? 'bg-[#fbf7ee] text-[#1a1815] border-[#1a1815]/20'
+          : 'bg-[#23262C] text-chalk border-white/10'
+      }`}
+      style={{ maxHeight: '88vh' }}
       initial={{ y: '100%' }}
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
-      transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 36 }}
     >
       {/* Drag handle */}
       <div className="flex justify-center pt-3 pb-1">
-        <div className="w-10 h-1 rounded-full bg-crag-light" />
+        <div className={`w-12 h-1.5 rounded-full ${isSandstone ? 'bg-[#1a1815]/20' : 'bg-white/20'}`} />
       </div>
 
-      {/* Header with Discipline Tag */}
-      <div className="flex items-start justify-between px-4 pb-3">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-climb/20 text-cyan-climb border border-cyan-climb/30 font-bold">
-              <Compass size={11} /> BOULDERING · {problem.startType || 'Sit Start'}
-            </span>
-            <span className="text-xs font-mono font-bold text-chalk bg-granite px-2 py-0.5 rounded-md border border-white/5">
-              {problem.grade} ({problem.fontGrade})
-            </span>
+      {/* Header: Category, Nama Jalur, Setter + Tahun, Grade */}
+      <div className="px-4 md:px-6 pt-1 pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            {/* 1. Category Badge & 6. Grade Jalur */}
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span
+                className={`inline-flex items-center gap-1 text-[11px] font-mono uppercase px-2.5 py-0.5 rounded-full font-bold border ${
+                  category === 'lead'
+                    ? isSandstone
+                      ? 'bg-blue-100 text-blue-900 border-blue-300'
+                      : 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30'
+                    : category === 'trad'
+                    ? isSandstone
+                      ? 'bg-amber-100 text-amber-900 border-amber-300'
+                      : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                    : isSandstone
+                    ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                    : 'bg-lime/20 text-lime border-lime/30'
+                }`}
+              >
+                {category === 'lead' ? (
+                  <Mountain size={11} />
+                ) : category === 'trad' ? (
+                  <Layers size={11} />
+                ) : (
+                  <Compass size={11} />
+                )}
+                {category.toUpperCase()} ROUTE
+              </span>
+
+              {/* 6. Grade Jalur */}
+              <span
+                className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border ${
+                  isSandstone
+                    ? 'bg-white text-[#1a1815] border-[#1a1815]/20 shadow-sm'
+                    : 'bg-crag text-chalk border-white/10'
+                }`}
+              >
+                {problem.grade} {problem.fontGrade ? `(${problem.fontGrade})` : ''}
+              </span>
+            </div>
+
+            {/* 2. Nama Jalur */}
+            <h3 className={`font-bold text-xl leading-tight truncate ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
+              {problem.name}
+            </h3>
+
+            {/* 3. Route Setter + Tahun */}
+            <p className={`text-xs mt-0.5 font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+              Setter: <span className="font-medium">{setterDisplay}</span>
+            </p>
           </div>
-          <h3 className="text-chalk font-bold text-lg leading-tight">{problem.name}</h3>
-          <p className="text-slate-ash text-xs font-light">FA: {problem.fa} · {problem.faDate}</p>
+
+          <button
+            onClick={onClose}
+            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors flex-shrink-0 ${
+              isSandstone
+                ? 'bg-[#1a1815]/5 hover:bg-[#1a1815]/10 text-[#1a1815]'
+                : 'bg-white/10 hover:bg-white/20 text-chalk'
+            }`}
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
         </div>
-        <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-crag-light text-slate-ash touch-ripple">
-          <X size={16} />
-        </button>
+
+        {/* Quick Spec Strip: 7. Tinggi, 8. Pegangan, 9. Anchor / Pucuk */}
+        <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-dashed border-current/15 text-center">
+          <div className={`p-2 rounded-xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/50 border-white/5'}`}>
+            <div className={`text-[10px] uppercase font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+              7. Tinggi Jalur
+            </div>
+            <div className={`text-sm font-bold font-mono mt-0.5 ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
+              {heightDisplay}
+            </div>
+          </div>
+
+          <div className={`p-2 rounded-xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/50 border-white/5'}`}>
+            <div className={`text-[10px] uppercase font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+              8. Titik Pegangan
+            </div>
+            <div className={`text-sm font-bold font-mono mt-0.5 ${isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'}`}>
+              ~{holdsCountDisplay} Holds
+            </div>
+          </div>
+
+          <div className={`p-2 rounded-xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/50 border-white/5'}`}>
+            <div className={`text-[10px] uppercase font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+              9. Anchor / Pengaman
+            </div>
+            <div className={`text-sm font-bold font-mono mt-0.5 truncate ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
+              {isLeadOrTrad ? `${anchorCountDisplay} Bolts` : 'Crashpad'}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex px-4 gap-1 mb-1 border-b border-white/5 overflow-x-auto no-scrollbar">
-        {tabs.map(tab => (
+      {/* Navigation Tabs */}
+      <div className={`flex px-4 md:px-6 gap-2 border-b overflow-x-auto no-scrollbar ${
+        isSandstone ? 'border-[#1a1815]/10 bg-[#1a1815]/5' : 'border-white/5 bg-crag/30'
+      }`}>
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-3 py-2 text-xs transition-all touch-ripple flex-shrink-0 ${
+            className={`px-3 py-2 text-xs transition-all touch-ripple flex-shrink-0 font-medium ${
               activeTab === tab.key
-                ? 'text-lime border-b-2 border-lime font-bold'
-                : 'text-slate-ash font-light'
+                ? isSandstone
+                  ? 'text-[#1a1815] border-b-2 border-[#1a1815] font-bold'
+                  : 'text-lime border-b-2 border-lime font-bold'
+                : isSandstone
+                ? 'text-[#1a1815]/60 hover:text-[#1a1815]'
+                : 'text-slate-ash hover:text-chalk'
             }`}
           >
             {tab.label}
@@ -88,138 +260,332 @@ export default function ProblemSheet({ problem, onLogAscent, onClose }: ProblemS
         ))}
       </div>
 
-      {/* Tab Content */}
-      <div className="overflow-y-auto px-4 py-4" style={{ maxHeight: 'calc(78vh - 180px)' }}>
+      {/* Tab Contents */}
+      <div className="overflow-y-auto px-4 md:px-6 py-4" style={{ maxHeight: 'calc(88vh - 275px)' }}>
         <AnimatePresence mode="wait">
-          {activeTab === 'overview' && (
+          {/* TAB 1: SPECS & JALUR DETAIL */}
+          {activeTab === 'specs' && (
             <motion.div
-              key="overview"
-              initial={{ opacity: 0, y: 10 }}
+              key="specs"
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              exit={{ opacity: 0, y: -8 }}
               className="space-y-4"
             >
-              {/* Description */}
-              <p className="text-chalk/85 text-sm font-normal leading-relaxed">{problem.description}</p>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { label: 'Ascents', value: problem.ascentCount, color: 'text-lime' },
-                  { label: 'Route Setter', value: problem.setter.split(' ')[0], color: 'text-cyan-climb' },
-                  { label: 'Votes', value: totalVotes, color: 'text-chalk' },
-                ].map(stat => (
-                  <div key={stat.label} className="bg-granite rounded-xl p-2.5 text-center">
-                    <div className={`font-bold text-base ${stat.color}`}>{stat.value}</div>
-                    <div className="text-slate-ash text-[10px] font-light">{stat.label}</div>
-                  </div>
-                ))}
+              {/* Route Description */}
+              <div>
+                <h4 className={`text-xs font-bold uppercase tracking-wider mb-1 ${
+                  isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                }`}>
+                  Karakteristik & Deskripsi Jalur
+                </h4>
+                <p className={`text-sm font-normal leading-relaxed ${isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}`}>
+                  {problem.description || 'Jalur pemanjatan outdoor yang menantang dengan karakteristik batuan alami dan sequence teknikal.'}
+                </p>
               </div>
 
-              {/* Grade Consensus */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <ThumbsUp size={13} className="text-slate-ash" />
-                  <span className="text-slate-ash text-xs font-light">Community Grade Consensus</span>
+              {/* 8. Titik + Jumlah Pegangan Detail */}
+              <div className={`p-3.5 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Hand size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'} />
+                  <span className={`text-xs font-bold uppercase tracking-wider ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
+                    8. Titik + Jumlah Pegangan
+                  </span>
+                </div>
+                <p className={`text-xs leading-relaxed mb-2 ${isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'}`}>
+                  {holdDetailsDisplay}
+                </p>
+                <div className="flex items-center gap-2 text-[11px] font-mono">
+                  <span className={`px-2 py-0.5 rounded ${isSandstone ? 'bg-[#1a1815]/5 text-[#1a1815]' : 'bg-granite text-chalk'}`}>
+                    Total Titik: ~{holdsCountDisplay} Holds
+                  </span>
+                  <span className={`px-2 py-0.5 rounded ${isSandstone ? 'bg-[#1a1815]/5 text-[#1a1815]' : 'bg-granite text-chalk'}`}>
+                    Start: {problem.startType || (category === 'boulder' ? 'Sit Start (SS)' : 'Ground Stand')}
+                  </span>
+                </div>
+              </div>
+
+              {/* 9. Jumlah Anchor (Lead) Detail */}
+              <div className={`p-3.5 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Anchor size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+                  <span className={`text-xs font-bold uppercase tracking-wider ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
+                    9. Jumlah Anchor & Pengaman
+                  </span>
+                </div>
+                {isLeadOrTrad ? (
+                  <div className="space-y-1.5 text-xs">
+                    <p className={isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}>
+                      <span className="font-bold">Jumlah Bolt / Hanger:</span> {anchorCountDisplay} titik pengaman baut expansion.
+                    </p>
+                    <p className={isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}>
+                      <span className="font-bold">Tipe Anchor Top:</span> {anchorTypeDisplay}.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 text-xs">
+                    <p className={isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}>
+                      <span className="font-bold">Sistem Pendaratan:</span> {problem.landingQuality || 'Tanah datar rumput'}.
+                    </p>
+                    <p className={isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}>
+                      <span className="font-bold">Rekomendasi Crashpad:</span> {problem.padRecommendation || 'Minimal 2 crashpad & 1 spotter'}.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Consensus Grade Votes */}
+              <div className={`p-3.5 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <ThumbsUp size={13} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+                    <span className={`text-xs font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                      Konsensus Grade Komunitas
+                    </span>
+                  </div>
+                  <span className={`text-[11px] font-mono ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+                    {problem.ascentCount || 0} Ascents Terdata
+                  </span>
                 </div>
                 <div className="space-y-1.5">
-                  {problem.gradeVotes.map(v => (
-                    <GradeBar key={v.grade} grade={v.grade} votes={v.votes} totalVotes={totalVotes} />
+                  {(problem.gradeVotes || []).map((v) => (
+                    <GradeBar
+                      key={v.grade}
+                      grade={v.grade}
+                      votes={v.votes}
+                      totalVotes={totalVotes}
+                      isSandstone={isSandstone}
+                    />
                   ))}
                 </div>
               </div>
             </motion.div>
           )}
 
-          {activeTab === 'specs' && (
+          {/* TAB 2: FOTO & TOPO JALUR */}
+          {activeTab === 'topo' && (
             <motion.div
-              key="specs"
-              initial={{ opacity: 0, y: 10 }}
+              key="topo"
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-4"
+              exit={{ opacity: 0, y: -8 }}
+              className="space-y-3"
             >
-              {/* Bouldering Specs */}
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-granite p-3 rounded-xl">
-                    <span className="text-[10px] text-slate-ash uppercase block">Start Stance</span>
-                    <span className="text-sm font-bold text-cyan-climb">{problem.startType || 'Sit Start (SS)'}</span>
-                  </div>
-                  <div className="bg-granite p-3 rounded-xl">
-                    <span className="text-[10px] text-slate-ash uppercase block">Recommended Pads</span>
-                    <span className="text-xs font-bold text-cyan-climb">{problem.padRecommendation || '2 Pads'}</span>
-                  </div>
+              {/* 4. Foto Jalur & 5. Topo Jalur Canvas */}
+              <div className={`relative rounded-2xl overflow-hidden border aspect-[4/3] bg-black ${
+                isSandstone ? 'border-[#1a1815]/20' : 'border-white/10'
+              }`}>
+                {/* 4. Foto Jalur */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${problem.imageUrl || '/crags/citatah.jpg'})` }}
+                />
+                <div className="absolute inset-0 bg-black/25" />
+
+                {/* 5. Topo Jalur SVG Route Line */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 10 }}>
+                  <polyline
+                    points={markers.map((m) => `${m.x}%,${m.y}%`).join(' ')}
+                    fill="none"
+                    stroke={isSandstone ? '#1a1815' : '#B1FA63'}
+                    strokeWidth="3.5"
+                    strokeDasharray="6 3"
+                    strokeLinecap="round"
+                    style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}
+                  />
+                </svg>
+
+                {/* Topo Markers Overlay */}
+                {markers.map((m, idx) => {
+                  const mStyle = markerColors[m.type] || markerColors.B
+                  return (
+                    <div
+                      key={m.id || idx}
+                      className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer transition-transform hover:scale-125 z-20 group"
+                      style={{ left: `${m.x}%`, top: `${m.y}%` }}
+                    >
+                      <div
+                        className="w-6 h-6 rounded-full font-mono font-bold text-[10px] flex items-center justify-center border-2 border-white shadow-lg"
+                        style={{ backgroundColor: mStyle.bg, color: mStyle.text }}
+                      >
+                        {m.type}
+                      </div>
+                      <span className="absolute -bottom-5 bg-black/80 text-white text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        {m.label || mStyle.label} ({m.x}%, {m.y}%)
+                      </span>
+                    </div>
+                  )
+                })}
+
+                <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] text-white flex items-center gap-2">
+                  <span>S = Start</span>
+                  <span>Z = Crux</span>
+                  <span>B = Bolt</span>
+                  <span>T = Top</span>
                 </div>
-                <div className="bg-granite p-3 rounded-xl">
-                  <span className="text-[10px] text-slate-ash uppercase block">Landing Conditions</span>
-                  <span className="text-xs font-normal text-chalk">{problem.landingQuality || 'Flat grassy ground'}</span>
+              </div>
+
+              {/* Marker Points Breakdown */}
+              <div className={`p-3 rounded-xl border text-xs space-y-1.5 ${
+                isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'
+              }`}>
+                <div className={`font-bold uppercase tracking-wider text-[11px] mb-1 ${
+                  isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                }`}>
+                  5. Topo Markers Sequence
                 </div>
+                {markers.map((m, idx) => (
+                  <div key={m.id || idx} className="flex items-center justify-between py-0.5 border-b border-current/10 last:border-0">
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="w-4 h-4 rounded-full text-[9px] font-mono font-bold flex items-center justify-center"
+                        style={{
+                          backgroundColor: (markerColors[m.type] || markerColors.B).bg,
+                          color: (markerColors[m.type] || markerColors.B).text,
+                        }}
+                      >
+                        {m.type}
+                      </span>
+                      <span className={isSandstone ? 'text-[#1a1815]' : 'text-chalk'}>
+                        {m.label || (markerColors[m.type] || markerColors.B).label}
+                      </span>
+                    </span>
+                    <span className={`font-mono text-[10px] ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+                      Coord: {m.x}%, {m.y}%
+                    </span>
+                  </div>
+                ))}
               </div>
             </motion.div>
           )}
 
+          {/* TAB 3: 10. BETA (CRUX & VIDEO) */}
           {activeTab === 'beta' && (
             <motion.div
               key="beta"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="space-y-4"
             >
-              {problem.betaVideoUrl ? (
-                <div className="rounded-xl overflow-hidden aspect-video">
-                  <iframe
-                    src={problem.betaVideoUrl}
-                    className="w-full h-full"
-                    allowFullScreen
-                    title="Beta Video"
-                  />
+              {/* Beta Sequence Text */}
+              <div className={`p-4 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`text-xs font-bold uppercase tracking-wider ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
+                    10. Crux Sequence & Beta Tips
+                  </span>
                 </div>
-              ) : (
-                <div className="aspect-video bg-granite rounded-xl flex flex-col items-center justify-center gap-2">
-                  <Award size={28} className="text-slate-ash" />
-                  <p className="text-slate-ash text-sm font-light">No beta video yet</p>
-                  <button className="text-lime text-xs font-light flex items-center gap-1">
-                    <ExternalLink size={12} /> Upload Beta
-                  </button>
-                </div>
-              )}
+                <p className={`text-sm leading-relaxed font-normal ${isSandstone ? 'text-[#1a1815]/90' : 'text-chalk/90'}`}>
+                  {problem.betaText ||
+                    'Kunci jalur ini berada di transisi move ke-4. Tempatkan heel hook tinggi pada arête samping kiri, lakukan deadpoint terukur ke crimp mikro dengan tangan kanan, kemudian kunci core sebelum memindahkan kaki ke ledge kecil.'}
+                </p>
+              </div>
+
+              {/* Beta Video Player / Embed */}
+              <div>
+                <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 ${
+                  isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                }`}>
+                  Video Beta Dokumentasi
+                </h4>
+                {problem.betaVideoUrl ? (
+                  <div className="rounded-2xl overflow-hidden aspect-video border border-current/15 shadow-lg bg-black">
+                    <iframe
+                      src={problem.betaVideoUrl}
+                      className="w-full h-full"
+                      allowFullScreen
+                      title={`Beta Video - ${problem.name}`}
+                    />
+                  </div>
+                ) : (
+                  <div className={`aspect-video rounded-2xl border flex flex-col items-center justify-center gap-2.5 p-4 text-center ${
+                    isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'
+                  }`}>
+                    <Video size={32} className={isSandstone ? 'text-[#1a1815]/40' : 'text-slate-ash'} />
+                    <p className={`text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                      Belum ada video beta resmi untuk jalur ini.
+                    </p>
+                    <button
+                      onClick={onLogAscent}
+                      className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                        isSandstone ? 'bg-[#1a1815] text-white hover:bg-black' : 'bg-lime text-granite hover:bg-lime-dim'
+                      }`}
+                    >
+                      <ExternalLink size={12} /> Log Ascent & Upload Beta
+                    </button>
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
 
+          {/* TAB 4: ACCESS & GUIDELINES */}
           {activeTab === 'access' && (
             <motion.div
               key="access"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              exit={{ opacity: 0, y: -8 }}
               className="space-y-3"
             >
-              <div className="bg-project/10 border border-project/20 rounded-xl p-3 flex gap-3">
-                <AlertCircle size={16} className="text-project flex-shrink-0 mt-0.5" />
+              <div className={`p-4 rounded-2xl border flex gap-3 ${
+                isSandstone ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-project/10 border-project/20 text-chalk'
+              }`}>
+                <AlertCircle size={18} className="text-project flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-project text-xs font-bold mb-1">Access & Guidelines</p>
-                  <p className="text-chalk/80 text-sm font-normal leading-relaxed">{problem.accessInfo}</p>
+                  <p className="text-xs font-bold mb-1">Etika Pemanjatan & Regulasi</p>
+                  <p className="text-xs leading-relaxed opacity-90">
+                    {problem.accessInfo || 'Wajib melapor ke pos perizinan setempat. Dilarang meninggalkan sampah/kapur berlebih, dan gunakan alas pelindung ground bila diperlukan.'}
+                  </p>
                 </div>
               </div>
 
-              <div className="bg-crag-light rounded-xl p-3">
-                <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-1 font-light">Local Contact / Area Host</p>
-                <p className="text-chalk text-sm font-medium">{problem.localContact}</p>
+              <div className={`p-3.5 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
+                <p className={`text-[11px] uppercase tracking-wider mb-1 font-light ${
+                  isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                }`}>
+                  Local Contact / Basecamp Coordinator
+                </p>
+                <p className={`text-sm font-semibold ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
+                  {problem.localContact || 'Pengelola Kawasan & Komunitas Pemanjat Tebing Lokal'}
+                </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Action button */}
-      <div className="p-4 border-t border-white/5">
-        <button
-          onClick={onLogAscent}
-          className="w-full h-12 bg-lime text-granite font-light tracking-wide rounded-xl shadow-lime-glow text-sm hover:bg-lime-dim transition-colors font-bold"
-        >
-          Log My Ascent 🎉
-        </button>
+      {/* PROBLEMS CALL TO ACTIONS (2 CTAs): 1. Submit Sent | 2. Set New Route */}
+      <div className={`p-4 md:px-6 border-t ${
+        isSandstone ? 'bg-[#f4efe4] border-[#1a1815]/10' : 'bg-granite border-white/10'
+      }`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {/* CTA 1: Submit Sent */}
+          <button
+            onClick={onLogAscent}
+            className={`h-12 w-full rounded-xl flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md active:scale-[0.98] ${
+              isSandstone
+                ? 'bg-[#1a1815] text-white hover:bg-black'
+                : 'bg-lime text-granite hover:bg-lime-dim shadow-lime-glow'
+            }`}
+          >
+            <span>Submit Sent 🎉</span>
+            <span className="text-[11px] opacity-80 font-normal hidden xs:inline">(Log Ascent)</span>
+          </button>
+
+          {/* CTA 2: Set New Route */}
+          <button
+            onClick={onSetNewRoute || onLogAscent}
+            className={`h-12 w-full rounded-xl flex items-center justify-center gap-2 text-sm font-bold border transition-all active:scale-[0.98] ${
+              isSandstone
+                ? 'border-[#1a1815]/40 text-[#1a1815] hover:bg-[#1a1815]/5'
+                : 'border-white/20 text-chalk hover:bg-white/5 hover:border-lime/40'
+            }`}
+          >
+            <Plus size={16} />
+            <span>Set New Route</span>
+          </button>
+        </div>
       </div>
     </motion.div>
   )

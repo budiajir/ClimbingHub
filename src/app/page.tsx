@@ -282,7 +282,7 @@ export default function HomePage() {
             {cragRegions.map(crag => (
               <Link
                 key={crag.id}
-                href={`/beta?region=${crag.id}`}
+                href={`/crags/${crag.id}`}
                 className={`w-72 md:w-auto flex-shrink-0 rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border ${
                   isSandstone
                     ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
