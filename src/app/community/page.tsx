@@ -1,6 +1,5 @@
 'use client'
 
-import { Sparkles } from 'lucide-react'
 import CommunityDirectory from '@/components/community/CommunityDirectory'
 import { useTheme } from '@/lib/theme-context'
 
@@ -15,12 +14,12 @@ export default function CommunityPage() {
         isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
       }`}>
         <div>
-          <h1 className={`font-bold text-xl md:text-3xl flex items-center gap-2 ${
+          <h1 className={`font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight ${
             isSandstone ? 'text-[#1a1815]' : 'text-chalk'
           }`}>
-            Climbing Communities & Squads <Sparkles size={24} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+            Community
           </h1>
-          <p className={`text-xs md:text-sm font-light ${
+          <p className={`text-xs md:text-sm font-light mt-1.5 ${
             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
           }`}>
             Official directory of local bouldering squads and climbing clubs across Indonesia

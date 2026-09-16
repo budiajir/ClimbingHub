@@ -55,7 +55,7 @@ function GymClimbingIcon({
   className?: string;
   size?: number;
 }) {
-  return <Pictogram name="gym" size={size} className={className} alt="Gym Climbing" />;
+  return <Pictogram name="gym" size={size} className={className} alt="Climbing Gym" />;
 }
 
 function CommunityIcon({
@@ -153,10 +153,10 @@ export default function MobileNav() {
               <CreateIcon size={28} />
             </button>
 
-            {/* 4. GYM CLIMBING */}
+            {/* 4. CLIMBING GYM */}
             <Link
               href="/gyms"
-              title="Gym Climbing"
+              title="Climbing Gym"
               className={clsx(
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
                 isGymActive

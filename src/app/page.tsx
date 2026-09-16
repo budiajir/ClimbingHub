@@ -178,7 +178,7 @@ export default function HomePage() {
               <h2 className={`text-2xl md:text-3xl font-bold tracking-tight transition-colors ${
                 isSandstone ? 'text-[#1a1815] group-hover:opacity-75' : 'text-chalk group-hover:text-cyan-climb'
               }`}>
-                Boulder Gyms
+                Climbing Gym
               </h2>
             </Link>
             <p className={`text-xs md:text-sm font-light mt-0.5 ${

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, Star, MapPin, Building2, Check, Clock } from 'lucide-react'
+import { Search, Filter, Star, MapPin, Check, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { useGyms } from '@/lib/use-data'
 import { useTheme } from '@/lib/theme-context'
@@ -29,12 +29,12 @@ export default function GymsPage() {
         isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
       }`}>
         <div>
-          <h1 className={`font-bold text-xl md:text-3xl flex items-center gap-2 ${
+          <h1 className={`font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight ${
             isSandstone ? 'text-[#1a1815]' : 'text-chalk'
           }`}>
-            Boulder Gym Directory <Building2 size={24} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+            Climbing Gym
           </h1>
-          <p className={`text-xs md:text-sm font-light ${
+          <p className={`text-xs md:text-sm font-light mt-1.5 ${
             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
           }`}>
             Indonesian Climbing & Bouldering Gym Directory & Session Booking
