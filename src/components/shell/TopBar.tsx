@@ -141,13 +141,24 @@ export default function TopBar({
             </button>
           </div>
 
-          {/* Center: Typography Logo */}
+          {/* Center: Typography Logo (Halaman Utama) */}
           <div className="flex items-center justify-center">
-            <Link href="/" className="flex items-center justify-center group" title="Jalur">
+            <Link
+              href="/"
+              onClick={(e) => {
+                if (pathname === '/') {
+                  e.preventDefault()
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }
+              }}
+              className="relative flex items-center justify-center group py-1 px-3 rounded-xl transition-all"
+              title="Halaman Utama · Jalur"
+              aria-label="Halaman Utama"
+            >
               <img
                 src="/jalur-logo.png"
-                alt="Jalur"
-                className={`h-9 md:h-11 max-h-12 w-auto object-contain transition-transform group-hover:scale-105 ${
+                alt="Jalur - Halaman Utama"
+                className={`h-9 md:h-11 max-h-12 w-auto object-contain transition-all duration-200 group-hover:scale-105 active:scale-95 ${
                   isSandstone ? 'mix-blend-multiply' : 'invert mix-blend-screen'
                 }`}
               />

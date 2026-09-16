@@ -263,7 +263,7 @@ export default function HomePage() {
         {/* ============================================================ */}
         <section className="space-y-4">
           <div>
-            <Link href="/beta" className="group inline-block">
+            <Link href="/crags" className="group inline-block">
               <h2 className={`text-2xl md:text-3xl font-bold tracking-tight transition-colors ${
                 isSandstone ? 'text-[#1a1815] group-hover:opacity-75' : 'text-chalk group-hover:text-lime'
               }`}>

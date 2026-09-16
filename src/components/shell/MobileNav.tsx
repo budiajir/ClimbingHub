@@ -75,7 +75,7 @@ export default function MobileNav() {
   const { role, openAuthModal } = useAuth();
   const [showCreateSheet, setShowCreateSheet] = useState(false);
 
-  const isCragsActive = pathname === "/";
+  const isCragsActive = pathname.startsWith("/crags");
   const isBouldersActive = pathname.startsWith("/beta");
   const isGymActive = pathname.startsWith("/gyms");
   const isCommunityActive = pathname.startsWith("/community");
@@ -101,7 +101,7 @@ export default function MobileNav() {
           <div className="flex items-center justify-around h-16 max-w-md mx-auto px-2">
             {/* 1. CRAGS (Paling Kiri) */}
             <Link
-              href="/"
+              href="/crags"
               title="Crags"
               className={clsx(
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
