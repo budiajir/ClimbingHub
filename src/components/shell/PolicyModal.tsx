@@ -43,14 +43,14 @@ const POLICY_DETAILS: Record<
         <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 space-y-1.5">
           <h4 className="font-bold text-sm">Bagaimana cara mencatat (log) verified ascent?</h4>
           <p className="opacity-80">
-            Buka menu <b>Boulders & Topo</b>, pilih jalur boulder yang telah Anda selesaikan, lalu klik tombol <b>Log Ascent</b>. Anda dapat mengunggah foto atau cuplikan video sebagai bukti pendakian, menentukan gaya pemanjatan (Flash, Redpoint, Onsight), dan otomatis mendapatkan <b>Ascent Share Card</b> untuk disimpan ke galeri ponsel.
+            Buka menu <b>Problems</b>, pilih jalur yang telah Anda selesaikan, lalu klik tombol <b>Log Ascent</b>. Anda dapat mengunggah foto atau cuplikan video sebagai bukti pendakian, menentukan gaya pemanjatan (Flash, Redpoint, Onsight), dan otomatis mendapatkan <b>Ascent Share Card</b> untuk disimpan ke galeri ponsel.
           </p>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 space-y-1.5">
           <h4 className="font-bold text-sm">Apakah saya bisa menambahkan rute baru di tebing alam?</h4>
           <p className="opacity-80">
-            Demi akurasi topo dan keselamatan bersama, jalur tebing alam (outdoor crags) saat ini dikurasi secara resmi oleh tim kurator. Anda dapat mengajukan jalur boulder baru melalui tombol <b>+ Submit Boulder Problem</b> di menu aksi.
+            Demi akurasi topo dan keselamatan bersama, jalur tebing alam (outdoor crags) saat ini dikurasi secara resmi oleh tim kurator. Anda dapat mengajukan rute baru melalui tombol <b>+ Set New Route</b> di menu aksi.
           </p>
         </div>
 

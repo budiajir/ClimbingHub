@@ -400,69 +400,61 @@ function BetaPageContent() {
                       : 'border-white/20 bg-transparent text-chalk hover:bg-white/10'
                   }`}
                 >
-                  ← Back to Boulders
+                  ← Back to Problems
                 </button>
               </div>
             ) : (
-              /* Headline Row: Clean "Boulder" (large) & "VIEW MODE" toolbar (Always Single Row) */
+              /* Headline Row: Clean "Problems" (large) & toolbar without "VIEW MODE" text */
               <div className="flex items-center justify-between gap-2 pt-1">
-                {/* Category / Discipline Title — Clean "Boulder" */}
+                {/* Category / Discipline Title — Clean "Problems" */}
                 <div>
                   <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight ${
                     isSandstone ? 'text-[#1a1815]' : 'text-chalk'
                   }`}>
-                    Boulder
+                    Problems
                   </h1>
                 </div>
 
-                {/* VIEW MODE Section matching Illustrator mockup */}
-                <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
-                  <span className={`text-[9px] sm:text-[10px] md:text-xs uppercase font-bold tracking-widest ${
-                    isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
-                  }`}>
-                    VIEW MODE
-                  </span>
+                {/* View Mode Icon Toolbar (without text) */}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {/* Mode 1: Slide Bar / Card */}
+                  <button
+                    onClick={() => setViewMode('card')}
+                    title="Slide Bar Mode"
+                    className={`p-1.5 rounded-lg transition-all ${
+                      viewMode === 'card'
+                        ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
+                        : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+                    }`}
+                  >
+                    <Pictogram name="view-mode-slide" size={18} />
+                  </button>
 
-                  <div className="flex items-center gap-1">
-                    {/* Mode 1: Slide Bar / Card */}
-                    <button
-                      onClick={() => setViewMode('card')}
-                      title="Slide Bar Mode"
-                      className={`p-1.5 rounded-lg transition-all ${
-                        viewMode === 'card'
-                          ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
-                          : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                      }`}
-                    >
-                      <Pictogram name="view-mode-slide" size={18} />
-                    </button>
+                  {/* Mode 2: Grid Mode (2x2) */}
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    title="Grid Mode"
+                    className={`p-1.5 rounded-lg transition-all ${
+                      viewMode === 'grid'
+                        ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
+                        : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+                    }`}
+                  >
+                    <Pictogram name="view-mode-thumbnail" size={18} />
+                  </button>
 
-                    {/* Mode 2: Grid Mode (2x2) */}
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      title="Grid Mode"
-                      className={`p-1.5 rounded-lg transition-all ${
-                        viewMode === 'grid'
-                          ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
-                          : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                      }`}
-                    >
-                      <Pictogram name="view-mode-thumbnail" size={18} />
-                    </button>
-
-                    {/* Mode 3: List Mode */}
-                    <button
-                      onClick={() => setViewMode('list')}
-                      title="Minimalist List Mode"
-                      className={`p-1.5 rounded-lg transition-all ${
-                        viewMode === 'list'
-                          ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
-                          : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                      }`}
-                    >
-                      <Pictogram name="view-mode-list" size={18} />
-                    </button>
-                  </div>
+                  {/* Mode 3: List Mode */}
+                  <button
+                    onClick={() => setViewMode('list')}
+                    title="Minimalist List Mode"
+                    className={`p-1.5 rounded-lg transition-all ${
+                      viewMode === 'list'
+                        ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
+                        : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+                    }`}
+                  >
+                    <Pictogram name="view-mode-list" size={18} />
+                  </button>
                 </div>
               </div>
             )}
@@ -997,7 +989,7 @@ function BetaPageContent() {
               <p className={`text-xs font-light ${
                 isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
               }`}>
-                Select a crag sector to view verified boulder problems
+                Select a crag sector to view verified problems
               </p>
             </div>
 
@@ -1084,7 +1076,7 @@ function BetaPageContent() {
                 <p className={`text-xs font-light ${
                   isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                 }`}>
-                  Showing {filteredProblems.length} verified boulder problems
+                  Showing {filteredProblems.length} verified problems
                 </p>
               </div>
 
@@ -1103,7 +1095,7 @@ function BetaPageContent() {
                 isSandstone ? 'bg-transparent border-[#1a1815]/20' : 'bg-crag border-white/5'
               }`}>
                 <Mountain size={32} className={isSandstone ? 'text-[#1a1815]/40 mx-auto' : 'text-slate-ash mx-auto'} />
-                <p className={`text-sm font-bold ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>No boulder problems in this sector yet</p>
+                <p className={`text-sm font-bold ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>No problems in this sector yet</p>
                 <p className={`text-xs font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>Explore other sectors or submit a new problem.</p>
               </div>
             ) : (

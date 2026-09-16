@@ -35,7 +35,7 @@ function BoulderIcon({
   className?: string;
   size?: number;
 }) {
-  return <Pictogram name="problem" size={size} className={className} alt="Boulders" />;
+  return <Pictogram name="problem" size={size} className={className} alt="Problems" />;
 }
 
 function CreateIcon({
@@ -76,7 +76,7 @@ export default function MobileNav() {
   const [showCreateSheet, setShowCreateSheet] = useState(false);
 
   const isCragsActive = pathname.startsWith("/crags");
-  const isBouldersActive = pathname.startsWith("/beta");
+  const isProblemsActive = pathname.startsWith("/beta");
   const isGymActive = pathname.startsWith("/gyms");
   const isCommunityActive = pathname.startsWith("/community");
 
@@ -117,13 +117,13 @@ export default function MobileNav() {
               <CragIcon size={24} />
             </Link>
 
-            {/* 2. BOULDERS */}
+            {/* 2. PROBLEMS */}
             <Link
               href="/beta"
-              title="Boulders"
+              title="Problems"
               className={clsx(
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
-                isBouldersActive
+                isProblemsActive
                   ? isSandstone
                     ? "text-[#1a1815] scale-110 font-bold"
                     : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
