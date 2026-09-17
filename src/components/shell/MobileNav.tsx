@@ -271,11 +271,11 @@ export default function MobileNav() {
                     >
                       <Pictogram name="problem" size={20} className="shrink-0" />
                       <span className="font-bold text-sm sm:text-base tracking-tight">
-                        + Submit Boulder Problem
+                        + Submit Problem
                       </span>
                     </button>
 
-                    {/* 2. Log Boulder Ascent */}
+                    {/* 2. Log Ascent (Sent Cards) */}
                     <button
                       onClick={() =>
                         handleCreateOption(() => {
@@ -293,9 +293,9 @@ export default function MobileNav() {
                           : "border-[#ff6b4a] bg-[#ff6b4a]/10 hover:bg-[#ff6b4a]/20 text-[#ff6b4a]"
                       )}
                     >
-                      <Pictogram name="beta-book" size={20} className="shrink-0" />
+                      <Pictogram name="beta-cards" size={20} className="shrink-0" />
                       <span className="font-bold text-sm sm:text-base tracking-tight">
-                        Log Boulder Ascent
+                        Log Ascent
                       </span>
                     </button>
                   </div>

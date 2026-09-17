@@ -49,14 +49,54 @@ interface PictogramProps {
   alt?: string;
 }
 
+const ALIASES: Record<string, string> = {
+  slide: "view-mode-slide",
+  "view-mode-slide": "view-mode-slide",
+  thumbnail: "view-mode-thumbnail",
+  grid: "view-mode-thumbnail",
+  "view-mode-thumbnail": "view-mode-thumbnail",
+  list: "view-mode-list",
+  "view-mode-list": "view-mode-list",
+  "full-frame": "view-mode-full-frame",
+  "view-mode-full-frame": "view-mode-full-frame",
+  "beta-cards": "beta-cards",
+  "sent-cards": "beta-cards",
+  "beta-book": "beta-book",
+  problems: "problem",
+  problem: "problem",
+  boulders: "boulder",
+  boulder: "boulder",
+  crags: "crag",
+  crag: "crag",
+  gym: "gym",
+  "climbing-gym": "gym",
+  community: "community",
+  communities: "community",
+  create: "create",
+  crerate: "create",
+  profile: "profile-picture",
+  "profile-picture": "profile-picture",
+  account: "profile-picture",
+};
+
 export default function Pictogram({
   name,
   className,
   size = 24,
   alt,
 }: PictogramProps) {
-  // Normalize name to match slug or exact name
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  // Normalize name to match slug, removing prefix or suffix
+  let slug = name
+    .toLowerCase()
+    .replace(/\.png$/i, "")
+    .replace(/^jalur[\.\-_]picto[\.\-_]26[\.\-_]v1[\.\-_]/i, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  if (ALIASES[slug]) {
+    slug = ALIASES[slug];
+  }
+
   const src = `/pictograms/${slug}.png`;
 
   return (

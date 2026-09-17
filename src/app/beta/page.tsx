@@ -32,7 +32,7 @@ function BetaPageContent() {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const [selectedSector, setSelectedSector] = useState<string | null>(null)
   const [selectedProblem, setSelectedProblem] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'card'>('list')
+  const [viewMode, setViewMode] = useState<'slide' | 'thumbnail' | 'list' | 'card' | 'grid'>('list')
   const [activeSlideIndex, setActiveSlideIndex] = useState(0)
   const cardSliderRef = useRef<HTMLDivElement>(null)
   const [expandedRegionId, setExpandedRegionId] = useState<string | null>(null)
@@ -392,45 +392,48 @@ function BetaPageContent() {
                   </h1>
                 </div>
 
-                {/* View Mode Icon Toolbar (without text) */}
+                {/* View Mode Icon Toolbar (Slide, Thumbnail, List matching Jalur pictogram file names) */}
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  {/* Mode 1: Slide Bar / Card */}
+                  {/* Mode 1: Slide (View Mode-Slide) */}
                   <button
-                    onClick={() => setViewMode('card')}
-                    title="Slide Bar Mode"
+                    onClick={() => setViewMode('slide')}
+                    title="Slide"
+                    aria-label="Slide View Mode"
                     className={`p-1.5 rounded-lg transition-all ${
-                      viewMode === 'card'
+                      viewMode === 'slide' || viewMode === 'card'
                         ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
                         : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
                     }`}
                   >
-                    <Pictogram name="view-mode-slide" size={18} />
+                    <Pictogram name="view-mode-slide" size={18} alt="Slide" />
                   </button>
 
-                  {/* Mode 2: Grid Mode (2x2) */}
+                  {/* Mode 2: Thumbnail (View Mode-Thumbnail) */}
                   <button
-                    onClick={() => setViewMode('grid')}
-                    title="Grid Mode"
+                    onClick={() => setViewMode('thumbnail')}
+                    title="Thumbnail"
+                    aria-label="Thumbnail View Mode"
                     className={`p-1.5 rounded-lg transition-all ${
-                      viewMode === 'grid'
+                      viewMode === 'thumbnail' || viewMode === 'grid'
                         ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
                         : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
                     }`}
                   >
-                    <Pictogram name="view-mode-thumbnail" size={18} />
+                    <Pictogram name="view-mode-thumbnail" size={18} alt="Thumbnail" />
                   </button>
 
-                  {/* Mode 3: List Mode */}
+                  {/* Mode 3: List (View Mode-List) */}
                   <button
                     onClick={() => setViewMode('list')}
-                    title="Minimalist List Mode"
+                    title="List"
+                    aria-label="List View Mode"
                     className={`p-1.5 rounded-lg transition-all ${
                       viewMode === 'list'
                         ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
                         : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
                     }`}
                   >
-                    <Pictogram name="view-mode-list" size={18} />
+                    <Pictogram name="view-mode-list" size={18} alt="List" />
                   </button>
                 </div>
               </div>
@@ -613,7 +616,7 @@ function BetaPageContent() {
                 </div>
               )}
 
-              {/* 1. MINIMALIST LIST VIEW (Matching the Adobe Illustrator Mockup) */}
+              {/* 1. LIST VIEW (View Mode-List) */}
               {!showMyAscentsView && viewMode === 'list' && (
                 <div className={`divide-y transition-colors my-2 ${
                   isSandstone
@@ -770,8 +773,8 @@ function BetaPageContent() {
                 </div>
               )}
 
-              {/* 2. GRID VIEW (Compact 2-3 Columns) */}
-              {!showMyAscentsView && viewMode === 'grid' && (
+              {/* 2. THUMBNAIL VIEW (View Mode-Thumbnail) */}
+              {!showMyAscentsView && (viewMode === 'thumbnail' || viewMode === 'grid') && (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 my-4">
                   {displayedRegions.map(r => (
                     <button
@@ -805,8 +808,8 @@ function BetaPageContent() {
                 </div>
               )}
 
-              {/* 3. CARD SLIDE BAR VIEW */}
-              {!showMyAscentsView && viewMode === 'card' && (
+              {/* 3. SLIDE VIEW (View Mode-Slide) */}
+              {!showMyAscentsView && (viewMode === 'slide' || viewMode === 'card') && (
                 <div className="relative my-4">
                   {/* Horizontal Slide Bar (Full-Width Cards) */}
                   <div
