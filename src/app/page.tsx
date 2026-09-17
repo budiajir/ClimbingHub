@@ -55,6 +55,8 @@ export default function HomePage() {
         sectorId: s.id,
         cragName: r.name,
         sectorName: s.name,
+        cragImage: r.image,
+        sectorImage: s.image,
       }))
     )
   )
@@ -368,71 +370,105 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
+          {/* Mobile: Horizontal scrollable portrait cards / Desktop: 3-4 cols */}
           <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
-            {featuredProblems.slice(0, 6).map(problem => {
+            {featuredProblems.slice(0, 8).map(problem => {
               const gradeColor = gradeColors[problem.grade] || '#CCFF00'
+              const photoUrl = problem.imageUrl || problem.sectorImage || problem.cragImage || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=800&q=80'
+              const markers = (problem.markers && problem.markers.length >= 2)
+                ? problem.markers
+                : [
+                    { x: 28, y: 80, type: 'S' },
+                    { x: 48, y: 52, type: 'Z' },
+                    { x: 68, y: 22, type: 'T' }
+                  ]
 
               return (
                 <Link
                   key={problem.id}
                   href={`/beta?region=${problem.regionId}&sector=${problem.sectorId}&problem=${problem.id}`}
-                  className={`w-72 md:w-auto flex-shrink-0 rounded-2xl p-4 transition-all flex flex-col justify-between group ${
+                  className={`relative aspect-[3/4] w-64 md:w-auto flex-shrink-0 rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border ${
                     isSandstone
-                      ? 'bg-transparent border border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
-                      : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
+                      ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60'
+                      : 'border-white/10 hover:border-lime/40'
                   }`}
                 >
-                  <div className="space-y-3">
-                    {/* Top: Boulder Badge & Grade */}
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${
-                        isSandstone ? 'bg-transparent text-[#1a1815] border-[#1a1815]/30' : 'bg-transparent text-cyan-climb border-cyan-climb/40'
-                      }`}>
-                        <Compass size={10} /> BOULDER · {problem.startType || 'Sit Start'}
-                      </span>
+                  {/* Portrait Background Photo */}
+                  <img
+                    src={photoUrl}
+                    alt={problem.name}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
 
+                  {/* Gradient overlays for readability */}
+                  <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/75 via-black/25 to-transparent pointer-events-none z-10" />
+                  <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none z-10" />
+
+                  {/* Pre-rendered SVG Topo Line */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
+                    <polyline
+                      points={markers.map((m) => `${m.x}%,${m.y}%`).join(' ')}
+                      fill="none"
+                      stroke="#B1FA63"
+                      strokeWidth="3.5"
+                      strokeDasharray="5 3"
+                      strokeLinecap="round"
+                      style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.85))' }}
+                    />
+                  </svg>
+
+                  {/* Marker Points (Start S, Crux Z, Top T) */}
+                  {markers.map((m, idx) => (
+                    <div
+                      key={idx}
+                      style={{ left: `${m.x}%`, top: `${m.y}%`, transform: 'translate(-50%, -50%)' }}
+                      className="absolute pointer-events-none z-10 flex items-center justify-center"
+                    >
                       <div
-                        className="px-2 py-0.5 rounded-md font-bold font-mono text-xs border"
-                        style={{ borderColor: gradeColor, color: gradeColor, backgroundColor: 'transparent' }}
+                        className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold shadow-md ${
+                          m.type === 'S'
+                            ? 'bg-emerald-500 text-white ring-1.5 ring-white'
+                            : m.type === 'T'
+                            ? 'bg-rose-500 text-white ring-1.5 ring-white'
+                            : 'bg-lime text-granite ring-1.5 ring-black'
+                        }`}
                       >
-                        {problem.grade}
+                        {m.type || (idx + 1)}
                       </div>
                     </div>
+                  ))}
 
-                    <div>
-                      <h3 className={`font-bold text-base leading-tight transition-colors ${
-                        isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
-                      }`}>
-                        {problem.name}
-                      </h3>
-                      <p className={`text-xs font-light mt-0.5 truncate ${
-                        isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                      }`}>
-                        {problem.cragName} · {problem.sectorName.split('—')[0]}
-                      </p>
+                  {/* Card Top: Discipline & Grade badges */}
+                  <div className="relative z-20 p-3.5 flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white/90 border border-white/20 flex items-center gap-1">
+                      <Compass size={10} className="text-lime" /> {problem.discipline ? problem.discipline.toUpperCase() : 'BOULDER'}
+                    </span>
+
+                    <div
+                      className="px-2 py-0.5 rounded-md font-bold font-mono text-xs backdrop-blur-md bg-black/65 border shadow-sm"
+                      style={{ borderColor: gradeColor, color: gradeColor }}
+                    >
+                      {problem.grade}
                     </div>
-
-                    <p className={`text-xs font-light line-clamp-2 leading-relaxed ${
-                      isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
-                    }`}>
-                      {problem.description}
-                    </p>
                   </div>
 
-                  <div className={`pt-3 border-t mt-3 flex items-center justify-between text-xs ${
-                    isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
-                  }`}>
-                    <span className={`font-light text-[11px] ${
-                      isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                    }`}>
-                      {problem.ascentCount} logged sends
-                    </span>
-                    <span className={`font-bold flex items-center gap-0.5 ${
-                      isSandstone ? 'text-[#1a1815]' : 'text-lime'
-                    }`}>
-                      View Topo <ChevronRight size={13} />
-                    </span>
+                  {/* Card Bottom: Route Name, Location, Sends */}
+                  <div className="relative z-20 p-3.5 space-y-1">
+                    <h3 className="font-bold text-base md:text-lg text-white leading-tight drop-shadow-sm group-hover:text-lime transition-colors">
+                      {problem.name}
+                    </h3>
+                    <p className="text-xs text-white/75 truncate font-light">
+                      {problem.cragName} · {problem.sectorName.split('—')[0]}
+                    </p>
+
+                    <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs">
+                      <span className="font-light text-[11px] text-white/70">
+                        {problem.ascentCount} logged sends
+                      </span>
+                      <span className="font-bold text-lime flex items-center gap-0.5 text-xs">
+                        View Topo <ChevronRight size={13} />
+                      </span>
+                    </div>
                   </div>
                 </Link>
               )

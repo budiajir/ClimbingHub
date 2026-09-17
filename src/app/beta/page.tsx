@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef, Suspense } from 'react'
+import { useState, useEffect, useRef, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2, Search } from 'lucide-react'
 import { Problem, CragRegion, RouteDiscipline } from '@/lib/mock-data'
 import { useCragRegions, insertRoute, insertCragRegion, insertSector } from '@/lib/use-data'
 import { gradeColors } from '@/lib/tokens'
@@ -32,10 +32,8 @@ function BetaPageContent() {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const [selectedSector, setSelectedSector] = useState<string | null>(null)
   const [selectedProblem, setSelectedProblem] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'slide' | 'thumbnail' | 'list' | 'card' | 'grid'>('list')
-  const [activeSlideIndex, setActiveSlideIndex] = useState(0)
-  const cardSliderRef = useRef<HTMLDivElement>(null)
-  const [expandedRegionId, setExpandedRegionId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedDiscipline, setSelectedDiscipline] = useState<'all' | 'bouldering' | 'sport' | 'multipitch'>('all')
 
   const [showSheet, setShowSheet] = useState(false)
   const [showLogModal, setShowLogModal] = useState(false)
@@ -291,70 +289,63 @@ function BetaPageContent() {
   const problem = sector?.problems.find(p => p.id === selectedProblem)
 
   const goBack = () => {
-    if (level === 'topo') { setLevel('problems'); setShowSheet(false) }
-    else if (level === 'problems') { setLevel('sectors'); setSelectedSector(null) }
-    else if (level === 'sectors') { setLevel('regions'); setSelectedRegion(null) }
+    if (level === 'topo') {
+      setLevel('regions')
+      setShowSheet(false)
+      setSelectedProblem(null)
+    } else if (level === 'problems') {
+      setLevel('regions')
+      setSelectedSector(null)
+    } else if (level === 'sectors') {
+      setLevel('regions')
+      setSelectedRegion(null)
+    }
   }
 
   const breadcrumb = [
-    level !== 'regions' && region?.name,
-    (level === 'problems' || level === 'topo') && sector?.name.split('—')[0].trim(),
-    level === 'topo' && problem?.name,
+    'Problems',
+    region?.name,
+    sector?.name.split('—')[0].trim(),
+    problem?.name,
   ].filter(Boolean).join(' › ')
 
-  // In Beta Book: Focus exclusively on Bouldering
-  const filteredProblems = sector
-    ? sector.problems.filter(p => !p.discipline || p.discipline === 'bouldering')
-    : []
-
-  // Filter regions with bouldering problems or authentic boulder crags
-  const displayedRegions = regions.map(r => {
-    const boulderSectors = r.sectors.map(s => ({
-      ...s,
-      problems: s.problems.filter(p => !p.discipline || p.discipline === 'bouldering'),
-    })).filter(s => s.problems.length > 0 || r.problemCount > 0)
-
-    const totalBoulderProblems = boulderSectors.reduce((acc, s) => acc + s.problems.length, 0)
-    return {
-      ...r,
-      sectors: boulderSectors,
-      problemCount: totalBoulderProblems > 0 ? totalBoulderProblems : r.problemCount,
-      sectorCount: boulderSectors.length > 0 ? boulderSectors.length : r.sectorCount,
+  // Flat list of all problems across all crags & sectors
+  const allProblems = useMemo(() => {
+    const list: { problem: Problem; region: CragRegion; sector: { id: string; name: string } }[] = []
+    for (const r of regions) {
+      for (const s of r.sectors) {
+        for (const p of s.problems) {
+          list.push({ problem: p, region: r, sector: s })
+        }
+      }
     }
-  }).filter(r => r.sectors.length > 0 || r.problemCount > 0)
+    return list
+  }, [regions])
 
-  const handleCardScroll = () => {
-    if (!cardSliderRef.current) return
-    const container = cardSliderRef.current
-    const scrollLeft = container.scrollLeft
-    const cardEl = container.firstElementChild as HTMLElement
-    if (!cardEl) return
-    const cardWidth = cardEl.offsetWidth + 16
-    const index = Math.round(scrollLeft / cardWidth)
-    setActiveSlideIndex(Math.max(0, Math.min(index, displayedRegions.length - 1)))
-  }
+  const filteredProblemsList = useMemo(() => {
+    return allProblems.filter(({ problem: p, region: r, sector: s }) => {
+      const q = searchQuery.toLowerCase().trim()
+      const matchSearch =
+        q === '' ||
+        p.name.toLowerCase().includes(q) ||
+        p.grade.toLowerCase().includes(q) ||
+        (p.fontGrade && p.fontGrade.toLowerCase().includes(q)) ||
+        r.name.toLowerCase().includes(q) ||
+        s.name.toLowerCase().includes(q)
 
-  const scrollToIndex = (index: number) => {
-    if (!cardSliderRef.current) return
-    const container = cardSliderRef.current
-    const cards = container.children
-    if (cards[index]) {
-      (cards[index] as HTMLElement).scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      })
-      setActiveSlideIndex(index)
-    }
-  }
+      const disc = p.discipline || 'bouldering'
+      const matchDiscipline =
+        selectedDiscipline === 'all' ||
+        disc === selectedDiscipline ||
+        (selectedDiscipline === 'bouldering' && (p.category === 'boulder' || !p.category)) ||
+        (selectedDiscipline === 'sport' && p.category === 'lead') ||
+        (selectedDiscipline === 'multipitch' && p.category === 'trad')
 
-  const scrollPrev = () => {
-    scrollToIndex(Math.max(0, activeSlideIndex - 1))
-  }
+      return matchSearch && matchDiscipline
+    })
+  }, [allProblems, searchQuery, selectedDiscipline])
 
-  const scrollNext = () => {
-    scrollToIndex(Math.min(displayedRegions.length - 1, activeSlideIndex + 1))
-  }
+  const filteredProblems = sector ? sector.problems : []
 
   return (
     <div
@@ -370,72 +361,53 @@ function BetaPageContent() {
           <div className="space-y-4 mb-4">
             {showMyAscentsView ? (
               /* Sent Cards Header */
-              <div className="pt-1 border-b border-black/10 dark:border-white/10 pb-3">
-                <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight ${
-                  isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                }`}>
-                  Sent Cards
-                </h1>
-                <p className={`text-xs mt-0.5 ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-                  {userAscents.length} Logged {userAscents.length === 1 ? 'Send' : 'Sends'}
-                </p>
+              <div className="flex items-center justify-between pt-1 border-b border-black/10 dark:border-white/10 pb-3">
+                <div>
+                  <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight ${
+                    isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                  }`}>
+                    Sent Cards
+                  </h1>
+                  <p className={`text-xs mt-0.5 ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                    {userAscents.length} Logged {userAscents.length === 1 ? 'Send' : 'Sends'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowMyAscentsView(false)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                    isSandstone
+                      ? 'border-[#1a1815]/20 hover:bg-[#1a1815]/10 text-[#1a1815]'
+                      : 'border-white/10 hover:bg-white/10 text-chalk'
+                  }`}
+                >
+                  Lihat Semua Jalur
+                </button>
               </div>
             ) : (
-              /* Headline Row: Clean "Problems" (large) & toolbar without "VIEW MODE" text */
+              /* Headline Row: Clean "Problems" (large) & CTA to Set New Route */
               <div className="flex items-center justify-between gap-2 pt-1">
-                {/* Category / Discipline Title — Clean "Problems" */}
                 <div>
                   <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight ${
                     isSandstone ? 'text-[#1a1815]' : 'text-chalk'
                   }`}>
                     Problems
                   </h1>
+                  <p className={`text-xs md:text-sm font-light mt-1 ${
+                    isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                  }`}>
+                    {allProblems.length} Jalur pemanjatan terverifikasi di seluruh Indonesia
+                  </p>
                 </div>
 
-                {/* View Mode Icon Toolbar (Slide, Thumbnail, List matching Jalur pictogram file names) */}
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  {/* Mode 1: Slide (View Mode-Slide) */}
-                  <button
-                    onClick={() => setViewMode('slide')}
-                    title="Slide"
-                    aria-label="Slide View Mode"
-                    className={`p-1.5 rounded-lg transition-all ${
-                      viewMode === 'slide' || viewMode === 'card'
-                        ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
-                        : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                    }`}
-                  >
-                    <Pictogram name="view-mode-slide" size={18} alt="Slide" />
-                  </button>
-
-                  {/* Mode 2: Thumbnail (View Mode-Thumbnail) */}
-                  <button
-                    onClick={() => setViewMode('thumbnail')}
-                    title="Thumbnail"
-                    aria-label="Thumbnail View Mode"
-                    className={`p-1.5 rounded-lg transition-all ${
-                      viewMode === 'thumbnail' || viewMode === 'grid'
-                        ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
-                        : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                    }`}
-                  >
-                    <Pictogram name="view-mode-thumbnail" size={18} alt="Thumbnail" />
-                  </button>
-
-                  {/* Mode 3: List (View Mode-List) */}
-                  <button
-                    onClick={() => setViewMode('list')}
-                    title="List"
-                    aria-label="List View Mode"
-                    className={`p-1.5 rounded-lg transition-all ${
-                      viewMode === 'list'
-                        ? isSandstone ? 'bg-[#1a1815]/15 text-[#1a1815]' : 'bg-lime/20 text-lime'
-                        : isSandstone ? 'text-[#1a1815]/40 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
-                    }`}
-                  >
-                    <Pictogram name="view-mode-list" size={18} alt="List" />
-                  </button>
-                </div>
+                {/* Action button: Set New Route */}
+                <button
+                  onClick={handleAddRouteClick}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-lime text-granite text-xs font-bold shadow-lime-glow-sm hover:bg-lime-dim transition-all flex-shrink-0"
+                >
+                  <Plus size={14} />
+                  <span className="hidden sm:inline">Set New Route</span>
+                  <span className="sm:hidden">New Route</span>
+                </button>
               </div>
             )}
           </div>
@@ -616,336 +588,175 @@ function BetaPageContent() {
                 </div>
               )}
 
-              {/* 1. LIST VIEW (View Mode-List) */}
-              {!showMyAscentsView && viewMode === 'list' && (
-                <div className={`divide-y transition-colors my-2 ${
-                  isSandstone
-                    ? 'divide-[#1a1815]/25 border-t border-b border-[#1a1815]/25'
-                    : 'divide-white/10 border-t border-b border-white/10'
-                }`}>
-                  {displayedRegions.length === 0 ? (
-                    <div className="py-12 text-center">
-                      <p className="text-sm opacity-60">No crags found for this category.</p>
-                    </div>
-                  ) : (
-                    displayedRegions.map(r => {
-                      const isExpanded = expandedRegionId === r.id
-                      return (
-                         <div key={r.id} className="py-3.5 md:py-4.5 transition-colors">
-                          <div className="flex items-center justify-between gap-3">
-                            {/* Left: Plus and Region Name */}
-                            <button
-                              onClick={() => setExpandedRegionId(isExpanded ? null : r.id)}
-                              className="flex items-center gap-2 text-left flex-1 group"
-                            >
-                              <span className={`text-2xl md:text-3xl font-light leading-none transition-transform duration-200 ${
-                                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                              }`}>
-                                {isExpanded ? '−' : '+'}
-                              </span>
-                              <span className={`text-xl md:text-3xl font-medium tracking-tight transition-opacity ${
-                                isSandstone ? 'text-[#1a1815] group-hover:opacity-70' : 'text-chalk group-hover:text-lime'
-                              }`}>
-                                {r.name}
-                              </span>
-                            </button>
-
-                            {/* Right: Quick Sector Navigation & Meta */}
-                            <div className="flex items-center gap-2">
-                              <span className={`text-xs md:text-sm font-light hidden sm:inline ${
-                                isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
-                              }`}>
-                                {r.province}
-                              </span>
-                              <button
-                                onClick={() => {
-                                  setSelectedRegion(r.id)
-                                  setLevel('sectors')
-                                }}
-                                className={`px-3 py-1 md:py-1.5 rounded-full flex items-center gap-1.5 transition-all ${
-                                  isSandstone
-                                    ? 'border border-[#1a1815]/20 text-[#1a1815]/90 hover:bg-[#1a1815]/10'
-                                    : 'bg-crag hover:bg-crag-light text-chalk border border-white/5'
-                                }`}
-                              >
-                                <span className="text-[9px] font-medium">Problems</span>
-                                <span className="text-[11px] md:text-xs font-bold">{r.problemCount}</span>
-                                <ChevronRight size={14} />
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Expanded Drawer / Accordion */}
-                          <AnimatePresence>
-                            {isExpanded && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="overflow-hidden pt-4 pb-2 pl-6 md:pl-8 space-y-3"
-                              >
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span className={`text-xs font-bold uppercase tracking-wider ${
-                                    isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                                  }`}>
-                                    Sectors ({r.sectors.length}):
-                                  </span>
-                                  {r.sectors.map(s => (
-                                    <button
-                                      key={s.id}
-                                      onClick={() => {
-                                        setSelectedRegion(r.id)
-                                        setSelectedSector(s.id)
-                                        setLevel('problems')
-                                      }}
-                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                                        isSandstone
-                                          ? 'bg-[#1a1815]/10 hover:bg-[#1a1815]/20 text-[#1a1815]'
-                                          : 'bg-crag hover:bg-crag-light text-chalk border border-white/10'
-                                      }`}
-                                    >
-                                      {s.name} ({s.problems.length})
-                                    </button>
-                                  ))}
-                                </div>
-
-                                {/* Top Routes Preview */}
-                                {r.sectors[0]?.problems && r.sectors[0].problems.length > 0 && (
-                                  <div className="space-y-1.5 pt-1">
-                                    <p className={`text-[11px] font-bold uppercase tracking-wider ${
-                                      isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
-                                    }`}>
-                                      Popular Problems:
-                                    </p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                      {r.sectors[0].problems.slice(0, 3).map(p => (
-                                        <button
-                                          key={p.id}
-                                          onClick={() => {
-                                            setSelectedRegion(r.id)
-                                            setSelectedSector(r.sectors[0].id)
-                                            setSelectedProblem(p.id)
-                                            setLevel('topo')
-                                            setShowSheet(true)
-                                          }}
-                                          className={`p-2.5 rounded-xl text-left flex items-center justify-between border transition-all ${
-                                            isSandstone
-                                              ? 'bg-white/40 border-[#1a1815]/15 hover:bg-white/70 text-[#1a1815]'
-                                              : 'bg-granite border-white/5 hover:border-lime/30 text-chalk'
-                                          }`}
-                                        >
-                                          <div className="min-w-0 pr-2">
-                                            <p className="font-bold text-xs truncate">{p.name}</p>
-                                            <p className="text-[10px] opacity-70 truncate">{p.startType || 'Sit Start'} · FA: {p.fa}</p>
-                                          </div>
-                                          <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-black/10">
-                                            {p.grade}
-                                          </span>
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Quick CTA to Topo */}
-                                <div className="pt-2 flex items-center gap-2">
-                                  <button
-                                    onClick={() => {
-                                      setSelectedRegion(r.id)
-                                      setLevel('sectors')
-                                    }}
-                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
-                                      isSandstone
-                                        ? 'bg-[#1a1815] text-[#d2c5ae] hover:bg-black'
-                                        : 'bg-lime text-granite hover:bg-lime-dim'
-                                    }`}
-                                  >
-                                    Open {r.name} Guide ›
-                                  </button>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
-              )}
-
-              {/* 2. THUMBNAIL VIEW (View Mode-Thumbnail) */}
-              {!showMyAscentsView && (viewMode === 'thumbnail' || viewMode === 'grid') && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 my-4">
-                  {displayedRegions.map(r => (
-                    <button
-                      key={r.id}
-                      onClick={() => {
-                        setSelectedRegion(r.id)
-                        setLevel('sectors')
-                      }}
-                      className={`text-left rounded-2xl overflow-hidden border transition-all group ${
-                        isSandstone
-                          ? 'bg-white/40 border-[#1a1815]/15 hover:border-[#1a1815]/40 text-[#1a1815]'
-                          : 'bg-crag border-white/10 hover:border-lime/30 text-chalk'
-                      }`}
-                    >
-                      <div
-                        className="h-32 md:h-40 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                        style={{ backgroundImage: `url(${r.image})` }}
-                      />
-                      <div className="p-3">
-                        <div className="flex items-center justify-between gap-1 text-[10px] opacity-70 mb-1">
-                          <span>{r.province}</span>
-                          <span>{r.sectorCount} Sectors</span>
-                        </div>
-                        <h3 className="font-bold text-sm md:text-base truncate group-hover:underline">
-                          {r.name}
-                        </h3>
-                        <p className="text-xs opacity-80 mt-1">{r.problemCount} Problems</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* 3. SLIDE VIEW (View Mode-Slide) */}
-              {!showMyAscentsView && (viewMode === 'slide' || viewMode === 'card') && (
-                <div className="relative my-4">
-                  {/* Horizontal Slide Bar (Full-Width Cards) */}
-                  <div
-                    ref={cardSliderRef}
-                    onScroll={handleCardScroll}
-                    className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory py-1 scroll-smooth w-full"
-                  >
-                    {displayedRegions.map((r, i) => (
-                      <motion.button
-                        key={r.id}
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.04 }}
-                        onClick={() => {
-                          setSelectedRegion(r.id)
-                          setLevel('sectors')
-                        }}
-                        className={`w-full min-w-full flex-shrink-0 snap-start text-left rounded-2xl sm:rounded-3xl overflow-hidden transition-all flex flex-col justify-between group border shadow-sm ${
-                          isSandstone
-                            ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
-                            : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
+              {/* DIRECT PROBLEMS LIST (Nama Jalur & Grade) */}
+              {!showMyAscentsView && (
+                <div className="space-y-4 my-2">
+                  {/* Search and Category Filter Bar */}
+                  <div className="space-y-3">
+                    {/* Search */}
+                    <div className="relative">
+                      <Search
+                        size={16}
+                        className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${
+                          isSandstone ? 'text-[#1a1815]/40' : 'text-slate-ash'
                         }`}
-                      >
-                        <div>
-                          <div className="h-56 sm:h-64 md:h-72 overflow-hidden relative w-full">
-                            <div
-                              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                              style={{ backgroundImage: `url(${r.image})` }}
-                            />
-                          </div>
+                      />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        placeholder="Cari nama jalur, grade (V4, 7a...), tebing, atau sektor..."
+                        className={`w-full pl-10 pr-4 py-2.5 rounded-2xl text-xs md:text-sm border outline-none transition-all ${
+                          isSandstone
+                            ? 'bg-white/80 border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/40 focus:border-[#1a1815]'
+                            : 'bg-crag border-white/10 text-chalk placeholder:text-white/40 focus:border-lime/50'
+                        }`}
+                      />
+                    </div>
 
-                          <div className="p-4 space-y-2">
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <h2 className={`font-bold text-lg md:text-xl transition-colors ${
-                                  isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
-                                }`}>
-                                  {r.name}
-                                </h2>
-                                <div className={`flex items-center gap-1 text-xs font-light mt-0.5 ${
-                                  isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                                }`}>
-                                  <MapPin size={11} />
-                                  <span>{r.province}</span>
-                                </div>
-                              </div>
-                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${
-                                isSandstone ? 'border-[#1a1815]/30 text-[#1a1815]' : 'border-lime/40 text-lime'
-                              }`}>
-                                {r.sectorCount} Sectors
-                              </span>
-                            </div>
-
-                            <p className={`text-xs font-light line-clamp-2 leading-relaxed ${
-                              isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
-                            }`}>
-                              {(r as any).description || `Premier outdoor bouldering destination in ${r.province} with ${r.sectorCount} verified sectors.`}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className={`p-4 pt-3 flex items-center justify-between text-xs border-t ${
-                          isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
-                        }`}>
-                          <span className={`font-light text-[11px] ${
-                            isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                          }`}>
-                            {r.problemCount} Verified Problems
-                          </span>
-                          <span className={`font-bold flex items-center gap-0.5 ${
-                            isSandstone ? 'text-[#1a1815]' : 'text-lime'
-                          }`}>
-                            Open Guide <ChevronRight size={13} />
-                          </span>
-                        </div>
-                      </motion.button>
-                    ))}
+                    {/* Category Filter Chips */}
+                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                      {[
+                        { id: 'all', label: 'Semua Jalur' },
+                        { id: 'bouldering', label: 'Boulder' },
+                        { id: 'sport', label: 'Lead' },
+                        { id: 'multipitch', label: 'Trad / Multipitch' },
+                      ].map(cat => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedDiscipline(cat.id as any)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
+                            selectedDiscipline === cat.id
+                              ? isSandstone
+                                ? 'bg-[#1a1815] text-white border-[#1a1815] font-bold'
+                                : 'bg-lime text-granite border-lime font-bold'
+                              : isSandstone
+                              ? 'bg-white/60 border-[#1a1815]/15 text-[#1a1815]/70 hover:text-[#1a1815]'
+                              : 'bg-crag border-white/10 text-slate-ash hover:text-chalk'
+                          }`}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Slide Navigation Controls & Indicator */}
-                  {displayedRegions.length > 1 && (
-                    <div className="flex items-center justify-between mt-3 px-1">
-                      {/* Pagination Indicator Dots */}
-                      <div className="flex items-center gap-1.5 overflow-hidden max-w-[140px] sm:max-w-[220px]">
-                        {displayedRegions.map((r, idx) => (
-                          <button
-                            key={r.id}
-                            onClick={() => scrollToIndex(idx)}
-                            aria-label={`Go to slide ${idx + 1}`}
-                            className={`h-1.5 flex-shrink-0 rounded-full transition-all duration-300 ${
-                              activeSlideIndex === idx
-                                ? isSandstone ? 'w-5 bg-[#1a1815]' : 'w-5 bg-lime'
-                                : isSandstone ? 'w-1.5 bg-[#1a1815]/25 hover:bg-[#1a1815]/50' : 'w-1.5 bg-white/20 hover:bg-white/40'
-                            }`}
-                          />
-                        ))}
+                  {/* Clean List of Nama Jalur & Grade */}
+                  <div
+                    className={`divide-y transition-colors ${
+                      isSandstone
+                        ? 'divide-[#1a1815]/15 border-t border-b border-[#1a1815]/15'
+                        : 'divide-white/10 border-t border-b border-white/10'
+                    }`}
+                  >
+                    {filteredProblemsList.length === 0 ? (
+                      <div className="py-16 text-center space-y-2">
+                        <Mountain
+                          size={36}
+                          className={`mx-auto opacity-40 ${
+                            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                          }`}
+                        />
+                        <p className="text-sm font-medium">Tidak ada jalur pemanjatan ditemukan</p>
+                        <p className="text-xs opacity-60">
+                          Coba ubah kata kunci pencarian atau kategori filter.
+                        </p>
                       </div>
+                    ) : (
+                      filteredProblemsList.map(({ problem: p, region: r, sector: s }) => {
+                        const gradeColor = gradeColors[p.grade] || '#CCFF00'
 
-                      {/* Counter and Next/Prev Arrows */}
-                      <div className="flex items-center gap-2.5">
-                        <span className={`text-[11px] font-mono tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-                          {activeSlideIndex + 1} / {displayedRegions.length}
-                        </span>
-                        <div className="flex items-center gap-1">
+                        return (
                           <button
-                            onClick={scrollPrev}
-                            disabled={activeSlideIndex === 0}
-                            className={`p-1.5 rounded-full border transition-all ${
-                              activeSlideIndex === 0
-                                ? 'opacity-25 cursor-not-allowed border-transparent'
-                                : isSandstone
-                                  ? 'border-[#1a1815]/20 hover:bg-[#1a1815]/10 text-[#1a1815]'
-                                  : 'border-white/10 hover:bg-white/10 text-chalk'
+                            key={p.id}
+                            onClick={() => {
+                              setSelectedRegion(r.id)
+                              setSelectedSector(s.id)
+                              setSelectedProblem(p.id)
+                              setLevel('topo')
+                              setShowSheet(true)
+                            }}
+                            className={`w-full text-left py-3.5 md:py-4 px-2.5 rounded-xl transition-all flex items-center justify-between gap-3 group ${
+                              isSandstone ? 'hover:bg-black/5' : 'hover:bg-white/5'
                             }`}
-                            title="Previous crag"
                           >
-                            <ChevronLeft size={16} />
+                            {/* Left: Nama Jalur & Details */}
+                            <div className="min-w-0 flex-1 space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span
+                                  className={`text-base md:text-lg font-bold tracking-tight transition-colors ${
+                                    isSandstone
+                                      ? 'text-[#1a1815] group-hover:underline'
+                                      : 'text-chalk group-hover:text-lime'
+                                  }`}
+                                >
+                                  {p.name}
+                                </span>
+
+                                <span
+                                  className={`text-[9px] font-mono px-2 py-0.5 rounded-full uppercase font-bold border ${
+                                    p.category === 'lead' || p.discipline === 'sport'
+                                      ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                      : p.category === 'trad' || p.discipline === 'multipitch'
+                                      ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                      : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+                                  }`}
+                                >
+                                  {p.category ||
+                                    (p.discipline === 'sport'
+                                      ? 'lead'
+                                      : p.discipline === 'multipitch'
+                                      ? 'trad'
+                                      : 'boulder')}
+                                </span>
+                              </div>
+
+                              <div
+                                className={`flex items-center gap-2 text-xs font-light truncate ${
+                                  isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                                }`}
+                              >
+                                <span>
+                                  {r.name} · {s.name.split('—')[0].trim()}
+                                </span>
+                                <span>•</span>
+                                <span>
+                                  Setter: {p.setterYear || p.setter || p.fa || 'Curated'}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Right: Grade Badge & Chevron */}
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <div
+                                className="px-3 py-1.5 rounded-xl font-bold font-mono text-xs md:text-sm border flex items-center gap-1.5 shadow-sm"
+                                style={{
+                                  borderColor: `${gradeColor}50`,
+                                  backgroundColor: `${gradeColor}15`,
+                                  color: gradeColor,
+                                }}
+                              >
+                                <span>{p.grade}</span>
+                                {p.fontGrade && (
+                                  <span className="opacity-70 text-[10px] font-normal">
+                                    / {p.fontGrade}
+                                  </span>
+                                )}
+                              </div>
+                              <ChevronRight
+                                size={18}
+                                className={`transition-transform group-hover:translate-x-0.5 ${
+                                  isSandstone
+                                    ? 'text-[#1a1815]/40 group-hover:text-[#1a1815]'
+                                    : 'text-white/40 group-hover:text-lime'
+                                }`}
+                              />
+                            </div>
                           </button>
-                          <button
-                            onClick={scrollNext}
-                            disabled={activeSlideIndex >= displayedRegions.length - 1}
-                            className={`p-1.5 rounded-full border transition-all ${
-                              activeSlideIndex >= displayedRegions.length - 1
-                                ? 'opacity-25 cursor-not-allowed border-transparent'
-                                : isSandstone
-                                  ? 'border-[#1a1815]/20 hover:bg-[#1a1815]/10 text-[#1a1815]'
-                                  : 'border-white/10 hover:bg-white/10 text-chalk'
-                            }`}
-                            title="Next crag"
-                          >
-                            <ChevronRight size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                        )
+                      })
+                    )}
+                  </div>
                 </div>
               )}
             </motion.div>
