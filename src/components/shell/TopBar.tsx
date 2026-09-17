@@ -156,11 +156,9 @@ export default function TopBar({
               aria-label="Halaman Utama"
             >
               <img
-                src="/jalur-logo.png"
+                src={isSandstone ? '/jalur-logo-dark.png' : '/jalur-logo-white.png'}
                 alt="Jalur - Halaman Utama"
-                className={`h-9 md:h-11 max-h-12 w-auto object-contain transition-all duration-200 group-hover:scale-105 active:scale-95 ${
-                  isSandstone ? 'mix-blend-multiply' : 'invert mix-blend-screen'
-                }`}
+                className="h-8 md:h-10 max-h-11 w-auto object-contain transition-all duration-200 group-hover:scale-105 active:scale-95"
               />
             </Link>
           </div>
