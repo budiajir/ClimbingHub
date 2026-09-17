@@ -11,6 +11,7 @@ import TopoCanvas from '@/components/beta/TopoCanvas'
 import ProblemSheet from '@/components/beta/ProblemSheet'
 import LogAscentModal from '@/components/beta/LogAscentModal'
 import AscentShareModal from '@/components/beta/AscentShareModal'
+import SendCard from '@/components/beta/SendCard'
 import AddRouteModal, { NewRegionData, NewSectorData } from '@/components/beta/AddRouteModal'
 import RoadmapContributeModal from '@/components/beta/RoadmapContributeModal'
 import { useAuth } from '@/lib/auth-context'
@@ -701,108 +702,93 @@ function BetaPageContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              {/* PERSONAL BETA BOOK (MY ASCENTS) */}
+              {/* PERSONAL SENT CARDS (MY ASCENTS) */}
               {showMyAscentsView && (
-                <div className="space-y-4 my-4">
+                <div className="space-y-6 my-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className={`font-bold text-xl ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
-                        My Logged Ascents
+                      <h2 className={`font-black text-2xl tracking-tight ${isSandstone ? 'text-[#1a1815]' : 'text-white'}`}>
+                        Sent Cards Koleksi Saya
                       </h2>
-                      <p className={`text-xs font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-                        Daftar rute bouldering yang telah Anda taklukkan beserta kartu grafis Strava-style
+                      <p className={`text-xs font-light mt-0.5 ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                        Koleksi kartu resmi pendakian (Send Cards) rute-rute yang telah Anda selesaikan
                       </p>
                     </div>
                   </div>
 
                   {userAscents.length === 0 ? (
-                    <div className={`rounded-2xl p-10 text-center border space-y-3 ${
-                      isSandstone ? 'border-[#1a1815]/20 bg-white/20' : 'border-white/10 bg-crag'
+                    <div className={`rounded-3xl p-10 text-center border space-y-3 ${
+                      isSandstone ? 'border-[#1a1815]/20 bg-white/20' : 'border-white/10 bg-[#17191E]'
                     }`}>
-                      <Award size={40} className={`mx-auto ${isSandstone ? 'text-[#1a1815]/40' : 'text-slate-ash'}`} />
-                      <h3 className={`font-bold text-base ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
-                        Belum Ada Ascent yang Dicatat
+                      <Award size={44} className={`mx-auto ${isSandstone ? 'text-[#1a1815]/40' : 'text-[#E6392D]'}`} />
+                      <h3 className={`font-bold text-lg ${isSandstone ? 'text-[#1a1815]' : 'text-white'}`}>
+                        Belum Ada Send Card yang Dicatat
                       </h3>
                       <p className={`text-xs max-w-md mx-auto font-light leading-relaxed ${
                         isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                       }`}>
-                        Kunjungi rute bouldering di crag mana saja, lalu klik tombol <b>Log Ascent</b> untuk menyimpan riwayat pendakian dan langsung mendapatkan kartu hadiah otomatis!
+                        Pilih rute crag mana saja, lalu klik tombol <b>Log Verified Ascent</b> untuk mencatat send Anda dan langsung mencetak kartu resmi Send Card!
                       </p>
                       <button
                         onClick={() => setShowMyAscentsView(false)}
-                        className="px-4 py-2 bg-lime text-granite text-xs font-bold rounded-xl shadow-lime-glow-sm"
+                        className="px-5 py-2.5 bg-[#E6392D] hover:bg-[#D32F2F] text-white text-xs font-bold rounded-xl shadow-lg transition-colors"
                       >
                         Jelajahi Jalur Crag
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                       {userAscents.map(ascent => (
                         <div
                           key={ascent.id}
-                          className={`rounded-2xl overflow-hidden border transition-all flex flex-col justify-between ${
-                            isSandstone
-                              ? 'border-[#1a1815]/20 bg-white/30 text-[#1a1815]'
-                              : 'border-white/10 bg-crag text-chalk'
-                          }`}
+                          className="flex flex-col items-center group"
                         >
-                          {/* Thumbnail */}
-                          <div className="h-44 relative bg-black/40 overflow-hidden">
-                            {ascent.photoUrl ? (
-                              <img
-                                src={ascent.photoUrl}
-                                alt={ascent.problemName}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-slate-ash">
-                                <Mountain size={32} />
-                              </div>
-                            )}
-                            <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/75 text-lime backdrop-blur-sm border border-lime/30">
-                                {ascent.ascentType.toUpperCase()}
-                              </span>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/75 text-white backdrop-blur-sm border border-white/20">
-                                {ascent.grade}
-                              </span>
-                              {ascent.videoUrl && (
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/75 text-amber-300 backdrop-blur-sm border border-amber-300/40 flex items-center gap-1">
-                                  <Video size={10} /> VIDEO
-                                </span>
-                              )}
-                            </div>
+                          {/* Authentic Send Card Component */}
+                          <div
+                            onClick={() => setActiveShareAscent(ascent)}
+                            className="w-full max-w-[340px] cursor-pointer transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-2xl rounded-3xl overflow-hidden"
+                          >
+                            <SendCard
+                              data={{
+                                problemName: ascent.problemName,
+                                grade: ascent.grade,
+                                location: ascent.location,
+                                provinceCountry: ascent.provinceCountry || 'Jawa Barat, ID',
+                                wallAngle: ascent.wallAngle || '110°',
+                                wallHeight: ascent.wallHeight || '12 m',
+                                boltsCount:
+                                  ascent.boltsCount ||
+                                  (ascent.discipline?.toLowerCase().includes('boulder')
+                                    ? '3 Crashpads'
+                                    : '6 Bolts'),
+                                discipline: ascent.discipline || 'Lead',
+                                ascentType: ascent.ascentType,
+                                attempts: ascent.attempts,
+                                duration: ascent.duration,
+                                photoUrl: ascent.photoUrl,
+                                markers: ascent.markers,
+                                climberName: ascent.climberName,
+                                time: ascent.time,
+                                date: ascent.date,
+                                belayer: ascent.belayer,
+                                photographer: ascent.photographer,
+                              }}
+                              showTopo={true}
+                            />
                           </div>
 
-                          {/* Info */}
-                          <div className="p-3.5 space-y-1.5 flex-1">
-                            <h3 className="font-bold text-base">{ascent.problemName}</h3>
-                            <div className={`flex items-center gap-1 text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-                              <MapPin size={12} />
-                              <span className="truncate">{ascent.location}</span>
-                            </div>
-                            <div className={`text-[11px] font-light flex items-center justify-between pt-1 ${
-                              isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
-                            }`}>
-                              <span>Setter: {ascent.setter || 'Curated'}</span>
-                              <span>{ascent.date}</span>
-                            </div>
-                          </div>
-
-                          {/* Actions */}
-                          <div className={`p-3 pt-2 border-t flex items-center justify-between gap-2 ${
-                            isSandstone ? 'border-[#1a1815]/10' : 'border-white/5'
-                          }`}>
+                          {/* Action Buttons Below Card */}
+                          <div className="w-full max-w-[340px] mt-3 flex items-center gap-2">
                             <button
                               onClick={() => setActiveShareAscent(ascent)}
-                              className="flex-1 py-1.5 px-3 rounded-xl bg-lime hover:bg-lime-dim text-granite text-xs font-bold flex items-center justify-center gap-1.5 shadow-lime-glow-sm transition-all"
+                              className="flex-1 py-2 px-3 rounded-xl bg-[#E6392D] hover:bg-[#D32F2F] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all touch-ripple"
                             >
                               <Share2 size={13} />
-                              <span>Download / Share Card</span>
+                              <span>Unduh / Bagikan Card</span>
                             </button>
                             <button
                               onClick={() => {
-                                if (confirm(`Hapus catatan ascent rute "${ascent.problemName}"?`)) {
+                                if (confirm(`Hapus Send Card untuk rute "${ascent.problemName}"?`)) {
                                   deleteUserAscent(ascent.id)
                                   setUserAscents(prev => prev.filter(a => a.id !== ascent.id))
                                 }
@@ -812,7 +798,7 @@ function BetaPageContent() {
                                   ? 'border-[#1a1815]/20 hover:bg-red-500/10 text-red-600'
                                   : 'border-white/10 hover:bg-red-500/10 text-red-400'
                               }`}
-                              title="Hapus Ascent"
+                              title="Hapus Send Card"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -1561,6 +1547,7 @@ function BetaPageContent() {
             fontGrade={problem.fontGrade}
             setter={problem.setter || problem.fa}
             location={`${region?.name || 'Crag'} · ${sector?.name || 'Sector'}`}
+            provinceCountry={region?.province ? `${region.province}, ID` : 'Jawa Barat, ID'}
             defaultImageUrl={problem.imageUrl || sector?.image || region?.image}
             markers={problem.markers}
             problemId={problem.id}
@@ -1575,6 +1562,7 @@ function BetaPageContent() {
                 fontGrade: problem.fontGrade,
                 setter: problem.setter || problem.fa || 'Curated Crag',
                 location: `${region?.name || 'Crag'} · ${sector?.name || 'Sector'}`,
+                provinceCountry: data.provinceCountry || (region?.province ? `${region.province}, ID` : 'Jawa Barat, ID'),
                 ascentType: data.type,
                 gradeVote: data.gradeVote,
                 note: data.note,
@@ -1582,6 +1570,16 @@ function BetaPageContent() {
                 videoUrl: data.videoUrl,
                 markers: problem.markers || [],
                 discipline: problem.discipline || 'bouldering',
+                climberName: data.climberName || user?.name || 'Arief Lala Hakiem',
+                attempts: data.attempts,
+                duration: data.duration,
+                belayer: data.belayer,
+                photographer: data.photographer,
+                wallAngle: data.wallAngle,
+                wallHeight: data.wallHeight,
+                boltsCount: data.boltsCount,
+                time: data.time,
+                date: data.date,
               })
               setUserAscents(prev => [saved, ...prev])
               setShowLogModal(false)

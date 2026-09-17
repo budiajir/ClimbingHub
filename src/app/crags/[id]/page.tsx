@@ -31,6 +31,7 @@ import BookTripModal from "@/components/crag/BookTripModal";
 import RentEquipmentModal from "@/components/crag/RentEquipmentModal";
 import ProblemSheet from "@/components/beta/ProblemSheet";
 import LogAscentModal from "@/components/beta/LogAscentModal";
+import AscentShareModal from "@/components/beta/AscentShareModal";
 import AddRouteModal from "@/components/beta/AddRouteModal";
 import { UserAscent, saveUserAscent } from "@/lib/user-ascents";
 import { useAuth } from "@/lib/auth-context";
@@ -43,7 +44,7 @@ export default function CragDetailPage() {
   const { cragRegions, loading } = useCragRegions();
   const { theme } = useTheme();
   const isSandstone = theme === "sandstone";
-  const { role, openAuthModal } = useAuth();
+  const { role, user, openAuthModal } = useAuth();
 
   const crag = cragRegions.find(
     (c) => c.id.toLowerCase() === String(params.id).toLowerCase()
@@ -57,6 +58,7 @@ export default function CragDetailPage() {
   // Problem view & action state
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [showLogModal, setShowLogModal] = useState(false);
+  const [activeShareAscent, setActiveShareAscent] = useState<UserAscent | null>(null);
   const [showAddRouteModal, setShowAddRouteModal] = useState(false);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<"all" | "boulder" | "lead" | "trad">("all");
   const [activeSectorId, setActiveSectorId] = useState<string>("all");
@@ -616,28 +618,54 @@ export default function CragDetailPage() {
           fontGrade={selectedProblem.fontGrade}
           setter={selectedProblem.setter}
           location={`${crag.name} · ${selectedProblem.sectorName || 'Sector'}`}
+          provinceCountry={crag.province ? `${crag.province}, ID` : "Jawa Barat, ID"}
           defaultImageUrl={selectedProblem.imageUrl}
           markers={selectedProblem.markers}
           problemId={selectedProblem.id}
           discipline={selectedProblem.discipline}
           onClose={() => setShowLogModal(false)}
           onSubmit={(data) => {
-            saveUserAscent({
-              userId: "user-1",
+            const saved = saveUserAscent({
+              userId: user?.id || "user-1",
               problemId: selectedProblem.id,
               problemName: selectedProblem.name,
               grade: data.gradeVote || selectedProblem.grade,
               fontGrade: selectedProblem.fontGrade,
               setter: selectedProblem.setter,
               location: `${crag.name} · ${selectedProblem.sectorName || 'Sector'}`,
+              provinceCountry: data.provinceCountry || (crag.province ? `${crag.province}, ID` : "Jawa Barat, ID"),
               ascentType: data.type,
               gradeVote: data.gradeVote,
               note: data.note,
               photoUrl: data.photoUrl,
+              videoUrl: data.videoUrl,
               markers: selectedProblem.markers || [],
               discipline: selectedProblem.discipline,
+              climberName: data.climberName || user?.name || "Arief Lala Hakiem",
+              attempts: data.attempts,
+              duration: data.duration,
+              belayer: data.belayer,
+              photographer: data.photographer,
+              wallAngle: data.wallAngle,
+              wallHeight: data.wallHeight,
+              boltsCount: data.boltsCount,
+              time: data.time,
+              date: data.date,
             });
             setShowLogModal(false);
+            setActiveShareAscent(saved);
+          }}
+        />
+      )}
+
+      {/* Ascent Share Modal (Official Send Card) */}
+      {activeShareAscent && (
+        <AscentShareModal
+          ascent={activeShareAscent}
+          onClose={() => setActiveShareAscent(null)}
+          onViewPersonalBetaBook={() => {
+            setActiveShareAscent(null);
+            router.push("/beta");
           }}
         />
       )}

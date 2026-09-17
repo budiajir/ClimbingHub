@@ -11,8 +11,10 @@ export interface UserAscent {
   grade: string
   fontGrade: string
   setter: string
-  location: string // e.g. "Lembah Harau · Echo Valley"
-  date: string // e.g. "09 Sep 2026"
+  location: string // e.g. "Pabeasan 90 (A)"
+  provinceCountry?: string // e.g. "Jawa Barat, ID"
+  date: string // e.g. "26/04/26"
+  time?: string // e.g. "16:20"
   createdAt: string // ISO
   ascentType: AscentType
   gradeVote: string
@@ -21,6 +23,15 @@ export interface UserAscent {
   videoUrl?: string
   markers: TopoMarker[]
   discipline?: string
+  // Send Card specific fields (matching mockup):
+  climberName?: string // e.g. "Arief Lala Hakiem"
+  attempts?: number | string // e.g. "13 Attempts" or 13
+  duration?: string // e.g. "24 Weeks"
+  belayer?: string // e.g. "Nana Herdiana"
+  photographer?: string // e.g. "Meizan Nataadiningrat"
+  wallAngle?: string // e.g. "110°"
+  wallHeight?: string // e.g. "12 m"
+  boltsCount?: string // e.g. "6 Bolts"
 }
 
 const STORAGE_KEY = 'climbhub_user_ascents'

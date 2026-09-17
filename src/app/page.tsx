@@ -482,26 +482,39 @@ export default function HomePage() {
       {showLogModal && (
         <LogAscentModal
           problemName="Quick Send"
-          grade="V4"
-          fontGrade="6B"
+          grade="5.12 B"
+          fontGrade="7b"
           setter="Curated Setter"
-          location="Indonesian Bouldering"
+          location="Pabeasan 90 (A)"
+          provinceCountry="Jawa Barat, ID"
           onClose={() => setShowLogModal(false)}
           onSubmit={data => {
             const saved = saveUserAscent({
               userId: 'user-1',
               problemId: 'quick-send',
               problemName: 'Quick Send',
-              grade: data.gradeVote || 'V4',
-              fontGrade: '6B',
+              grade: data.gradeVote || '5.12 B',
+              fontGrade: '7b',
               setter: 'Curated Setter',
-              location: 'Indonesian Bouldering',
+              location: 'Pabeasan 90 (A)',
+              provinceCountry: data.provinceCountry || 'Jawa Barat, ID',
               ascentType: data.type,
               gradeVote: data.gradeVote,
               note: data.note,
               photoUrl: data.photoUrl,
+              videoUrl: data.videoUrl,
               markers: [],
-              discipline: 'bouldering',
+              discipline: 'lead',
+              climberName: data.climberName || 'Arief Lala Hakiem',
+              attempts: data.attempts,
+              duration: data.duration,
+              belayer: data.belayer,
+              photographer: data.photographer,
+              wallAngle: data.wallAngle,
+              wallHeight: data.wallHeight,
+              boltsCount: data.boltsCount,
+              time: data.time,
+              date: data.date,
             })
             setShowLogModal(false)
             setActiveShareAscent(saved)
