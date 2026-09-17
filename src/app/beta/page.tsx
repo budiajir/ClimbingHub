@@ -20,6 +20,167 @@ import { UserAscent, getUserAscents, saveUserAscent, deleteUserAscent } from '@/
 import Pictogram from '@/components/common/Pictogram'
 
 type ViewLevel = 'regions' | 'sectors' | 'problems' | 'topo'
+type ProblemCategory = 'boulder' | 'lead' | 'multipitch'
+type ViewMode = 'list' | 'slide' | 'grid'
+
+interface CategoryTheme {
+  id: ProblemCategory
+  label: string
+  primary: string
+  lightText: string
+  darkText: string
+  bannerBg: string
+  activePillBg: string
+  desc: string
+}
+
+const CATEGORY_THEMES: Record<ProblemCategory, CategoryTheme> = {
+  boulder: {
+    id: 'boulder',
+    label: 'BOULDER',
+    primary: '#83358B', // Ungu / Purple
+    lightText: '#83358B',
+    darkText: '#C084FC',
+    bannerBg: '#83358B',
+    activePillBg: 'bg-[#83358B]',
+    desc: 'Boulder problems has been discovered across Sumatra Island. Explore our findings from the list below',
+  },
+  lead: {
+    id: 'lead',
+    label: 'LEAD',
+    primary: '#E05A1B', // Orange
+    lightText: '#E05A1B',
+    darkText: '#FB923C',
+    bannerBg: '#E05A1B',
+    activePillBg: 'bg-[#E05A1B]',
+    desc: 'Sport & lead routes have been discovered across Indonesia crags. Explore our findings from the list below',
+  },
+  multipitch: {
+    id: 'multipitch',
+    label: 'MULTIPITCH',
+    primary: '#0D9488', // Hijau Toska
+    lightText: '#0D9488',
+    darkText: '#2DD4BF',
+    bannerBg: '#0D9488',
+    activePillBg: 'bg-[#0D9488]',
+    desc: 'Multi-pitch & big wall routes discovered across towering faces. Explore our findings from the list below',
+  },
+}
+
+function SumatraSilhouetteSvg() {
+  return (
+    <svg viewBox="0 0 340 340" className="w-full max-w-[260px] sm:max-w-[300px] h-auto drop-shadow-md" fill="none">
+      {/* Sumatra Island Silhouette */}
+      <path
+        d="M 95 125
+           C 102 120, 110 126, 118 132
+           C 124 130, 130 136, 138 144
+           C 148 142, 155 151, 164 160
+           C 172 158, 180 167, 190 176
+           C 200 174, 208 185, 218 195
+           C 222 201, 216 207, 221 213
+           C 228 211, 236 220, 242 228
+           C 246 234, 240 238, 242 244
+           C 248 246, 254 256, 258 264
+           C 260 270, 254 274, 256 280
+           C 260 286, 263 294, 262 302
+           C 260 310, 254 318, 251 326
+           C 248 330, 242 328, 238 324
+           C 234 316, 237 306, 233 298
+           C 229 290, 223 284, 218 276
+           C 213 270, 206 264, 202 256
+           C 197 248, 191 240, 186 232
+           C 181 224, 174 218, 168 210
+           C 161 202, 154 194, 147 186
+           C 140 178, 132 170, 125 162
+           C 118 154, 110 146, 103 138
+           C 98 132, 93 128, 95 125 Z"
+        fill="#000000"
+      />
+      {/* 8 white location dots across sectors */}
+      <circle cx="112" cy="136" r="3.2" fill="#FFFFFF" />
+      <circle cx="118" cy="142" r="3.2" fill="#FFFFFF" />
+      <circle cx="174" cy="186" r="3.2" fill="#FFFFFF" />
+      <circle cx="214" cy="226" r="3.2" fill="#FFFFFF" />
+      <circle cx="234" cy="240" r="3.2" fill="#FFFFFF" />
+      <circle cx="236" cy="245" r="3.2" fill="#FFFFFF" />
+      <circle cx="252" cy="298" r="3.2" fill="#FFFFFF" />
+      <circle cx="254" cy="306" r="3.2" fill="#FFFFFF" />
+    </svg>
+  )
+}
+
+function LeadCragSilhouetteSvg() {
+  return (
+    <svg viewBox="0 0 340 340" className="w-full max-w-[260px] sm:max-w-[300px] h-auto drop-shadow-md" fill="none">
+      {/* Dramatic Karst Cliff Silhouette */}
+      <path
+        d="M 45 320
+           L 70 240
+           L 95 250
+           L 115 180
+           L 140 200
+           L 165 110
+           L 180 130
+           L 205 75
+           L 225 95
+           L 240 150
+           L 265 210
+           L 280 190
+           L 300 260
+           L 315 320
+           Z"
+        fill="#000000"
+      />
+      {/* White dots for sport bolts & anchors */}
+      <circle cx="170" cy="280" r="3.5" fill="#FFFFFF" />
+      <circle cx="175" cy="235" r="3.5" fill="#FFFFFF" />
+      <circle cx="182" cy="190" r="3.5" fill="#FFFFFF" />
+      <circle cx="192" cy="145" r="3.5" fill="#FFFFFF" />
+      <circle cx="205" cy="95" r="4.5" fill="#FFFFFF" />
+      <path d="M 170 280 L 175 235 L 182 190 L 192 145 L 205 95" stroke="#FFFFFF" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.85" />
+      <circle cx="125" cy="220" r="3" fill="#FFFFFF" />
+      <circle cx="130" cy="195" r="3" fill="#FFFFFF" />
+      <circle cx="255" cy="240" r="3" fill="#FFFFFF" />
+      <circle cx="260" cy="215" r="3" fill="#FFFFFF" />
+    </svg>
+  )
+}
+
+function MultipitchWallSilhouetteSvg() {
+  return (
+    <svg viewBox="0 0 340 340" className="w-full max-w-[260px] sm:max-w-[300px] h-auto drop-shadow-md" fill="none">
+      {/* Massive Big Wall Monolith */}
+      <path
+        d="M 55 320
+           L 75 270
+           L 65 220
+           L 85 160
+           L 100 110
+           L 130 70
+           L 195 60
+           L 235 90
+           L 250 150
+           L 265 220
+           L 255 270
+           L 275 320
+           Z"
+        fill="#000000"
+      />
+      {/* Pitch station dots & line */}
+      <circle cx="155" cy="290" r="3.5" fill="#FFFFFF" />
+      <circle cx="150" cy="220" r="3.5" fill="#FFFFFF" />
+      <circle cx="165" cy="150" r="3.5" fill="#FFFFFF" />
+      <circle cx="160" cy="85" r="4.5" fill="#FFFFFF" />
+      <path d="M 155 290 L 150 220 L 165 150 L 160 85" stroke="#FFFFFF" strokeWidth="2" strokeDasharray="4 4" opacity="0.9" />
+      {/* Variation pitch */}
+      <circle cx="205" cy="250" r="3" fill="#FFFFFF" />
+      <circle cx="215" cy="180" r="3" fill="#FFFFFF" />
+      <circle cx="210" cy="110" r="3" fill="#FFFFFF" />
+      <path d="M 205 250 L 215 180 L 210 110" stroke="#FFFFFF" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.75" />
+    </svg>
+  )
+}
 
 function BetaPageContent() {
   const router = useRouter()
@@ -33,7 +194,12 @@ function BetaPageContent() {
   const [selectedSector, setSelectedSector] = useState<string | null>(null)
   const [selectedProblem, setSelectedProblem] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedDiscipline, setSelectedDiscipline] = useState<'all' | 'bouldering' | 'sport' | 'multipitch'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<ProblemCategory>('boulder')
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0)
+
+  const currentTheme = CATEGORY_THEMES[selectedCategory]
+  const themeTextColor = isSandstone ? currentTheme.lightText : currentTheme.darkText
 
   const [showSheet, setShowSheet] = useState(false)
   const [showLogModal, setShowLogModal] = useState(false)
@@ -311,7 +477,7 @@ function BetaPageContent() {
 
   // Flat list of all problems across all crags & sectors
   const allProblems = useMemo(() => {
-    const list: { problem: Problem; region: CragRegion; sector: { id: string; name: string } }[] = []
+    const list: { problem: Problem; region: CragRegion; sector: { id: string; name: string; image?: string } }[] = []
     for (const r of regions) {
       for (const s of r.sectors) {
         for (const p of s.problems) {
@@ -323,27 +489,37 @@ function BetaPageContent() {
   }, [regions])
 
   const filteredProblemsList = useMemo(() => {
-    return allProblems.filter(({ problem: p, region: r, sector: s }) => {
-      const q = searchQuery.toLowerCase().trim()
-      const matchSearch =
-        q === '' ||
-        p.name.toLowerCase().includes(q) ||
-        p.grade.toLowerCase().includes(q) ||
-        (p.fontGrade && p.fontGrade.toLowerCase().includes(q)) ||
-        r.name.toLowerCase().includes(q) ||
-        s.name.toLowerCase().includes(q)
+    return allProblems
+      .filter(({ problem: p, region: r, sector: s }) => {
+        const q = searchQuery.toLowerCase().trim()
+        const matchSearch =
+          q === '' ||
+          p.name.toLowerCase().includes(q) ||
+          p.grade.toLowerCase().includes(q) ||
+          (p.fontGrade && p.fontGrade.toLowerCase().includes(q)) ||
+          r.name.toLowerCase().includes(q) ||
+          s.name.toLowerCase().includes(q)
 
-      const disc = p.discipline || 'bouldering'
-      const matchDiscipline =
-        selectedDiscipline === 'all' ||
-        disc === selectedDiscipline ||
-        (selectedDiscipline === 'bouldering' && (p.category === 'boulder' || !p.category)) ||
-        (selectedDiscipline === 'sport' && p.category === 'lead') ||
-        (selectedDiscipline === 'multipitch' && p.category === 'trad')
+        const disc = p.discipline || 'bouldering'
+        const matchCategory =
+          (selectedCategory === 'boulder' &&
+            (disc === 'bouldering' || p.category === 'boulder' || (!p.discipline && !p.category))) ||
+          (selectedCategory === 'lead' &&
+            (disc === 'sport' || p.category === 'lead')) ||
+          (selectedCategory === 'multipitch' &&
+            (disc === 'multipitch' || p.category === 'trad'))
 
-      return matchSearch && matchDiscipline
-    })
-  }, [allProblems, searchQuery, selectedDiscipline])
+        return matchSearch && matchCategory
+      })
+      .sort((a, b) => {
+        if (selectedCategory === 'boulder') {
+          // Prioritize Harau Valley problems so Gorejat & Sima Maung are at top
+          if (a.region.id === 'harau' && b.region.id !== 'harau') return -1
+          if (b.region.id === 'harau' && a.region.id !== 'harau') return 1
+        }
+        return 0
+      })
+  }, [allProblems, searchQuery, selectedCategory])
 
   const filteredProblems = sector ? sector.problems : []
 
@@ -384,30 +560,90 @@ function BetaPageContent() {
                 </button>
               </div>
             ) : (
-              /* Headline Row: Clean "Problems" (large) & CTA to Set New Route */
-              <div className="flex items-center justify-between gap-2 pt-1">
-                <div>
-                  <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight ${
+              /* Headline Row: Clean "Problems" with View Mode Switcher Icons */
+              <div className="flex items-center justify-between gap-3 pt-1 pb-1">
+                <h1
+                  className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight ${
                     isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                  }`}>
-                    Problems
-                  </h1>
-                  <p className={`text-xs md:text-sm font-light mt-1 ${
-                    isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                  }`}>
-                    {allProblems.length} Jalur pemanjatan terverifikasi di seluruh Indonesia
-                  </p>
-                </div>
-
-                {/* Action button: Set New Route */}
-                <button
-                  onClick={handleAddRouteClick}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-lime text-granite text-xs font-bold shadow-lime-glow-sm hover:bg-lime-dim transition-all flex-shrink-0"
+                  }`}
                 >
-                  <Plus size={14} />
-                  <span className="hidden sm:inline">Set New Route</span>
-                  <span className="sm:hidden">New Route</span>
-                </button>
+                  Problems
+                </h1>
+
+                <div className="flex items-center gap-2 sm:gap-3">
+                  {/* View Mode Switcher Icons: Slide, Grid, List */}
+                  <div className="flex items-center gap-1 sm:gap-1.5">
+                    {/* 1. Slide Mode */}
+                    <button
+                      onClick={() => setViewMode('slide')}
+                      className={`p-1.5 rounded-lg transition-all ${
+                        viewMode === 'slide' ? 'scale-110' : 'opacity-40 hover:opacity-80'
+                      }`}
+                      style={{
+                        color: viewMode === 'slide' ? themeTextColor : 'currentColor',
+                      }}
+                      title="Slide View (Portrait Card)"
+                      aria-label="Slide View"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <rect x="5" y="3" width="14" height="18" rx="2" />
+                      </svg>
+                    </button>
+
+                    {/* 2. Grid Mode */}
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-1.5 rounded-lg transition-all ${
+                        viewMode === 'grid' ? 'scale-110' : 'opacity-40 hover:opacity-80'
+                      }`}
+                      style={{
+                        color: viewMode === 'grid' ? themeTextColor : 'currentColor',
+                      }}
+                      title="Grid View"
+                      aria-label="Grid View"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                        <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                        <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                        <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                      </svg>
+                    </button>
+
+                    {/* 3. List Mode */}
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-1.5 rounded-lg transition-all ${
+                        viewMode === 'list' ? 'scale-110' : 'opacity-40 hover:opacity-80'
+                      }`}
+                      style={{
+                        color: viewMode === 'list' ? themeTextColor : 'currentColor',
+                      }}
+                      title="List View"
+                      aria-label="List View"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round">
+                        <line x1="4" y1="6" x2="20" y2="6" />
+                        <line x1="4" y1="12" x2="20" y2="12" />
+                        <line x1="4" y1="18" x2="20" y2="18" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Action button: Set New Route */}
+                  <button
+                    onClick={handleAddRouteClick}
+                    className="p-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition-all border opacity-80 hover:opacity-100 flex items-center gap-1"
+                    style={{
+                      borderColor: currentTheme.primary + '60',
+                      color: themeTextColor,
+                    }}
+                    title="Set New Route"
+                  >
+                    <Plus size={15} />
+                    <span className="hidden sm:inline">Add Route</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -588,85 +824,107 @@ function BetaPageContent() {
                 </div>
               )}
 
-              {/* DIRECT PROBLEMS LIST (Nama Jalur & Grade) */}
+              {/* DIRECT PROBLEMS LIST (Kategori & Theme) */}
               {!showMyAscentsView && (
-                <div className="space-y-4 my-2">
-                  {/* Search and Category Filter Bar */}
-                  <div className="space-y-3">
-                    {/* Search */}
-                    <div className="relative">
-                      <Search
-                        size={16}
-                        className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${
-                          isSandstone ? 'text-[#1a1815]/40' : 'text-slate-ash'
-                        }`}
-                      />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        placeholder="Cari nama jalur, grade (V4, 7a...), tebing, atau sektor..."
-                        className={`w-full pl-10 pr-4 py-2.5 rounded-2xl text-xs md:text-sm border outline-none transition-all ${
-                          isSandstone
-                            ? 'bg-white/80 border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/40 focus:border-[#1a1815]'
-                            : 'bg-crag border-white/10 text-chalk placeholder:text-white/40 focus:border-lime/50'
-                        }`}
-                      />
-                    </div>
-
-                    {/* Category Filter Chips */}
-                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                      {[
-                        { id: 'all', label: 'Semua Jalur' },
-                        { id: 'bouldering', label: 'Boulder' },
-                        { id: 'sport', label: 'Lead' },
-                        { id: 'multipitch', label: 'Trad / Multipitch' },
-                      ].map(cat => (
+                <div className="space-y-3.5 my-2">
+                  {/* 1. Category Switcher Tabs (BOULDER, LEAD, MULTIPITCH) */}
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
+                    {(['boulder', 'lead', 'multipitch'] as ProblemCategory[]).map(catId => {
+                      const cat = CATEGORY_THEMES[catId]
+                      const isActive = selectedCategory === catId
+                      return (
                         <button
-                          key={cat.id}
-                          onClick={() => setSelectedDiscipline(cat.id as any)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
-                            selectedDiscipline === cat.id
-                              ? isSandstone
-                                ? 'bg-[#1a1815] text-white border-[#1a1815] font-bold'
-                                : 'bg-lime text-granite border-lime font-bold'
+                          key={catId}
+                          onClick={() => {
+                            setSelectedCategory(catId)
+                            setActiveSlideIndex(0)
+                          }}
+                          className={`py-2 px-3 rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all shadow-sm text-center ${
+                            isActive
+                              ? `${cat.activePillBg} text-white shadow-md`
                               : isSandstone
-                              ? 'bg-white/60 border-[#1a1815]/15 text-[#1a1815]/70 hover:text-[#1a1815]'
-                              : 'bg-crag border-white/10 text-slate-ash hover:text-chalk'
+                              ? 'bg-[#83868B] text-white hover:bg-[#73767B]'
+                              : 'bg-[#475569] text-white/90 hover:bg-[#526177]'
                           }`}
                         >
                           {cat.label}
                         </button>
-                      ))}
+                      )
+                    })}
+                  </div>
+
+                  {/* 2. Pill-shaped Search Bar ("Discover") */}
+                  <div className="relative pt-1">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="Discover"
+                      className={`w-full py-2.5 px-6 rounded-full text-xs sm:text-sm outline-none transition-all border ${
+                        isSandstone
+                          ? 'bg-black/[0.03] text-[#1a1815] placeholder:text-[#1a1815]/40'
+                          : 'bg-white/[0.05] text-chalk placeholder:text-white/40'
+                      }`}
+                      style={{
+                        borderColor: currentTheme.primary + '55',
+                      }}
+                    />
+                  </div>
+
+                  {/* 3. Category Feature Graphic Hero Banner */}
+                  <div
+                    className="w-full rounded-2xl overflow-hidden my-3 relative shadow-md transition-colors duration-300"
+                    style={{ backgroundColor: currentTheme.bannerBg }}
+                  >
+                    <div className="py-6 sm:py-8 px-4 flex items-center justify-center min-h-[220px] sm:min-h-[280px]">
+                      {selectedCategory === 'boulder' && <SumatraSilhouetteSvg />}
+                      {selectedCategory === 'lead' && <LeadCragSilhouetteSvg />}
+                      {selectedCategory === 'multipitch' && <MultipitchWallSilhouetteSvg />}
                     </div>
                   </div>
 
-                  {/* Clean List of Nama Jalur & Grade */}
-                  <div
-                    className={`divide-y transition-colors ${
-                      isSandstone
-                        ? 'divide-[#1a1815]/15 border-t border-b border-[#1a1815]/15'
-                        : 'divide-white/10 border-t border-b border-white/10'
-                    }`}
-                  >
-                    {filteredProblemsList.length === 0 ? (
-                      <div className="py-16 text-center space-y-2">
-                        <Mountain
-                          size={36}
-                          className={`mx-auto opacity-40 ${
-                            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                          }`}
-                        />
-                        <p className="text-sm font-medium">Tidak ada jalur pemanjatan ditemukan</p>
-                        <p className="text-xs opacity-60">
-                          Coba ubah kata kunci pencarian atau kategori filter.
-                        </p>
-                      </div>
-                    ) : (
-                      filteredProblemsList.map(({ problem: p, region: r, sector: s }) => {
-                        const gradeColor = gradeColors[p.grade] || '#CCFF00'
+                  {/* 4. Stats & Description Block */}
+                  <div className="flex items-center gap-4 py-2 sm:py-3">
+                    <div
+                      className="text-5xl sm:text-6xl font-light tracking-tight flex-shrink-0"
+                      style={{ color: themeTextColor }}
+                    >
+                      {selectedCategory === 'boulder' ? '26' : filteredProblemsList.length}
+                    </div>
+                    <p
+                      className="text-xs sm:text-sm leading-snug font-normal max-w-sm sm:max-w-md"
+                      style={{ color: themeTextColor }}
+                    >
+                      {currentTheme.desc}
+                    </p>
+                  </div>
 
-                        return (
+                  {/* Divider Line */}
+                  <div
+                    className="w-full border-b mb-1"
+                    style={{ borderColor: currentTheme.primary + '40' }}
+                  />
+
+                  {/* 5. VIEW MODES */}
+                  {/* View Mode A: EDITORIAL LIST (Matches mockup media_1789638006371.jpg) */}
+                  {viewMode === 'list' && (
+                    <div className="divide-y" style={{ borderColor: currentTheme.primary + '35' }}>
+                      {filteredProblemsList.length === 0 ? (
+                        <div className="py-16 text-center space-y-2">
+                          <Mountain
+                            size={36}
+                            className="mx-auto opacity-40"
+                            style={{ color: themeTextColor }}
+                          />
+                          <p className="text-sm font-medium" style={{ color: themeTextColor }}>
+                            Tidak ada jalur pemanjatan ditemukan
+                          </p>
+                          <p className="text-xs opacity-60" style={{ color: themeTextColor }}>
+                            Coba ubah kata kunci pencarian.
+                          </p>
+                        </div>
+                      ) : (
+                        filteredProblemsList.map(({ problem: p, region: r, sector: s }) => (
                           <button
                             key={p.id}
                             onClick={() => {
@@ -676,87 +934,167 @@ function BetaPageContent() {
                               setLevel('topo')
                               setShowSheet(true)
                             }}
-                            className={`w-full text-left py-3.5 md:py-4 px-2.5 rounded-xl transition-all flex items-center justify-between gap-3 group ${
-                              isSandstone ? 'hover:bg-black/5' : 'hover:bg-white/5'
-                            }`}
+                            className="w-full text-left py-3.5 sm:py-4 flex items-center justify-between gap-4 transition-opacity hover:opacity-75 group border-b"
+                            style={{ borderColor: currentTheme.primary + '35' }}
                           >
-                            {/* Left: Nama Jalur & Details */}
-                            <div className="min-w-0 flex-1 space-y-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span
-                                  className={`text-base md:text-lg font-bold tracking-tight transition-colors ${
-                                    isSandstone
-                                      ? 'text-[#1a1815] group-hover:underline'
-                                      : 'text-chalk group-hover:text-lime'
-                                  }`}
-                                >
-                                  {p.name}
-                                </span>
-
-                                <span
-                                  className={`text-[9px] font-mono px-2 py-0.5 rounded-full uppercase font-bold border ${
-                                    p.category === 'lead' || p.discipline === 'sport'
-                                      ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                                      : p.category === 'trad' || p.discipline === 'multipitch'
-                                      ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                      : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
-                                  }`}
-                                >
-                                  {p.category ||
-                                    (p.discipline === 'sport'
-                                      ? 'lead'
-                                      : p.discipline === 'multipitch'
-                                      ? 'trad'
-                                      : 'boulder')}
-                                </span>
-                              </div>
-
-                              <div
-                                className={`flex items-center gap-2 text-xs font-light truncate ${
-                                  isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                                }`}
+                            <div className="flex items-baseline gap-3 sm:gap-6 min-w-0 flex-1">
+                              <span
+                                className="text-2xl sm:text-3xl font-normal tracking-tight truncate"
+                                style={{ color: themeTextColor }}
                               >
-                                <span>
-                                  {r.name} · {s.name.split('—')[0].trim()}
-                                </span>
-                                <span>•</span>
-                                <span>
-                                  Setter: {p.setterYear || p.setter || p.fa || 'Curated'}
-                                </span>
-                              </div>
+                                {p.name}
+                              </span>
+                              <span
+                                className="text-xs sm:text-sm font-normal opacity-70 whitespace-nowrap"
+                                style={{ color: themeTextColor }}
+                              >
+                                {r.name}
+                              </span>
                             </div>
 
-                            {/* Right: Grade Badge & Chevron */}
-                            <div className="flex items-center gap-3 flex-shrink-0">
-                              <div
-                                className="px-3 py-1.5 rounded-xl font-bold font-mono text-xs md:text-sm border flex items-center gap-1.5 shadow-sm"
-                                style={{
-                                  borderColor: `${gradeColor}50`,
-                                  backgroundColor: `${gradeColor}15`,
-                                  color: gradeColor,
-                                }}
-                              >
-                                <span>{p.grade}</span>
-                                {p.fontGrade && (
-                                  <span className="opacity-70 text-[10px] font-normal">
-                                    / {p.fontGrade}
-                                  </span>
-                                )}
-                              </div>
-                              <ChevronRight
-                                size={18}
-                                className={`transition-transform group-hover:translate-x-0.5 ${
-                                  isSandstone
-                                    ? 'text-[#1a1815]/40 group-hover:text-[#1a1815]'
-                                    : 'text-white/40 group-hover:text-lime'
-                                }`}
-                              />
-                            </div>
+                            <span
+                              className="text-2xl sm:text-3xl font-bold font-mono flex-shrink-0"
+                              style={{ color: themeTextColor }}
+                            >
+                              {p.grade}
+                            </span>
                           </button>
-                        )
-                      })
-                    )}
-                  </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {/* View Mode B: PORTRAIT CARDS SLIDESHOW (With Topo) */}
+                  {viewMode === 'slide' && filteredProblemsList.length > 0 && (
+                    <div className="space-y-4 py-3">
+                      <div
+                        className="relative overflow-hidden rounded-3xl max-w-sm mx-auto aspect-[3/4] shadow-xl border transition-all"
+                        style={{ borderColor: currentTheme.primary + '50' }}
+                      >
+                        <img
+                          src={
+                            filteredProblemsList[activeSlideIndex]?.problem.imageUrl ||
+                            filteredProblemsList[activeSlideIndex]?.sector.image ||
+                            filteredProblemsList[activeSlideIndex]?.region.image
+                          }
+                          alt={filteredProblemsList[activeSlideIndex]?.problem.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40" />
+
+                        {/* Top Header Badge */}
+                        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                          <span
+                            className="px-3 py-1 rounded-full text-xs font-bold text-white shadow-md uppercase tracking-wider"
+                            style={{ backgroundColor: currentTheme.primary }}
+                          >
+                            {currentTheme.label}
+                          </span>
+                          <span className="text-xl font-bold font-mono text-white bg-black/60 px-3 py-1 rounded-xl backdrop-blur-md border border-white/20">
+                            {filteredProblemsList[activeSlideIndex]?.problem.grade}
+                          </span>
+                        </div>
+
+                        {/* Bottom Info & Action */}
+                        <div className="absolute bottom-5 left-5 right-5 text-white space-y-2">
+                          <div>
+                            <h3 className="text-3xl font-bold tracking-tight">
+                              {filteredProblemsList[activeSlideIndex]?.problem.name}
+                            </h3>
+                            <p className="text-xs opacity-80 mt-0.5">
+                              {filteredProblemsList[activeSlideIndex]?.region.name} · {filteredProblemsList[activeSlideIndex]?.sector.name.split('—')[0].trim()}
+                            </p>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              const item = filteredProblemsList[activeSlideIndex]
+                              if (item) {
+                                setSelectedRegion(item.region.id)
+                                setSelectedSector(item.sector.id)
+                                setSelectedProblem(item.problem.id)
+                                setLevel('topo')
+                                setShowSheet(true)
+                              }
+                            }}
+                            className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-opacity hover:opacity-90"
+                            style={{ backgroundColor: currentTheme.primary, color: '#FFFFFF' }}
+                          >
+                            <span>Lihat Topo & Beta</span>
+                            <ChevronRight size={14} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Carousel controls */}
+                      <div className="flex items-center justify-center gap-4 pt-1">
+                        <button
+                          onClick={() => setActiveSlideIndex(prev => (prev > 0 ? prev - 1 : filteredProblemsList.length - 1))}
+                          className="p-2.5 rounded-full border transition-all hover:scale-105"
+                          style={{ borderColor: currentTheme.primary + '50', color: themeTextColor }}
+                          aria-label="Previous problem"
+                        >
+                          <ChevronLeft size={18} />
+                        </button>
+                        <span className="text-xs font-mono font-medium" style={{ color: themeTextColor }}>
+                          {activeSlideIndex + 1} / {filteredProblemsList.length}
+                        </span>
+                        <button
+                          onClick={() => setActiveSlideIndex(prev => (prev < filteredProblemsList.length - 1 ? prev + 1 : 0))}
+                          className="p-2.5 rounded-full border transition-all hover:scale-105"
+                          style={{ borderColor: currentTheme.primary + '50', color: themeTextColor }}
+                          aria-label="Next problem"
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* View Mode C: CARDS GRID */}
+                  {viewMode === 'grid' && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 py-3">
+                      {filteredProblemsList.map(({ problem: p, region: r, sector: s }) => (
+                        <button
+                          key={p.id}
+                          onClick={() => {
+                            setSelectedRegion(r.id)
+                            setSelectedSector(s.id)
+                            setSelectedProblem(p.id)
+                            setLevel('topo')
+                            setShowSheet(true)
+                          }}
+                          className="text-left rounded-2xl overflow-hidden border transition-all hover:scale-[1.02] flex flex-col justify-between group shadow-sm"
+                          style={{
+                            borderColor: currentTheme.primary + '40',
+                            backgroundColor: isSandstone ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.03)',
+                          }}
+                        >
+                          <div className="aspect-[4/3] w-full relative bg-black/40 overflow-hidden">
+                            <img
+                              src={p.imageUrl || s.image || r.image}
+                              alt={p.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div
+                              className="absolute top-2 right-2 px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono text-white shadow-sm"
+                              style={{ backgroundColor: currentTheme.primary }}
+                            >
+                              {p.grade}
+                            </div>
+                          </div>
+                          <div className="p-3 space-y-0.5">
+                            <h4 className="font-bold text-sm truncate group-hover:underline" style={{ color: themeTextColor }}>
+                              {p.name}
+                            </h4>
+                            <p className="text-[11px] opacity-70 truncate" style={{ color: themeTextColor }}>
+                              {r.name}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>
