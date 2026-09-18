@@ -138,3 +138,42 @@ body {
   transform: scale(0.97);
   opacity: 0.85;
 }
+
+/* Animated topo route line marching dashes */
+@keyframes topoDash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+.animate-topo-dash {
+  animation: topoDash 1.2s linear infinite;
+}
+
+/* Subtle pulse glow for crux & top anchors */
+@keyframes anchorPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.2;
+  }
+}
+.animate-anchor-pulse {
+  animation: anchorPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Shimmer reflection sweep */
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  50%, 100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+.animate-shimmer {
+  animation: shimmerSweep 4s infinite ease-in-out;
+}
+

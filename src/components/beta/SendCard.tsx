@@ -208,6 +208,8 @@ export default function SendCard({
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                strokeDasharray="8 5"
+                className="animate-topo-dash"
                 opacity="0.95"
               />
               {/* Circular markers along line */}
@@ -218,9 +220,10 @@ export default function SendCard({
               <circle cx="338" cy="280" r="4.5" stroke="#FFFFFF" strokeWidth="2" fill="transparent" />
               <circle cx="345" cy="250" r="4.5" stroke="#FFFFFF" strokeWidth="2" fill="transparent" />
 
-              {/* Double-ring anchor chain station at top (8-shape) */}
+              {/* Double-ring anchor chain station at top (8-shape) with subtle pulse */}
               <circle cx="345" cy="238" r="4" stroke="#FFFFFF" strokeWidth="2" fill="transparent" />
               <circle cx="352" cy="238" r="4" stroke="#FFFFFF" strokeWidth="2" fill="transparent" />
+              <circle cx="348.5" cy="238" r="9" stroke="#FFFFFF" strokeWidth="1" fill="none" opacity="0.4" className="animate-anchor-pulse" />
             </svg>
           </div>
         )}
