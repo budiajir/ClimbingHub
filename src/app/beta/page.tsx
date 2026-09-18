@@ -1309,7 +1309,7 @@ function BetaPageContent() {
               <div className="lg:col-span-7">
                 <TopoCanvas
                   problem={problem}
-                  imageUrl={sector.image}
+                  imageUrl={problem.imageUrl || sector.image}
                   onLogAscent={triggerLogAscent}
                 />
               </div>

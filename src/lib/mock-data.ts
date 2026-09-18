@@ -164,7 +164,7 @@ export const gyms: Gym[] = [
     name: 'Vertigo Boulder Gym',
     city: 'South Jakarta',
     province: 'DKI Jakarta',
-    image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&q=80',
     rating: 4.8,
     reviewCount: 342,
     slots: { morning: 8, afternoon: 3, evening: 12 },
@@ -182,7 +182,7 @@ export const gyms: Gym[] = [
     name: 'Crux Climbing Bandung',
     city: 'Bandung',
     province: 'West Java',
-    image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/a/a1/Indoors_bouldering_in_Pasila%2C_Helsinki.jpg',
     rating: 4.6,
     reviewCount: 218,
     slots: { morning: 15, afternoon: 7, evening: 5 },
@@ -200,7 +200,7 @@ export const gyms: Gym[] = [
     name: 'Summit Bloc Yogyakarta',
     city: 'Yogyakarta',
     province: 'DI Yogyakarta',
-    image: 'https://images.unsplash.com/photo-1516592673884-4a382d1124c2?w=800&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/9/97/Fitz_Roy_Climbing_Wall.jpg',
     rating: 4.7,
     reviewCount: 189,
     slots: { morning: 18, afternoon: 10, evening: 20 },
@@ -218,7 +218,7 @@ export const gyms: Gym[] = [
     name: 'Grip Factory Surabaya',
     city: 'Surabaya',
     province: 'East Java',
-    image: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Venga_Climbing_Gym.JPG',
     rating: 4.5,
     reviewCount: 156,
     slots: { morning: 5, afternoon: 12, evening: 8 },
@@ -285,6 +285,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V5',
             fontGrade: '6C',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Christian_Core_on_Gioia.jpg',
             setter: 'Andi Wahyu',
             setterYear: 'Andi Wahyu (2019)',
             fa: 'Rizky Fauzan',
@@ -321,6 +322,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'sport',
             grade: '5.11b',
             fontGrade: '6c+',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Chris_Sharma_-_1.jpg',
             setter: 'Iqbal & Tim FPTI',
             setterYear: 'Iqbal & Tim FPTI (2018)',
             fa: 'Iqbal',
@@ -356,6 +358,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V6',
             fontGrade: '7A',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/50/GIOVANNI_BOULDERING.jpg',
             setter: 'Sari Dewi',
             setterYear: 'Sari Dewi (2020)',
             fa: 'Sari Dewi',
@@ -388,7 +391,7 @@ export const cragRegions: CragRegion[] = [
       {
         id: 'citatah-sektor-b',
         name: 'Sector B — Cliff 125',
-        image: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/3/38/Action_Directe_%28Waldkopf%29.JPG',
         problems: [
           {
             id: 'citatah-b-1',
@@ -396,6 +399,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V7',
             fontGrade: '7A+',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Joshue_Tree_National_Park_-_Manx_Boulder_-_6.jpg',
             padRecommendation: '3 Crashpads + 2 Spotters',
             landingQuality: 'Slight slope with rock tier',
             startType: 'Sit Start (SS)',
@@ -423,6 +427,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V8',
             fontGrade: '7B',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/3/38/Action_Directe_%28Waldkopf%29.JPG',
             padRecommendation: '3 Crashpads + 2 Spotters',
             landingQuality: 'Flat sand base',
             startType: 'Sit Start (SS)',
@@ -450,7 +455,7 @@ export const cragRegions: CragRegion[] = [
     id: 'harau',
     name: 'Lembah Harau',
     province: 'West Sumatra',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/9/9c/Fabio_Palma%2C_Cardiopalma%2C_7c%2C_Kalymnos.jpg',
     sectorCount: 5,
     problemCount: 91,
     description: "Lembah tebing granit dan andesit raksasa setinggi 100-300 meter yang menjulang di antara hamparan sawah hijau Minangkabau. Surga panjat alam Indonesia dengan nuansa pemandangan kelas dunia.",
@@ -487,7 +492,7 @@ export const cragRegions: CragRegion[] = [
       {
         id: 'harau-echo',
         name: 'Sector Echo Valley & Red Granite',
-        image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Climbing_in_Yosemite_Valley_-_01.jpg',
         problems: [
           {
             id: 'harau-gorejat',
@@ -496,6 +501,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V8',
             fontGrade: '7B',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Midnight_Lightning_yosemite.jpg',
             setter: 'Curated',
             setterYear: 'Curated (2021)',
             fa: 'Curated',
@@ -531,6 +537,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V7',
             fontGrade: '7A+',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Christian_Core_on_Gioia.jpg',
             setter: 'Curated',
             setterYear: 'Curated (2019)',
             fa: 'Curated',
@@ -566,6 +573,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V7',
             fontGrade: '7A+',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/50/GIOVANNI_BOULDERING.jpg',
             setter: 'Pierre & Mak Etek',
             setterYear: 'Pierre & Mak Etek (2017)',
             fa: 'Pierre & Mak Etek (2017)',
@@ -601,6 +609,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'multipitch',
             grade: '5.10c',
             fontGrade: '6b',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/16/Coyne_Crack_5.11%2B_-_Supercrack_Buttress_-_Indian_Creek.jpg',
             setter: 'Ekspedisi Harau',
             setterYear: 'Ekspedisi Harau (2015)',
             fa: 'Bambang & Tim',
@@ -633,6 +642,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V6',
             fontGrade: '7A',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Joshue_Tree_National_Park_-_Manx_Boulder_-_6.jpg',
             setter: 'Doni Pratama',
             setterYear: 'Doni Pratama (2020)',
             fa: 'Doni Pratama (2020)',
@@ -667,7 +677,7 @@ export const cragRegions: CragRegion[] = [
     id: 'siung',
     name: 'Siung Beach',
     province: 'DI Yogyakarta',
-    image: 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=1200&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Chris_Sharma_-_1.jpg',
     sectorCount: 12,
     problemCount: 203,
     description: "Kawasan tebing karang laut eksotis di pesisir Samudra Hindia Gunungkidul dengan 200+ jalur panjat. Menawarkan sensasi memanjat ditemani deburan ombak dan panorama matahari terbenam spektakuler.",
@@ -704,7 +714,7 @@ export const cragRegions: CragRegion[] = [
       {
         id: 'siung-karang',
         name: 'Sector Karang Bolong & Beach Blocks',
-        image: 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Alexandre_Chabot_-_PuntX_9a_-_Gorges_du_Loup.jpg',
         problems: [
           {
             id: 'siung-boulder-1',
@@ -713,6 +723,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V5',
             fontGrade: '6C',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Alexandre_Chabot_-_PuntX_9a_-_Gorges_du_Loup.jpg',
             setter: 'Jogja Local',
             setterYear: 'Bambang S. (2019)',
             fa: 'Bambang S. (2019)',
@@ -747,6 +758,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'sport',
             grade: '5.10d',
             fontGrade: '6b+',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/9c/Fabio_Palma%2C_Cardiopalma%2C_7c%2C_Kalymnos.jpg',
             setter: 'FPTI DIY',
             setterYear: 'FPTI DIY (2015)',
             fa: 'FPTI Team (2015)',
@@ -784,14 +796,14 @@ export const cragRegions: CragRegion[] = [
     id: 'pabeasan',
     name: 'Pabeasan',
     province: 'West Java',
-    image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Muriel_Rock_Climbing.jpg',
     sectorCount: 3,
     problemCount: 24,
     sectors: [
       {
         id: 'pabeasan-main',
         name: 'Sector Pabeasan & Hawu Bloc',
-        image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Muriel_Rock_Climbing.jpg',
         problems: [
           {
             id: 'pab-1',
@@ -799,6 +811,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V6',
             fontGrade: '7A',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Adam_Ondra_climbing_Silence_9c_by_PAVEL_BLAZEK_2.jpg',
             padRecommendation: '2 Crashpads + 1 Spotter',
             landingQuality: 'Flat grassy dirt',
             startType: 'Sit Start (SS)',
@@ -822,6 +835,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V4',
             fontGrade: '6B',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Muriel_Rock_Climbing.jpg',
             padRecommendation: '2 Crashpads',
             landingQuality: 'Clean and level',
             startType: 'Stand Start',
@@ -846,14 +860,14 @@ export const cragRegions: CragRegion[] = [
     id: 'hanyawong',
     name: 'Hanyawong',
     province: 'West Java',
-    image: 'https://images.unsplash.com/photo-1544979590-37e9b47eb705?w=1200&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/1/16/Coyne_Crack_5.11%2B_-_Supercrack_Buttress_-_Indian_Creek.jpg',
     sectorCount: 2,
     problemCount: 18,
     sectors: [
       {
         id: 'hanyawong-1',
         name: 'Sector Hanyawong Bloc',
-        image: 'https://images.unsplash.com/photo-1544979590-37e9b47eb705?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/1/16/Coyne_Crack_5.11%2B_-_Supercrack_Buttress_-_Indian_Creek.jpg',
         problems: [
           {
             id: 'han-1',
@@ -861,6 +875,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V5',
             fontGrade: '6C',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/3/38/Action_Directe_%28Waldkopf%29.JPG',
             padRecommendation: '2 Crashpads',
             landingQuality: 'Compacted rocky dirt',
             startType: 'Sit Start (SS)',
@@ -885,14 +900,14 @@ export const cragRegions: CragRegion[] = [
     id: 'jeger',
     name: 'Jeger',
     province: 'West Java',
-    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Joshue_Tree_National_Park_-_Manx_Boulder_-_6.jpg',
     sectorCount: 2,
     problemCount: 14,
     sectors: [
       {
         id: 'jeger-boulder',
         name: 'Sector Jeger Boulders',
-        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Joshue_Tree_National_Park_-_Manx_Boulder_-_6.jpg',
         problems: [
           {
             id: 'jeg-1',
@@ -900,6 +915,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V7',
             fontGrade: '7A+',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Joshue_Tree_National_Park_-_Manx_Boulder_-_6.jpg',
             padRecommendation: '3 Crashpads + Spotter',
             landingQuality: 'Slight slope',
             startType: 'Sit Start (SS)',
@@ -924,14 +940,14 @@ export const cragRegions: CragRegion[] = [
     id: 'punceling',
     name: 'Punceling',
     province: 'West Java',
-    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Midnight_Lightning_yosemite.jpg',
     sectorCount: 3,
     problemCount: 28,
     sectors: [
       {
         id: 'punceling-forest',
         name: 'Sector Punceling Pine Forest',
-        image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Midnight_Lightning_yosemite.jpg',
         problems: [
           {
             id: 'pun-1',
@@ -939,6 +955,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V4',
             fontGrade: '6B',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Midnight_Lightning_yosemite.jpg',
             padRecommendation: '2 Crashpads',
             landingQuality: 'Soft forest floor covered in pine needles',
             startType: 'Stand Start',
@@ -963,14 +980,14 @@ export const cragRegions: CragRegion[] = [
     id: 'mastodon',
     name: 'Mastodon',
     province: 'West Java',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/5/50/GIOVANNI_BOULDERING.jpg',
     sectorCount: 2,
     problemCount: 16,
     sectors: [
       {
         id: 'mastodon-bloc',
         name: 'Sector Mastodon Boulders',
-        image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/5/50/GIOVANNI_BOULDERING.jpg',
         problems: [
           {
             id: 'mas-1',
@@ -978,6 +995,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V8',
             fontGrade: '7B',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/50/GIOVANNI_BOULDERING.jpg',
             padRecommendation: '3 Crashpads + 2 Spotters',
             landingQuality: 'Uneven rocks, arrange pads carefully',
             startType: 'Sit Start (SS)',
@@ -1018,6 +1036,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V3',
             fontGrade: '6A',
+            imageUrl: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
             padRecommendation: '2 Crashpads',
             landingQuality: 'Flat rocky sand',
             startType: 'Stand Start',
@@ -1042,14 +1061,14 @@ export const cragRegions: CragRegion[] = [
     id: 'bukit-tegal-malaka',
     name: 'Bukit Tegal Malaka',
     province: 'West Java',
-    image: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=1200&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Climbing_in_Yosemite_Valley_-_01.jpg',
     sectorCount: 2,
     problemCount: 15,
     sectors: [
       {
         id: 'btm-puncak',
         name: 'Sector Tegal Malaka Summit Blocks',
-        image: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Climbing_in_Yosemite_Valley_-_01.jpg',
         problems: [
           {
             id: 'btm-1',
@@ -1057,6 +1076,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V5',
             fontGrade: '6C',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Climbing_in_Yosemite_Valley_-_01.jpg',
             padRecommendation: '3 Crashpads + 2 Spotters',
             landingQuality: 'Firm grassy ground',
             startType: 'Stand Start',
@@ -1082,14 +1102,14 @@ export const cragRegions: CragRegion[] = [
     id: 'maros',
     name: 'Maros',
     province: 'South Sulawesi',
-    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Adam_Ondra_climbing_Silence_9c_by_PAVEL_BLAZEK_2.jpg',
     sectorCount: 4,
     problemCount: 42,
     sectors: [
       {
         id: 'maros-rammang',
         name: 'Sector Rammang-Rammang Karst Towers',
-        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Adam_Ondra_climbing_Silence_9c_by_PAVEL_BLAZEK_2.jpg',
         problems: [
           {
             id: 'mrs-1',
@@ -1097,6 +1117,7 @@ export const cragRegions: CragRegion[] = [
             discipline: 'bouldering',
             grade: 'V7',
             fontGrade: '7A+',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Adam_Ondra_climbing_Silence_9c_by_PAVEL_BLAZEK_2.jpg',
             padRecommendation: '3 Crashpads + Spotter',
             landingQuality: 'Flat dirt alongside karst river',
             startType: 'Sit Start (SS)',
@@ -1187,7 +1208,7 @@ export const meetups: Meetup[] = [
     time: '09:00 - 12:00',
     maxParticipants: 20,
     currentParticipants: 14,
-    image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=800&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/e/ea/Climbing.wall.bath.university.arp.jpg',
     description: 'Community bouldering meetup every Saturday morning. All levels welcome. Bring your shoes, chalk bag, and psych!',
     tags: ['Bouldering', 'All Levels', 'Jakarta'],
   },
@@ -1213,7 +1234,7 @@ export const meetups: Meetup[] = [
     time: '15:00 - 17:30',
     maxParticipants: 12,
     currentParticipants: 7,
-    image: 'https://images.unsplash.com/photo-1516592673884-4a382d1124c2?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&q=80',
     description: 'Dedicated beginner workshop. Master foot placement, body tension, and efficient movement guided by experienced setters.',
     tags: ['Beginner', 'Clinic', 'Yogyakarta'],
   },
@@ -1238,7 +1259,7 @@ export const upcomingSessions = [
     date: 'Sun, Sep 7',
     participants: 14,
     maxParticipants: 20,
-    image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=1200&q=85',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/a/a1/Indoors_bouldering_in_Pasila%2C_Helsinki.jpg',
     type: 'indoor',
   },
   {
@@ -1248,7 +1269,7 @@ export const upcomingSessions = [
     date: 'Sep 13-15',
     participants: 22,
     maxParticipants: 30,
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=85',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/9/9c/Fabio_Palma%2C_Cardiopalma%2C_7c%2C_Kalymnos.jpg',
     type: 'expedition',
   },
 ]

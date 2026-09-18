@@ -27,7 +27,7 @@ const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: 'slide-2',
-    image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1600&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/9/9c/Fabio_Palma%2C_Cardiopalma%2C_7c%2C_Kalymnos.jpg',
     tag: 'LATEST POST · EXPEDITION',
     title: 'Lembah Harau Topo 2026',
     subtitle: '89 jalur boulder dan tebing granit monolit baru di Sumatera Barat telah dipetakan',
@@ -36,7 +36,7 @@ const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: 'slide-3',
-    image: 'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?w=1600&q=80',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Chris_Sharma_-_1.jpg',
     tag: 'LATEST POST · NEW ROUTE',
     title: 'Pantai Siung Karst Slab',
     subtitle: 'Panduan akses tebing pantai, kontak pengelola, dan prakiraan ombak laut selatan',
@@ -45,7 +45,7 @@ const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: 'slide-4',
-    image: 'https://images.unsplash.com/photo-1502126324834-38f8e02d7160?w=1600&q=80',
+    image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1600&q=80',
     tag: 'LATEST POST · CRAG GUIDE',
     title: 'Citatah 125 & Tebing 90',
     subtitle: 'Katalog rute sport climbing & trad klasik dengan konsensus grade komunitas',
