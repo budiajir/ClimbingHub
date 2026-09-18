@@ -151,7 +151,7 @@ export default function HomePage() {
                   <span className={`font-bold flex items-center gap-0.5 ${
                     isSandstone ? 'text-[#1a1815]' : 'text-lime'
                   }`}>
-                    View Topo <ChevronRight size={13} />
+                    Explore Crags <ChevronRight size={13} />
                   </span>
                 </div>
               </Link>
@@ -277,7 +277,7 @@ export default function HomePage() {
                         {problem.ascentCount} logged sends
                       </span>
                       <span className="font-bold text-lime flex items-center gap-0.5 text-xs">
-                        View Topo <ChevronRight size={13} />
+                        Explore Crags <ChevronRight size={13} />
                       </span>
                     </div>
                   </div>

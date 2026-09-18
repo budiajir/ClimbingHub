@@ -101,7 +101,7 @@ export default function CragFeed() {
                 <span className={`font-bold flex items-center gap-0.5 ${
                   isSandstone ? 'text-[#1a1815]' : 'text-lime'
                 }`}>
-                  View Topo <ChevronRight size={13} />
+                  Explore Crags <ChevronRight size={13} />
                 </span>
               </div>
             </Link>
