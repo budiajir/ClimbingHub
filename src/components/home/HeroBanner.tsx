@@ -78,7 +78,7 @@ export default function HeroBanner() {
 
   return (
     <div
-      className="relative w-full overflow-hidden h-[68vh] sm:h-[75vh] md:h-[82vh] lg:h-[88vh] flex items-center justify-center select-none"
+      className="relative w-full overflow-hidden h-[460px] sm:h-[540px] md:h-[620px] lg:h-[700px] flex items-center justify-center select-none"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >

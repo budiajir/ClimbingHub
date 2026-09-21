@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import HeroBanner from '@/components/home/HeroBanner'
 import LogAscentModal from '@/components/beta/LogAscentModal'
 import AscentShareModal from '@/components/beta/AscentShareModal'
@@ -92,19 +91,14 @@ export default function HomePage() {
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
           <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4 md:mx-0 md:px-0 items-stretch">
-            {cragRegions.map((crag, idx) => (
-              <motion.div
+            {cragRegions.map((crag) => (
+              <div
                 key={crag.id}
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.45, delay: idx * 0.06, ease: [0.25, 0.46, 0.45, 0.94] }}
-                whileHover={{ y: -6, transition: { duration: 0.25, ease: 'easeOut' } }}
                 className="w-72 md:w-auto flex-shrink-0 flex flex-col h-[356px] md:h-auto md:min-h-[356px]"
               >
                 <Link
                   href={`/crags/${crag.id}`}
-                  className={`h-full rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border shadow-sm hover:shadow-lg ${
+                  className={`h-full rounded-2xl overflow-hidden flex flex-col justify-between group border shadow-sm hover:shadow-md transition-colors duration-200 ${
                     isSandstone
                       ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
                       : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
@@ -112,17 +106,17 @@ export default function HomePage() {
                 >
                   <div className="h-36 md:h-40 overflow-hidden relative flex-shrink-0 w-full">
                     <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-108"
+                      className="absolute inset-0 bg-cover bg-center"
                       style={{ backgroundImage: `url(${crag.image})` }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
                   </div>
 
                   <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-start justify-between gap-2 min-h-[40px]">
                         <div className="flex-1 min-w-0">
-                          <h3 className={`font-bold text-base transition-colors truncate ${
+                          <h3 className={`font-bold text-base truncate transition-colors duration-200 ${
                             isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
                           }`}>
                             {crag.name}
@@ -134,7 +128,7 @@ export default function HomePage() {
                             <span className="truncate">{crag.province}</span>
                           </div>
                         </div>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors flex-shrink-0 whitespace-nowrap ${
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 whitespace-nowrap transition-colors duration-200 ${
                           isSandstone ? 'border-[#1a1815]/30 text-[#1a1815] group-hover:bg-[#1a1815]/10' : 'border-lime/40 text-lime group-hover:bg-lime/10'
                         }`}>
                           {crag.sectorCount} Sectors
@@ -156,16 +150,16 @@ export default function HomePage() {
                       }`}>
                         {crag.problemCount} Verified Problems
                       </span>
-                      <span className={`font-bold flex items-center gap-0.5 transition-colors flex-shrink-0 ${
+                      <span className={`font-bold flex items-center gap-0.5 flex-shrink-0 ${
                         isSandstone ? 'text-[#1a1815]' : 'text-lime'
                       }`}>
                         <span>Explore Crags</span>
-                        <ChevronRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                        <ChevronRight size={13} />
                       </span>
                     </div>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
@@ -206,28 +200,23 @@ export default function HomePage() {
                   ]
 
               return (
-                <motion.div
+                <div
                   key={problem.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-40px' }}
-                  transition={{ duration: 0.5, delay: idx * 0.07, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  whileHover={{ y: -8, scale: 1.015, transition: { duration: 0.25, ease: 'easeOut' } }}
-                  className="relative aspect-[3/4] w-64 md:w-auto flex-shrink-0 group rounded-2xl"
+                  className="relative aspect-[3/4] w-64 md:w-auto flex-shrink-0 group rounded-2xl flex flex-col"
                 >
                   <Link
                     href={`/beta?region=${problem.regionId}&sector=${problem.sectorId}&problem=${problem.id}`}
-                    className={`relative w-full h-full rounded-2xl overflow-hidden flex flex-col justify-between border shadow-md hover:shadow-2xl transition-all ${
+                    className={`relative w-full h-full rounded-2xl overflow-hidden flex flex-col justify-between border shadow-md hover:shadow-xl transition-colors duration-200 ${
                       isSandstone
                         ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60'
                         : 'border-white/10 hover:border-lime/40'
                     }`}
                   >
-                    {/* Portrait Background Photo with smooth zoom */}
+                    {/* Portrait Background Photo */}
                     <img
                       src={photoUrl}
                       alt={problem.name}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
 
                     {/* Gradient overlays for readability */}
@@ -282,7 +271,7 @@ export default function HomePage() {
                           />
                         )}
                         <div
-                          className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold shadow-md z-10 transition-transform duration-300 group-hover:scale-110 ${
+                          className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold shadow-md z-10 ${
                             m.type === 'S'
                               ? 'bg-emerald-500 text-white ring-1.5 ring-white'
                               : m.type === 'T'
@@ -302,7 +291,7 @@ export default function HomePage() {
                       </span>
 
                       <div
-                        className="px-2 py-0.5 rounded-md font-bold font-mono text-xs backdrop-blur-md bg-black/70 border shadow-sm transition-transform duration-300 group-hover:scale-105"
+                        className="px-2 py-0.5 rounded-md font-bold font-mono text-xs backdrop-blur-md bg-black/70 border shadow-sm"
                         style={{ borderColor: gradeColor, color: gradeColor }}
                       >
                         {problem.grade}
@@ -311,7 +300,7 @@ export default function HomePage() {
 
                     {/* Card Bottom: Route Name, Location, Sends */}
                     <div className="relative z-20 p-3.5 space-y-1">
-                      <h3 className="font-bold text-base md:text-lg text-white leading-tight drop-shadow-sm group-hover:text-lime transition-colors truncate">
+                      <h3 className="font-bold text-base md:text-lg text-white leading-tight drop-shadow-sm group-hover:text-lime transition-colors duration-200 truncate">
                         {problem.name}
                       </h3>
                       <p className="text-xs text-white/75 truncate font-light">
@@ -324,12 +313,12 @@ export default function HomePage() {
                         </span>
                         <span className="font-bold text-lime flex items-center gap-0.5 text-xs flex-shrink-0">
                           <span>Explore Crags</span>
-                          <ChevronRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                          <ChevronRight size={13} />
                         </span>
                       </div>
                     </div>
                   </Link>
-                </motion.div>
+                </div>
               )
             })}
           </div>
@@ -359,18 +348,13 @@ export default function HomePage() {
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
           <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4 md:mx-0 md:px-0 items-stretch">
-            {gyms.map((gym, idx) => (
-              <motion.div
+            {gyms.map((gym) => (
+              <div
                 key={gym.id}
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.45, delay: idx * 0.06, ease: [0.25, 0.46, 0.45, 0.94] }}
-                whileHover={{ y: -6, transition: { duration: 0.25, ease: 'easeOut' } }}
                 className="w-72 md:w-auto flex-shrink-0 flex flex-col h-[320px] md:h-auto md:min-h-[320px]"
               >
                 <div
-                  className={`h-full rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border shadow-sm hover:shadow-lg ${
+                  className={`h-full rounded-2xl overflow-hidden flex flex-col justify-between group border shadow-sm hover:shadow-md transition-colors duration-200 ${
                     isSandstone
                       ? 'bg-transparent border border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
                       : 'bg-transparent border border-white/10 hover:border-cyan-climb/40 text-chalk'
@@ -378,7 +362,7 @@ export default function HomePage() {
                 >
                   <div className="h-36 overflow-hidden relative flex-shrink-0 w-full">
                     <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-108"
+                      className="absolute inset-0 bg-cover bg-center"
                       style={{ backgroundImage: `url(${gym.image})` }}
                     />
                     <div className="absolute top-2.5 right-2.5 bg-black/65 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/15 flex items-center gap-1 text-xs shadow-md">
@@ -390,7 +374,7 @@ export default function HomePage() {
                   <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="min-h-[40px]">
-                        <h3 className={`font-bold text-base transition-colors truncate ${
+                        <h3 className={`font-bold text-base truncate transition-colors duration-200 ${
                           isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-cyan-climb'
                         }`}>
                           {gym.name}
@@ -423,12 +407,12 @@ export default function HomePage() {
                         }`}
                       >
                         <span>Book Gym Pass</span>
-                        <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                        <ArrowRight size={13} />
                       </Link>
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
@@ -457,18 +441,13 @@ export default function HomePage() {
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3 cols */}
           <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4 md:mx-0 md:px-0 items-stretch">
-            {communities.map((comm, idx) => (
-              <motion.div
+            {communities.map((comm) => (
+              <div
                 key={comm.id}
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.45, delay: idx * 0.07, ease: [0.25, 0.46, 0.45, 0.94] }}
-                whileHover={{ y: -6, transition: { duration: 0.25, ease: 'easeOut' } }}
                 className="w-72 md:w-auto flex-shrink-0 flex flex-col h-[340px] md:h-auto md:min-h-[340px]"
               >
                 <div
-                  className={`h-full rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border shadow-sm hover:shadow-lg ${
+                  className={`h-full rounded-2xl overflow-hidden flex flex-col justify-between group border shadow-sm hover:shadow-md transition-colors duration-200 ${
                     isSandstone
                       ? 'bg-transparent border border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
                       : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
@@ -476,7 +455,7 @@ export default function HomePage() {
                 >
                   <div className="h-36 overflow-hidden relative flex-shrink-0 w-full">
                     <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-108"
+                      className="absolute inset-0 bg-cover bg-center"
                       style={{ backgroundImage: `url(${comm.image})` }}
                     />
                   </div>
@@ -485,7 +464,7 @@ export default function HomePage() {
                     <div>
                       <div className="flex items-start justify-between gap-2 min-h-[40px]">
                         <div className="flex-1 min-w-0">
-                          <h3 className={`font-bold text-base transition-colors truncate ${
+                          <h3 className={`font-bold text-base truncate transition-colors duration-200 ${
                             isSandstone ? 'text-[#1a1815] group-hover:text-black' : 'text-chalk group-hover:text-lime'
                           }`}>
                             {comm.name}
@@ -539,7 +518,7 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
