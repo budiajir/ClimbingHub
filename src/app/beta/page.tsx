@@ -188,7 +188,7 @@ function BetaPageContent() {
   const searchParams = useSearchParams()
   const { role, user, openAuthModal } = useAuth()
   const { cragRegions, loading: cragsLoading } = useCragRegions()
-  const { isSandstone, toggleTheme } = useTheme()
+  const { isSandstone } = useTheme()
   const [regions, setRegions] = useState<CragRegion[]>([])
   const [level, setLevel] = useState<ViewLevel>('regions')
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
@@ -457,11 +457,21 @@ function BetaPageContent() {
 
   const goBack = () => {
     if (level === 'topo') {
-      setLevel('regions')
+      if (selectedSector) {
+        setLevel('problems')
+      } else if (selectedRegion) {
+        setLevel('sectors')
+      } else {
+        setLevel('regions')
+      }
       setShowSheet(false)
       setSelectedProblem(null)
     } else if (level === 'problems') {
-      setLevel('regions')
+      if (selectedRegion) {
+        setLevel('sectors')
+      } else {
+        setLevel('regions')
+      }
       setSelectedSector(null)
     } else if (level === 'sectors') {
       setLevel('regions')
@@ -469,12 +479,18 @@ function BetaPageContent() {
     }
   }
 
-  const breadcrumb = [
-    'Problems',
-    region?.name,
-    sector?.name.split('—')[0].trim(),
-    problem?.name,
-  ].filter(Boolean).join(' › ')
+  const backLabel = useMemo(() => {
+    if (level === 'topo') {
+      return sector?.name.split('—')[0].trim() || region?.name || 'Problems'
+    }
+    if (level === 'problems') {
+      return region?.name || 'Sectors'
+    }
+    if (level === 'sectors') {
+      return 'Crags'
+    }
+    return 'Back'
+  }, [level, sector, region])
 
   // Flat list of all problems across all crags & sectors
   const allProblems = useMemo(() => {
@@ -649,42 +665,35 @@ function BetaPageContent() {
             )}
           </div>
         ) : (
-          /* Breadcrumb Header when in Sectors, Problems, or Topo */
-          <div className="flex items-center justify-between gap-3 py-3 border-b border-white/10 mb-4">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={goBack}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+          /* 1-Step Back Navigation Header when in Sectors, Problems, or Topo */
+          <div className="flex items-center justify-between gap-3 py-2.5 border-b border-black/10 dark:border-white/10 mb-4">
+            <button
+              onClick={goBack}
+              className="flex items-center gap-2 group text-left transition-opacity hover:opacity-85 min-w-0"
+            >
+              <div
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors flex-shrink-0 ${
                   isSandstone
-                    ? 'bg-[#1a1815]/10 hover:bg-[#1a1815]/20 text-[#1a1815]'
-                    : 'bg-crag hover:bg-crag-light text-chalk border border-white/5'
+                    ? 'bg-[#1a1815]/10 group-hover:bg-[#1a1815]/20 text-[#1a1815]'
+                    : 'bg-crag group-hover:bg-crag-light text-chalk border border-white/5'
                 }`}
               >
                 <ChevronLeft size={18} />
-              </button>
-              <div>
-                <span className={`text-xs md:text-sm font-light ${
-                  isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'
-                }`}>
-                  {breadcrumb}
-                </span>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={toggleTheme}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
-                  isSandstone ? 'bg-[#1a1815]/10 text-[#1a1815]' : 'bg-crag text-chalk border border-white/10'
+              <span
+                className={`text-xs md:text-sm font-semibold truncate max-w-[200px] sm:max-w-xs md:max-w-md ${
+                  isSandstone ? 'text-[#1a1815]' : 'text-chalk'
                 }`}
               >
-                {isSandstone ? '📜 Sandstone' : '🌑 Granite'}
-              </button>
+                {backLabel}
+              </span>
+            </button>
 
+            <div className="flex items-center gap-2">
               {level === 'topo' && (
                 <button
                   onClick={triggerLogAscent}
-                  className="flex items-center gap-1.5 bg-lime text-granite px-3 py-1.5 rounded-xl text-xs font-bold shadow-lime-glow-sm hover:bg-lime-dim transition-colors"
+                  className="flex items-center gap-1.5 bg-lime text-granite px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-lime-glow-sm hover:bg-lime-dim transition-colors"
                 >
                   Log Ascent
                 </button>
@@ -1276,7 +1285,7 @@ function BetaPageContent() {
 
         {/* Level 4: Topo Viewer */}
         {level === 'topo' && problem && sector && (
-          <motion.div key="topo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 md:px-0 pb-24 lg:pb-8">
+          <motion.div key="topo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pb-24 lg:pb-8">
             {/* Desktop Problem Switcher Pills */}
             <div className="hidden lg:flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar pb-1">
               <span className={`text-xs font-light uppercase tracking-wider mr-2 ${
@@ -1306,7 +1315,7 @@ function BetaPageContent() {
             {/* Layout: Full canvas on mobile, 2-column split studio on desktop */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left Column: Topo Canvas */}
-              <div className="lg:col-span-7">
+              <div className="lg:col-span-7 -mx-4 md:mx-0">
                 <TopoCanvas
                   problem={problem}
                   imageUrl={problem.imageUrl || sector.image}

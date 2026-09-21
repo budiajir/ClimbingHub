@@ -151,7 +151,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent }: TopoCanva
       <div
         ref={containerRef}
         onDoubleClick={handleDoubleTap}
-        className={`relative w-full overflow-hidden rounded-2xl h-[52vh] sm:h-[500px] md:h-[560px] lg:h-[620px] border transition-colors select-none ${
+        className={`relative w-full overflow-hidden rounded-none md:rounded-2xl h-[56vh] sm:h-[500px] md:h-[560px] lg:h-[620px] border-y md:border transition-colors select-none ${
           isSandstone
             ? 'bg-[#1a1815]/10 border-[#1a1815]/20'
             : 'bg-black border-white/10'
@@ -384,7 +384,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent }: TopoCanva
       {/* 2. ROUTE DETAILS & TOPO LEGEND (OUTSIDE / BELOW PHOTO BOX)    */}
       {/* ============================================================ */}
       <div
-        className={`p-4 rounded-2xl border space-y-3 transition-colors ${
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3 transition-colors ${
           isSandstone
             ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
             : 'bg-transparent border-white/10 text-chalk'
