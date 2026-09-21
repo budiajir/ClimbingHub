@@ -155,99 +155,160 @@ export default function ConnectRadialMenu({
             style={{ bottom: "calc(4rem + max(env(safe-area-inset-bottom), 0px) - 2px)" }}
           >
             <motion.div
-              initial={{ y: 220, scale: 0.65, opacity: 0 }}
+              initial={{ y: 240, scale: 0.65, opacity: 0 }}
               animate={{ y: 0, scale: 1, opacity: 1 }}
-              exit={{ y: 220, scale: 0.65, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 340 }}
+              exit={{ y: 240, scale: 0.65, opacity: 0 }}
+              transition={{ type: "spring", damping: 26, stiffness: 350 }}
               className="pointer-events-auto relative select-none"
-              style={{ width: 360, height: 215 }}
+              style={{ width: 370, height: 236 }}
             >
               {/* Background SVG Arc Wheel */}
               <svg
-                viewBox="0 0 360 215"
-                className="w-[360px] h-[215px] drop-shadow-[0_-8px_25px_rgba(0,0,0,0.4)]"
+                viewBox="0 0 370 236"
+                className="w-[370px] h-[236px] drop-shadow-[0_-10px_30px_rgba(0,0,0,0.45)]"
               >
                 <defs>
                   {/* Inner Hub Gradients */}
-                  <radialGradient id="hubDark" cx="50%" cy="95%" r="85%">
-                    <stop offset="0%" stopColor="#474c55" />
-                    <stop offset="35%" stopColor="#31363e" />
-                    <stop offset="65%" stopColor="#22262c" />
-                    <stop offset="100%" stopColor="#16181c" />
+                  <radialGradient id="hubDark" cx="50%" cy="96%" r="85%">
+                    <stop offset="0%" stopColor="#484d56" />
+                    <stop offset="35%" stopColor="#323740" />
+                    <stop offset="65%" stopColor="#22262d" />
+                    <stop offset="100%" stopColor="#15171b" />
                   </radialGradient>
 
-                  <radialGradient id="hubSandstone" cx="50%" cy="95%" r="85%">
+                  <radialGradient id="hubSandstone" cx="50%" cy="96%" r="85%">
                     <stop offset="0%" stopColor="#bfb29d" />
-                    <stop offset="35%" stopColor="#9e917d" />
-                    <stop offset="65%" stopColor="#7a6f5d" />
-                    <stop offset="100%" stopColor="#554c3e" />
+                    <stop offset="35%" stopColor="#9f927e" />
+                    <stop offset="65%" stopColor="#7a705e" />
+                    <stop offset="100%" stopColor="#564d3f" />
                   </radialGradient>
-
-                  {/* Arc Path for Curved Text Labels */}
-                  <path
-                    id="connectArcLabelPath"
-                    d="M 28 202 A 154 154 0 0 1 332 202"
-                    fill="none"
-                  />
                 </defs>
 
                 {/* Outer Arc Shell */}
                 <path
-                  d="M 12 205 A 168 168 0 0 1 348 205 L 348 205 Z"
+                  d="M 10 230 A 175 175 0 0 1 360 230 Z"
                   fill={isSandstone ? "#e8dfd2" : "#282c34"}
                   stroke={isSandstone ? "rgba(26,24,21,0.22)" : "rgba(255,255,255,0.15)"}
                   strokeWidth="1.5"
                 />
 
-                {/* Orbit Guideline */}
+                {/* Outer Label Orbit Guideline */}
                 <path
-                  d="M 28 205 A 152 152 0 0 1 332 205"
+                  d="M 20 230 A 165 165 0 0 1 350 230"
                   fill="none"
                   stroke={isSandstone ? "rgba(26,24,21,0.1)" : "rgba(255,255,255,0.08)"}
                   strokeWidth="1"
                 />
 
-                {/* Curved Labels along Outer Arc */}
-                <text
-                  fill={isSandstone ? "#1a1815" : "#e2e8f0"}
-                  className="font-bold uppercase tracking-wider"
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    letterSpacing: "0.06em",
-                    fontFamily: "system-ui, -apple-system, sans-serif",
-                  }}
-                >
-                  <textPath href="#connectArcLabelPath" startOffset="6.5%" textAnchor="middle">
-                    Rent Gear
-                  </textPath>
-                  <textPath href="#connectArcLabelPath" startOffset="28%" textAnchor="middle">
-                    Set Problems
-                  </textPath>
-                  <textPath href="#connectArcLabelPath" startOffset="50%" textAnchor="middle">
-                    Project Sent
-                  </textPath>
-                  <textPath href="#connectArcLabelPath" startOffset="72%" textAnchor="middle">
-                    Open Trip
-                  </textPath>
-                  <textPath href="#connectArcLabelPath" startOffset="93.5%" textAnchor="middle">
-                    Add Friend
-                  </textPath>
-                </text>
+                {/* Middle Button Orbit Guideline */}
+                <path
+                  d="M 79 230 A 106 106 0 0 1 291 230"
+                  fill="none"
+                  stroke={isSandstone ? "rgba(26,24,21,0.08)" : "rgba(255,255,255,0.05)"}
+                  strokeWidth="1"
+                />
+
+                {/* CURVED LABELS: Positioned with exact radial rotation tangent to the arc */}
+                <g transform="translate(185, 230)">
+                  {/* 1. RENT GEAR (-62 deg) */}
+                  <g transform="rotate(-62)">
+                    <text
+                      y="-154"
+                      textAnchor="middle"
+                      fill={isSandstone ? "#1a1815" : "#ffffff"}
+                      style={{
+                        fontSize: "10.5px",
+                        fontWeight: 800,
+                        letterSpacing: "0.08em",
+                        fontFamily: "system-ui, -apple-system, sans-serif",
+                      }}
+                    >
+                      RENT GEAR
+                    </text>
+                  </g>
+
+                  {/* 2. SET PROBLEMS (-31 deg) */}
+                  <g transform="rotate(-31)">
+                    <text
+                      y="-154"
+                      textAnchor="middle"
+                      fill={isSandstone ? "#1a1815" : "#ffffff"}
+                      style={{
+                        fontSize: "10.5px",
+                        fontWeight: 800,
+                        letterSpacing: "0.08em",
+                        fontFamily: "system-ui, -apple-system, sans-serif",
+                      }}
+                    >
+                      SET PROBLEMS
+                    </text>
+                  </g>
+
+                  {/* 3. PROJECT SENT (0 deg) */}
+                  <g transform="rotate(0)">
+                    <text
+                      y="-154"
+                      textAnchor="middle"
+                      fill={isSandstone ? "#1a1815" : "#ffffff"}
+                      style={{
+                        fontSize: "10.5px",
+                        fontWeight: 800,
+                        letterSpacing: "0.08em",
+                        fontFamily: "system-ui, -apple-system, sans-serif",
+                      }}
+                    >
+                      PROJECT SENT
+                    </text>
+                  </g>
+
+                  {/* 4. OPEN TRIP (+31 deg) */}
+                  <g transform="rotate(31)">
+                    <text
+                      y="-154"
+                      textAnchor="middle"
+                      fill={isSandstone ? "#1a1815" : "#ffffff"}
+                      style={{
+                        fontSize: "10.5px",
+                        fontWeight: 800,
+                        letterSpacing: "0.08em",
+                        fontFamily: "system-ui, -apple-system, sans-serif",
+                      }}
+                    >
+                      OPEN TRIP
+                    </text>
+                  </g>
+
+                  {/* 5. ADD FRIEND (+62 deg) */}
+                  <g transform="rotate(62)">
+                    <text
+                      y="-154"
+                      textAnchor="middle"
+                      fill={isSandstone ? "#1a1815" : "#ffffff"}
+                      style={{
+                        fontSize: "10.5px",
+                        fontWeight: 800,
+                        letterSpacing: "0.08em",
+                        fontFamily: "system-ui, -apple-system, sans-serif",
+                      }}
+                    >
+                      ADD FRIEND
+                    </text>
+                  </g>
+                </g>
 
                 {/* Inner Hub Semicircles (Concentric Layers) */}
                 <path
-                  d="M 95 205 A 85 85 0 0 1 265 205 Z"
+                  d="M 98 230 A 87 87 0 0 1 272 230 Z"
                   fill={isSandstone ? "rgba(26,24,21,0.06)" : "rgba(255,255,255,0.05)"}
                 />
 
                 <path
-                  d="M 108 205 A 72 72 0 0 1 252 205 Z"
+                  d="M 111 230 A 74 74 0 0 1 259 230 Z"
                   fill={isSandstone ? "rgba(26,24,21,0.1)" : "rgba(0,0,0,0.28)"}
                 />
 
                 <path
-                  d="M 120 205 A 60 60 0 0 1 240 205 Z"
+                  d="M 123 230 A 62 62 0 0 1 247 230 Z"
                   fill={isSandstone ? "url(#hubSandstone)" : "url(#hubDark)"}
                   stroke={isSandstone ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.12)"}
                   strokeWidth="1.5"
@@ -255,13 +316,13 @@ export default function ConnectRadialMenu({
 
                 {/* Concentric Subtle Arcs inside Hub */}
                 <path
-                  d="M 136 205 A 44 44 0 0 1 224 205"
+                  d="M 139 230 A 46 46 0 0 1 231 230"
                   fill="none"
                   stroke="rgba(255,255,255,0.15)"
                   strokeWidth="1"
                 />
                 <path
-                  d="M 152 205 A 28 28 0 0 1 208 205"
+                  d="M 155 230 A 30 30 0 0 1 215 230"
                   fill="none"
                   stroke="rgba(255,255,255,0.18)"
                   strokeWidth="1"
@@ -269,15 +330,15 @@ export default function ConnectRadialMenu({
 
                 {/* Hub Label: CONNECT */}
                 <text
-                  x="180"
-                  y="184"
+                  x="185"
+                  y="208"
                   textAnchor="middle"
                   fill="#FFFFFF"
-                  className="font-bold tracking-[0.22em]"
+                  className="font-bold tracking-[0.24em]"
                   style={{
                     fontSize: "12px",
-                    fontWeight: 800,
-                    letterSpacing: "0.22em",
+                    fontWeight: 900,
+                    letterSpacing: "0.24em",
                     fontFamily: "system-ui, -apple-system, sans-serif",
                   }}
                 >
@@ -285,7 +346,7 @@ export default function ConnectRadialMenu({
                 </text>
               </svg>
 
-              {/* Action Buttons Layer (5 Circular Buttons Along the Orbit) */}
+              {/* Action Buttons Layer (5 Circular Buttons - Safely placed well below the text) */}
               {/* 1. Rent Gear (Carabiner) */}
               <motion.button
                 initial={{ scale: 0, opacity: 0 }}
@@ -297,15 +358,15 @@ export default function ConnectRadialMenu({
                   onClose();
                   onRentGear();
                 }}
-                className={`absolute w-12 h-12 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
+                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
                   isSandstone
                     ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
                     : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
                 }`}
-                style={{ left: 42, top: 141 }}
+                style={{ left: 69.4, top: 158.3 }}
                 title="Rent Gear"
               >
-                <CarabinerIcon size={22} />
+                <CarabinerIcon size={21} />
               </motion.button>
 
               {/* 2. Set Problems (Hold Polygon) */}
@@ -319,15 +380,15 @@ export default function ConnectRadialMenu({
                   onClose();
                   onSetProblems();
                 }}
-                className={`absolute w-12 h-12 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
+                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
                   isSandstone
                     ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
                     : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
                 }`}
-                style={{ left: 85.5, top: 81 }}
+                style={{ left: 108.4, top: 117.2 }}
                 title="Set Problems"
               >
-                <ProblemPolygonIcon size={22} />
+                <ProblemPolygonIcon size={21} />
               </motion.button>
 
               {/* 3. Project Sent (Heart) */}
@@ -341,15 +402,15 @@ export default function ConnectRadialMenu({
                   onClose();
                   onProjectSent();
                 }}
-                className={`absolute w-12 h-12 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
+                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
                   isSandstone
                     ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
                     : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
                 }`}
-                style={{ left: 156, top: 58 }}
+                style={{ left: 163.0, top: 102.0 }}
                 title="Project Sent"
               >
-                <HeartSentIcon size={22} />
+                <HeartSentIcon size={21} />
               </motion.button>
 
               {/* 4. Open Trip (Map) */}
@@ -363,15 +424,15 @@ export default function ConnectRadialMenu({
                   onClose();
                   setShowTripDialog(true);
                 }}
-                className={`absolute w-12 h-12 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
+                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
                   isSandstone
                     ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
                     : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
                 }`}
-                style={{ left: 226.5, top: 81 }}
+                style={{ left: 217.6, top: 117.2 }}
                 title="Open Trip"
               >
-                <MapTripIcon size={22} />
+                <MapTripIcon size={21} />
               </motion.button>
 
               {/* 5. Add Friend (Avatar Circle) */}
@@ -385,15 +446,15 @@ export default function ConnectRadialMenu({
                   onClose();
                   onAddFriend();
                 }}
-                className={`absolute w-12 h-12 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
+                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
                   isSandstone
                     ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
                     : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
                 }`}
-                style={{ left: 270, top: 141 }}
+                style={{ left: 256.6, top: 158.3 }}
                 title="Add Friend"
               >
-                <AddFriendIcon size={22} />
+                <AddFriendIcon size={21} />
               </motion.button>
             </motion.div>
           </div>
