@@ -15,112 +15,6 @@ export interface ConnectRadialMenuProps {
   onAddFriend: () => void;
 }
 
-// 1. Carabiner Icon (Rent Gear)
-function CarabinerIcon({ size = 22, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M8 3.5h5.2a4.8 4.8 0 0 1 4.8 4.8v5.4a6.2 6.2 0 0 1-6.2 6.2H8A4.5 4.5 0 0 1 3.5 15.4V8A4.5 4.5 0 0 1 8 3.5z" />
-      <line x1="18" y1="8.5" x2="18" y2="15.5" strokeWidth="3.2" />
-      <rect x="16.5" y="10.5" width="3" height="3" rx="0.8" fill="currentColor" />
-    </svg>
-  );
-}
-
-// 2. Hold / Route Polygon Icon (Set Problems)
-function ProblemPolygonIcon({ size = 22, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <polygon points="5,19 3,9 12,3 21,8 19,19" />
-      <line x1="8" y1="16" x2="16" y2="7" strokeDasharray="2.5 2.5" strokeWidth="2" />
-      <circle cx="8" cy="16" r="1.5" fill="currentColor" />
-      <circle cx="16" cy="7" r="1.5" fill="currentColor" />
-    </svg>
-  );
-}
-
-// 3. Heart Icon (Project Sent)
-function HeartSentIcon({ size = 22, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-    </svg>
-  );
-}
-
-// 4. Folded Map & Trail Icon (Open Trip)
-function MapTripIcon({ size = 22, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z" />
-      <line x1="9" y1="3" x2="9" y2="18" />
-      <line x1="15" y1="6" x2="15" y2="21" />
-      <circle cx="12" cy="11" r="1.5" fill="currentColor" />
-      <path d="M12 9.5v3" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-// 5. User Avatar Circle Icon (Add Friend)
-function AddFriendIcon({ size = 22, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <circle cx="12" cy="12" r="10" strokeWidth="1.8" />
-      <circle cx="12" cy="8.5" r="3.2" />
-      <path d="M6.5 18a6 6 0 0 1 11 0" />
-    </svg>
-  );
-}
-
 export default function ConnectRadialMenu({
   isOpen,
   onClose,
@@ -202,13 +96,13 @@ export default function ConnectRadialMenu({
 
                 {/* Middle Button Orbit Guideline */}
                 <path
-                  d="M 79 230 A 106 106 0 0 1 291 230"
+                  d="M 81 230 A 104 104 0 0 1 289 230"
                   fill="none"
                   stroke={isSandstone ? "rgba(26,24,21,0.08)" : "rgba(255,255,255,0.05)"}
                   strokeWidth="1"
                 />
 
-                {/* CURVED LABELS: Positioned with exact radial rotation tangent to the arc */}
+                {/* CURVED LABELS: Positioned with exact radial rotation tangent to the arc (Zero overlap with buttons) */}
                 <g transform="translate(185, 230)">
                   {/* 1. RENT GEAR (-62 deg) */}
                   <g transform="rotate(-62)">
@@ -346,115 +240,115 @@ export default function ConnectRadialMenu({
                 </text>
               </svg>
 
-              {/* Action Buttons Layer (5 Circular Buttons - Safely placed well below the text) */}
-              {/* 1. Rent Gear (Carabiner) */}
+              {/* Action Buttons Layer: 5 Circular Buttons with Official Pictograms */}
+              {/* 1. Rent Gear (Carabiner Quickdraw Pictogram) */}
               <motion.button
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.08, type: "spring", stiffness: 450, damping: 20 }}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.12 }}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => {
                   onClose();
                   onRentGear();
                 }}
-                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
-                  isSandstone
-                    ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
-                    : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
-                }`}
-                style={{ left: 69.4, top: 158.3 }}
+                className="absolute w-[46px] h-[46px] rounded-full overflow-hidden bg-white hover:bg-slate-50 shadow-md border border-black/15 flex items-center justify-center p-0.5 active:scale-95 transition-all touch-ripple"
+                style={{ left: 70.2, top: 158.2 }}
                 title="Rent Gear"
               >
-                <CarabinerIcon size={21} />
+                <img
+                  src="/pictograms/connect-rent-gear.png"
+                  alt="Rent Gear"
+                  className="w-full h-full object-contain pointer-events-none select-none"
+                />
               </motion.button>
 
-              {/* 2. Set Problems (Hold Polygon) */}
+              {/* 2. Set Problems (Hold Polygon Pictogram) */}
               <motion.button
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.12, type: "spring", stiffness: 450, damping: 20 }}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.12 }}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => {
                   onClose();
                   onSetProblems();
                 }}
-                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
-                  isSandstone
-                    ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
-                    : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
-                }`}
-                style={{ left: 108.4, top: 117.2 }}
+                className="absolute w-[46px] h-[46px] rounded-full overflow-hidden bg-white hover:bg-slate-50 shadow-md border border-black/15 flex items-center justify-center p-0.5 active:scale-95 transition-all touch-ripple"
+                style={{ left: 108.4, top: 117.9 }}
                 title="Set Problems"
               >
-                <ProblemPolygonIcon size={21} />
+                <img
+                  src="/pictograms/connect-set-problems.png"
+                  alt="Set Problems"
+                  className="w-full h-full object-contain pointer-events-none select-none"
+                />
               </motion.button>
 
-              {/* 3. Project Sent (Heart) */}
+              {/* 3. Project Sent (Heart Pictogram) */}
               <motion.button
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.16, type: "spring", stiffness: 450, damping: 20 }}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.12 }}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => {
                   onClose();
                   onProjectSent();
                 }}
-                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
-                  isSandstone
-                    ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
-                    : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
-                }`}
-                style={{ left: 163.0, top: 102.0 }}
+                className="absolute w-[46px] h-[46px] rounded-full overflow-hidden bg-white hover:bg-slate-50 shadow-md border border-black/15 flex items-center justify-center p-0.5 active:scale-95 transition-all touch-ripple"
+                style={{ left: 162.0, top: 103.0 }}
                 title="Project Sent"
               >
-                <HeartSentIcon size={21} />
+                <img
+                  src="/pictograms/connect-project-sent.png"
+                  alt="Project Sent"
+                  className="w-full h-full object-contain pointer-events-none select-none"
+                />
               </motion.button>
 
-              {/* 4. Open Trip (Map) */}
+              {/* 4. Open Trip (Map & Trail Pictogram) */}
               <motion.button
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 450, damping: 20 }}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.12 }}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => {
                   onClose();
                   setShowTripDialog(true);
                 }}
-                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
-                  isSandstone
-                    ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
-                    : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
-                }`}
-                style={{ left: 217.6, top: 117.2 }}
+                className="absolute w-[46px] h-[46px] rounded-full overflow-hidden bg-white hover:bg-slate-50 shadow-md border border-black/15 flex items-center justify-center p-0.5 active:scale-95 transition-all touch-ripple"
+                style={{ left: 215.6, top: 117.9 }}
                 title="Open Trip"
               >
-                <MapTripIcon size={21} />
+                <img
+                  src="/pictograms/connect-open-trip.png"
+                  alt="Open Trip"
+                  className="w-full h-full object-contain pointer-events-none select-none"
+                />
               </motion.button>
 
-              {/* 5. Add Friend (Avatar Circle) */}
+              {/* 5. Add Friend (Avatar Circle Pictogram) */}
               <motion.button
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.24, type: "spring", stiffness: 450, damping: 20 }}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.12 }}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => {
                   onClose();
                   onAddFriend();
                 }}
-                className={`absolute w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-colors touch-ripple ${
-                  isSandstone
-                    ? "bg-[#f4efe6] border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#f4efe6]"
-                    : "bg-[#1f242b] border-white/30 text-chalk hover:border-lime hover:bg-lime hover:text-granite"
-                }`}
-                style={{ left: 256.6, top: 158.3 }}
+                className="absolute w-[46px] h-[46px] rounded-full overflow-hidden bg-white hover:bg-slate-50 shadow-md border border-black/15 flex items-center justify-center p-0.5 active:scale-95 transition-all touch-ripple"
+                style={{ left: 253.8, top: 158.2 }}
                 title="Add Friend"
               >
-                <AddFriendIcon size={21} />
+                <img
+                  src="/pictograms/connect-add-friend.png"
+                  alt="Add Friend"
+                  className="w-full h-full object-contain pointer-events-none select-none"
+                />
               </motion.button>
             </motion.div>
           </div>

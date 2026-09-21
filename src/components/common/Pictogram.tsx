@@ -77,6 +77,11 @@ const ALIASES: Record<string, string> = {
   profile: "profile-picture",
   "profile-picture": "profile-picture",
   account: "profile-picture",
+  "connect-rent-gear": "connect-rent-gear",
+  "connect-set-problems": "connect-set-problems",
+  "connect-project-sent": "connect-project-sent",
+  "connect-open-trip": "connect-open-trip",
+  "connect-add-friend": "connect-add-friend",
 };
 
 export default function Pictogram({
