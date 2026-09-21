@@ -4,18 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  X,
-  Plus,
-  Mountain,
-  BookOpen,
-  MessageSquare,
-  Store,
-} from "lucide-react";
+import { X } from "lucide-react";
 import clsx from "clsx";
 import { useTheme } from "@/lib/theme-context";
 import { useAuth } from "@/lib/auth-context";
 import Pictogram from "@/components/common/Pictogram";
+import ConnectRadialMenu from "@/components/shell/ConnectRadialMenu";
+import OpenTripModal from "@/components/crag/OpenTripModal";
+import BookTripModal from "@/components/crag/BookTripModal";
+import RentEquipmentModal from "@/components/crag/RentEquipmentModal";
+import { useCragRegions } from "@/lib/use-data";
+import { cragRegions as mockCrags } from "@/lib/mock-data";
 
 // Custom Pictogram icons matching the user's Jalur.Picto published pack
 function CragIcon({
@@ -73,25 +72,87 @@ export default function MobileNav() {
   const router = useRouter();
   const { isSandstone } = useTheme();
   const { role, openAuthModal } = useAuth();
-  const [showCreateSheet, setShowCreateSheet] = useState(false);
+
+  // CONNECT radial menu state
+  const [showConnect, setShowConnect] = useState(false);
+
+  // Global modals triggered from CONNECT
+  const [showRentEquip, setShowRentEquip] = useState(false);
+  const [showOpenTrip, setShowOpenTrip] = useState(false);
+  const [showBookTrip, setShowBookTrip] = useState(false);
+
+  const { cragRegions: fetchedCrags } = useCragRegions();
+  const allCrags = fetchedCrags && fetchedCrags.length > 0 ? fetchedCrags : mockCrags;
+
+  // Resolve currently active crag if viewing /crags/[id], else default to first crag (Citatah)
+  const pathParts = pathname.split("/");
+  const currentCragId = pathParts[1] === "crags" && pathParts[2] ? pathParts[2] : null;
+  const activeCrag =
+    (currentCragId ? allCrags.find((c) => c.id.toLowerCase() === currentCragId.toLowerCase()) : null) ||
+    allCrags[0];
 
   const isCragsActive = pathname.startsWith("/crags");
   const isProblemsActive = pathname.startsWith("/beta");
   const isGymActive = pathname.startsWith("/gyms");
   const isCommunityActive = pathname.startsWith("/community");
 
-  const handleCreateOption = (action: () => void) => {
-    setShowCreateSheet(false);
-    action();
+  const handleRentGear = () => {
+    setShowConnect(false);
+    window.dispatchEvent(new CustomEvent("connect-rent-equipment"));
+    setShowRentEquip(true);
+  };
+
+  const handleSetProblems = () => {
+    setShowConnect(false);
+    if (role === "guest") {
+      openAuthModal("Please sign in or create an account to submit boulder problems or set routes.");
+    } else {
+      router.push("/beta?action=submit");
+    }
+  };
+
+  const handleProjectSent = () => {
+    setShowConnect(false);
+    if (role === "guest") {
+      openAuthModal("Please sign in to log your ascents.");
+    } else {
+      router.push("/beta?action=log");
+    }
+  };
+
+  const handleOpenTripSelect = (type: "open" | "book") => {
+    setShowConnect(false);
+    window.dispatchEvent(new CustomEvent("connect-open-trip", { detail: { type } }));
+    if (type === "book") {
+      setShowBookTrip(true);
+    } else {
+      setShowOpenTrip(true);
+    }
+  };
+
+  const handleAddFriend = () => {
+    setShowConnect(false);
+    router.push("/community");
   };
 
   return (
     <>
+      {/* CONNECT RADIAL ARC WHEEL MENU (Emerges animated from bottom) */}
+      <ConnectRadialMenu
+        isOpen={showConnect}
+        onClose={() => setShowConnect(false)}
+        onRentGear={handleRentGear}
+        onSetProblems={handleSetProblems}
+        onProjectSent={handleProjectSent}
+        onOpenTripSelect={handleOpenTripSelect}
+        onAddFriend={handleAddFriend}
+      />
+
       {/* BOTTOM NAVIGATION BAR */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe md:hidden">
         <div
           className={clsx(
-            "transition-colors duration-300",
+            "transition-colors duration-300 relative",
             isSandstone
               ? "bg-[#b8ab96] border-t border-[#1a1815]/20 shadow-lg"
               : "bg-[#23262C]/95 backdrop-blur-lg border-t border-white/10",
@@ -103,9 +164,10 @@ export default function MobileNav() {
             <Link
               href="/crags"
               title="Crags"
+              onClick={() => setShowConnect(false)}
               className={clsx(
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
-                isCragsActive
+                isCragsActive && !showConnect
                   ? isSandstone
                     ? "text-[#1a1815] scale-110 font-bold"
                     : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
@@ -121,9 +183,10 @@ export default function MobileNav() {
             <Link
               href="/beta"
               title="Problems"
+              onClick={() => setShowConnect(false)}
               className={clsx(
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
-                isProblemsActive
+                isProblemsActive && !showConnect
                   ? isSandstone
                     ? "text-[#1a1815] scale-110 font-bold"
                     : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
@@ -135,31 +198,37 @@ export default function MobileNav() {
               <BoulderIcon size={24} />
             </Link>
 
-            {/* 3. CREATE (+) */}
+            {/* 3. CONNECT (+) / (X when open) */}
             <button
-              onClick={() => setShowCreateSheet(true)}
-              title="Create"
+              onClick={() => setShowConnect((prev) => !prev)}
+              title={showConnect ? "Close Connect" : "Connect"}
               className={clsx(
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
-                showCreateSheet
+                showConnect
                   ? isSandstone
                     ? "text-[#1a1815] scale-110 font-bold"
-                    : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
+                    : "text-white scale-110 drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]"
                   : isSandstone
                     ? "text-[#1a1815]/70 hover:text-[#1a1815]"
                     : "text-slate-ash hover:text-chalk",
               )}
             >
-              <CreateIcon size={28} />
+              <motion.div
+                animate={{ rotate: showConnect ? 90 : 0, scale: showConnect ? 1.08 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
+                {showConnect ? <X size={26} strokeWidth={2.4} /> : <CreateIcon size={28} />}
+              </motion.div>
             </button>
 
             {/* 4. CLIMBING GYM */}
             <Link
               href="/gyms"
               title="Climbing Gym"
+              onClick={() => setShowConnect(false)}
               className={clsx(
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
-                isGymActive
+                isGymActive && !showConnect
                   ? isSandstone
                     ? "text-[#1a1815] scale-110 font-bold"
                     : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
@@ -175,9 +244,10 @@ export default function MobileNav() {
             <Link
               href="/community"
               title="Community"
+              onClick={() => setShowConnect(false)}
               className={clsx(
                 "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
-                isCommunityActive
+                isCommunityActive && !showConnect
                   ? isSandstone
                     ? "text-[#1a1815] scale-110 font-bold"
                     : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
@@ -192,132 +262,30 @@ export default function MobileNav() {
         </div>
       </nav>
 
-      {/* FULL-SCREEN CREATE OVERLAY (COVERS BACKGROUND COMPLETELY) */}
-      <AnimatePresence>
-        {showCreateSheet && (
-          <div className="fixed inset-0 z-[110] flex flex-col justify-between md:hidden">
-            {/* 100% Opaque Solid Full-Screen Panel */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 30 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-              className={`fixed inset-0 z-[110] flex flex-col justify-between p-4 sm:p-6 rounded-none overflow-y-auto ${
-                isSandstone
-                  ? "bg-[#cfc2ab] text-[#1a1815]"
-                  : "bg-[#23262C] text-chalk"
-              }`}
-              style={{
-                paddingTop: "max(env(safe-area-inset-top), 16px)",
-                paddingBottom: "max(env(safe-area-inset-bottom), 16px)",
-              }}
-            >
-              {/* Top Bar with Close X button */}
-              <div className="flex items-center justify-end">
-                <button
-                  onClick={() => setShowCreateSheet(false)}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-none flex items-center justify-center border transition-all ${
-                    isSandstone
-                      ? "border-[#1a1815] bg-[#ded3be] text-[#1a1815] hover:bg-[#1a1815] hover:text-[#ded3be]"
-                      : "border-white/20 bg-granite text-chalk hover:border-lime hover:bg-lime hover:text-granite"
-                  }`}
-                  title="Close"
-                >
-                  <Pictogram name="x" size={18} />
-                </button>
-              </div>
+      {/* Global Modals for CONNECT feature */}
+      {showRentEquip && activeCrag && (
+        <RentEquipmentModal
+          isOpen={showRentEquip}
+          crag={activeCrag}
+          onClose={() => setShowRentEquip(false)}
+        />
+      )}
 
-              {/* Upper Section: Responsive Left-Justified Text */}
-              <div className="pt-2 sm:pt-4 px-2 text-left space-y-3 sm:space-y-5 max-w-lg">
-                <p className="text-[22px] sm:text-[28px] md:text-[36px] font-semibold leading-[1.18] tracking-tight">
-                  You can propose a new route in Problem.
-                </p>
-                <p className="text-[22px] sm:text-[28px] md:text-[36px] font-semibold leading-[1.18] tracking-tight">
-                  You can submit your beta in Ascent.
-                </p>
-              </div>
+      {showOpenTrip && activeCrag && (
+        <OpenTripModal
+          isOpen={showOpenTrip}
+          crag={activeCrag}
+          onClose={() => setShowOpenTrip(false)}
+        />
+      )}
 
-              {/* Bottom Section: Quick Actions with Text Buttons */}
-              <div className="space-y-4 sm:space-y-5 pt-3 max-w-md mx-auto w-full px-2">
-                <div className="space-y-2.5">
-                  <div className="text-left px-1">
-                    <span
-                      className={`text-[11px] sm:text-xs font-bold uppercase tracking-[0.14em] ${
-                        isSandstone ? "text-[#1a1815]/60" : "text-white/60"
-                      }`}
-                    >
-                      QUICK ACTIONS
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col gap-2.5 sm:gap-3 w-full">
-                    {/* 1. Submit Boulder Problem */}
-                    <button
-                      onClick={() =>
-                        handleCreateOption(() => {
-                          if (role === "guest") {
-                            openAuthModal("Please sign in or create an account to submit boulder problems.");
-                          } else {
-                            router.push("/beta?action=submit");
-                          }
-                        })
-                      }
-                      className={clsx(
-                        "flex items-center gap-3 w-full px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl border transition-all text-left group touch-ripple",
-                        isSandstone
-                          ? "border-[#8c8273] bg-[#cfc2ab] hover:bg-[#ded3be] text-[#1a1815]"
-                          : "border-white/20 bg-white/5 hover:bg-white/10 text-white"
-                      )}
-                    >
-                      <Pictogram name="problem" size={20} className="shrink-0" />
-                      <span className="font-bold text-sm sm:text-base tracking-tight">
-                        + Submit Problem
-                      </span>
-                    </button>
-
-                    {/* 2. Log Ascent (Sent Cards) */}
-                    <button
-                      onClick={() =>
-                        handleCreateOption(() => {
-                          if (role === "guest") {
-                            openAuthModal("Please sign in to log your ascent.");
-                          } else {
-                            router.push("/beta?action=log");
-                          }
-                        })
-                      }
-                      className={clsx(
-                        "flex items-center gap-3 w-full px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl border transition-all text-left group touch-ripple",
-                        isSandstone
-                          ? "border-[#d95338] bg-[#d95338]/10 hover:bg-[#d95338]/15 text-[#d95338]"
-                          : "border-[#ff6b4a] bg-[#ff6b4a]/10 hover:bg-[#ff6b4a]/20 text-[#ff6b4a]"
-                      )}
-                    >
-                      <Pictogram name="beta-cards" size={20} className="shrink-0" />
-                      <span className="font-bold text-sm sm:text-base tracking-tight">
-                        Log Ascent
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Bottom Nav Bar Divider and + Trigger */}
-                <div className="pt-2 border-t border-white/10 flex items-center justify-center">
-                  <button
-                    onClick={() => setShowCreateSheet(false)}
-                    className={`w-10 h-10 flex items-center justify-center transition-transform hover:scale-110 ${
-                      isSandstone ? "text-[#1a1815]" : "text-lime"
-                    }`}
-                    title="Close Menu"
-                  >
-                    <CreateIcon size={28} />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {showBookTrip && activeCrag && (
+        <BookTripModal
+          isOpen={showBookTrip}
+          crag={activeCrag}
+          onClose={() => setShowBookTrip(false)}
+        />
+      )}
     </>
   );
 }

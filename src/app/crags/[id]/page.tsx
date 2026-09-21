@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, notFound, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,10 +13,7 @@ import {
   CloudSun,
   Layers,
   Compass,
-  Package,
-  ShieldCheck,
   Calendar,
-  Sparkles,
   ChevronRight,
   Info,
   Car,
@@ -54,6 +51,26 @@ export default function CragDetailPage() {
   const [showOpenTrip, setShowOpenTrip] = useState(false);
   const [showBookTrip, setShowBookTrip] = useState(false);
   const [showRentEquip, setShowRentEquip] = useState(false);
+
+  // Listen to CONNECT bottom navigation radial actions
+  useEffect(() => {
+    const handleOpenTrip = (e: any) => {
+      if (e.detail?.type === "book") {
+        setShowBookTrip(true);
+      } else {
+        setShowOpenTrip(true);
+      }
+    };
+    const handleRentEquip = () => setShowRentEquip(true);
+
+    window.addEventListener("connect-open-trip" as any, handleOpenTrip);
+    window.addEventListener("connect-rent-equipment" as any, handleRentEquip);
+
+    return () => {
+      window.removeEventListener("connect-open-trip" as any, handleOpenTrip);
+      window.removeEventListener("connect-rent-equipment" as any, handleRentEquip);
+    };
+  }, []);
 
   // Problem view & action state
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
@@ -147,68 +164,7 @@ export default function CragDetailPage() {
           </div>
         </div>
 
-        {/* ============================================================ */}
-        {/* CALL TO ACTION (CTA) BAR                                     */}
-        {/* 1. Open A Trip | 2. Book A Trip | 3. Rent Equipment          */}
-        {/* ============================================================ */}
-        <div
-          className={`p-4 rounded-3xl border shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 ${
-            isSandstone
-              ? "bg-[#ded3be] border-[#1a1815]/20 text-[#1a1815]"
-              : "bg-[#1d2228] border-white/10 text-chalk"
-          }`}
-        >
-          <div>
-            <h3 className="font-bold text-sm leading-tight flex items-center gap-1.5">
-              <Sparkles size={16} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
-              Aktivitas & Layanan di {crag.name}
-            </h3>
-            <p className="text-xs opacity-75 font-light">
-              Buka trip komunitas, sewa pemandu lokal, atau sewa peralatan panjat.
-            </p>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-            {/* CTA 1: Open A Trip */}
-            <button
-              onClick={() => setShowOpenTrip(true)}
-              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all touch-ripple ${
-                isSandstone
-                  ? "bg-transparent border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10"
-                  : "bg-transparent border-white/20 text-chalk hover:border-white/40"
-              }`}
-            >
-              <Compass size={15} />
-              <span>Open A Trip</span>
-            </button>
-
-            {/* CTA 2: Book A Trip */}
-            <button
-              onClick={() => setShowBookTrip(true)}
-              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all touch-ripple ${
-                isSandstone
-                  ? "bg-[#1a1815] text-[#ded3be] hover:opacity-90 border border-[#1a1815]"
-                  : "bg-lime text-granite hover:bg-lime-dim shadow-lime-glow-sm"
-              }`}
-            >
-              <ShieldCheck size={15} />
-              <span>Book A Trip</span>
-            </button>
-
-            {/* CTA 3: Rent Equipment */}
-            <button
-              onClick={() => setShowRentEquip(true)}
-              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all touch-ripple ${
-                isSandstone
-                  ? "bg-[#1a1815]/10 border-[#1a1815]/20 text-[#1a1815] hover:bg-[#1a1815]/15"
-                  : "bg-white/10 border-white/20 text-chalk hover:bg-white/15"
-              }`}
-            >
-              <Package size={15} />
-              <span>Rent Equipment</span>
-            </button>
-          </div>
-        </div>
 
         {/* ============================================================ */}
         {/* 7 INFORMASI DETAIL KAWASAN CRAG                              */}
