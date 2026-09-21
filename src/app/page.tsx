@@ -91,7 +91,7 @@ export default function HomePage() {
           </div>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
-          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4 md:mx-0 md:px-0 items-stretch">
             {cragRegions.map((crag, idx) => (
               <motion.div
                 key={crag.id}
@@ -100,7 +100,7 @@ export default function HomePage() {
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.45, delay: idx * 0.06, ease: [0.25, 0.46, 0.45, 0.94] }}
                 whileHover={{ y: -6, transition: { duration: 0.25, ease: 'easeOut' } }}
-                className="w-72 md:w-auto flex-shrink-0"
+                className="w-72 md:w-auto flex-shrink-0 flex flex-col h-[356px] md:h-auto md:min-h-[356px]"
               >
                 <Link
                   href={`/crags/${crag.id}`}
@@ -110,59 +110,59 @@ export default function HomePage() {
                       : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
                   }`}
                 >
-                  <div>
-                    <div className="h-36 md:h-40 overflow-hidden relative">
-                      <div
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-108"
-                        style={{ backgroundImage: `url(${crag.image})` }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-                    </div>
+                  <div className="h-36 md:h-40 overflow-hidden relative flex-shrink-0 w-full">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-108"
+                      style={{ backgroundImage: `url(${crag.image})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                  </div>
 
-                    <div className="p-4 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className={`font-bold text-base transition-colors ${
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between gap-2 min-h-[40px]">
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`font-bold text-base transition-colors truncate ${
                             isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-lime'
                           }`}>
                             {crag.name}
                           </h3>
-                          <div className={`flex items-center gap-1 text-xs font-light ${
+                          <div className={`flex items-center gap-1 text-xs font-light truncate ${
                             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                           }`}>
-                            <MapPin size={11} />
-                            <span>{crag.province}</span>
+                            <MapPin size={11} className="flex-shrink-0" />
+                            <span className="truncate">{crag.province}</span>
                           </div>
                         </div>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors ${
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors flex-shrink-0 whitespace-nowrap ${
                           isSandstone ? 'border-[#1a1815]/30 text-[#1a1815] group-hover:bg-[#1a1815]/10' : 'border-lime/40 text-lime group-hover:bg-lime/10'
                         }`}>
                           {crag.sectorCount} Sectors
                         </span>
                       </div>
 
-                      <p className={`text-xs font-light line-clamp-2 leading-relaxed ${
+                      <p className={`text-xs font-light line-clamp-2 leading-relaxed h-9 overflow-hidden mt-2 ${
                         isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
                       }`}>
                         {crag.description || `Premier outdoor bouldering destination in ${crag.province} with ${crag.sectorCount} verified sectors.`}
                       </p>
                     </div>
-                  </div>
 
-                  <div className={`p-4 pt-0 flex items-center justify-between text-xs border-t ${
-                    isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
-                  }`}>
-                    <span className={`font-light text-[11px] ${
-                      isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                    <div className={`pt-3 flex items-center justify-between text-xs border-t mt-auto flex-shrink-0 ${
+                      isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
                     }`}>
-                      {crag.problemCount} Verified Problems
-                    </span>
-                    <span className={`font-bold flex items-center gap-0.5 transition-colors ${
-                      isSandstone ? 'text-[#1a1815]' : 'text-lime'
-                    }`}>
-                      <span>Explore Crags</span>
-                      <ChevronRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-                    </span>
+                      <span className={`font-light text-[11px] truncate ${
+                        isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                      }`}>
+                        {crag.problemCount} Verified Problems
+                      </span>
+                      <span className={`font-bold flex items-center gap-0.5 transition-colors flex-shrink-0 ${
+                        isSandstone ? 'text-[#1a1815]' : 'text-lime'
+                      }`}>
+                        <span>Explore Crags</span>
+                        <ChevronRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                      </span>
+                    </div>
                   </div>
                 </Link>
               </motion.div>
@@ -193,7 +193,7 @@ export default function HomePage() {
           </div>
 
           {/* Mobile: Horizontal scrollable portrait cards / Desktop: 3-4 cols */}
-          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4 md:mx-0 md:px-0 items-stretch">
             {featuredProblems.slice(0, 8).map((problem, idx) => {
               const gradeColor = gradeColors[problem.grade] || '#CCFF00'
               const photoUrl = problem.imageUrl || problem.sectorImage || problem.cragImage || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=800&q=80'
@@ -311,7 +311,7 @@ export default function HomePage() {
 
                     {/* Card Bottom: Route Name, Location, Sends */}
                     <div className="relative z-20 p-3.5 space-y-1">
-                      <h3 className="font-bold text-base md:text-lg text-white leading-tight drop-shadow-sm group-hover:text-lime transition-colors">
+                      <h3 className="font-bold text-base md:text-lg text-white leading-tight drop-shadow-sm group-hover:text-lime transition-colors truncate">
                         {problem.name}
                       </h3>
                       <p className="text-xs text-white/75 truncate font-light">
@@ -322,7 +322,7 @@ export default function HomePage() {
                         <span className="font-light text-[11px] text-white/70">
                           {problem.ascentCount} logged sends
                         </span>
-                        <span className="font-bold text-lime flex items-center gap-0.5 text-xs">
+                        <span className="font-bold text-lime flex items-center gap-0.5 text-xs flex-shrink-0">
                           <span>Explore Crags</span>
                           <ChevronRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
                         </span>
@@ -358,7 +358,7 @@ export default function HomePage() {
           </div>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
-          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4 md:mx-0 md:px-0 items-stretch">
             {gyms.map((gym, idx) => (
               <motion.div
                 key={gym.id}
@@ -367,7 +367,7 @@ export default function HomePage() {
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.45, delay: idx * 0.06, ease: [0.25, 0.46, 0.45, 0.94] }}
                 whileHover={{ y: -6, transition: { duration: 0.25, ease: 'easeOut' } }}
-                className="w-72 md:w-auto flex-shrink-0"
+                className="w-72 md:w-auto flex-shrink-0 flex flex-col h-[320px] md:h-auto md:min-h-[320px]"
               >
                 <div
                   className={`h-full rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border shadow-sm hover:shadow-lg ${
@@ -376,20 +376,20 @@ export default function HomePage() {
                       : 'bg-transparent border border-white/10 hover:border-cyan-climb/40 text-chalk'
                   }`}
                 >
-                  <div>
-                    <div className="h-36 overflow-hidden relative">
-                      <div
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-108"
-                        style={{ backgroundImage: `url(${gym.image})` }}
-                      />
-                      <div className="absolute top-2.5 right-2.5 bg-black/65 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/15 flex items-center gap-1 text-xs shadow-md">
-                        <Star size={11} className="text-lime fill-lime" />
-                        <span className="font-bold text-chalk">{gym.rating}</span>
-                      </div>
+                  <div className="h-36 overflow-hidden relative flex-shrink-0 w-full">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-108"
+                      style={{ backgroundImage: `url(${gym.image})` }}
+                    />
+                    <div className="absolute top-2.5 right-2.5 bg-black/65 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/15 flex items-center gap-1 text-xs shadow-md">
+                      <Star size={11} className="text-lime fill-lime" />
+                      <span className="font-bold text-chalk">{gym.rating}</span>
                     </div>
+                  </div>
 
-                    <div className="p-4 space-y-2">
-                      <div>
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="min-h-[40px]">
                         <h3 className={`font-bold text-base transition-colors truncate ${
                           isSandstone ? 'text-[#1a1815] group-hover:underline' : 'text-chalk group-hover:text-cyan-climb'
                         }`}>
@@ -398,12 +398,12 @@ export default function HomePage() {
                         <div className={`flex items-center gap-1 text-xs font-light truncate ${
                           isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                         }`}>
-                          <MapPin size={11} />
-                          <span>{gym.city}</span>
+                          <MapPin size={11} className="flex-shrink-0" />
+                          <span className="truncate">{gym.city}</span>
                         </div>
                       </div>
 
-                      <div className={`flex items-center justify-between text-xs pt-1 border-t ${
+                      <div className={`flex items-center justify-between text-xs pt-2 border-t mt-2 ${
                         isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
                       }`}>
                         <span className={`font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>Starts from</span>
@@ -412,20 +412,20 @@ export default function HomePage() {
                         </span>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="p-4 pt-0">
-                    <Link
-                      href={`/gyms/${gym.id}`}
-                      className={`w-full h-9 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-colors border ${
-                        isSandstone
-                          ? 'bg-transparent border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
-                          : 'bg-transparent border-cyan-climb/60 hover:bg-cyan-climb/10 text-cyan-climb'
-                      }`}
-                    >
-                      <span>Book Gym Pass</span>
-                      <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-                    </Link>
+                    <div className="pt-3 mt-auto flex-shrink-0">
+                      <Link
+                        href={`/gyms/${gym.id}`}
+                        className={`w-full h-9 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-colors border ${
+                          isSandstone
+                            ? 'bg-transparent border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
+                            : 'bg-transparent border-cyan-climb/60 hover:bg-cyan-climb/10 text-cyan-climb'
+                        }`}
+                      >
+                        <span>Book Gym Pass</span>
+                        <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -456,7 +456,7 @@ export default function HomePage() {
           </div>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3 cols */}
-          <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4 md:mx-0 md:px-0 items-stretch">
             {communities.map((comm, idx) => (
               <motion.div
                 key={comm.id}
@@ -465,7 +465,7 @@ export default function HomePage() {
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.45, delay: idx * 0.07, ease: [0.25, 0.46, 0.45, 0.94] }}
                 whileHover={{ y: -6, transition: { duration: 0.25, ease: 'easeOut' } }}
-                className="w-72 md:w-auto flex-shrink-0"
+                className="w-72 md:w-auto flex-shrink-0 flex flex-col h-[340px] md:h-auto md:min-h-[340px]"
               >
                 <div
                   className={`h-full rounded-2xl overflow-hidden transition-all flex flex-col justify-between group border shadow-sm hover:shadow-lg ${
@@ -474,30 +474,30 @@ export default function HomePage() {
                       : 'bg-transparent border border-white/10 hover:border-lime/30 text-chalk'
                   }`}
                 >
-                  <div>
-                    <div className="h-36 overflow-hidden relative">
-                      <div
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-108"
-                        style={{ backgroundImage: `url(${comm.image})` }}
-                      />
-                    </div>
+                  <div className="h-36 overflow-hidden relative flex-shrink-0 w-full">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-108"
+                      style={{ backgroundImage: `url(${comm.image})` }}
+                    />
+                  </div>
 
-                    <div className="p-4 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className={`font-bold text-base transition-colors ${
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between gap-2 min-h-[40px]">
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`font-bold text-base transition-colors truncate ${
                             isSandstone ? 'text-[#1a1815] group-hover:text-black' : 'text-chalk group-hover:text-lime'
                           }`}>
                             {comm.name}
                           </h3>
-                          <div className={`flex items-center gap-1 text-xs font-light ${
+                          <div className={`flex items-center gap-1 text-xs font-light truncate ${
                             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                           }`}>
-                            <MapPin size={11} />
-                            <span>{comm.city}, {comm.province}</span>
+                            <MapPin size={11} className="flex-shrink-0" />
+                            <span className="truncate">{comm.city}, {comm.province}</span>
                           </div>
                         </div>
-                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full border ${
+                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full border flex-shrink-0 ${
                           isSandstone ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]' : 'bg-transparent border-white/10 text-chalk'
                         }`}>
                           <Users size={11} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-climb'} />
@@ -505,38 +505,38 @@ export default function HomePage() {
                         </div>
                       </div>
 
-                      <p className={`text-xs font-light line-clamp-2 leading-relaxed ${
+                      <p className={`text-xs font-light line-clamp-2 leading-relaxed h-9 overflow-hidden mt-2 ${
                         isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
                       }`}>
                         {comm.description}
                       </p>
                     </div>
-                  </div>
 
-                  <div className="p-4 pt-0 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedJoinCommunity(comm)}
-                      className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors touch-ripple ${
-                        isSandstone
-                          ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
-                          : 'border-white/10 hover:border-lime/40 text-chalk'
-                      }`}
-                    >
-                      <UserPlus size={14} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} /> Request to Join
-                    </button>
-                    <a
-                      href={comm.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors touch-ripple ${
-                        isSandstone
-                          ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
-                          : 'border-white/10 hover:border-white/30 text-chalk'
-                      }`}
-                    >
-                      <Instagram size={14} className="text-[#E1306C]" /> Instagram
-                    </a>
+                    <div className="pt-3 mt-auto flex gap-2 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedJoinCommunity(comm)}
+                        className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors touch-ripple ${
+                          isSandstone
+                            ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
+                            : 'border-white/10 hover:border-lime/40 text-chalk'
+                        }`}
+                      >
+                        <UserPlus size={14} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} /> Request to Join
+                      </button>
+                      <a
+                        href={comm.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex-1 h-9 bg-transparent border rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors touch-ripple ${
+                          isSandstone
+                            ? 'border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]'
+                            : 'border-white/10 hover:border-white/30 text-chalk'
+                        }`}
+                      >
+                        <Instagram size={14} className="text-[#E1306C]" /> Instagram
+                      </a>
+                    </div>
                   </div>
                 </div>
               </motion.div>
