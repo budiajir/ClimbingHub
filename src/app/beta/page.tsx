@@ -3,12 +3,11 @@
 import { useState, useEffect, useRef, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Mountain, ThumbsUp, Video, ShieldAlert, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Mountain, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2, Search } from 'lucide-react'
 import { Problem, CragRegion, RouteDiscipline } from '@/lib/mock-data'
 import { useCragRegions, insertRoute, insertCragRegion, insertSector } from '@/lib/use-data'
 import { gradeColors } from '@/lib/tokens'
 import TopoCanvas from '@/components/beta/TopoCanvas'
-import ProblemSheet from '@/components/beta/ProblemSheet'
 import LogAscentModal from '@/components/beta/LogAscentModal'
 import AscentShareModal from '@/components/beta/AscentShareModal'
 import SendCard from '@/components/beta/SendCard'
@@ -202,14 +201,12 @@ function BetaPageContent() {
   const currentTheme = CATEGORY_THEMES[selectedCategory]
   const themeTextColor = isSandstone ? currentTheme.lightText : currentTheme.darkText
 
-  const [showSheet, setShowSheet] = useState(false)
   const [showLogModal, setShowLogModal] = useState(false)
   const [activeShareAscent, setActiveShareAscent] = useState<UserAscent | null>(null)
   const [userAscents, setUserAscents] = useState<UserAscent[]>([])
   const [showMyAscentsView, setShowMyAscentsView] = useState(false)
   const [showAddRouteModal, setShowAddRouteModal] = useState(false)
   const [showRoadmapModal, setShowRoadmapModal] = useState(false)
-  const [desktopTab, setDesktopTab] = useState<'overview' | 'beta' | 'specs' | 'access'>('overview')
 
   useEffect(() => {
     if (cragRegions && cragRegions.length > 0) {
@@ -226,7 +223,6 @@ function BetaPageContent() {
     const handleOpenBetaBook = () => {
       setShowMyAscentsView(true)
       setLevel('regions')
-      setShowSheet(false)
     }
     window.addEventListener('open-personal-beta-book', handleOpenBetaBook)
     return () => window.removeEventListener('open-personal-beta-book', handleOpenBetaBook)
@@ -250,7 +246,6 @@ function BetaPageContent() {
             setSelectedSector(sec.id)
             setSelectedProblem(match.id)
             setLevel('topo')
-            setShowSheet(true)
             return
           }
         }
@@ -279,7 +274,6 @@ function BetaPageContent() {
     if (viewParam === 'my-ascents' || viewParam === 'betabook') {
       setShowMyAscentsView(true)
       setLevel('regions')
-      setShowSheet(false)
     } else if (viewParam === 'crags' || viewParam === 'boulders') {
       setShowMyAscentsView(false)
     }
@@ -303,7 +297,6 @@ function BetaPageContent() {
           setSelectedSector(firstSec.id)
           setSelectedProblem(firstProb.id)
           setLevel('topo')
-          setShowSheet(true)
         }
       }
       if (!canLogAscent(role)) {
@@ -399,7 +392,6 @@ function BetaPageContent() {
     setSelectedSector(sectorId)
     setSelectedProblem(newRoute.id)
     setLevel('topo')
-    setShowSheet(true)
 
     // 2. Persist to Supabase in background
     try {
@@ -464,7 +456,6 @@ function BetaPageContent() {
       } else {
         setLevel('regions')
       }
-      setShowSheet(false)
       setSelectedProblem(null)
     } else if (level === 'problems') {
       if (selectedRegion) {
@@ -927,7 +918,6 @@ function BetaPageContent() {
                               setSelectedSector(s.id)
                               setSelectedProblem(p.id)
                               setLevel('topo')
-                              setShowSheet(true)
                             }}
                             className="w-full text-left py-3.5 sm:py-4 flex items-center justify-between gap-4 transition-opacity hover:opacity-75 group border-b"
                             style={{ borderColor: currentTheme.primary + '35' }}
@@ -1009,7 +999,6 @@ function BetaPageContent() {
                                 setSelectedSector(item.sector.id)
                                 setSelectedProblem(item.problem.id)
                                 setLevel('topo')
-                                setShowSheet(true)
                               }
                             }}
                             className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-opacity hover:opacity-90"
@@ -1057,7 +1046,6 @@ function BetaPageContent() {
                             setSelectedSector(s.id)
                             setSelectedProblem(p.id)
                             setLevel('topo')
-                            setShowSheet(true)
                           }}
                           className="text-left rounded-2xl overflow-hidden border transition-all hover:scale-[1.02] flex flex-col justify-between group shadow-sm"
                           style={{
@@ -1233,7 +1221,7 @@ function BetaPageContent() {
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.06 }}
-                      onClick={() => { setSelectedProblem(p.id); setLevel('topo'); setShowSheet(true) }}
+                      onClick={() => { setSelectedProblem(p.id); setLevel('topo') }}
                       className={`w-full text-left rounded-2xl p-4 flex items-center gap-3.5 touch-ripple transition-all group relative overflow-hidden border ${
                         isSandstone
                           ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50 text-[#1a1815]'
@@ -1312,236 +1300,20 @@ function BetaPageContent() {
               ))}
             </div>
 
-            {/* Layout: Full canvas on mobile, 2-column split studio on desktop */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Left Column: Topo Canvas */}
-              <div className="lg:col-span-7 -mx-4 md:mx-0">
-                <TopoCanvas
-                  problem={problem}
-                  imageUrl={problem.imageUrl || sector.image}
-                  onLogAscent={triggerLogAscent}
-                />
-              </div>
-
-              {/* Right Column: Desktop Inspector Panel */}
-              <div className={`hidden lg:flex lg:col-span-5 flex-col rounded-2xl p-6 h-[640px] overflow-y-auto justify-between border ${
-                isSandstone
-                  ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
-                  : 'bg-crag border-white/5 text-chalk'
-              }`}>
-                <div>
-                  <div className={`flex items-start justify-between mb-4 border-b pb-4 ${
-                    isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
-                  }`}>
-                    <div>
-                      {/* 1. Category Badge */}
-                      <div className="flex items-center gap-1.5 mb-1.5">
-                        <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-climb/20 text-cyan-climb border border-cyan-climb/30 font-bold uppercase">
-                          {problem.category || (problem.discipline === 'sport' ? 'lead' : problem.discipline === 'multipitch' ? 'trad' : 'boulder')} · {problem.startType || 'Sit Start'}
-                        </span>
-                      </div>
-
-                      {/* 6. Grade Jalur & 2. Nama Jalur */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-lime font-bold text-2xl">{problem.grade}</span>
-                        <span className="text-slate-ash text-sm font-light">/ {problem.fontGrade}</span>
-                      </div>
-                      <h2 className="text-chalk font-bold text-2xl">{problem.name}</h2>
-                      {/* 3. Route Setter + Tahun */}
-                      <p className="text-slate-ash text-xs font-light">
-                        Setter: <span className="font-medium text-chalk">{problem.setterYear || `${problem.setter || problem.fa} (${problem.faDate || '2023'})`}</span>
-                      </p>
-                    </div>
-                    <div className="bg-granite px-3 py-1.5 rounded-xl border border-white/5 text-right">
-                      <div className="text-lime font-bold text-lg">{problem.ascentCount}</div>
-                      <div className="text-slate-ash text-[10px] uppercase font-light">Total Sends</div>
-                    </div>
-                  </div>
-
-                  {/* Desktop Inspector Tabs */}
-                  <div className="grid grid-cols-4 bg-granite p-1 rounded-xl mb-4 border border-white/5">
-                    {[
-                      { key: 'overview' as const, label: 'Overview', icon: ThumbsUp },
-                      { key: 'specs' as const, label: 'Specs', icon: Layers },
-                      { key: 'beta' as const, label: 'Beta', icon: Video },
-                      { key: 'access' as const, label: 'Access', icon: ShieldAlert },
-                    ].map(({ key, label, icon: Icon }) => (
-                      <button
-                        key={key}
-                        onClick={() => setDesktopTab(key)}
-                        className={`flex items-center justify-center gap-1 py-2 rounded-lg text-xs transition-all ${
-                          desktopTab === key
-                            ? 'bg-lime text-granite shadow-lime-glow-sm font-bold'
-                            : 'text-slate-ash hover:text-chalk font-light'
-                        }`}
-                      >
-                        <Icon size={12} /> {label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Tab Contents */}
-                  {desktopTab === 'overview' && (
-                    <div className="space-y-4">
-                      <p className="text-chalk/80 text-sm font-normal leading-relaxed">{problem.description}</p>
-                      <div className="bg-granite rounded-xl p-3 border border-white/5">
-                        <div className="text-slate-ash text-xs font-light mb-2 flex items-center gap-1.5">
-                          <ThumbsUp size={13} className="text-lime" /> Community Grade Consensus
-                        </div>
-                        <div className="space-y-1.5">
-                          {problem.gradeVotes.map(v => (
-                            <div key={v.grade} className="flex items-center gap-2 text-xs">
-                              <span className="w-8 font-bold text-lime">{v.grade}</span>
-                              <div className="flex-1 h-2 bg-crag rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-lime rounded-full"
-                                  style={{ width: `${(v.votes / Math.max(1, problem.ascentCount)) * 100}%` }}
-                                />
-                              </div>
-                              <span className="text-slate-ash text-[11px] w-6 text-right font-light">{v.votes}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {desktopTab === 'specs' && (
-                    <div className="space-y-3">
-                      {/* 7. Tinggi Jalur & 8. Titik Pegangan */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-granite p-3 rounded-xl">
-                          <span className="text-[10px] text-slate-ash uppercase block">7. Tinggi Jalur</span>
-                          <span className="text-sm font-bold text-lime font-mono">
-                            {problem.height || problem.pitchLength || problem.totalHeight || '4.2m'}
-                          </span>
-                        </div>
-                        <div className="bg-granite p-3 rounded-xl">
-                          <span className="text-[10px] text-slate-ash uppercase block">8. Titik Pegangan</span>
-                          <span className="text-sm font-bold text-cyan-climb font-mono">
-                            ~{problem.holdsCount || (problem.markers?.length ? problem.markers.length * 3 : 14)} Holds
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* 8. Hold Details */}
-                      {problem.holdDetails && (
-                        <div className="bg-granite p-3 rounded-xl">
-                          <span className="text-[10px] text-slate-ash uppercase block mb-1">Karakter Pegangan</span>
-                          <p className="text-xs text-chalk/90 leading-relaxed">{problem.holdDetails}</p>
-                        </div>
-                      )}
-
-                      {/* 9. Jumlah Anchor (Lead) / Crashpads */}
-                      <div className="bg-granite p-3 rounded-xl">
-                        <span className="text-[10px] text-slate-ash uppercase block mb-1">9. Jumlah Anchor & Pengaman</span>
-                        {problem.category === 'lead' || problem.category === 'trad' || problem.discipline === 'sport' || problem.discipline === 'multipitch' ? (
-                          <div className="text-xs text-chalk space-y-1">
-                            <div><span className="text-lime font-bold font-mono">{problem.anchorCount || problem.boltCount || 9} Bolts</span> (Stainless Expansion)</div>
-                            <div className="text-slate-ash text-[11px]">{problem.anchorType || 'Double Ring Chain Anchor'}</div>
-                          </div>
-                        ) : (
-                          <div className="text-xs text-chalk space-y-1">
-                            <div><span className="text-cyan-climb font-bold">{problem.padRecommendation || '2 Crashpads'}</span> recommended</div>
-                            <div className="text-slate-ash text-[11px]">Pendaratan: {problem.landingQuality || 'Flat grassy ground'}</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {desktopTab === 'beta' && (
-                    <div className="space-y-3">
-                      {/* 10. Beta Text */}
-                      {problem.betaText && (
-                        <div className="bg-granite p-3 rounded-xl border border-white/5">
-                          <span className="text-[10px] text-lime uppercase font-bold block mb-1">Crux & Sequence Beta</span>
-                          <p className="text-xs text-chalk/90 leading-relaxed">{problem.betaText}</p>
-                        </div>
-                      )}
-
-                      {/* Beta Video */}
-                      {problem.betaVideoUrl ? (
-                        <div className="rounded-xl overflow-hidden aspect-video border border-white/5">
-                          <iframe
-                            src={problem.betaVideoUrl}
-                            className="w-full h-full"
-                            allowFullScreen
-                            title="Beta Video"
-                          />
-                        </div>
-                      ) : (
-                        <div className="aspect-video bg-granite rounded-xl flex flex-col items-center justify-center gap-2">
-                          <Video size={28} className="text-slate-ash" />
-                          <p className="text-slate-ash text-sm font-light">No beta video recorded yet</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {desktopTab === 'access' && (
-                    <div className="space-y-3">
-                      <div className="bg-project/10 border border-project/20 rounded-xl p-3 flex gap-3">
-                        <ShieldAlert size={16} className="text-project flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-project text-xs font-bold mb-1">Access & Crag Etiquette</p>
-                          <p className="text-chalk/80 text-xs font-normal leading-relaxed">{problem.accessInfo}</p>
-                        </div>
-                      </div>
-                      <div className="bg-granite rounded-xl p-3">
-                        <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-1 font-light">Local Contact / Area Host</p>
-                        <p className="text-chalk text-xs font-medium">{problem.localContact}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Problems Call To Actions (2 CTAs): 1. Submit Sent | 2. Set New Route */}
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  {/* CTA 1: Submit Sent */}
-                  <button
-                    onClick={triggerLogAscent}
-                    className="h-12 bg-lime text-granite font-bold rounded-xl shadow-lime-glow text-xs sm:text-sm hover:bg-lime-dim transition-all flex items-center justify-center gap-1.5"
-                  >
-                    Submit Sent 🎉
-                  </button>
-
-                  {/* CTA 2: Set New Route */}
-                  <button
-                    onClick={() => {
-                      if (canCreateCragRoute(role)) {
-                        setShowAddRouteModal(true)
-                      } else {
-                        setShowRoadmapModal(true)
-                      }
-                    }}
-                    className="h-12 border border-white/20 text-chalk font-bold rounded-xl hover:bg-white/5 hover:border-lime/40 text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <Plus size={15} />
-                    Set New Route
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Bottom Sheet */}
-            <div className="lg:hidden">
-              <AnimatePresence>
-                {showSheet && (
-                  <ProblemSheet
-                    problem={problem}
-                    onLogAscent={triggerLogAscent}
-                    onSetNewRoute={() => {
-                      if (canCreateCragRoute(role)) {
-                        setShowAddRouteModal(true)
-                      } else {
-                        setShowRoadmapModal(true)
-                      }
-                    }}
-                    onClose={() => setShowSheet(false)}
-                  />
-                )}
-              </AnimatePresence>
+            {/* Single Continuous Vertical Scroll: Topo Photo + Full Route Details & Specs */}
+            <div className="max-w-4xl mx-auto">
+              <TopoCanvas
+                problem={problem}
+                imageUrl={problem.imageUrl || sector.image}
+                onLogAscent={triggerLogAscent}
+                onSetNewRoute={() => {
+                  if (canCreateCragRoute(role)) {
+                    setShowAddRouteModal(true)
+                  } else {
+                    setShowRoadmapModal(true)
+                  }
+                }}
+              />
             </div>
           </motion.div>
         )}

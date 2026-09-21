@@ -3,13 +3,28 @@
 import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Problem, TopoMarker } from '@/lib/mock-data'
-import { ZoomIn, ZoomOut, RotateCcw, Mountain, Layers, Compass } from 'lucide-react'
+import {
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Mountain,
+  Layers,
+  Compass,
+  Hand,
+  Anchor,
+  ThumbsUp,
+  Video,
+  AlertCircle,
+  Plus,
+  ExternalLink,
+} from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
 
 interface TopoCanvasProps {
   problem: Problem
   imageUrl: string
   onLogAscent?: () => void
+  onSetNewRoute?: () => void
 }
 
 const markerStyle: Record<string, { bg: string; text: string; glow: string; label: string }> = {
@@ -95,7 +110,7 @@ function TopoMarkerPin({
   )
 }
 
-export default function TopoCanvas({ problem, imageUrl, onLogAscent }: TopoCanvasProps) {
+export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRoute }: TopoCanvasProps) {
   const { theme } = useTheme()
   const isSandstone = theme === 'sandstone'
   const [scale, setScale] = useState(1)
@@ -112,6 +127,27 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent }: TopoCanva
     : isSport
     ? 'rgba(204,255,0,0.7)'
     : 'rgba(6,182,212,0.7)'
+
+  const category =
+    problem.category ||
+    (problem.discipline === 'sport' || problem.discipline === 'lead'
+      ? 'lead'
+      : problem.discipline === 'multipitch' || problem.discipline === 'trad'
+      ? 'trad'
+      : 'boulder')
+
+  const heightDisplay = problem.height || problem.pitchLength || problem.totalHeight || (category === 'boulder' ? '4.2m' : '22m')
+  const holdsCountDisplay = problem.holdsCount || (problem.markers && problem.markers.length > 0 ? problem.markers.length * 3 : 14)
+  const holdDetailsDisplay =
+    problem.holdDetails ||
+    (category === 'boulder'
+      ? 'Dual crimp sit start, balance footwork to undercling crux, jug top-out'
+      : 'Positive crimp sequence leading to rest pocket, crimpy headwall to ring anchor')
+
+  const isLeadOrTrad = category === 'lead' || category === 'trad' || problem.discipline === 'sport' || problem.discipline === 'multipitch'
+  const anchorCountDisplay = problem.anchorCount || problem.boltCount || (isLeadOrTrad ? 9 : undefined)
+  const anchorTypeDisplay = problem.anchorType || (isLeadOrTrad ? 'Double Ring Stainless Chain Anchor' : 'N/A (Bouldering Crashpad landing)')
+  const totalVotes = (problem.gradeVotes || []).reduce((acc, v) => acc + v.votes, 0)
 
   // Full SVG line connecting all markers
   const svgPathD =
@@ -590,6 +626,331 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent }: TopoCanva
               <span>🎉 Log Ascent / Telah Menyelesaikan Rute</span>
             </button>
           </div>
+        )}
+      </div>
+
+      {/* ============================================================ */}
+      {/* 3. QUICK SPECS STRIP (7. TINGGI, 8. PEGANGAN, 9. ANCHOR)     */}
+      {/* ============================================================ */}
+      <div className="mx-4 md:mx-0 grid grid-cols-3 gap-2.5 text-center">
+        <div className={`p-3 rounded-2xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/15 shadow-sm' : 'bg-crag/50 border-white/5'}`}>
+          <div className={`text-[10px] uppercase font-bold tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+            7. Tinggi Jalur
+          </div>
+          <div className={`text-base font-bold font-mono mt-1 ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
+            {heightDisplay}
+          </div>
+        </div>
+
+        <div className={`p-3 rounded-2xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/15 shadow-sm' : 'bg-crag/50 border-white/5'}`}>
+          <div className={`text-[10px] uppercase font-bold tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+            8. Titik Pegangan
+          </div>
+          <div className={`text-base font-bold font-mono mt-1 ${isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'}`}>
+            ~{holdsCountDisplay} Holds
+          </div>
+        </div>
+
+        <div className={`p-3 rounded-2xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/15 shadow-sm' : 'bg-crag/50 border-white/5'}`}>
+          <div className={`text-[10px] uppercase font-bold tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
+            9. Anchor / Pengaman
+          </div>
+          <div className={`text-base font-bold font-mono mt-1 truncate ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
+            {isLeadOrTrad ? `${anchorCountDisplay} Bolts` : 'Crashpad'}
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 4. BAGIAN 1: SPECS & KARAKTERISTIK JALUR                      */}
+      {/* ============================================================ */}
+      <div
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-4 transition-colors ${
+          isSandstone
+            ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+            : 'bg-transparent border-white/10 text-chalk'
+        }`}
+      >
+        <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
+          <Layers size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+          <h3 className="font-bold text-sm uppercase tracking-wider">
+            1. Specs & Karakteristik Jalur
+          </h3>
+        </div>
+
+        {/* Route Description */}
+        <div>
+          <div className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${
+            isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+          }`}>
+            Karakteristik & Deskripsi Jalur
+          </div>
+          <p className={`text-xs md:text-sm leading-relaxed ${isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}`}>
+            {problem.description || 'Jalur pemanjatan outdoor yang menantang dengan karakteristik batuan alami dan sequence teknikal.'}
+          </p>
+        </div>
+
+        {/* 8. Titik + Karakter Pegangan */}
+        <div className={`p-3.5 rounded-xl border ${
+          isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+        }`}>
+          <div className="flex items-center gap-1.5 mb-1.5 text-xs font-bold uppercase tracking-wider">
+            <Hand size={14} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'} />
+            <span>8. Karakter Pegangan & Posisi Start</span>
+          </div>
+          <p className={`text-xs leading-relaxed mb-2.5 ${isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'}`}>
+            {holdDetailsDisplay}
+          </p>
+          <div className="flex items-center gap-2 text-[11px] font-mono flex-wrap">
+            <span className={`px-2 py-0.5 rounded ${
+              isSandstone ? 'bg-white text-[#1a1815] border border-[#1a1815]/15' : 'bg-crag text-chalk'
+            }`}>
+              Total Titik: ~{holdsCountDisplay} Holds
+            </span>
+            <span className={`px-2 py-0.5 rounded ${
+              isSandstone ? 'bg-white text-[#1a1815] border border-[#1a1815]/15' : 'bg-crag text-chalk'
+            }`}>
+              Start: {problem.startType || (category === 'boulder' ? 'Sit Start (SS)' : 'Ground Stand')}
+            </span>
+          </div>
+        </div>
+
+        {/* 9. Jumlah Anchor & Pengaman */}
+        <div className={`p-3.5 rounded-xl border ${
+          isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+        }`}>
+          <div className="flex items-center gap-1.5 mb-1.5 text-xs font-bold uppercase tracking-wider">
+            <Anchor size={14} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+            <span>9. Jumlah Anchor & Pengaman</span>
+          </div>
+          {isLeadOrTrad ? (
+            <div className="space-y-1 text-xs">
+              <p><span className="font-bold">Baut Pengaman:</span> {anchorCountDisplay} titik pengaman baut expansion.</p>
+              <p><span className="font-bold">Tipe Anchor Top:</span> {anchorTypeDisplay}.</p>
+            </div>
+          ) : (
+            <div className="space-y-1 text-xs">
+              <p><span className="font-bold">Sistem Pendaratan:</span> {problem.landingQuality || 'Tanah datar rumput'}.</p>
+              <p><span className="font-bold">Rekomendasi Crashpad:</span> {problem.padRecommendation || 'Minimal 2 crashpad & 1 spotter'}.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Konsensus Grade Komunitas */}
+        {problem.gradeVotes && problem.gradeVotes.length > 0 && (
+          <div className={`p-3.5 rounded-xl border ${
+            isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+          }`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold">
+                <ThumbsUp size={13} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+                <span>Konsensus Grade Komunitas</span>
+              </div>
+              <span className="text-[11px] font-mono opacity-70">
+                {problem.ascentCount || 0} Ascents Terdata
+              </span>
+            </div>
+            <div className="space-y-1.5">
+              {problem.gradeVotes.map(v => {
+                const pct = totalVotes > 0 ? Math.round((v.votes / totalVotes) * 100) : 0
+                return (
+                  <div key={v.grade} className="flex items-center gap-2 text-xs">
+                    <span className="font-mono w-10 text-right opacity-70">{v.grade}</span>
+                    <div className={`flex-1 h-1.5 rounded-full overflow-hidden ${
+                      isSandstone ? 'bg-[#1a1815]/10' : 'bg-crag-light'
+                    }`}>
+                      <div
+                        className={`h-full rounded-full ${isSandstone ? 'bg-[#1a1815]' : 'bg-lime'}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="font-mono w-8 text-right font-medium">{pct}%</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================ */}
+      {/* 5. BAGIAN 2: TOPO MARKERS SEQUENCE                           */}
+      {/* ============================================================ */}
+      <div
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3 transition-colors ${
+          isSandstone
+            ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+            : 'bg-transparent border-white/10 text-chalk'
+        }`}
+      >
+        <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
+          <Compass size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'} />
+          <h3 className="font-bold text-sm uppercase tracking-wider">
+            2. Topo Markers Sequence
+          </h3>
+        </div>
+
+        <div className="space-y-2">
+          {problem.markers.map((m, idx) => {
+            const mStyle = markerStyle[m.type] || markerStyle.B
+            return (
+              <div
+                key={m.id || idx}
+                className={`flex items-center justify-between p-2.5 rounded-xl border ${
+                  isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className="w-5 h-5 rounded-full text-[10px] font-mono font-bold flex items-center justify-center flex-shrink-0 shadow-sm"
+                    style={{ backgroundColor: mStyle.bg, color: mStyle.text }}
+                  >
+                    {m.type}
+                  </span>
+                  <span className="font-medium text-xs">
+                    {m.label || mStyle.label}
+                  </span>
+                </div>
+                <span className={`font-mono text-[11px] ${
+                  isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                }`}>
+                  Coord: {m.x}%, {m.y}%
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 6. BAGIAN 3: BETA & CRUX SEQUENCE                            */}
+      {/* ============================================================ */}
+      <div
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-4 transition-colors ${
+          isSandstone
+            ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+            : 'bg-transparent border-white/10 text-chalk'
+        }`}
+      >
+        <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
+          <Video size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+          <h3 className="font-bold text-sm uppercase tracking-wider">
+            3. Beta & Crux Sequence
+          </h3>
+        </div>
+
+        {/* 10. Crux Sequence & Beta Tips */}
+        <div>
+          <div className={`text-[11px] font-bold uppercase tracking-wider mb-1.5 ${
+            isSandstone ? 'text-[#1a1815]' : 'text-lime'
+          }`}>
+            10. Crux Sequence & Beta Tips
+          </div>
+          <p className={`text-xs md:text-sm leading-relaxed p-3.5 rounded-xl border ${
+            isSandstone
+              ? 'bg-[#1a1815]/5 border-[#1a1815]/10 text-[#1a1815]/90'
+              : 'bg-granite/70 border-white/5 text-chalk/90'
+          }`}>
+            {problem.betaText ||
+              'Kunci jalur ini berada di transisi move ke-4. Tempatkan heel hook tinggi pada arête samping kiri, lakukan deadpoint terukur ke crimp mikro dengan tangan kanan, kemudian kunci core sebelum memindahkan kaki ke ledge kecil.'}
+          </p>
+        </div>
+
+        {/* Video Beta Dokumentasi */}
+        <div>
+          <div className={`text-[11px] font-bold uppercase tracking-wider mb-2 ${
+            isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+          }`}>
+            Video Beta Dokumentasi
+          </div>
+          {problem.betaVideoUrl ? (
+            <div className="rounded-2xl overflow-hidden aspect-video border border-current/15 shadow-lg bg-black">
+              <iframe
+                src={problem.betaVideoUrl}
+                className="w-full h-full"
+                allowFullScreen
+                title={`Beta Video - ${problem.name}`}
+              />
+            </div>
+          ) : (
+            <div className={`aspect-video rounded-2xl border flex flex-col items-center justify-center gap-2.5 p-4 text-center ${
+              isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+            }`}>
+              <Video size={32} className={isSandstone ? 'text-[#1a1815]/40' : 'text-slate-ash'} />
+              <p className={`text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                Belum ada video beta resmi untuk jalur ini.
+              </p>
+              {onLogAscent && (
+                <button
+                  onClick={onLogAscent}
+                  className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                    isSandstone ? 'bg-[#1a1815] text-white hover:bg-black' : 'bg-lime text-granite hover:bg-lime-dim'
+                  }`}
+                >
+                  <ExternalLink size={12} /> Log Ascent & Upload Beta
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 7. BAGIAN 4: AKSES & ETIKA TEBING                             */}
+      {/* ============================================================ */}
+      <div
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3 transition-colors ${
+          isSandstone
+            ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+            : 'bg-transparent border-white/10 text-chalk'
+        }`}
+      >
+        <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
+          <AlertCircle size={16} className="text-project" />
+          <h3 className="font-bold text-sm uppercase tracking-wider text-project">
+            4. Akses & Etika Tebing
+          </h3>
+        </div>
+        <p className="text-xs leading-relaxed opacity-90">
+          {problem.accessInfo || 'Wajib melapor ke pos perizinan setempat. Dilarang meninggalkan sampah/kapur berlebih, dan gunakan alas pelindung ground bila diperlukan.'}
+        </p>
+        <div className={`p-3 rounded-xl border text-xs ${
+          isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+        }`}>
+          <span className="font-bold block mb-0.5 opacity-70">Local Contact / Basecamp Coordinator:</span>
+          <span className="font-medium">{problem.localContact || 'Pengelola Kawasan & Komunitas Pemanjat Tebing Lokal'}</span>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 8. PROBLEMS CALL TO ACTIONS (DUAL CTAs)                       */}
+      {/* ============================================================ */}
+      <div className="mx-4 md:mx-0 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 pb-6">
+        {onLogAscent && (
+          <button
+            onClick={onLogAscent}
+            className={`h-12 w-full rounded-xl flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md active:scale-[0.98] ${
+              isSandstone
+                ? 'bg-[#1a1815] text-white hover:bg-black'
+                : 'bg-lime text-granite hover:bg-lime-dim shadow-lime-glow'
+            }`}
+          >
+            <span>🎉 Submit Sent (Log Ascent)</span>
+          </button>
+        )}
+
+        {onSetNewRoute && (
+          <button
+            onClick={onSetNewRoute}
+            className={`h-12 w-full rounded-xl flex items-center justify-center gap-2 text-sm font-bold border transition-all active:scale-[0.98] ${
+              isSandstone
+                ? 'border-[#1a1815]/40 text-[#1a1815] hover:bg-[#1a1815]/5'
+                : 'border-white/20 text-chalk hover:bg-white/5 hover:border-lime/40'
+            }`}
+          >
+            <Plus size={16} />
+            <span>Set New Route</span>
+          </button>
         )}
       </div>
     </div>
