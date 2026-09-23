@@ -76,6 +76,13 @@ export default function ConnectRadialMenu({
                     <stop offset="65%" stopColor="#7a705e" />
                     <stop offset="100%" stopColor="#564d3f" />
                   </radialGradient>
+
+                  {/* Arc Path for Curved Text Labels (Radius 146px) */}
+                  <path
+                    id="connectArcLabelPath"
+                    d="M 39 230 A 146 146 0 0 1 331 230"
+                    fill="none"
+                  />
                 </defs>
 
                 {/* Outer Arc Shell */}
@@ -88,9 +95,17 @@ export default function ConnectRadialMenu({
 
                 {/* Outer Label Orbit Guideline */}
                 <path
-                  d="M 20 230 A 165 165 0 0 1 350 230"
+                  d="M 23 230 A 162 162 0 0 1 347 230"
                   fill="none"
-                  stroke={isSandstone ? "rgba(26,24,21,0.1)" : "rgba(255,255,255,0.08)"}
+                  stroke={isSandstone ? "rgba(26,24,21,0.12)" : "rgba(255,255,255,0.08)"}
+                  strokeWidth="1"
+                />
+
+                {/* Inner Text Track Guideline (Above Buttons) */}
+                <path
+                  d="M 49 230 A 136 136 0 0 1 321 230"
+                  fill="none"
+                  stroke={isSandstone ? "rgba(26,24,21,0.08)" : "rgba(255,255,255,0.05)"}
                   strokeWidth="1"
                 />
 
@@ -102,92 +117,66 @@ export default function ConnectRadialMenu({
                   strokeWidth="1"
                 />
 
-                {/* CURVED LABELS: Positioned with exact radial rotation tangent to the arc (Zero overlap with buttons) */}
-                <g transform="translate(185, 230)">
-                  {/* 1. RENT GEAR (-62 deg) */}
-                  <g transform="rotate(-62)">
-                    <text
-                      y="-154"
+                {/* 5 Curved Labels along Outer Arc: Small, Title Case, matching Photo 2 */}
+                <g
+                  fill={isSandstone ? "#2b2723" : "#e2e8f0"}
+                  style={{
+                    fontSize: "8.5px",
+                    fontWeight: 500,
+                    letterSpacing: "0.02em",
+                    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                  }}
+                >
+                  <text>
+                    <textPath
+                      href="#connectArcLabelPath"
+                      xlinkHref="#connectArcLabelPath"
+                      startOffset="15.5%"
                       textAnchor="middle"
-                      fill={isSandstone ? "#1a1815" : "#ffffff"}
-                      style={{
-                        fontSize: "10.5px",
-                        fontWeight: 800,
-                        letterSpacing: "0.08em",
-                        fontFamily: "system-ui, -apple-system, sans-serif",
-                      }}
                     >
-                      RENT GEAR
-                    </text>
-                  </g>
-
-                  {/* 2. SET PROBLEMS (-31 deg) */}
-                  <g transform="rotate(-31)">
-                    <text
-                      y="-154"
+                      Rent Gear
+                    </textPath>
+                  </text>
+                  <text>
+                    <textPath
+                      href="#connectArcLabelPath"
+                      xlinkHref="#connectArcLabelPath"
+                      startOffset="32.8%"
                       textAnchor="middle"
-                      fill={isSandstone ? "#1a1815" : "#ffffff"}
-                      style={{
-                        fontSize: "10.5px",
-                        fontWeight: 800,
-                        letterSpacing: "0.08em",
-                        fontFamily: "system-ui, -apple-system, sans-serif",
-                      }}
                     >
-                      SET PROBLEMS
-                    </text>
-                  </g>
-
-                  {/* 3. PROJECT SENT (0 deg) */}
-                  <g transform="rotate(0)">
-                    <text
-                      y="-154"
+                      Set Problems
+                    </textPath>
+                  </text>
+                  <text>
+                    <textPath
+                      href="#connectArcLabelPath"
+                      xlinkHref="#connectArcLabelPath"
+                      startOffset="50%"
                       textAnchor="middle"
-                      fill={isSandstone ? "#1a1815" : "#ffffff"}
-                      style={{
-                        fontSize: "10.5px",
-                        fontWeight: 800,
-                        letterSpacing: "0.08em",
-                        fontFamily: "system-ui, -apple-system, sans-serif",
-                      }}
                     >
-                      PROJECT SENT
-                    </text>
-                  </g>
-
-                  {/* 4. OPEN TRIP (+31 deg) */}
-                  <g transform="rotate(31)">
-                    <text
-                      y="-154"
+                      Project Sent
+                    </textPath>
+                  </text>
+                  <text>
+                    <textPath
+                      href="#connectArcLabelPath"
+                      xlinkHref="#connectArcLabelPath"
+                      startOffset="67.2%"
                       textAnchor="middle"
-                      fill={isSandstone ? "#1a1815" : "#ffffff"}
-                      style={{
-                        fontSize: "10.5px",
-                        fontWeight: 800,
-                        letterSpacing: "0.08em",
-                        fontFamily: "system-ui, -apple-system, sans-serif",
-                      }}
                     >
-                      OPEN TRIP
-                    </text>
-                  </g>
-
-                  {/* 5. ADD FRIEND (+62 deg) */}
-                  <g transform="rotate(62)">
-                    <text
-                      y="-154"
+                      Open Trip
+                    </textPath>
+                  </text>
+                  <text>
+                    <textPath
+                      href="#connectArcLabelPath"
+                      xlinkHref="#connectArcLabelPath"
+                      startOffset="84.5%"
                       textAnchor="middle"
-                      fill={isSandstone ? "#1a1815" : "#ffffff"}
-                      style={{
-                        fontSize: "10.5px",
-                        fontWeight: 800,
-                        letterSpacing: "0.08em",
-                        fontFamily: "system-ui, -apple-system, sans-serif",
-                      }}
                     >
-                      ADD FRIEND
-                    </text>
-                  </g>
+                      Add Friend
+                    </textPath>
+                  </text>
                 </g>
 
                 {/* Inner Hub Semicircles (Concentric Layers) */}
