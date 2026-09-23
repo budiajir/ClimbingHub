@@ -660,22 +660,12 @@ function BetaPageContent() {
           <div className="flex items-center justify-between gap-3 py-2.5 border-b border-black/10 dark:border-white/10 mb-4">
             <button
               onClick={goBack}
-              className="flex items-center gap-2 group text-left transition-opacity hover:opacity-85 min-w-0"
+              className={`flex items-center gap-1.5 py-1 -ml-1 group text-left transition-opacity hover:opacity-75 active:opacity-60 min-w-0 ${
+                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+              }`}
             >
-              <div
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors flex-shrink-0 ${
-                  isSandstone
-                    ? 'bg-[#1a1815]/10 group-hover:bg-[#1a1815]/20 text-[#1a1815]'
-                    : 'bg-crag group-hover:bg-crag-light text-chalk border border-white/5'
-                }`}
-              >
-                <ChevronLeft size={18} />
-              </div>
-              <span
-                className={`text-xs md:text-sm font-semibold truncate max-w-[200px] sm:max-w-xs md:max-w-md ${
-                  isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                }`}
-              >
+              <ChevronLeft size={20} className="flex-shrink-0 transition-transform group-hover:-translate-x-0.5" />
+              <span className="text-sm sm:text-base font-light tracking-wide truncate max-w-[220px] sm:max-w-xs md:max-w-md">
                 {backLabel}
               </span>
             </button>
