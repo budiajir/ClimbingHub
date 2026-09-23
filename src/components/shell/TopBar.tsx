@@ -102,8 +102,8 @@ export default function TopBar({
           transparent
             ? 'bg-transparent'
             : isSandstone
-              ? 'bg-[#cfc2ab] text-[#1a1815]'
-              : 'bg-[#23262C] text-chalk border-b border-white/5'
+              ? 'bg-[#ded4c3]/75 backdrop-blur-xl border-b border-[#1a1815]/10 text-[#1a1815] shadow-[0_4px_20px_rgba(0,0,0,0.03)]'
+              : 'bg-[#23262C]/75 backdrop-blur-xl text-chalk border-b border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.25)]'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >

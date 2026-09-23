@@ -154,8 +154,8 @@ export default function MobileNav() {
           className={clsx(
             "transition-colors duration-300 relative",
             isSandstone
-              ? "bg-[#b8ab96] border-t border-[#1a1815]/20 shadow-lg"
-              : "bg-[#23262C]/95 backdrop-blur-lg border-t border-white/10",
+              ? "bg-[#ded4c3]/80 backdrop-blur-xl border-t border-[#1a1815]/10 shadow-[0_-4px_24px_rgba(0,0,0,0.04)]"
+              : "bg-[#23262C]/80 backdrop-blur-xl border-t border-white/10 shadow-[0_-4px_24px_rgba(0,0,0,0.3)]",
           )}
           style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
         >
