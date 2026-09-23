@@ -107,15 +107,18 @@ export default function CragDetailPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-28 pt-2">
-      {/* Back Button */}
-      <div className="py-2.5 mb-2">
+      {/* 1-Step Back Navigation Header */}
+      <div className="flex items-center justify-between gap-3 py-2.5 border-b border-black/10 dark:border-white/10 mb-4">
         <Link
-          href="/"
-          className={`inline-flex items-center gap-1.5 text-xs font-light transition-colors ${
-            isSandstone ? "text-[#1a1815]/70 hover:text-[#1a1815]" : "text-slate-ash hover:text-chalk"
+          href="/crags"
+          className={`flex items-center gap-1.5 py-1 -ml-1 group text-left transition-opacity hover:opacity-75 active:opacity-60 min-w-0 ${
+            isSandstone ? "text-[#1a1815]" : "text-chalk"
           }`}
         >
-          <ChevronLeft size={16} /> Kembali ke Direktori Kawasan
+          <ChevronLeft size={20} className="flex-shrink-0 transition-transform group-hover:-translate-x-0.5" />
+          <span className="text-sm sm:text-base font-light tracking-wide truncate">
+            Crags
+          </span>
         </Link>
       </div>
 

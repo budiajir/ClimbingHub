@@ -35,11 +35,14 @@ export default function AdminLoginPage() {
     <div className="max-w-md mx-auto px-4 py-16 md:py-24 space-y-6">
       <Link
         href="/"
-        className={`inline-flex items-center gap-1.5 text-xs font-light transition-colors ${
-          isSandstone ? 'text-[#1a1815]/70 hover:text-[#1a1815]' : 'text-slate-ash hover:text-chalk'
+        className={`inline-flex items-center gap-1.5 py-1 -ml-1 group text-left transition-opacity hover:opacity-75 active:opacity-60 ${
+          isSandstone ? 'text-[#1a1815]' : 'text-chalk'
         }`}
       >
-        <ChevronLeft size={15} /> Back to Home
+        <ChevronLeft size={20} className="flex-shrink-0 transition-transform group-hover:-translate-x-0.5" />
+        <span className="text-sm sm:text-base font-light tracking-wide">
+          Home
+        </span>
       </Link>
 
       <div className={`border rounded-3xl p-6 md:p-8 shadow-2xl space-y-5 ${

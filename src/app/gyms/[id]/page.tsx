@@ -35,18 +35,19 @@ export default function GymDetailPage() {
   if (!gym) return notFound()
 
   return (
-    <div className="max-w-7xl mx-auto md:px-6 lg:px-8 pb-12">
-      {/* Back button for desktop */}
-      <div className={`hidden md:flex items-center gap-2 py-4 border-b mb-6 ${
-        isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
-      }`}>
+    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-12 pt-2">
+      {/* 1-Step Back Navigation Header */}
+      <div className="flex items-center justify-between gap-3 py-2.5 border-b border-black/10 dark:border-white/10 mb-4">
         <Link
           href="/gyms"
-          className={`flex items-center gap-1.5 text-xs font-light tracking-wide transition-colors ${
-            isSandstone ? 'text-[#1a1815]/70 hover:text-[#1a1815]' : 'text-slate-ash hover:text-lime'
+          className={`flex items-center gap-1.5 py-1 -ml-1 group text-left transition-opacity hover:opacity-75 active:opacity-60 min-w-0 ${
+            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
           }`}
         >
-          <ChevronLeft size={16} /> Back to Gym Directory
+          <ChevronLeft size={20} className="flex-shrink-0 transition-transform group-hover:-translate-x-0.5" />
+          <span className="text-sm sm:text-base font-light tracking-wide truncate">
+            Climbing Gym
+          </span>
         </Link>
       </div>
 
@@ -55,20 +56,12 @@ export default function GymDetailPage() {
         {/* Left Column (12 cols mobile, 7 cols desktop) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Hero Banner */}
-          <div className="relative h-64 md:h-80 md:rounded-3xl overflow-hidden -mt-14 md:mt-0" style={{ marginTop: undefined }}>
+          <div className="relative h-64 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-black/10 dark:border-white/10">
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${gym.image})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-granite via-granite/30 to-transparent" />
-
-            {/* Mobile Back button */}
-            <Link
-              href="/gyms"
-              className="md:hidden absolute top-16 left-4 w-9 h-9 glass rounded-full flex items-center justify-center touch-ripple"
-            >
-              <ChevronLeft size={18} className="text-chalk" />
-            </Link>
 
             {/* Gym name & Rating */}
             <div className="absolute bottom-4 left-4 right-4 md:left-6 md:right-6">

@@ -107,9 +107,12 @@ export default function AdminDashboardPage() {
 
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-xs text-slate-ash hover:text-chalk font-light transition-colors"
+          className="inline-flex items-center gap-1.5 py-1 -ml-1 group text-left transition-opacity hover:opacity-75 active:opacity-60 text-slate-ash hover:text-chalk"
         >
-          <ChevronLeft size={14} /> Back to Public Home
+          <ChevronLeft size={20} className="flex-shrink-0 transition-transform group-hover:-translate-x-0.5" />
+          <span className="text-sm sm:text-base font-light tracking-wide">
+            Home
+          </span>
         </Link>
       </div>
     )
