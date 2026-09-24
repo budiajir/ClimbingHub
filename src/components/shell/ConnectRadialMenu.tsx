@@ -377,9 +377,9 @@ export default function ConnectRadialMenu({
           >
             <div className="flex items-center justify-between pb-2 border-b border-current/10">
               <div>
-                <h4 className="font-bold text-base">Trip Kawasan Tebing</h4>
+                <h4 className="font-bold text-base">Crag Trips & Expeditions</h4>
                 <p className="text-xs opacity-75 font-light">
-                  Pilih aktivitas trip tebing yang kamu butuhkan:
+                  Select your preferred climbing trip activity:
                 </p>
               </div>
               <button
@@ -413,7 +413,7 @@ export default function ConnectRadialMenu({
                 <div>
                   <div className="font-bold text-sm">Open A Trip</div>
                   <div className="text-xs opacity-75 font-light mt-0.5 leading-snug">
-                    Buka jadwal trip publik bersama komunitas pemanjat & cari teman se-jalur.
+                    Join public trip schedules with the climbing community & find route partners.
                   </div>
                 </div>
               </button>
@@ -440,7 +440,7 @@ export default function ConnectRadialMenu({
                 <div>
                   <div className="font-bold text-sm">Book A Trip</div>
                   <div className="text-xs opacity-85 font-light mt-0.5 leading-snug">
-                    Sewa instruktur & pemandu lokal terverifikasi untuk pendampingan teknis.
+                    Hire certified local guides & instructors for professional climbing guidance.
                   </div>
                 </div>
               </button>

@@ -564,7 +564,7 @@ function BetaPageContent() {
                       : 'border-white/10 hover:bg-white/10 text-chalk'
                   }`}
                 >
-                  Lihat Semua Jalur
+                  View All Routes
                 </button>
               </div>
             ) : (
@@ -698,10 +698,10 @@ function BetaPageContent() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className={`font-black text-2xl tracking-tight ${isSandstone ? 'text-[#1a1815]' : 'text-white'}`}>
-                        Sent Cards Koleksi Saya
+                        My Sent Cards Collection
                       </h2>
                       <p className={`text-xs font-light mt-0.5 ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-                        Koleksi kartu resmi pendakian (Send Cards) rute-rute yang telah Anda selesaikan
+                        Official collection of Send Cards for routes you have completed and verified
                       </p>
                     </div>
                   </div>
@@ -712,18 +712,18 @@ function BetaPageContent() {
                     }`}>
                       <Award size={44} className={`mx-auto ${isSandstone ? 'text-[#1a1815]/40' : 'text-[#E6392D]'}`} />
                       <h3 className={`font-bold text-lg ${isSandstone ? 'text-[#1a1815]' : 'text-white'}`}>
-                        Belum Ada Send Card yang Dicatat
+                        No Send Cards Recorded Yet
                       </h3>
                       <p className={`text-xs max-w-md mx-auto font-light leading-relaxed ${
                         isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
                       }`}>
-                        Pilih rute crag mana saja, lalu klik tombol <b>Log Verified Ascent</b> untuk mencatat send Anda dan langsung mencetak kartu resmi Send Card!
+                        Select any crag route, then click the <b>Log Verified Ascent</b> button to record your send and instantly generate your official Send Card!
                       </p>
                       <button
                         onClick={() => setShowMyAscentsView(false)}
                         className="px-5 py-2.5 bg-[#E6392D] hover:bg-[#D32F2F] text-white text-xs font-bold rounded-xl shadow-lg transition-colors"
                       >
-                        Jelajahi Jalur Crag
+                        Explore Crag Routes
                       </button>
                     </div>
                   ) : (
@@ -774,11 +774,11 @@ function BetaPageContent() {
                               className="flex-1 py-2 px-3 rounded-xl bg-[#E6392D] hover:bg-[#D32F2F] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all touch-ripple"
                             >
                               <Share2 size={13} />
-                              <span>Unduh / Bagikan Card</span>
+                              <span>Download / Share Card</span>
                             </button>
                             <button
                               onClick={() => {
-                                if (confirm(`Hapus Send Card untuk rute "${ascent.problemName}"?`)) {
+                                if (confirm(`Delete Send Card for route "${ascent.problemName}"?`)) {
                                   deleteUserAscent(ascent.id)
                                   setUserAscents(prev => prev.filter(a => a.id !== ascent.id))
                                 }
@@ -788,7 +788,7 @@ function BetaPageContent() {
                                   ? 'border-[#1a1815]/20 hover:bg-red-500/10 text-red-600'
                                   : 'border-white/10 hover:bg-red-500/10 text-red-400'
                               }`}
-                              title="Hapus Send Card"
+                              title="Delete Send Card"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -893,10 +893,10 @@ function BetaPageContent() {
                             style={{ color: themeTextColor }}
                           />
                           <p className="text-sm font-medium" style={{ color: themeTextColor }}>
-                            Tidak ada jalur pemanjatan ditemukan
+                            No climbing routes found
                           </p>
                           <p className="text-xs opacity-60" style={{ color: themeTextColor }}>
-                            Coba ubah kata kunci pencarian.
+                            Try modifying your search query or filters.
                           </p>
                         </div>
                       ) : (
@@ -994,7 +994,7 @@ function BetaPageContent() {
                             className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-opacity hover:opacity-90"
                             style={{ backgroundColor: currentTheme.primary, color: '#FFFFFF' }}
                           >
-                            <span>Lihat Topo & Beta</span>
+                            <span>View Topo & Beta</span>
                             <ChevronRight size={14} />
                           </button>
                         </div>

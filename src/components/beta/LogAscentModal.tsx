@@ -303,7 +303,7 @@ export default function LogAscentModal({
                   : 'bg-transparent border-transparent text-slate-ash hover:text-white'
               }`}
             >
-              <span>📝 Rincian Pendakian</span>
+              <span>📝 Ascent Details</span>
             </button>
             <button
               type="button"
@@ -328,14 +328,14 @@ export default function LogAscentModal({
                   <SendCard data={currentCardData} showTopo={true} className="scale-[0.92] sm:scale-100 transform-origin-top" />
                 </div>
                 <p className="text-center text-[11px] text-slate-ash">
-                  Format Send Card di atas mencerminkan kartu yang akan digenerate otomatis saat Anda menekan tombol submit.
+                  The Send Card format above reflects the official card generated automatically upon submission.
                 </p>
                 <button
                   type="button"
                   onClick={() => setActiveTab('form')}
                   className="w-full py-2.5 rounded-xl border border-white/10 bg-white/5 text-xs text-slate-ash hover:text-white transition-colors"
                 >
-                  ← Kembali Edit Rincian Pendakian
+                  ← Back to Edit Ascent Details
                 </button>
               </div>
             ) : (
@@ -344,7 +344,7 @@ export default function LogAscentModal({
                 {/* 1. Ascent Style Selector */}
                 <div>
                   <label className="block text-slate-ash text-[11px] uppercase tracking-wider mb-2 font-medium">
-                    Gaya Pendakian (Ascent Style)
+                    Ascent Style
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {ascentTypes.map(({ key, label, icon: Icon, desc }) => {
@@ -385,10 +385,10 @@ export default function LogAscentModal({
                     <div>
                       <p className="text-white text-xs font-bold flex items-center gap-1.5">
                         <Camera size={14} className="text-[#E6392D]" />
-                        <span>Foto Aksi Pendakian</span>
+                        <span>Climbing Action Photo</span>
                       </p>
                       <p className="text-slate-ash text-[10px] font-light">
-                        Format tulisan bold & garis topo akan langsung di-overlay ke foto ini
+                        Bold typography & topo line will be overlaid onto this photo
                       </p>
                     </div>
                     <input
@@ -403,7 +403,7 @@ export default function LogAscentModal({
                       onClick={() => fileInputRef.current?.click()}
                       className="px-3 py-1.5 rounded-lg bg-[#E6392D]/15 hover:bg-[#E6392D]/25 text-[#E6392D] border border-[#E6392D]/30 text-xs font-bold transition-colors"
                     >
-                      {hasCustomPhoto ? (isVideo ? 'Ganti Video' : 'Ganti Foto') : '+ Unggah Foto Aksi'}
+                      {hasCustomPhoto ? (isVideo ? 'Change Video' : 'Change Photo') : '+ Upload Action Photo'}
                     </button>
                   </div>
 
@@ -463,7 +463,7 @@ export default function LogAscentModal({
                     {/* Badges / Delete */}
                     <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
                       <span className="text-[10px] text-white/90 bg-black/75 px-2 py-0.5 rounded-md backdrop-blur-xs">
-                        {isVideo ? '🎬 Video Cuplikan' : hasCustomPhoto ? 'Foto Galeri Anda' : 'Foto Rute'}
+                        {isVideo ? '🎬 Video Clip' : hasCustomPhoto ? 'Your Gallery Photo' : 'Route Photo'}
                       </span>
                       {hasCustomPhoto && (
                         <button
@@ -475,7 +475,7 @@ export default function LogAscentModal({
                             setHasCustomPhoto(false)
                           }}
                           className="pointer-events-auto p-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white"
-                          title="Hapus foto"
+                          title="Remove photo"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -489,7 +489,7 @@ export default function LogAscentModal({
                   {/* Attempts */}
                   <div className="p-3 rounded-2xl bg-[#20232A] border border-white/5 space-y-2">
                     <label className="block text-slate-ash text-[11px] uppercase tracking-wider font-medium">
-                      Percobaan (Attempts)
+                      Attempts
                     </label>
                     <input
                       type="text"
@@ -519,7 +519,7 @@ export default function LogAscentModal({
                   {/* Duration */}
                   <div className="p-3 rounded-2xl bg-[#20232A] border border-white/5 space-y-2">
                     <label className="block text-slate-ash text-[11px] uppercase tracking-wider font-medium">
-                      Durasi Project (Duration)
+                      Project Duration
                     </label>
                     <input
                       type="text"
@@ -552,15 +552,15 @@ export default function LogAscentModal({
                   <div className="flex items-center justify-between">
                     <p className="text-white text-xs font-bold flex items-center gap-1.5">
                       <User size={14} className="text-[#E6392D]" />
-                      <span>Identitas & Partner (Zona Bawah Merah)</span>
+                      <span>Identity & Partners (Bottom Red Zone)</span>
                     </p>
-                    <span className="text-[10px] text-slate-ash font-light">Tercetak di Send Card</span>
+                    <span className="text-[10px] text-slate-ash font-light">Printed on Send Card</span>
                   </div>
 
                   {/* Climber Name */}
                   <div>
                     <label className="block text-slate-ash text-[10px] uppercase tracking-wider mb-1">
-                      Nama Pendaki (Climber Name)
+                      Climber Name
                     </label>
                     <input
                       type="text"
@@ -576,7 +576,7 @@ export default function LogAscentModal({
                     {/* (T) Time */}
                     <div>
                       <label className="block text-slate-ash text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                        <Clock size={11} /> (T) Waktu
+                        <Clock size={11} /> (T) Time
                       </label>
                       <input
                         type="text"
@@ -590,7 +590,7 @@ export default function LogAscentModal({
                     {/* (D) Date */}
                     <div>
                       <label className="block text-slate-ash text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                        <Calendar size={11} /> (D) Tanggal
+                        <Calendar size={11} /> (D) Date
                       </label>
                       <input
                         type="text"
@@ -640,7 +640,7 @@ export default function LogAscentModal({
                   >
                     <span className="flex items-center gap-1.5 font-medium">
                       <Sliders size={13} className="text-[#E6392D]" />
-                      <span>Spesifikasi Teknis Rute (4 Pill Atas Send Card)</span>
+                      <span>Route Technical Specs (Top 4 Pills on Send Card)</span>
                     </span>
                     <span className="text-[11px] text-slate-ash flex items-center gap-1">
                       {wallAngle} · {wallHeight} · {boltsCount}
@@ -654,7 +654,7 @@ export default function LogAscentModal({
                   {showAdvancedSpecs && (
                     <div className="p-3.5 pt-0 grid grid-cols-3 gap-2 border-t border-white/5 mt-1">
                       <div>
-                        <label className="block text-slate-ash text-[10px] mb-1">Sudut Dinding</label>
+                        <label className="block text-slate-ash text-[10px] mb-1">Wall Angle</label>
                         <input
                           type="text"
                           value={wallAngle}
@@ -664,7 +664,7 @@ export default function LogAscentModal({
                         />
                       </div>
                       <div>
-                        <label className="block text-slate-ash text-[10px] mb-1">Tinggi Jalur</label>
+                        <label className="block text-slate-ash text-[10px] mb-1">Route Height</label>
                         <input
                           type="text"
                           value={wallHeight}
@@ -674,7 +674,7 @@ export default function LogAscentModal({
                         />
                       </div>
                       <div>
-                        <label className="block text-slate-ash text-[10px] mb-1">Baut / Crashpad</label>
+                        <label className="block text-slate-ash text-[10px] mb-1">Bolts / Pads</label>
                         <input
                           type="text"
                           value={boltsCount}
@@ -690,7 +690,7 @@ export default function LogAscentModal({
                 {/* 6. Grade Vote */}
                 <div>
                   <label className="block text-slate-ash text-[11px] uppercase tracking-wider mb-2 font-medium">
-                    Konsensus Grade Anda
+                    Your Grade Consensus
                   </label>
                   <div className="flex flex-wrap gap-1.5">
                     {gradeOptions.map(g => {
@@ -716,12 +716,12 @@ export default function LogAscentModal({
                 {/* 7. Personal Notes */}
                 <div>
                   <label className="block text-slate-ash text-[11px] uppercase tracking-wider mb-2 font-medium flex items-center gap-1">
-                    <MessageSquare size={12} /> Catatan Crux / Beta (Opsional)
+                    <MessageSquare size={12} /> Beta / Crux Notes (Optional)
                   </label>
                   <textarea
                     value={note}
                     onChange={e => setNote(e.target.value)}
-                    placeholder="Crux di baut ke-3, kunci tumit kiri solid..."
+                    placeholder="Crux at 3rd bolt, solid left heel hook..."
                     className="w-full bg-[#20232A] border border-white/5 rounded-xl p-3 text-white text-xs font-normal resize-none focus:outline-none focus:border-[#E6392D]/50 placeholder:text-slate-ash/50"
                     rows={2}
                   />
@@ -738,7 +738,7 @@ export default function LogAscentModal({
                 onClick={handleSubmit}
                 className="w-full h-12 bg-[#E6392D] hover:bg-[#D32F2F] text-white font-bold tracking-wide rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 touch-ripple"
               >
-                <span>Submit Ascent & Terbitkan Send Card</span> 🎉
+                <span>Submit Ascent & Generate Send Card</span> 🎉
               </button>
             ) : (
               <motion.div
@@ -746,7 +746,7 @@ export default function LogAscentModal({
                 animate={{ scale: 1, opacity: 1 }}
                 className="w-full h-12 bg-[#E6392D]/20 border border-[#E6392D]/40 rounded-xl flex items-center justify-center gap-2 text-[#E6392D] font-bold text-sm"
               >
-                <Sparkles size={18} /> Ascent Berhasil Dicatat! Menyiapkan Send Card...
+                <Sparkles size={18} /> Ascent Logged Successfully! Preparing Send Card...
               </motion.div>
             )}
           </div>

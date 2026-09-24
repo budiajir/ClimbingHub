@@ -191,7 +191,7 @@ export async function createRoute(data: {
     return { id: routeId }
   } catch (err) {
     console.error('createRoute error:', err)
-    return { error: 'Gagal menyimpan jalur. Coba lagi nanti.' }
+    return { error: 'Failed to save route. Please try again later.' }
   }
 }
 

@@ -226,7 +226,7 @@ export async function insertRoute(data: {
     return { id: routeId }
   } catch (err) {
     console.error('insertRoute error:', err)
-    return { error: 'Gagal menyimpan jalur. Coba lagi nanti.' }
+    return { error: 'Failed to save route. Please try again later.' }
   }
 }
 
@@ -253,7 +253,7 @@ export async function insertCragRegion(data: {
     return { id: data.id }
   } catch (err) {
     console.error('insertCragRegion error:', err)
-    return { error: 'Gagal menyimpan tebing baru.' }
+    return { error: 'Failed to save new crag.' }
   }
 }
 
@@ -278,7 +278,7 @@ export async function insertSector(data: {
     return { id: data.id }
   } catch (err) {
     console.error('insertSector error:', err)
-    return { error: 'Gagal menyimpan sektor baru.' }
+    return { error: 'Failed to save new sector.' }
   }
 }
 

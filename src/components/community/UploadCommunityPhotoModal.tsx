@@ -55,7 +55,7 @@ export default function UploadCommunityPhotoModal({
     setTimeout(() => {
       saveCommunityPhoto(community.id, {
         url: photoDataUrl,
-        caption: caption.trim() || "Sesi panjat tebing bersama " + community.name,
+        caption: caption.trim() || "Climbing session with " + community.name,
         uploaderName: uploaderName.trim() || user?.name || "Climber",
         uploaderAvatar: user?.avatar || "https://i.pravatar.cc/60?img=8",
       });
@@ -113,7 +113,7 @@ export default function UploadCommunityPhotoModal({
                 <Camera size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-base sm:text-lg leading-tight">Upload Foto Komunitas</h3>
+                <h3 className="font-bold text-base sm:text-lg leading-tight">Upload Community Post</h3>
                 <p className="text-xs opacity-75 font-light">{community.name}</p>
               </div>
             </div>
@@ -137,9 +137,9 @@ export default function UploadCommunityPhotoModal({
               >
                 <CheckCircle2 size={32} />
               </motion.div>
-              <h4 className="font-bold text-base">Foto Berhasil Diunggah!</h4>
+              <h4 className="font-bold text-base">Post Uploaded Successfully!</h4>
               <p className="text-xs opacity-75 max-w-xs mx-auto">
-                Momen panjat tebing Anda telah ditambahkan ke galeri <b>{community.name}</b>.
+                Your climbing moment has been added to <b>{community.name}</b>'s gallery.
               </p>
             </div>
           ) : (
@@ -166,7 +166,7 @@ export default function UploadCommunityPhotoModal({
                       onClick={() => fileInputRef.current?.click()}
                       className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/75 backdrop-blur-sm text-white text-[11px] font-bold border border-white/20 hover:bg-black transition-colors"
                     >
-                      Ganti Foto
+                      Change Photo
                     </button>
                   </div>
                 ) : (
@@ -188,8 +188,8 @@ export default function UploadCommunityPhotoModal({
                       <Upload size={22} />
                     </div>
                     <div className="text-center px-4">
-                      <span className="font-bold text-xs block">Pilih Foto dari Galeri Ponsel</span>
-                      <span className="text-[10px] opacity-60 block mt-0.5">Mendukung format JPG, PNG, WEBP</span>
+                      <span className="font-bold text-xs block">Choose Photo from Gallery</span>
+                      <span className="text-[10px] opacity-60 block mt-0.5">Supports JPG, PNG, WEBP formats</span>
                     </div>
                   </div>
                 )}
@@ -198,14 +198,14 @@ export default function UploadCommunityPhotoModal({
               {/* Caption */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Keterangan Foto (Caption)
+                  Photo Caption
                 </label>
                 <textarea
                   rows={2}
                   required
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
-                  placeholder="Ceritakan momen pemanjatan ini, misalnya: Send pertama V5 di Citatah!"
+                  placeholder="Share the story behind this send, e.g. First V5 send at Citatah!"
                   className={`w-full p-3 rounded-xl border outline-none text-xs resize-none transition-all ${
                     isSandstone
                       ? "bg-transparent border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/40 focus:border-[#1a1815]"
@@ -217,14 +217,14 @@ export default function UploadCommunityPhotoModal({
               {/* Climber Name */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Nama Anda (Pengunggah)
+                  Your Name (Uploader)
                 </label>
                 <input
                   type="text"
                   required
                   value={uploaderName}
                   onChange={(e) => setUploaderName(e.target.value)}
-                  placeholder="Nama pemanjat"
+                  placeholder="Climber name"
                   className={`w-full px-3.5 py-2.5 rounded-xl border outline-none text-xs transition-all ${
                     isSandstone
                       ? "bg-transparent border-[#1a1815]/20 text-[#1a1815] focus:border-[#1a1815]"
@@ -246,7 +246,7 @@ export default function UploadCommunityPhotoModal({
                 }`}
               >
                 <Upload size={16} />
-                <span>{isUploading ? "Mengunggah Foto..." : "Publikasikan Foto ke Galeri"}</span>
+                <span>{isUploading ? "Uploading Post..." : "Publish Post to Gallery"}</span>
               </button>
             </form>
           )}

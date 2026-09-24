@@ -27,49 +27,49 @@ const EQUIPMENT_CATALOG: EquipmentItem[] = [
     name: "Bouldering Crashpad (Mad Rock / Black Diamond)",
     pricePerDay: 50000,
     category: "boulder",
-    desc: "Busa tebal peredam jatuh untuk outdoor bouldering.",
+    desc: "Heavy-duty drop cushioning for outdoor bouldering.",
   },
   {
     id: "harness",
     name: "Climbing Harness (Petzl / Black Diamond)",
     pricePerDay: 35000,
     category: "safety",
-    desc: "Harness bersertifikasi UIAA, ukuran S/M/L.",
+    desc: "UIAA certified climbing harness, sizes S/M/L.",
   },
   {
     id: "rope-60m",
-    name: "Tali Dinamis Single Rope 60m (9.8mm)",
+    name: "Dynamic Single Rope 60m (9.8mm)",
     pricePerDay: 90000,
     category: "lead",
-    desc: "Tali panjat elastis standar sport climbing tebing tinggi.",
+    desc: "60m dynamic single rope (9.8mm) for sport lead climbing.",
   },
   {
     id: "quickdraw-set",
-    name: "Set Quickdraws (10 pcs)",
+    name: "Quickdraw Set (10 pcs)",
     pricePerDay: 60000,
     category: "lead",
-    desc: "10 set runner pengaman hanger baut untuk jalur lead.",
+    desc: "Set of 10 quickdraws for bolt hangers on sport routes.",
   },
   {
     id: "helmet",
-    name: "Helm Panjat Tebing (Petzl / Mammut)",
+    name: "Climbing Helmet (Petzl / Mammut)",
     pricePerDay: 25000,
     category: "safety",
-    desc: "Perlindungan kepala wajib dari benturan dan jatuhan batu.",
+    desc: "Certified head protection against impacts and rockfall.",
   },
   {
     id: "belay-device",
     name: "Belay Device (ATC / GriGri + HMS Carabiner)",
     pricePerDay: 25000,
     category: "lead",
-    desc: "Perangkat belay pemandu & pengaman climber.",
+    desc: "Belay device (ATC / GriGri + HMS locking carabiner).",
   },
   {
     id: "brush-chalk",
     name: "Chalk Bucket & Boar Hair Brush Set",
     pricePerDay: 15000,
     category: "boulder",
-    desc: "Ember chalk besar dan sikat pembersih tebing.",
+    desc: "Large boulder chalk bucket and boar's hair brush set.",
   },
 ];
 
@@ -156,7 +156,7 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
               </div>
               <div>
                 <h3 className="font-bold text-base sm:text-lg leading-tight">Rent Equipment</h3>
-                <p className="text-xs opacity-75 font-light">Sewa Alat di Basecamp {crag.name}</p>
+                <p className="text-xs opacity-75 font-light">Gear Rental at {crag.name} Basecamp</p>
               </div>
             </div>
 
@@ -179,9 +179,9 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
               >
                 <CheckCircle2 size={32} />
               </motion.div>
-              <h4 className="font-bold text-base">Pesanan Sewa Alat Berhasil!</h4>
+              <h4 className="font-bold text-base">Equipment Rental Confirmed!</h4>
               <p className="text-xs opacity-75 max-w-sm mx-auto">
-                Peralatan telah disiapkan di <b>{crag.whoToContact?.basecampName || crag.name}</b>. Anda dapat mengambil alat pada tanggal yang telah dipilih.
+                Gear has been reserved at <b>{crag.whoToContact?.basecampName || crag.name}</b>. You can collect your gear on your selected date.
               </p>
             </div>
           ) : (
@@ -189,7 +189,7 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
               {/* Equipment Items List */}
               <div className="space-y-2">
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70">
-                  Pilih Peralatan Panjat
+                  Select Climbing Gear
                 </label>
                 <div className="space-y-2 max-h-56 overflow-y-auto no-scrollbar pr-1">
                   {EQUIPMENT_CATALOG.map((item) => {
@@ -211,7 +211,7 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
                           <div className="font-bold text-xs truncate">{item.name}</div>
                           <div className="text-[11px] opacity-65 leading-tight">{item.desc}</div>
                           <div className="font-mono text-xs font-semibold mt-1">
-                            Rp {item.pricePerDay.toLocaleString("id-ID")} <span className="text-[10px] opacity-60 font-sans">/ hari</span>
+                            Rp {item.pricePerDay.toLocaleString("id-ID")} <span className="text-[10px] opacity-60 font-sans">/ day</span>
                           </div>
                         </div>
 
@@ -254,7 +254,7 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Tanggal Pengambilan
+                    Pickup Date
                   </label>
                   <input
                     type="date"
@@ -270,7 +270,7 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Durasi Sewa (Hari)
+                    Rental Duration (Days)
                   </label>
                   <input
                     type="number"
@@ -292,7 +292,7 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Nama Penyewa
+                    Renter Name
                   </label>
                   <input
                     type="text"
@@ -308,7 +308,7 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    WhatsApp / HP
+                    Phone / WhatsApp Number
                   </label>
                   <input
                     type="tel"
@@ -334,7 +334,7 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
                 }`}
               >
                 <div>
-                  <span className="text-[11px] opacity-70 block">Total Biaya Sewa ({totalItemCount} unit, {days} hari)</span>
+                  <span className="text-[11px] opacity-70 block">Total Rental Cost ({totalItemCount} items, {days} days)</span>
                   <span className="font-bold text-xs">Pickup: {crag.whoToContact?.basecampName || "Basecamp Crag"}</span>
                 </div>
                 <div className="text-right">
@@ -359,7 +359,7 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
                 }`}
               >
                 <Package size={16} />
-                <span>Konfirmasi Sewa Peralatan</span>
+                <span>Confirm Equipment Rental</span>
               </button>
             </form>
           )}

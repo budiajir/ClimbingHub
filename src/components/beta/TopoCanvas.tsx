@@ -616,26 +616,26 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           </motion.div>
         )}
 
-        {/* Log Ascent / Telah Menyelesaikan Rute Button */}
+        {/* Log Ascent / Completed Route Button */}
         {onLogAscent && (
           <div className="pt-3 border-t border-black/10 dark:border-white/10 mt-2">
             <button
               onClick={onLogAscent}
               className="w-full py-3 px-4 rounded-xl bg-lime hover:bg-lime-dim text-granite font-bold text-sm flex items-center justify-center gap-2 shadow-lime-glow-sm transition-all touch-ripple"
             >
-              <span>🎉 Log Ascent / Telah Menyelesaikan Rute</span>
+              <span>🎉 Log Ascent / Completed Route</span>
             </button>
           </div>
         )}
       </div>
 
       {/* ============================================================ */}
-      {/* 3. QUICK SPECS STRIP (7. TINGGI, 8. PEGANGAN, 9. ANCHOR)     */}
+      {/* 3. QUICK SPECS STRIP (7. HEIGHT, 8. HOLDS, 9. ANCHOR)        */}
       {/* ============================================================ */}
       <div className="mx-4 md:mx-0 grid grid-cols-3 gap-2.5 text-center">
         <div className={`p-3 rounded-2xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/15 shadow-sm' : 'bg-crag/50 border-white/5'}`}>
           <div className={`text-[10px] uppercase font-bold tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-            7. Tinggi Jalur
+            7. Route Height
           </div>
           <div className={`text-base font-bold font-mono mt-1 ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
             {heightDisplay}
@@ -644,7 +644,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
 
         <div className={`p-3 rounded-2xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/15 shadow-sm' : 'bg-crag/50 border-white/5'}`}>
           <div className={`text-[10px] uppercase font-bold tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-            8. Titik Pegangan
+            8. Holds & Grip
           </div>
           <div className={`text-base font-bold font-mono mt-1 ${isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'}`}>
             ~{holdsCountDisplay} Holds
@@ -653,7 +653,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
 
         <div className={`p-3 rounded-2xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/15 shadow-sm' : 'bg-crag/50 border-white/5'}`}>
           <div className={`text-[10px] uppercase font-bold tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-            9. Anchor / Pengaman
+            9. Anchor / Protection
           </div>
           <div className={`text-base font-bold font-mono mt-1 truncate ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
             {isLeadOrTrad ? `${anchorCountDisplay} Bolts` : 'Crashpad'}
@@ -662,7 +662,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       </div>
 
       {/* ============================================================ */}
-      {/* 4. BAGIAN 1: SPECS & KARAKTERISTIK JALUR                      */}
+      {/* 4. SECTION 1: SPECS & ROUTE CHARACTERISTICS                  */}
       {/* ============================================================ */}
       <div
         className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-4 transition-colors ${
@@ -674,7 +674,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
         <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
           <Layers size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
           <h3 className="font-bold text-sm uppercase tracking-wider">
-            1. Specs & Karakteristik Jalur
+            1. Specs & Route Characteristics
           </h3>
         </div>
 
@@ -683,20 +683,20 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           <div className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${
             isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
           }`}>
-            Karakteristik & Deskripsi Jalur
+            Route Characteristics & Description
           </div>
           <p className={`text-xs md:text-sm leading-relaxed ${isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}`}>
-            {problem.description || 'Jalur pemanjatan outdoor yang menantang dengan karakteristik batuan alami dan sequence teknikal.'}
+            {problem.description || 'Challenging outdoor climbing route featuring natural rock characteristics and technical sequencing.'}
           </p>
         </div>
 
-        {/* 8. Titik + Karakter Pegangan */}
+        {/* 8. Grip Characteristics & Start Position */}
         <div className={`p-3.5 rounded-xl border ${
           isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
         }`}>
           <div className="flex items-center gap-1.5 mb-1.5 text-xs font-bold uppercase tracking-wider">
             <Hand size={14} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'} />
-            <span>8. Karakter Pegangan & Posisi Start</span>
+            <span>8. Grip Characteristics & Start Position</span>
           </div>
           <p className={`text-xs leading-relaxed mb-2.5 ${isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'}`}>
             {holdDetailsDisplay}
@@ -705,7 +705,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
             <span className={`px-2 py-0.5 rounded ${
               isSandstone ? 'bg-white text-[#1a1815] border border-[#1a1815]/15' : 'bg-crag text-chalk'
             }`}>
-              Total Titik: ~{holdsCountDisplay} Holds
+              Total Holds: ~{holdsCountDisplay} Holds
             </span>
             <span className={`px-2 py-0.5 rounded ${
               isSandstone ? 'bg-white text-[#1a1815] border border-[#1a1815]/15' : 'bg-crag text-chalk'
@@ -715,28 +715,28 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           </div>
         </div>
 
-        {/* 9. Jumlah Anchor & Pengaman */}
+        {/* 9. Anchor & Protection */}
         <div className={`p-3.5 rounded-xl border ${
           isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
         }`}>
           <div className="flex items-center gap-1.5 mb-1.5 text-xs font-bold uppercase tracking-wider">
             <Anchor size={14} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
-            <span>9. Jumlah Anchor & Pengaman</span>
+            <span>9. Anchors & Protection</span>
           </div>
           {isLeadOrTrad ? (
             <div className="space-y-1 text-xs">
-              <p><span className="font-bold">Baut Pengaman:</span> {anchorCountDisplay} titik pengaman baut expansion.</p>
-              <p><span className="font-bold">Tipe Anchor Top:</span> {anchorTypeDisplay}.</p>
+              <p><span className="font-bold">Protection Bolts:</span> {anchorCountDisplay} stainless expansion bolt protection points.</p>
+              <p><span className="font-bold">Top Anchor Type:</span> {anchorTypeDisplay}.</p>
             </div>
           ) : (
             <div className="space-y-1 text-xs">
-              <p><span className="font-bold">Sistem Pendaratan:</span> {problem.landingQuality || 'Tanah datar rumput'}.</p>
-              <p><span className="font-bold">Rekomendasi Crashpad:</span> {problem.padRecommendation || 'Minimal 2 crashpad & 1 spotter'}.</p>
+              <p><span className="font-bold">Landing Zone:</span> {problem.landingQuality || 'Flat dirt & grass'}.</p>
+              <p><span className="font-bold">Crashpad Recommendation:</span> {problem.padRecommendation || 'Minimum 2 crashpads & 1 spotter'}.</p>
             </div>
           )}
         </div>
 
-        {/* Konsensus Grade Komunitas */}
+        {/* Community Grade Consensus */}
         {problem.gradeVotes && problem.gradeVotes.length > 0 && (
           <div className={`p-3.5 rounded-xl border ${
             isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
@@ -744,10 +744,10 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5 text-xs font-bold">
                 <ThumbsUp size={13} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
-                <span>Konsensus Grade Komunitas</span>
+                <span>Community Grade Consensus</span>
               </div>
               <span className="text-[11px] font-mono opacity-70">
-                {problem.ascentCount || 0} Ascents Terdata
+                {problem.ascentCount || 0} Recorded Ascents
               </span>
             </div>
             <div className="space-y-1.5">
@@ -823,7 +823,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       </div>
 
       {/* ============================================================ */}
-      {/* 6. BAGIAN 3: BETA & CRUX SEQUENCE                            */}
+      {/* 6. SECTION 3: BETA & CRUX SEQUENCE                           */}
       {/* ============================================================ */}
       <div
         className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-4 transition-colors ${
@@ -852,16 +852,16 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
               : 'bg-granite/70 border-white/5 text-chalk/90'
           }`}>
             {problem.betaText ||
-              'Kunci jalur ini berada di transisi move ke-4. Tempatkan heel hook tinggi pada arête samping kiri, lakukan deadpoint terukur ke crimp mikro dengan tangan kanan, kemudian kunci core sebelum memindahkan kaki ke ledge kecil.'}
+              'The crux of this route is at the 4th move transition. Place a high heel hook on the left arête, execute a precise deadpoint to a micro crimp with your right hand, engage your core, and shift feet onto the small ledge.'}
           </p>
         </div>
 
-        {/* Video Beta Dokumentasi */}
+        {/* Beta Video Documentation */}
         <div>
           <div className={`text-[11px] font-bold uppercase tracking-wider mb-2 ${
             isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
           }`}>
-            Video Beta Dokumentasi
+            Beta Video Documentation
           </div>
           {problem.betaVideoUrl ? (
             <div className="rounded-2xl overflow-hidden aspect-video border border-current/15 shadow-lg bg-black">
@@ -878,7 +878,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
             }`}>
               <Video size={32} className={isSandstone ? 'text-[#1a1815]/40' : 'text-slate-ash'} />
               <p className={`text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-                Belum ada video beta resmi untuk jalur ini.
+                No official beta video recorded for this route yet.
               </p>
               {onLogAscent && (
                 <button
@@ -896,7 +896,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       </div>
 
       {/* ============================================================ */}
-      {/* 7. BAGIAN 4: AKSES & ETIKA TEBING                             */}
+      {/* 7. SECTION 4: CRAG ACCESS & ETHICS                           */}
       {/* ============================================================ */}
       <div
         className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3 transition-colors ${
@@ -908,17 +908,17 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
         <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
           <AlertCircle size={16} className="text-project" />
           <h3 className="font-bold text-sm uppercase tracking-wider text-project">
-            4. Akses & Etika Tebing
+            4. Crag Access & Ethics
           </h3>
         </div>
         <p className="text-xs leading-relaxed opacity-90">
-          {problem.accessInfo || 'Wajib melapor ke pos perizinan setempat. Dilarang meninggalkan sampah/kapur berlebih, dan gunakan alas pelindung ground bila diperlukan.'}
+          {problem.accessInfo || 'Check in with the local ranger station / basecamp coordinator upon arrival. Pack out all trash, brush off excess chalk, and use a landing ground tarp where appropriate.'}
         </p>
         <div className={`p-3 rounded-xl border text-xs ${
           isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
         }`}>
           <span className="font-bold block mb-0.5 opacity-70">Local Contact / Basecamp Coordinator:</span>
-          <span className="font-medium">{problem.localContact || 'Pengelola Kawasan & Komunitas Pemanjat Tebing Lokal'}</span>
+          <span className="font-medium">{problem.localContact || 'Crag Management & Local Climbing Community'}</span>
         </div>
       </div>
 

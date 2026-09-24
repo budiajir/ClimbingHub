@@ -100,10 +100,10 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
   const anchorTypeDisplay = problem.anchorType || (isLeadOrTrad ? 'Double Ring Stainless Chain Anchor' : 'N/A (Bouldering Crashpad landing)')
 
   const tabs: { key: 'specs' | 'topo' | 'beta' | 'access'; label: string }[] = [
-    { key: 'specs', label: '1. Specs & Jalur' },
-    { key: 'topo', label: '2. Foto & Topo' },
+    { key: 'specs', label: '1. Specs & Route' },
+    { key: 'topo', label: '2. Photo & Topo' },
     { key: 'beta', label: '3. Beta & Crux' },
-    { key: 'access', label: '4. Akses & Etika' },
+    { key: 'access', label: '4. Access & Ethics' },
   ]
 
   // Topo marker style helper
@@ -206,11 +206,11 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
           </button>
         </div>
 
-        {/* Quick Spec Strip: 7. Tinggi, 8. Pegangan, 9. Anchor / Pucuk */}
+        {/* Quick Spec Strip: 7. Height, 8. Holds, 9. Anchor / Protection */}
         <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-dashed border-current/15 text-center">
           <div className={`p-2 rounded-xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/50 border-white/5'}`}>
             <div className={`text-[10px] uppercase font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-              7. Tinggi Jalur
+              7. Route Height
             </div>
             <div className={`text-sm font-bold font-mono mt-0.5 ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
               {heightDisplay}
@@ -219,7 +219,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
 
           <div className={`p-2 rounded-xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/50 border-white/5'}`}>
             <div className={`text-[10px] uppercase font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-              8. Titik Pegangan
+              8. Holds & Grip
             </div>
             <div className={`text-sm font-bold font-mono mt-0.5 ${isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'}`}>
               ~{holdsCountDisplay} Holds
@@ -228,7 +228,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
 
           <div className={`p-2 rounded-xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/50 border-white/5'}`}>
             <div className={`text-[10px] uppercase font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-              9. Anchor / Pengaman
+              9. Anchor / Protection
             </div>
             <div className={`text-sm font-bold font-mono mt-0.5 truncate ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
               {isLeadOrTrad ? `${anchorCountDisplay} Bolts` : 'Crashpad'}
@@ -277,19 +277,19 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                 <h4 className={`text-xs font-bold uppercase tracking-wider mb-1 ${
                   isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
                 }`}>
-                  Karakteristik & Deskripsi Jalur
+                  Route Characteristics & Description
                 </h4>
                 <p className={`text-sm font-normal leading-relaxed ${isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}`}>
-                  {problem.description || 'Jalur pemanjatan outdoor yang menantang dengan karakteristik batuan alami dan sequence teknikal.'}
+                  {problem.description || 'Challenging outdoor climbing route featuring natural rock characteristics and technical sequencing.'}
                 </p>
               </div>
 
-              {/* 8. Titik + Jumlah Pegangan Detail */}
+              {/* 8. Holds Details */}
               <div className={`p-3.5 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
                 <div className="flex items-center gap-2 mb-1.5">
                   <Hand size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'} />
                   <span className={`text-xs font-bold uppercase tracking-wider ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
-                    8. Titik + Jumlah Pegangan
+                    8. Holds & Grip Details
                   </span>
                 </div>
                 <p className={`text-xs leading-relaxed mb-2 ${isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'}`}>
@@ -297,7 +297,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                 </p>
                 <div className="flex items-center gap-2 text-[11px] font-mono">
                   <span className={`px-2 py-0.5 rounded ${isSandstone ? 'bg-[#1a1815]/5 text-[#1a1815]' : 'bg-granite text-chalk'}`}>
-                    Total Titik: ~{holdsCountDisplay} Holds
+                    Total Holds: ~{holdsCountDisplay} Holds
                   </span>
                   <span className={`px-2 py-0.5 rounded ${isSandstone ? 'bg-[#1a1815]/5 text-[#1a1815]' : 'bg-granite text-chalk'}`}>
                     Start: {problem.startType || (category === 'boulder' ? 'Sit Start (SS)' : 'Ground Stand')}
@@ -305,30 +305,30 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                 </div>
               </div>
 
-              {/* 9. Jumlah Anchor (Lead) Detail */}
+              {/* 9. Anchor / Protection Details */}
               <div className={`p-3.5 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
                 <div className="flex items-center gap-2 mb-1.5">
                   <Anchor size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
                   <span className={`text-xs font-bold uppercase tracking-wider ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
-                    9. Jumlah Anchor & Pengaman
+                    9. Anchors & Protection
                   </span>
                 </div>
                 {isLeadOrTrad ? (
                   <div className="space-y-1.5 text-xs">
                     <p className={isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}>
-                      <span className="font-bold">Jumlah Bolt / Hanger:</span> {anchorCountDisplay} titik pengaman baut expansion.
+                      <span className="font-bold">Bolts / Hangers:</span> {anchorCountDisplay} stainless expansion bolt protection points.
                     </p>
                     <p className={isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}>
-                      <span className="font-bold">Tipe Anchor Top:</span> {anchorTypeDisplay}.
+                      <span className="font-bold">Top Anchor Type:</span> {anchorTypeDisplay}.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-1.5 text-xs">
                     <p className={isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}>
-                      <span className="font-bold">Sistem Pendaratan:</span> {problem.landingQuality || 'Tanah datar rumput'}.
+                      <span className="font-bold">Landing Zone:</span> {problem.landingQuality || 'Flat dirt & grass'}.
                     </p>
                     <p className={isSandstone ? 'text-[#1a1815]/85' : 'text-chalk/85'}>
-                      <span className="font-bold">Rekomendasi Crashpad:</span> {problem.padRecommendation || 'Minimal 2 crashpad & 1 spotter'}.
+                      <span className="font-bold">Crashpad Recommendation:</span> {problem.padRecommendation || 'Minimum 2 crashpads & 1 spotter'}.
                     </p>
                   </div>
                 )}
@@ -340,11 +340,11 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                   <div className="flex items-center gap-1.5">
                     <ThumbsUp size={13} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
                     <span className={`text-xs font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-                      Konsensus Grade Komunitas
+                      Community Grade Consensus
                     </span>
                   </div>
                   <span className={`text-[11px] font-mono ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-                    {problem.ascentCount || 0} Ascents Terdata
+                    {problem.ascentCount || 0} Recorded Ascents
                   </span>
                 </div>
                 <div className="space-y-1.5">
@@ -477,7 +477,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                 </div>
                 <p className={`text-sm leading-relaxed font-normal ${isSandstone ? 'text-[#1a1815]/90' : 'text-chalk/90'}`}>
                   {problem.betaText ||
-                    'Kunci jalur ini berada di transisi move ke-4. Tempatkan heel hook tinggi pada arête samping kiri, lakukan deadpoint terukur ke crimp mikro dengan tangan kanan, kemudian kunci core sebelum memindahkan kaki ke ledge kecil.'}
+                    'The crux of this route is at the 4th move transition. Place a high heel hook on the left arête, execute a precise deadpoint to a micro crimp with your right hand, engage your core, and shift feet onto the small ledge.'}
                 </p>
               </div>
 
@@ -486,7 +486,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                 <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 ${
                   isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
                 }`}>
-                  Video Beta Dokumentasi
+                  Beta Video Documentation
                 </h4>
                 {problem.betaVideoUrl ? (
                   <div className="rounded-2xl overflow-hidden aspect-video border border-current/15 shadow-lg bg-black">
@@ -503,7 +503,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                   }`}>
                     <Video size={32} className={isSandstone ? 'text-[#1a1815]/40' : 'text-slate-ash'} />
                     <p className={`text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-                      Belum ada video beta resmi untuk jalur ini.
+                      No official beta video recorded for this route yet.
                     </p>
                     <button
                       onClick={onLogAscent}
@@ -533,9 +533,9 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
               }`}>
                 <AlertCircle size={18} className="text-project flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-bold mb-1">Etika Pemanjatan & Regulasi</p>
+                  <p className="text-xs font-bold mb-1">Climbing Ethics & Regulations</p>
                   <p className="text-xs leading-relaxed opacity-90">
-                    {problem.accessInfo || 'Wajib melapor ke pos perizinan setempat. Dilarang meninggalkan sampah/kapur berlebih, dan gunakan alas pelindung ground bila diperlukan.'}
+                    {problem.accessInfo || 'Check in with the local ranger station / basecamp coordinator upon arrival. Pack out all trash, brush off excess chalk, and use a landing ground tarp where appropriate.'}
                   </p>
                 </div>
               </div>
@@ -547,7 +547,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                   Local Contact / Basecamp Coordinator
                 </p>
                 <p className={`text-sm font-semibold ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
-                  {problem.localContact || 'Pengelola Kawasan & Komunitas Pemanjat Tebing Lokal'}
+                  {problem.localContact || 'Crag Management & Local Climbing Community'}
                 </p>
               </div>
             </motion.div>

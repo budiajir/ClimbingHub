@@ -143,8 +143,8 @@ export default function CragsDirectoryPage() {
             isSandstone ? "text-[#1a1815]/75" : "text-slate-ash"
           }`}
         >
-          Informasi komprehensif mengenai daerah tebing alam Indonesia: peta lokasi,
-          panduan akses, kontak juru kunci, jenis batuan, prakiraan cuaca, sektor, dan jalur pemanjatan.
+          Comprehensive information on Indonesia&apos;s natural outdoor climbing crags: location maps,
+          access guides, local ranger contacts, rock formations, weather forecasts, sectors, and verified routes.
         </p>
       </div>
 
@@ -162,7 +162,7 @@ export default function CragsDirectoryPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari kawasan tebing, lokasi, atau jenis batuan..."
+            placeholder="Search crags, regions, or rock types..."
             className={`w-full pl-10 pr-4 py-2.5 rounded-2xl text-xs md:text-sm border outline-none transition-all ${
               isSandstone
                 ? "bg-white/80 border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/40 focus:border-[#1a1815]"
@@ -186,7 +186,7 @@ export default function CragsDirectoryPage() {
                 : "bg-crag border-white/10 text-slate-ash hover:text-chalk"
             }`}
           >
-            Semua Provinsi
+            All Provinces
           </button>
           {provinces.map((prov) => (
             <button
@@ -227,7 +227,7 @@ export default function CragsDirectoryPage() {
                   : "bg-crag border-white/10 text-slate-ash hover:text-chalk"
               }`}
             >
-              {rock === "all" ? "Semua Batuan" : rock}
+              {rock === "all" ? "All Rock Types" : rock}
             </button>
           ))}
         </div>
@@ -237,7 +237,7 @@ export default function CragsDirectoryPage() {
       {loading ? (
         <div className="py-24 text-center">
           <div className="w-8 h-8 border-2 border-lime border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs font-light opacity-70">Memuat direktori kawasan tebing...</p>
+          <p className="text-xs font-light opacity-70">Loading crag directory...</p>
         </div>
       ) : filteredCrags.length === 0 ? (
         <div
@@ -246,9 +246,9 @@ export default function CragsDirectoryPage() {
           }`}
         >
           <Pictogram name="crag" size={36} className="mx-auto mb-3 opacity-40" />
-          <h3 className="font-bold text-base mb-1">Tidak ada kawasan tebing ditemukan</h3>
+          <h3 className="font-bold text-base mb-1">No crags found</h3>
           <p className="text-xs opacity-70 mb-4">
-            Coba ganti filter pencarian provinsi atau jenis batuan Anda.
+            Try adjusting your province or rock type filters.
           </p>
           <button
             onClick={() => {
@@ -260,7 +260,7 @@ export default function CragsDirectoryPage() {
               isSandstone ? "bg-[#1a1815] text-white" : "bg-lime text-granite"
             }`}
           >
-            Reset Filter
+            Reset Filters
           </button>
         </div>
       ) : (
@@ -335,7 +335,7 @@ export default function CragsDirectoryPage() {
                           <div className="flex flex-wrap items-center gap-3 text-xs opacity-75">
                             <span>📍 {crag.province}</span>
                             <span>🪨 {crag.rockType?.type || "Limestone / Karst"}</span>
-                            <span>⛰️ {crag.sectorCount} Sektor</span>
+                            <span>⛰️ {crag.sectorCount} Sectors</span>
                             {crag.weatherForecast && <span>☀️ {crag.weatherForecast.tempAvg}</span>}
                           </div>
 
@@ -345,7 +345,7 @@ export default function CragsDirectoryPage() {
                             }`}
                           >
                             {crag.description ||
-                              `${crag.name} adalah kawasan tebing alam di ${crag.province} dengan ${crag.sectorCount} sektor pemanjatan.`}
+                              `${crag.name} is a natural outdoor crag in ${crag.province} featuring ${crag.sectorCount} climbing sectors.`}
                           </p>
 
                           {/* Sectors badges */}
@@ -379,7 +379,7 @@ export default function CragsDirectoryPage() {
                                   : "bg-lime text-granite border-lime hover:bg-lime-dim"
                               }`}
                             >
-                              <span>Buka Detail Kawasan</span>
+                              <span>Open Crag Details</span>
                               <ArrowRight size={13} />
                             </Link>
 
@@ -438,10 +438,10 @@ export default function CragsDirectoryPage() {
                       {/* Sector & Problem Count */}
                       <div className="absolute top-3 right-3 flex items-center gap-1.5">
                         <span className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono text-white font-bold border border-white/15">
-                          {crag.sectorCount} Sektor
+                          {crag.sectorCount} Sectors
                         </span>
                         <span className="bg-lime/90 backdrop-blur-md px-2 py-1 rounded-full text-[10px] font-mono text-granite font-bold">
-                          {crag.problemCount} Jalur
+                          {crag.problemCount} Routes
                         </span>
                       </div>
 
@@ -451,7 +451,7 @@ export default function CragsDirectoryPage() {
                           {crag.name}
                         </h2>
                         <p className="text-[11px] text-white/80 font-light mt-0.5 flex items-center gap-2">
-                          <span>Batuan: {crag.rockType?.type || "Limestone / Karst"}</span>
+                          <span>Rock: {crag.rockType?.type || "Limestone / Karst"}</span>
                           {crag.weatherForecast && (
                             <span>· {crag.weatherForecast.tempAvg}</span>
                           )}
@@ -467,7 +467,7 @@ export default function CragsDirectoryPage() {
                         }`}
                       >
                         {crag.description ||
-                          "Kawasan panjat tebing alami dengan ragam sektor sport climbing, multipitch, dan bouldering."}
+                          "Natural outdoor climbing area featuring a diverse range of sport climbing, multipitch, and bouldering sectors."}
                       </p>
 
                       {/* Quick specs pill row */}
@@ -479,9 +479,9 @@ export default function CragsDirectoryPage() {
                               : "bg-granite border-white/5"
                           }`}
                         >
-                          <span className="block text-[9px] uppercase opacity-60">Akses Lokasi</span>
+                          <span className="block text-[9px] uppercase opacity-60">Approach Access</span>
                           <span className="font-medium truncate block">
-                            {crag.howToGetThere?.hikeDuration || "15m jalan kaki"}
+                            {crag.howToGetThere?.hikeDuration || "15m hike-in"}
                           </span>
                         </div>
 
@@ -494,7 +494,7 @@ export default function CragsDirectoryPage() {
                         >
                           <span className="block text-[9px] uppercase opacity-60">Local Guide</span>
                           <span className="font-medium truncate block">
-                            {crag.whoToContact?.name || "Juru Kunci / Basecamp"}
+                            {crag.whoToContact?.name || "Local Basecamp / Guide"}
                           </span>
                         </div>
                       </div>
@@ -519,7 +519,7 @@ export default function CragsDirectoryPage() {
                             ? "border-[#1a1815]/30 hover:bg-[#1a1815] hover:text-white text-[#1a1815]"
                             : "border-white/20 hover:border-lime hover:text-lime text-chalk"
                         }`}
-                        title="Buka Open Trip"
+                        title="Open Trip"
                       >
                         <Calendar size={11} /> Open Trip
                       </button>
@@ -534,7 +534,7 @@ export default function CragsDirectoryPage() {
                             ? "border-[#1a1815]/30 hover:bg-[#1a1815] hover:text-white text-[#1a1815]"
                             : "border-white/20 hover:border-cyan-400 hover:text-cyan-400 text-chalk"
                         }`}
-                        title="Pesan Guide Trip"
+                        title="Book Guided Trip"
                       >
                         <Phone size={11} /> Book Trip
                       </button>
@@ -549,7 +549,7 @@ export default function CragsDirectoryPage() {
                             ? "border-[#1a1815]/30 hover:bg-[#1a1815] hover:text-white text-[#1a1815]"
                             : "border-white/20 hover:border-amber-400 hover:text-amber-400 text-chalk"
                         }`}
-                        title="Sewa Alat di Kawasan"
+                        title="Rent Gear at Crag"
                       >
                         <Package size={11} /> Rent Gear
                       </button>
@@ -564,7 +564,7 @@ export default function CragsDirectoryPage() {
                           : "bg-lime text-granite hover:bg-lime-dim shadow-lime-glow"
                       }`}
                     >
-                      <span>Buka Informasi Kawasan Lengkap</span>
+                      <span>Explore Full Crag Guide</span>
                       <ArrowRight size={13} />
                     </Link>
                   </div>
@@ -607,10 +607,10 @@ export default function CragsDirectoryPage() {
 
                         <div className="absolute top-4 right-4 flex items-center gap-2">
                           <span className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-mono text-white font-bold border border-white/15">
-                            {crag.sectorCount} Sektor
+                            {crag.sectorCount} Sectors
                           </span>
                           <span className="bg-lime/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-mono text-granite font-bold">
-                            {crag.problemCount} Jalur
+                            {crag.problemCount} Routes
                           </span>
                         </div>
 
@@ -620,9 +620,9 @@ export default function CragsDirectoryPage() {
                             {crag.name}
                           </h2>
                           <p className="text-xs text-white/80 font-light mt-1 flex items-center gap-2">
-                            <span>Batuan: {crag.rockType?.type || "Limestone / Karst"}</span>
+                            <span>Rock: {crag.rockType?.type || "Limestone / Karst"}</span>
                             {crag.weatherForecast && (
-                              <span>· Cuaca: {crag.weatherForecast.tempAvg}</span>
+                              <span>· Weather: {crag.weatherForecast.tempAvg}</span>
                             )}
                           </p>
                         </div>
@@ -635,7 +635,7 @@ export default function CragsDirectoryPage() {
                           }`}
                         >
                           {crag.description ||
-                            "Kawasan tebing alam terlengkap untuk aktivitas panjat tebing sport dan bouldering."}
+                            "Premier natural outdoor crag for sport climbing, bouldering, and multi-pitch adventures."}
                         </p>
 
                         <div className="grid grid-cols-2 gap-3 text-xs pt-1">
@@ -646,9 +646,9 @@ export default function CragsDirectoryPage() {
                                 : "bg-granite border-white/5"
                             }`}
                           >
-                            <span className="block text-[10px] uppercase opacity-60">Akses Masuk</span>
+                            <span className="block text-[10px] uppercase opacity-60">Approach Access</span>
                             <span className="font-semibold block mt-0.5">
-                              {crag.howToGetThere?.hikeDuration || "15 menit jalan kaki"}
+                              {crag.howToGetThere?.hikeDuration || "15 min hike-in"}
                             </span>
                           </div>
 
@@ -659,9 +659,9 @@ export default function CragsDirectoryPage() {
                                 : "bg-granite border-white/5"
                             }`}
                           >
-                            <span className="block text-[10px] uppercase opacity-60">Kontak Panduan</span>
+                            <span className="block text-[10px] uppercase opacity-60">Local Guide</span>
                             <span className="font-semibold block mt-0.5">
-                              {crag.whoToContact?.name || "Juru Kunci Resmi"}
+                              {crag.whoToContact?.name || "Official Basecamp Ranger"}
                             </span>
                           </div>
                         </div>
@@ -723,7 +723,7 @@ export default function CragsDirectoryPage() {
                             : "bg-lime text-granite hover:bg-lime-dim shadow-lime-glow"
                         }`}
                       >
-                        <span>Buka Halaman Kawasan</span>
+                        <span>Explore Crag Guide</span>
                         <ArrowRight size={13} />
                       </Link>
                     </div>

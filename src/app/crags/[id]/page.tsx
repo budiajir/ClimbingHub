@@ -84,7 +84,7 @@ export default function CragDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
         <div className="w-8 h-8 border-2 border-lime border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-xs font-light opacity-75">Memuat informasi kawasan tebing...</p>
+        <p className="text-xs font-light opacity-75">Loading crag information...</p>
       </div>
     );
   }
@@ -139,7 +139,7 @@ export default function CragDetailPage() {
             <div className="space-y-1.5 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full bg-lime/20 border border-lime/40 text-lime text-[11px] font-bold">
-                  Kawasan Panjat Resmi
+                  Official Climbing Area
                 </span>
                 <span className="flex items-center gap-1 text-xs opacity-85">
                   <MapPin size={12} /> {crag.province}
@@ -167,8 +167,6 @@ export default function CragDetailPage() {
           </div>
         </div>
 
-
-
         {/* ============================================================ */}
         {/* 7 INFORMASI DETAIL KAWASAN CRAG                              */}
         {/* ============================================================ */}
@@ -183,7 +181,7 @@ export default function CragDetailPage() {
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-bold text-sm flex items-center gap-2">
                   <MapPin size={16} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
-                  1. Peta Lokasi Kawasan
+                  1. Area Location Map
                 </h3>
                 {crag.coordinates && (
                   <span className="font-mono text-[11px] opacity-60">
@@ -192,7 +190,7 @@ export default function CragDetailPage() {
                 )}
               </div>
               <p className="text-xs opacity-75 font-light leading-relaxed">
-                Titik koordinat resmi kawasan {crag.name}. Gunakan navigasi Google Maps untuk petunjuk arah langsung.
+                Official coordinates for {crag.name}. Use Google Maps navigation for direct driving and approach directions.
               </p>
             </div>
 
@@ -209,7 +207,7 @@ export default function CragDetailPage() {
                 }`}
               >
                 <ExternalLink size={15} />
-                <span>Buka di Google Maps &rarr;</span>
+                <span>Open in Google Maps &rarr;</span>
               </a>
             )}
           </div>
@@ -222,31 +220,31 @@ export default function CragDetailPage() {
           >
             <h3 className="font-bold text-sm flex items-center gap-2">
               <Car size={16} className={isSandstone ? "text-[#1a1815]" : "text-cyan-climb"} />
-              2. How to Get There (Panduan Akses)
+              2. How to Get There (Access Guide)
             </h3>
             {crag.howToGetThere ? (
               <div className="space-y-2.5 text-xs">
                 <div>
-                  <span className="font-bold block opacity-85">Rute & Akses Kendaraan:</span>
+                  <span className="font-bold block opacity-85">Driving Route & Vehicle Access:</span>
                   <p className="opacity-75 font-light leading-relaxed">{crag.howToGetThere.driveInfo}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <div className={`p-2.5 rounded-xl border ${
                     isSandstone ? "border-black/10 bg-black/5" : "border-white/5 bg-white/5"
                   }`}>
-                    <span className="font-bold block text-[10px] opacity-70">Jalan Kaki (Hike-In)</span>
+                    <span className="font-bold block text-[10px] opacity-70">Hike-In Approach</span>
                     <span className="font-semibold">{crag.howToGetThere.hikeDuration}</span>
                   </div>
                   <div className={`p-2.5 rounded-xl border ${
                     isSandstone ? "border-black/10 bg-black/5" : "border-white/5 bg-white/5"
                   }`}>
-                    <span className="font-bold block text-[10px] opacity-70">Parkir Kendaraan</span>
+                    <span className="font-bold block text-[10px] opacity-70">Parking Info</span>
                     <span className="font-semibold">{crag.howToGetThere.parkingInfo}</span>
                   </div>
                 </div>
               </div>
             ) : (
-              <p className="text-xs opacity-75">Informasi rute dapat ditanyakan ke pengelola basecamp.</p>
+              <p className="text-xs opacity-75">Detailed driving and approach directions can be confirmed with the basecamp coordinator.</p>
             )}
           </div>
 
@@ -258,7 +256,7 @@ export default function CragDetailPage() {
           >
             <h3 className="font-bold text-sm flex items-center gap-2">
               <Phone size={16} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
-              3. Who to Contact (Pengelola & Local Guide)
+              3. Who to Contact (Management & Local Guides)
             </h3>
             {crag.whoToContact ? (
               <div className="space-y-2.5 text-xs">
@@ -282,11 +280,11 @@ export default function CragDetailPage() {
                       : "border-white/20 hover:border-lime text-chalk"
                   }`}
                 >
-                  <Phone size={13} /> Kontak Pengelola ({crag.whoToContact.phone})
+                  <Phone size={13} /> Contact Manager ({crag.whoToContact.phone})
                 </a>
               </div>
             ) : (
-              <p className="text-xs opacity-75">Kontak pengelola basecamp lokal.</p>
+              <p className="text-xs opacity-75">Local basecamp coordinator contact.</p>
             )}
           </div>
 
@@ -298,29 +296,29 @@ export default function CragDetailPage() {
           >
             <h3 className="font-bold text-sm flex items-center gap-2">
               <Layers size={16} className={isSandstone ? "text-[#1a1815]" : "text-cyan-climb"} />
-              4. Jenis Batuan & Karakter Dinding
+              4. Rock Type & Wall Characteristics
             </h3>
             {crag.rockType ? (
               <div className="space-y-2.5 text-xs">
                 <div>
-                  <span className="font-bold block opacity-85">Tipe Batuan:</span>
+                  <span className="font-bold block opacity-85">Rock Type:</span>
                   <span className="font-semibold text-sm">{crag.rockType.type}</span>
                 </div>
                 <div>
-                  <span className="font-bold block opacity-85">Tekstur & Bentuk Pegangan:</span>
+                  <span className="font-bold block opacity-85">Texture & Hold Features:</span>
                   <p className="opacity-75 font-light leading-relaxed">{crag.rockType.texture}</p>
                 </div>
                 {crag.rockType.ethics && (
                   <div className={`p-2.5 rounded-xl border ${
                     isSandstone ? "border-black/10 bg-black/5" : "border-white/5 bg-white/5"
                   }`}>
-                    <span className="font-bold block text-[10px] opacity-70">Etika Pemeliharaan Batuan</span>
+                    <span className="font-bold block text-[10px] opacity-70">Rock Preservation & Ethics</span>
                     <p className="opacity-75 font-light text-[11px] leading-relaxed">{crag.rockType.ethics}</p>
                   </div>
                 )}
               </div>
             ) : (
-              <p className="text-xs opacity-75">Informasi karakteristik batuan tebing.</p>
+              <p className="text-xs opacity-75">Rock characteristics and wall formation information.</p>
             )}
           </div>
 
@@ -332,34 +330,34 @@ export default function CragDetailPage() {
           >
             <h3 className="font-bold text-sm flex items-center gap-2">
               <CloudSun size={16} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
-              5. Perkiraan Cuaca & Rekomendasi Musim
+              5. Weather Forecast & Best Season
             </h3>
             {crag.weatherForecast ? (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div className={`p-3 rounded-2xl border ${
                   isSandstone ? "border-black/10 bg-black/5" : "border-white/5 bg-white/5"
                 }`}>
-                  <span className="font-bold block text-[10px] opacity-70">Kondisi & Suhu Rata-rata</span>
+                  <span className="font-bold block text-[10px] opacity-70">Conditions & Avg Temp</span>
                   <div className="font-bold text-sm mt-0.5">{crag.weatherForecast.condition}</div>
                   <div className="opacity-70">{crag.weatherForecast.tempAvg}</div>
                 </div>
                 <div className={`p-3 rounded-2xl border ${
                   isSandstone ? "border-black/10 bg-black/5" : "border-white/5 bg-white/5"
                 }`}>
-                  <span className="font-bold block text-[10px] opacity-70">Musim Terbaik (Best Season)</span>
+                  <span className="font-bold block text-[10px] opacity-70">Best Season</span>
                   <div className="font-bold text-xs mt-0.5 text-lime">{crag.weatherForecast.bestSeason}</div>
                 </div>
                 <div className={`p-3 rounded-2xl border ${
                   isSandstone ? "border-black/10 bg-black/5" : "border-white/5 bg-white/5"
                 }`}>
-                  <span className="font-bold block text-[10px] opacity-70">Catatan Musim Hujan</span>
+                  <span className="font-bold block text-[10px] opacity-70">Rainy Season Notes</span>
                   <p className="opacity-75 font-light text-[11px] mt-0.5 leading-relaxed">
-                    {crag.weatherForecast.rainNotes || "Disarankan memanjat di area overhang saat gerimis."}
+                    {crag.weatherForecast.rainNotes || "Climbing sheltered overhangs is recommended during light showers."}
                   </p>
                 </div>
               </div>
             ) : (
-              <p className="text-xs opacity-75">Perkiraan cuaca kawasan tebing.</p>
+              <p className="text-xs opacity-75">Crag weather forecast and conditions.</p>
             )}
           </div>
         </div>
@@ -371,9 +369,9 @@ export default function CragDetailPage() {
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-base md:text-lg flex items-center gap-2">
               <Layers size={18} className={isSandstone ? "text-[#1a1815]" : "text-cyan-climb"} />
-              6. Climbing Sectors ({crag.sectors.length} Sektor)
+              6. Climbing Sectors ({crag.sectors.length} Sectors)
             </h3>
-            <span className="text-xs opacity-60">Pilih sektor untuk memfilter jalur</span>
+            <span className="text-xs opacity-60">Select a sector to filter routes</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -391,8 +389,8 @@ export default function CragDetailPage() {
               }`}
             >
               <div>
-                <div className="font-bold text-xs">Semua Sektor</div>
-                <div className="text-[11px] opacity-75">{allProblems.length} Jalur Total</div>
+                <div className="font-bold text-xs">All Sectors</div>
+                <div className="text-[11px] opacity-75">{allProblems.length} Total Routes</div>
               </div>
               <ChevronRight size={16} />
             </div>
@@ -415,7 +413,7 @@ export default function CragDetailPage() {
                 >
                   <div>
                     <div className="font-bold text-xs">{sector.name}</div>
-                    <div className="text-[11px] opacity-75">{sector.problems.length} Jalur</div>
+                    <div className="text-[11px] opacity-75">{sector.problems.length} Routes</div>
                   </div>
                   <ChevronRight size={16} />
                 </div>
@@ -425,18 +423,18 @@ export default function CragDetailPage() {
         </div>
 
         {/* ============================================================ */}
-        {/* 7. PROBLEMS (Fokus pada Jalur di Setiap Sektor)              */}
+        {/* 7. PROBLEMS (Route Breakdown per Sector)                    */}
         {/* ============================================================ */}
         <div className="space-y-4 pt-4 border-t border-black/10 dark:border-white/10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-base md:text-xl flex items-center gap-2">
                 <Compass size={18} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
-                7. Problems & Jalur Pemanjatan
-                <span className="text-xs font-light opacity-65">({filteredProblems.length} jalur)</span>
+                7. Problems & Climbing Routes
+                <span className="text-xs font-light opacity-65">({filteredProblems.length} routes)</span>
               </h3>
               <p className="text-xs opacity-75 font-light">
-                Klik pada jalur untuk melihat detail 10 poin spesifikasi teknis, topo, dan video beta.
+                Click any route to view the full 10-point technical specifications, topo lines, and beta videos.
               </p>
             </div>
 
@@ -456,7 +454,7 @@ export default function CragDetailPage() {
                       : "bg-transparent border-white/10 text-slate-ash hover:text-chalk"
                   }`}
                 >
-                  {cat === "all" ? "Semua Kategori" : cat}
+                  {cat === "all" ? "All Categories" : cat}
                 </button>
               ))}
             </div>
@@ -501,7 +499,7 @@ export default function CragDetailPage() {
                         {p.name}
                       </h4>
                       <div className="text-[11px] opacity-65 font-light mt-0.5">
-                        {p.sectorName || "Kawasan"} · Setter: {p.setterYear || p.setter}
+                        {p.sectorName || "Crag"} · Setter: {p.setterYear || p.setter}
                       </div>
                     </div>
 
@@ -513,12 +511,12 @@ export default function CragDetailPage() {
                   {/* Route Quick Specs Footer */}
                   <div className="pt-3 mt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-[11px]">
                     <span className="opacity-70">
-                      Tinggi: <b className="opacity-100">{p.height || "4m"}</b> · Pegangan: <b className="opacity-100">{p.holdsCount || 12}</b>
+                      Height: <b className="opacity-100">{p.height || "4m"}</b> · Holds: <b className="opacity-100">{p.holdsCount || 12}</b>
                     </span>
                     <span className={`font-bold flex items-center gap-0.5 ${
                       isSandstone ? "text-[#1a1815]" : "text-lime"
                     }`}>
-                      Lihat Topo &rarr;
+                      View Topo &rarr;
                     </span>
                   </div>
                 </div>

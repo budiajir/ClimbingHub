@@ -452,7 +452,7 @@ export default function AscentShareModal({
               <div>
                 <h3 className="text-chalk font-bold text-base leading-tight">Official Send Card</h3>
                 <p className="text-slate-ash text-[11px] font-light">
-                  Kartu selebrasi pendakian jalur Anda 🎉
+                  Celebration card for your verified send 🎉
                 </p>
               </div>
             </div>
@@ -469,7 +469,7 @@ export default function AscentShareModal({
             {isGenerating && !generatedDataUrl ? (
               <div className="h-64 sm:h-80 flex flex-col items-center justify-center gap-2 text-slate-ash">
                 <RefreshCw size={24} className="animate-spin text-[#E6392D]" />
-                <span className="text-xs font-light">Menyiapkan Send Card resolusi tinggi...</span>
+                <span className="text-xs font-light">Preparing high-resolution Send Card...</span>
               </div>
             ) : (
               <div className="relative group w-full flex justify-center py-1">
@@ -480,7 +480,7 @@ export default function AscentShareModal({
                 />
                 <div className="absolute bottom-2 left-0 right-0 text-center pointer-events-none">
                   <span className="bg-black/75 backdrop-blur-sm text-[10px] text-white/90 px-2.5 py-1 rounded-full border border-white/10">
-                    💡 Tip: Tekan & tahan foto untuk Save to Photos di iPhone
+                    💡 Tip: Press & hold image to Save to Photos on iPhone
                   </span>
                 </div>
               </div>
@@ -502,7 +502,7 @@ export default function AscentShareModal({
               className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-chalk text-xs font-medium transition-all"
             >
               <Camera size={14} className="text-[#E6392D]" />
-              <span>{photoUrl ? 'Ganti Foto' : 'Unggah Foto'}</span>
+              <span>{photoUrl ? 'Change Photo' : 'Upload Photo'}</span>
             </button>
 
             {/* 2. Toggle Topo Line */}
@@ -515,7 +515,7 @@ export default function AscentShareModal({
               }`}
             >
               <Layers size={14} />
-              <span>Line Topo: {showTopoLine ? 'ON' : 'OFF'}</span>
+              <span>Topo Line: {showTopoLine ? 'ON' : 'OFF'}</span>
             </button>
           </div>
 
@@ -529,15 +529,15 @@ export default function AscentShareModal({
             >
               {savingStatus === 'saved' ? (
                 <>
-                  <Check size={18} /> Berhasil Disimpan / Dibagikan!
+                  <Check size={18} /> Saved / Shared Successfully!
                 </>
               ) : savingStatus === 'saving' ? (
                 <>
-                  <RefreshCw size={18} className="animate-spin" /> Menyiapkan kartu...
+                  <RefreshCw size={18} className="animate-spin" /> Preparing card...
                 </>
               ) : (
                 <>
-                  <Share2 size={18} /> Simpan ke Foto / Bagikan
+                  <Share2 size={18} /> Save to Photos / Share
                 </>
               )}
             </button>
@@ -549,7 +549,7 @@ export default function AscentShareModal({
                 disabled={isGenerating || !generatedDataUrl}
                 className="flex-1 py-2 px-3 rounded-xl border border-white/10 hover:border-white/20 text-slate-ash hover:text-chalk text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
               >
-                <Download size={14} /> Unduh File PNG
+                <Download size={14} /> Download PNG
               </button>
 
               {onViewPersonalBetaBook ? (
@@ -560,14 +560,14 @@ export default function AscentShareModal({
                   }}
                   className="flex-1 py-2 px-3 rounded-xl border border-white/10 hover:border-white/20 text-slate-ash hover:text-chalk text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
                 >
-                  <Award size={14} className="text-[#E6392D]" /> Sent Cards Saya
+                  <Award size={14} className="text-[#E6392D]" /> My Send Cards
                 </button>
               ) : (
                 <button
                   onClick={onClose}
                   className="flex-1 py-2 px-3 rounded-xl border border-white/10 hover:border-white/20 text-slate-ash hover:text-chalk text-xs font-medium transition-colors"
                 >
-                  Selesai
+                  Done
                 </button>
               )}
             </div>

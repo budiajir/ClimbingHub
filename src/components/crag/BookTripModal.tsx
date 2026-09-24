@@ -16,24 +16,24 @@ interface BookTripModalProps {
 const PACKAGES = [
   {
     id: "half-day",
-    title: "Half-Day Guided Climbing (4 Jam)",
+    title: "Half-Day Guided Climbing (4 Hours)",
     price: 250000,
-    desc: "Sesi pengenalan tebing & panduan belaying di sektor favorit.",
-    features: ["Local Guide FPTI", "Sewa Helm & Harness", "Belay Support", "P3K Tebing"],
+    desc: "Introduction to outdoor climbing & belaying guidance at popular sectors.",
+    features: ["FPTI Certified Local Guide", "Helmet & Harness Rental", "Belay Support", "First Aid Kit"],
   },
   {
     id: "full-day",
-    title: "Full-Day Crag Send Session (8 Jam)",
+    title: "Full-Day Crag Send Session (8 Hours)",
     price: 450000,
-    desc: "Eksplorasi sektor lengkap dari pagi hingga sore hari.",
-    features: ["Senior Guide Khusus", "Rope & Full Safety Gear", "Makan Siang Basecamp", "Dokumentasi Foto Send"],
+    desc: "Full sector exploration from morning to late afternoon.",
+    features: ["Dedicated Senior Guide", "Rope & Full Safety Gear", "Basecamp Lunch", "Send Action Documentation"],
   },
   {
     id: "2d1n",
     title: "2D1N Camp & Climb Experience",
     price: 850000,
-    desc: "Paket komplit menginap di basecamp/tenda dan 2 hari pemanjatan intensif.",
-    features: ["Guide 2 Hari", "Tenda / Homestay", "Makan 3x", "Night Bouldering Session"],
+    desc: "Complete basecamp/tent stay package with 2 intensive climbing days.",
+    features: ["2-Day Guide Support", "Tent / Homestay", "3x Meals Included", "Night Bouldering Session"],
   },
 ];
 
@@ -105,7 +105,7 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
               </div>
               <div>
                 <h3 className="font-bold text-base sm:text-lg leading-tight">Book A Trip</h3>
-                <p className="text-xs opacity-75 font-light">Pemandu Lokal Resmi · {crag.name}</p>
+                <p className="text-xs opacity-75 font-light">Certified Local Guides · {crag.name}</p>
               </div>
             </div>
 
@@ -128,9 +128,9 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
               >
                 <CheckCircle2 size={32} />
               </motion.div>
-              <h4 className="font-bold text-base">Booking Berhasil Diajukan!</h4>
+              <h4 className="font-bold text-base">Booking Request Submitted!</h4>
               <p className="text-xs opacity-75 max-w-sm mx-auto">
-                Pengelola basecamp <b>{crag.whoToContact?.name || crag.name}</b> telah menerima detail pesanan trip Anda dan akan segera mengonfirmasi jadwal ketersediaan pemandu.
+                Basecamp coordinator <b>{crag.whoToContact?.name || crag.name}</b> has received your booking details and will confirm guide availability shortly.
               </p>
             </div>
           ) : (
@@ -138,7 +138,7 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
               {/* Package Selection */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-2">
-                  Pilih Paket Trip Pemanduan
+                  Select Guided Trip Package
                 </label>
                 <div className="space-y-2">
                   {PACKAGES.map((pkg) => {
@@ -182,7 +182,7 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
                           <div className="font-mono font-bold text-xs">
                             Rp {pkg.price.toLocaleString("id-ID")}
                           </div>
-                          <span className="text-[10px] opacity-60">/ orang</span>
+                          <span className="text-[10px] opacity-60">/ person</span>
                         </div>
                       </div>
                     );
@@ -194,7 +194,7 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Tanggal Trip
+                    Trip Date
                   </label>
                   <input
                     type="date"
@@ -210,7 +210,7 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Jumlah Peserta
+                    Participants
                   </label>
                   <input
                     type="number"
@@ -232,7 +232,7 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Nama Pemesan
+                    Booker Name
                   </label>
                   <input
                     type="text"
@@ -248,7 +248,7 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Nomor WhatsApp / Telp
+                    Phone / WhatsApp Number
                   </label>
                   <input
                     type="tel"
@@ -274,7 +274,7 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
                 }`}
               >
                 <div>
-                  <span className="text-[11px] opacity-70 block">Estimasi Total Biaya ({participants} orang)</span>
+                  <span className="text-[11px] opacity-70 block">Estimated Total Cost ({participants} climbers)</span>
                   <span className="font-bold text-xs">{currentPkg.title}</span>
                 </div>
                 <div className="text-right">
@@ -296,7 +296,7 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
                 }`}
               >
                 <ShieldCheck size={16} />
-                <span>Kirim Permintaan Booking Trip</span>
+                <span>Submit Booking Request</span>
               </button>
             </form>
           )}

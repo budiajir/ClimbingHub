@@ -120,9 +120,9 @@ export default function RequestToJoinModal({
               >
                 <CheckCircle2 size={32} />
               </motion.div>
-              <h4 className="font-bold text-base">Request Berhasil Dikirim!</h4>
+              <h4 className="font-bold text-base">Request Sent Successfully!</h4>
               <p className="text-xs opacity-75 max-w-xs mx-auto">
-                Permintaan bergabung telah dikirimkan ke pengurus <b>{community.name}</b>. Status Anda saat ini adalah <b>Menunggu Konfirmasi</b>.
+                Your join request has been sent to the leaders of <b>{community.name}</b>. Your current status is <b>Pending Approval</b>.
               </p>
             </div>
           ) : (
@@ -150,14 +150,14 @@ export default function RequestToJoinModal({
               {/* Climber Name */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Nama Pemanjat
+                  Climber Name
                 </label>
                 <input
                   type="text"
                   required
                   value={climberName}
                   onChange={(e) => setClimberName(e.target.value)}
-                  placeholder="Nama lengkap atau alias climber"
+                  placeholder="Full name or climbing handle"
                   className={`w-full px-3.5 py-2.5 rounded-xl border outline-none text-xs transition-all ${
                     isSandstone
                       ? "bg-transparent border-[#1a1815]/20 text-[#1a1815] focus:border-[#1a1815]"
@@ -169,7 +169,7 @@ export default function RequestToJoinModal({
               {/* Climbing Grade Level */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Level / Grade Bouldering Saat Ini
+                  Current Bouldering Level / Grade
                 </label>
                 <select
                   value={level}
@@ -180,17 +180,17 @@ export default function RequestToJoinModal({
                       : "bg-[#181d22] border-white/15 text-chalk focus:border-lime/40"
                   }`}
                 >
-                  <option value="V0 - V2 (Beginner)">V0 - V2 (Pemula / Baru Memulai)</option>
-                  <option value="V3 - V5 (Intermediate)">V3 - V5 (Menengah / Rutin Gym)</option>
-                  <option value="V6 - V8 (Advanced)">V6 - V8 (Mahir / Outdoor Crag)</option>
-                  <option value="V9+ (Elite / Master)">V9+ (Elite / Atlet Kompetisi)</option>
+                  <option value="V0 - V2 (Beginner)">V0 - V2 (Beginner / Just Starting)</option>
+                  <option value="V3 - V5 (Intermediate)">V3 - V5 (Intermediate / Gym Regular)</option>
+                  <option value="V6 - V8 (Advanced)">V6 - V8 (Advanced / Outdoor Crag)</option>
+                  <option value="V9+ (Elite / Master)">V9+ (Elite / Competition Climber)</option>
                 </select>
               </div>
 
               {/* Instagram Handle */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Instagram Handle (Opsional)
+                  Instagram Handle (Optional)
                 </label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 opacity-60">@</span>
@@ -198,7 +198,7 @@ export default function RequestToJoinModal({
                     type="text"
                     value={igHandle.replace("@", "")}
                     onChange={(e) => setIgHandle(e.target.value)}
-                    placeholder="username_instagram"
+                    placeholder="instagram_handle"
                     className={`w-full pl-8 pr-3.5 py-2.5 rounded-xl border outline-none text-xs transition-all ${
                       isSandstone
                         ? "bg-transparent border-[#1a1815]/20 text-[#1a1815] focus:border-[#1a1815]"
@@ -211,13 +211,13 @@ export default function RequestToJoinModal({
               {/* Note / Intro */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Pesan Pengantar / Alasan Ingin Bergabung
+                  Introduction / Reason to Join
                 </label>
                 <textarea
                   rows={2}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  placeholder="Contoh: Ingin cari teman latihan bouldering bareng tiap Sabtu pagi..."
+                  placeholder="e.g. Looking for regular bouldering session buddies every weekend..."
                   className={`w-full p-3 rounded-xl border outline-none text-xs resize-none transition-all ${
                     isSandstone
                       ? "bg-transparent border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/40 focus:border-[#1a1815]"
@@ -237,7 +237,7 @@ export default function RequestToJoinModal({
                 }`}
               >
                 <UserPlus size={16} />
-                <span>{isSubmitting ? "Mengirimkan Permintaan..." : "Kirim Request Bergabung"}</span>
+                <span>{isSubmitting ? "Sending Request..." : "Submit Join Request"}</span>
               </button>
             </form>
           )}

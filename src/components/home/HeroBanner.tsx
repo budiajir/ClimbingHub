@@ -21,36 +21,36 @@ const HERO_SLIDES: HeroSlide[] = [
     image: '/home-hero-bg.jpg',
     tag: 'EXPLORE INDONESIA',
     title: 'Jalur',
-    subtitle: 'Ekosistem informasi tebing alam, topo interaktif, dan komunitas panjat Indonesia',
+    subtitle: 'The comprehensive natural crag ecosystem, interactive topographies, and climbing community',
     link: '/crags',
-    ctaText: 'Jelajahi Tebing',
+    ctaText: 'Explore Crags',
   },
   {
     id: 'slide-2',
     image: 'https://upload.wikimedia.org/wikipedia/commons/9/9c/Fabio_Palma%2C_Cardiopalma%2C_7c%2C_Kalymnos.jpg',
     tag: 'LATEST POST · EXPEDITION',
     title: 'Lembah Harau Topo 2026',
-    subtitle: '89 jalur boulder dan tebing granit monolit baru di Sumatera Barat telah dipetakan',
+    subtitle: '89 new boulder problems and monolithic granite big walls in West Sumatra mapped',
     link: '/crags/lembah-harau',
-    ctaText: 'Lihat Topo Harau',
+    ctaText: 'View Harau Topo',
   },
   {
     id: 'slide-3',
     image: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Chris_Sharma_-_1.jpg',
     tag: 'LATEST POST · NEW ROUTE',
     title: 'Pantai Siung Karst Slab',
-    subtitle: 'Panduan akses tebing pantai, kontak pengelola, dan prakiraan ombak laut selatan',
+    subtitle: 'Coastal cliff approach guides, ranger contact info, and southern sea wave forecasts',
     link: '/crags/pantai-siung',
-    ctaText: 'Panduan Tebing Siung',
+    ctaText: 'Siung Crag Guide',
   },
   {
     id: 'slide-4',
     image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1600&q=80',
     tag: 'LATEST POST · CRAG GUIDE',
     title: 'Citatah 125 & Tebing 90',
-    subtitle: 'Katalog rute sport climbing & trad klasik dengan konsensus grade komunitas',
+    subtitle: 'Classic sport climbing and trad catalog with community grade consensus',
     link: '/crags/citatah',
-    ctaText: 'Eksplorasi Citatah',
+    ctaText: 'Explore Citatah',
   },
 ]
 
@@ -149,7 +149,7 @@ export default function HeroBanner() {
               href={slide.link}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-lime text-granite text-xs sm:text-sm font-bold shadow-lime-glow hover:bg-lime-dim transition-all"
             >
-              <span>{slide.ctaText || 'Lihat Detail'}</span>
+              <span>{slide.ctaText || 'View Details'}</span>
               <ArrowRight size={14} />
             </Link>
           </motion.div>

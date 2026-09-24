@@ -73,7 +73,7 @@ export default function CashierView() {
                 />
               </div>
             </div>
-            <p className="text-slate-ash text-xs font-light mt-44">Arahkan kamera ke QR Code E-Ticket</p>
+            <p className="text-slate-ash text-xs font-light mt-44">Point camera at E-Ticket QR Code</p>
           </div>
 
           {/* Divider */}

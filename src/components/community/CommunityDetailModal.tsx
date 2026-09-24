@@ -82,7 +82,7 @@ export default function CommunityDetailModal({
 
   const handleCancelRequest = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm("Batalkan pengajuan request bergabung ke " + community.name + "?")) {
+    if (window.confirm("Cancel join request to " + community.name + "?")) {
       cancelCommunityJoinRequest(community.id);
       setJoinStatus("none");
     }
@@ -181,16 +181,16 @@ export default function CommunityDetailModal({
                       : "bg-amber-500/15 border-amber-500/30 text-amber-300"
                   }`}>
                     <Clock size={15} />
-                    <span>Menunggu Konfirmasi</span>
+                    <span>Pending Approval</span>
                   </div>
                   <button
                     onClick={handleCancelRequest}
-                    title="Batalkan permohonan"
+                    title="Cancel request"
                     className={`px-2.5 py-2 rounded-xl text-[11px] border opacity-70 hover:opacity-100 transition-opacity ${
                       isSandstone ? "border-[#1a1815]/20 text-[#1a1815]" : "border-white/20 text-chalk"
                     }`}
                   >
-                    Batal
+                    Cancel
                   </button>
                 </div>
               ) : joinStatus === "approved" ? (
@@ -200,7 +200,7 @@ export default function CommunityDetailModal({
                     : "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
                 }`}>
                   <CheckCircle2 size={15} />
-                  <span>Member Squad</span>
+                  <span>Squad Member</span>
                 </div>
               ) : (
                 <button
@@ -245,7 +245,7 @@ export default function CommunityDetailModal({
                 }`}
               >
                 <Camera size={14} />
-                <span>Foto Kegiatan ({photos.length})</span>
+                <span>Activity Posts ({photos.length})</span>
               </button>
 
               <button
@@ -261,7 +261,7 @@ export default function CommunityDetailModal({
                 }`}
               >
                 <Users size={14} />
-                <span>Anggota ({community.members.length})</span>
+                <span>Members ({community.members.length})</span>
               </button>
             </div>
 
@@ -276,7 +276,7 @@ export default function CommunityDetailModal({
                 }`}
               >
                 <Camera size={13} />
-                <span>+ Upload Foto</span>
+                <span>+ Upload Post</span>
               </button>
             )}
           </div>
@@ -298,9 +298,9 @@ export default function CommunityDetailModal({
                       <Camera size={22} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm">Belum Ada Foto Kegiatan</h4>
+                      <h4 className="font-bold text-sm">No Activity Posts Yet</h4>
                       <p className="text-xs opacity-70 mt-1 max-w-sm mx-auto">
-                        Jadilah yang pertama mengunggah momen bouldering atau crag trip bersama squad ini!
+                        Be the first to share bouldering moments or crag trip photos with this squad!
                       </p>
                     </div>
                     <button
@@ -309,7 +309,7 @@ export default function CommunityDetailModal({
                         isSandstone ? "bg-[#1a1815] text-[#ded3be]" : "bg-lime text-granite"
                       }`}
                     >
-                      <Camera size={14} /> Upload Foto Sekarang
+                      <Camera size={14} /> Upload Post Now
                     </button>
                   </div>
                 ) : (

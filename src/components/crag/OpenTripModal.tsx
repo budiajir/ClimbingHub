@@ -23,7 +23,7 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
   const [quota, setQuota] = useState("6");
   const [meetingPoint, setMeetingPoint] = useState("");
   const [cost, setCost] = useState("75000");
-  const [targetLevel, setTargetLevel] = useState("Semua Level (Beginner Friendly)");
+  const [targetLevel, setTargetLevel] = useState("All Levels (Beginner Friendly)");
   const [notes, setNotes] = useState("");
   const [coordinator, setCoordinator] = useState(user?.name || "Climber Organizer");
   const [submitted, setSubmitted] = useState(false);
@@ -103,9 +103,9 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
               >
                 <CheckCircle2 size={32} />
               </motion.div>
-              <h4 className="font-bold text-base">Open Trip Berhasil Dibuat!</h4>
+              <h4 className="font-bold text-base">Open Trip Created Successfully!</h4>
               <p className="text-xs opacity-75 max-w-sm mx-auto">
-                Rencana trip bersama ke <b>{crag.name}</b> telah dipublikasikan. Climber dan komunitas lain dapat melihat jadwal dan bergabung.
+                Your trip plan to <b>{crag.name}</b> has been published. Other climbers and squads can now view the schedule and join.
               </p>
             </div>
           ) : (
@@ -113,14 +113,14 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
               {/* Trip Title */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Nama / Judul Open Trip
+                  Open Trip Title
                 </label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Contoh: Weekend Bouldering & Crag Session Citatah"
+                  placeholder="e.g. Weekend Bouldering & Crag Session at Citatah"
                   className={`w-full px-3.5 py-2.5 rounded-xl border outline-none text-xs transition-all ${
                     isSandstone
                       ? "bg-transparent border-[#1a1815]/20 text-[#1a1815] focus:border-[#1a1815]"
@@ -133,7 +133,7 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Tanggal Trip
+                    Trip Date
                   </label>
                   <input
                     type="date"
@@ -149,7 +149,7 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Kuota Pemanjat
+                    Climber Quota
                   </label>
                   <input
                     type="number"
@@ -178,7 +178,7 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
                     required
                     value={meetingPoint}
                     onChange={(e) => setMeetingPoint(e.target.value)}
-                    placeholder="Misal: Basecamp Pawon 07:30 WIB"
+                    placeholder="e.g. Pawon Basecamp 07:30 AM"
                     className={`w-full px-3 py-2.5 rounded-xl border outline-none text-xs transition-all ${
                       isSandstone
                         ? "bg-transparent border-[#1a1815]/20 text-[#1a1815] focus:border-[#1a1815]"
@@ -188,14 +188,14 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                    Estimasi Share Cost (Rp)
+                    Estimated Shared Cost (IDR)
                   </label>
                   <input
                     type="number"
                     step="5000"
                     value={cost}
                     onChange={(e) => setCost(e.target.value)}
-                    placeholder="Biaya patungan per orang"
+                    placeholder="Shared cost per person"
                     className={`w-full px-3 py-2.5 rounded-xl border outline-none text-xs transition-all ${
                       isSandstone
                         ? "bg-transparent border-[#1a1815]/20 text-[#1a1815] focus:border-[#1a1815]"
@@ -208,7 +208,7 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
               {/* Level Target */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Rekomendasi Level Pemanjat
+                  Recommended Climbing Level
                 </label>
                 <select
                   value={targetLevel}
@@ -219,17 +219,17 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
                       : "bg-[#181d22] border-white/15 text-chalk focus:border-lime/40"
                   }`}
                 >
-                  <option value="Semua Level (Beginner Friendly)">Semua Level (Beginner Friendly)</option>
-                  <option value="Menengah (V3 - V5 / 6a - 6c)">Menengah (V3 - V5 / 6a - 6c)</option>
-                  <option value="Mahir (V6+ / 7a+)">Mahir (V6+ / 7a+)</option>
-                  <option value="Khusus Lead / Sport Climbing">Khusus Lead / Sport Climbing</option>
+                  <option value="All Levels (Beginner Friendly)">All Levels (Beginner Friendly)</option>
+                  <option value="Intermediate (V3 - V5 / 6a - 6c)">Intermediate (V3 - V5 / 6a - 6c)</option>
+                  <option value="Advanced (V6+ / 7a+)">Advanced (V6+ / 7a+)</option>
+                  <option value="Lead / Sport Climbing Only">Lead / Sport Climbing Only</option>
                 </select>
               </div>
 
               {/* Coordinator Name */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Nama Koordinator / Pembuat Trip
+                  Trip Coordinator / Organizer Name
                 </label>
                 <input
                   type="text"
@@ -247,13 +247,13 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
               {/* Notes */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider opacity-70 mb-1">
-                  Catatan Tambahan & Perlengkapan yang Dibawa
+                  Additional Notes & Gear to Bring
                 </label>
                 <textarea
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Contoh: Bawa crashpad sharing, sepatu panjat pribadi, makan siang..."
+                  placeholder="e.g. Bring shared crashpad, personal climbing shoes, packed lunch..."
                   className={`w-full p-3 rounded-xl border outline-none text-xs resize-none transition-all ${
                     isSandstone
                       ? "bg-transparent border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/40 focus:border-[#1a1815]"
@@ -272,7 +272,7 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
                 }`}
               >
                 <Compass size={16} />
-                <span>Publikasikan Open Trip</span>
+                <span>Publish Open Trip</span>
               </button>
             </form>
           )}

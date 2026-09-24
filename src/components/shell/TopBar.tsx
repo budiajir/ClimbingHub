@@ -152,12 +152,12 @@ export default function TopBar({
                 }
               }}
               className="relative flex items-center justify-center group py-1 px-3 rounded-xl transition-all"
-              title="Halaman Utama · Jalur"
-              aria-label="Halaman Utama"
+              title="Home · Jalur"
+              aria-label="Home"
             >
               <img
                 src={isSandstone ? '/jalur-logo-dark.png' : '/jalur-logo-white.png'}
-                alt="Jalur - Halaman Utama"
+                alt="Jalur - Home"
                 className="h-8 md:h-10 max-h-11 w-auto object-contain transition-all duration-200 group-hover:scale-105 active:scale-95"
               />
             </Link>
@@ -336,7 +336,7 @@ export default function TopBar({
                       isSandstone ? 'text-[#1a1815] hover:opacity-70' : 'text-lime hover:opacity-70'
                     }`}
                   >
-                    {showRoleSelector ? 'Tutup' : 'Switch Role'}
+                    {showRoleSelector ? 'Close' : 'Switch Role'}
                   </button>
                 </div>
 
