@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   MapPin,
-  Users,
   Instagram,
   UserPlus,
   Camera,
@@ -93,25 +92,7 @@ export default function CommunityDirectory() {
       </div>
 
       {/* Main Grid: Full Width Squads & Clubs Directory */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2
-            className={`font-bold text-base md:text-xl flex items-center gap-2 ${
-              isSandstone ? "text-[#1a1815]" : "text-chalk"
-            }`}
-          >
-            Climbing Squads & Clubs
-            <span
-              className={`text-xs font-light ${
-                isSandstone ? "text-[#1a1815]/60" : "text-slate-ash"
-              }`}
-            >
-              ({filtered.length} communities)
-            </span>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pt-1">
           {filtered.map((comm, i) => {
             const status = joinStatuses[comm.id] || "none";
             const pCount = photoCounts[comm.id] ?? getCommunityPhotos(comm.id).length;
@@ -138,52 +119,32 @@ export default function CommunityDirectory() {
                     style={{ backgroundImage: `url(${comm.image})` }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-                    {/* Photo count badge */}
-                    <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-semibold">
-                      <Camera size={12} className="text-lime" />
-                      <span>{pCount} Foto</span>
-                    </div>
                   </div>
 
                   <div className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3
-                          className={`font-bold text-base leading-tight transition-colors flex items-center gap-1 ${
-                            isSandstone
-                              ? "text-[#1a1815] group-hover:text-black"
-                              : "text-chalk group-hover:text-lime"
-                          }`}
-                        >
-                          {comm.name}
-                          <ChevronRight size={15} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </h3>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <MapPin
-                            size={11}
-                            className={isSandstone ? "text-[#1a1815]/60" : "text-slate-ash"}
-                          />
-                          <span
-                            className={`text-xs font-light ${
-                              isSandstone ? "text-[#1a1815]/70" : "text-slate-ash"
-                            }`}
-                          >
-                            {comm.city}, {comm.province}
-                          </span>
-                        </div>
-                      </div>
-                      <div
-                        className={`flex items-center gap-1 border rounded-full px-2.5 py-1 ${
+                    <div className="mb-2">
+                      <h3
+                        className={`font-bold text-base leading-tight transition-colors flex items-center gap-1 ${
                           isSandstone
-                            ? "bg-transparent border-[#1a1815]/20 text-[#1a1815]"
-                            : "bg-granite border-white/5 text-chalk"
+                            ? "text-[#1a1815] group-hover:text-black"
+                            : "text-chalk group-hover:text-lime"
                         }`}
                       >
-                        <Users
-                          size={12}
-                          className={isSandstone ? "text-[#1a1815]" : "text-cyan-climb"}
+                        {comm.name}
+                        <ChevronRight size={15} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </h3>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <MapPin
+                          size={11}
+                          className={isSandstone ? "text-[#1a1815]/60" : "text-slate-ash"}
                         />
-                        <span className="text-xs font-bold">{comm.memberCount}</span>
+                        <span
+                          className={`text-xs font-light ${
+                            isSandstone ? "text-[#1a1815]/70" : "text-slate-ash"
+                          }`}
+                        >
+                          {comm.city}, {comm.province}
+                        </span>
                       </div>
                     </div>
 
@@ -195,7 +156,7 @@ export default function CommunityDirectory() {
                       {comm.description}
                     </p>
 
-                    {/* Members preview */}
+                    {/* Members preview & Post count badge (moved from image header per user request) */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="flex -space-x-2">
@@ -219,13 +180,11 @@ export default function CommunityDirectory() {
                         </span>
                       </div>
 
-                      <span
-                        className={`text-[11px] font-medium underline underline-offset-2 ${
-                          isSandstone ? "text-[#1a1815]/70" : "text-lime/90"
-                        }`}
-                      >
-                        Lihat Galeri & Squad &rarr;
-                      </span>
+                      {/* Post badge */}
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-semibold group-hover:bg-black/75 transition-colors shadow-sm">
+                        <Camera size={12} className="text-lime" />
+                        <span>{pCount} post</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -285,7 +244,6 @@ export default function CommunityDirectory() {
               </motion.div>
             );
           })}
-        </div>
       </div>
 
       {/* Modals */}
