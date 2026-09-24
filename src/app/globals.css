@@ -107,6 +107,48 @@ body {
   border: 1px solid rgba(255,255,255,0.08);
 }
 
+/* Translucent Frosted Glass Header & Navigation (Intense Milky Blur) */
+.glass-header-sandstone {
+  background-color: rgba(222, 212, 195, 0.52);
+  -webkit-backdrop-filter: blur(36px) saturate(190%) contrast(105%);
+  backdrop-filter: blur(36px) saturate(190%) contrast(105%);
+  border-bottom: 1px solid rgba(26, 24, 21, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+}
+
+.glass-header-dark {
+  background-color: rgba(30, 34, 40, 0.58);
+  -webkit-backdrop-filter: blur(36px) saturate(190%) contrast(105%);
+  backdrop-filter: blur(36px) saturate(190%) contrast(105%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+.glass-footer-sandstone {
+  background-color: rgba(222, 212, 195, 0.56);
+  -webkit-backdrop-filter: blur(36px) saturate(190%) contrast(105%);
+  backdrop-filter: blur(36px) saturate(190%) contrast(105%);
+  border-top: 1px solid rgba(26, 24, 21, 0.08);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.glass-footer-dark {
+  background-color: rgba(30, 34, 40, 0.62);
+  -webkit-backdrop-filter: blur(36px) saturate(190%) contrast(105%);
+  backdrop-filter: blur(36px) saturate(190%) contrast(105%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .glass-header-sandstone, .glass-footer-sandstone {
+    background-color: #ded4c3;
+  }
+  .glass-header-dark, .glass-footer-dark {
+    background-color: #23262C;
+  }
+}
+
 /* Lime badge */
 .badge-lime {
   background: rgba(177, 250, 99, 0.15);

@@ -153,9 +153,7 @@ export default function MobileNav() {
         <div
           className={clsx(
             "transition-colors duration-300 relative",
-            isSandstone
-              ? "bg-[#ded4c3]/80 backdrop-blur-xl border-t border-[#1a1815]/10 shadow-[0_-4px_24px_rgba(0,0,0,0.04)]"
-              : "bg-[#23262C]/80 backdrop-blur-xl border-t border-white/10 shadow-[0_-4px_24px_rgba(0,0,0,0.3)]",
+            isSandstone ? "glass-footer-sandstone" : "glass-footer-dark",
           )}
           style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
         >
