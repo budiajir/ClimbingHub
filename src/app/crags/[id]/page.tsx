@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, notFound, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +19,7 @@ import {
   Car,
   Clock,
   CheckCircle2,
+  Camera,
 } from "lucide-react";
 import { useCragRegions } from "@/lib/use-data";
 import { useTheme } from "@/lib/theme-context";
@@ -105,10 +106,55 @@ export default function CragDetailPage() {
     return matchCategory && matchSector;
   });
 
+  // Full-frame slideshow & swipe photo gallery state
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
+  const cragPhotos = useMemo(() => {
+    const list: string[] = [];
+    if (crag?.image) list.push(crag.image);
+    if (crag?.sectors) {
+      crag.sectors.forEach((sec) => {
+        if (sec.image && !list.includes(sec.image)) list.push(sec.image);
+        sec.problems.forEach((p) => {
+          if (p.imageUrl && !list.includes(p.imageUrl)) list.push(p.imageUrl);
+        });
+      });
+    }
+    const fallbackPhotos = [
+      "https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80",
+      "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&q=80",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80",
+    ];
+    fallbackPhotos.forEach((p) => {
+      if (list.length < 4 && !list.includes(p)) list.push(p);
+    });
+    return list;
+  }, [crag]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    const diff = touchStartX - touchEndX;
+    if (diff > 45) {
+      setCurrentSlideIndex((prev) => (prev + 1) % cragPhotos.length);
+    } else if (diff < -45) {
+      setCurrentSlideIndex((prev) => (prev - 1 + cragPhotos.length) % cragPhotos.length);
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-28 pt-2">
       {/* 1-Step Back Navigation Header */}
-      <div className="flex items-center justify-between gap-3 py-2.5 border-b border-black/10 dark:border-white/10 mb-4">
+      <div className="flex items-center justify-between gap-3 pt-1 pb-2">
         <Link
           href="/crags"
           className={`flex items-center gap-1.5 py-1 -ml-1 group text-left transition-opacity hover:opacity-75 active:opacity-60 min-w-0 ${
@@ -122,49 +168,147 @@ export default function CragDetailPage() {
         </Link>
       </div>
 
-      {/* Main Grid Layout */}
-      <div className="space-y-6">
-        {/* ============================================================ */}
-        {/* HERO BANNER & BASIC INFO                                     */}
-        {/* ============================================================ */}
-        <div className="relative rounded-3xl overflow-hidden h-64 sm:h-80 md:h-96 w-full border border-black/10 dark:border-white/10 shadow-lg">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${crag.image})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/20" />
+      {/* 1. Judul crags naik ke atas & 2. Lokasi 'West Java' di bawah judul crags */}
+      <div className="space-y-1 pb-3">
+        <h1
+          className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight ${
+            isSandstone ? "text-[#1a1815]" : "text-chalk"
+          }`}
+        >
+          {crag.name}
+        </h1>
+        <div
+          className={`flex items-center gap-1.5 text-xs sm:text-sm font-medium ${
+            isSandstone ? "text-[#1a1815]/75" : "text-slate-ash"
+          }`}
+        >
+          <MapPin size={13} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
+          <span>{crag.province}</span>
+        </div>
+      </div>
 
-          {/* Hero Overlay Text */}
-          <div className="absolute bottom-5 left-5 right-5 z-10 text-white flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-1.5 max-w-2xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-lime/20 border border-lime/40 text-lime text-[11px] font-bold">
-                  Official Climbing Area
-                </span>
-                <span className="flex items-center gap-1 text-xs opacity-85">
-                  <MapPin size={12} /> {crag.province}
-                </span>
-              </div>
-              <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
-                {crag.name}
-              </h1>
-              <p className="text-xs sm:text-sm text-white/80 font-light line-clamp-2">
-                {crag.description}
-              </p>
+      {/* Main Grid Layout */}
+      <div className="space-y-5">
+        {/* ============================================================ */}
+        {/* 3. FOTO DIBIKIN FULL FRAME + SLIDESHOW / SWIPE PHOTOS       */}
+        {/* ============================================================ */}
+        <div
+          className="-mx-4 sm:-mx-6 lg:-mx-8 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] rounded-none h-72 sm:h-96 md:h-[420px] relative overflow-hidden shadow-md select-none touch-pan-y"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Photo slides */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlideIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${cragPhotos[currentSlideIndex]})` }}
+            />
+          </AnimatePresence>
+
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/15 pointer-events-none" />
+
+          {/* Previous / Next Chevron Buttons */}
+          {cragPhotos.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentSlideIndex((prev) => (prev - 1 + cragPhotos.length) % cragPhotos.length)
+                }
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all z-10"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentSlideIndex((prev) => (prev + 1) % cragPhotos.length)
+                }
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all z-10"
+                aria-label="Next photo"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </>
+          )}
+
+          {/* Pagination indicator pill */}
+          <div className="absolute bottom-3 right-4 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-medium flex items-center gap-1.5 z-10">
+            <Camera size={11} className="text-lime" />
+            <span>
+              {currentSlideIndex + 1} / {cragPhotos.length}
+            </span>
+          </div>
+
+          {/* Bottom dots */}
+          {cragPhotos.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+              {cragPhotos.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentSlideIndex(idx)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    idx === currentSlideIndex ? "w-5 bg-white" : "w-1.5 bg-white/40"
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 5. Informasi 'sector' dan 'verified routes' geser ke bawah */}
+        <div className="space-y-3 pt-1">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <div
+              className={`px-4 py-2 rounded-2xl border flex items-center gap-2 ${
+                isSandstone
+                  ? "bg-[#f4efe6] border-[#1a1815]/15 text-[#1a1815]"
+                  : "bg-[#1a1f24] border-white/10 text-chalk"
+              }`}
+            >
+              <span className="text-base font-bold font-mono text-lime">
+                {crag.sectorCount}
+              </span>
+              <span className={`text-xs ${isSandstone ? "text-[#1a1815]/70" : "text-slate-ash"}`}>
+                Sectors
+              </span>
             </div>
 
-            {/* Quick stats pills */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="px-3 py-1.5 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20 text-center">
-                <div className="text-xs font-bold font-mono text-lime">{crag.sectorCount}</div>
-                <div className="text-[10px] text-white/70">Sectors</div>
-              </div>
-              <div className="px-3 py-1.5 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20 text-center">
-                <div className="text-xs font-bold font-mono text-cyan-climb">{crag.problemCount}</div>
-                <div className="text-[10px] text-white/70">Verified Routes</div>
-              </div>
+            <div
+              className={`px-4 py-2 rounded-2xl border flex items-center gap-2 ${
+                isSandstone
+                  ? "bg-[#f4efe6] border-[#1a1815]/15 text-[#1a1815]"
+                  : "bg-[#1a1f24] border-white/10 text-chalk"
+              }`}
+            >
+              <span className="text-base font-bold font-mono text-cyan-climb">
+                {crag.problemCount}
+              </span>
+              <span className={`text-xs ${isSandstone ? "text-[#1a1815]/70" : "text-slate-ash"}`}>
+                Verified Routes
+              </span>
             </div>
           </div>
+
+          {crag.description && (
+            <p
+              className={`text-xs sm:text-sm leading-relaxed ${
+                isSandstone ? "text-[#1a1815]/80" : "text-slate-ash"
+              }`}
+            >
+              {crag.description}
+            </p>
+          )}
         </div>
 
         {/* ============================================================ */}
