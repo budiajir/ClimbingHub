@@ -92,17 +92,21 @@ export default function CragsDirectoryPage() {
             Crags
           </h1>
 
-          {/* View Mode Icon Toolbar (Slide, Thumbnail, List matching official Jalur pictograms) */}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          {/* View Mode Icon Toolbar (Slide, Thumbnail, List matching official Jalur pictograms without background boxes) */}
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
             {/* Mode 1: Slide */}
             <button
               onClick={() => setViewMode("slide")}
               title="Slide"
               aria-label="Slide View Mode"
-              className={`p-1.5 rounded-lg transition-all ${
+              className={`p-1.5 transition-all ${
                 viewMode === "slide"
-                  ? isSandstone ? "bg-[#1a1815]/15 text-[#1a1815]" : "bg-lime/20 text-lime"
-                  : isSandstone ? "text-[#1a1815]/40 hover:text-[#1a1815]" : "text-slate-ash hover:text-chalk"
+                  ? isSandstone
+                    ? "scale-110 opacity-100 text-[#1a1815]"
+                    : "scale-110 opacity-100 text-lime"
+                  : isSandstone
+                  ? "opacity-35 hover:opacity-75 text-[#1a1815]"
+                  : "opacity-40 hover:opacity-80 text-slate-ash"
               }`}
             >
               <Pictogram name="view-mode-slide" size={18} alt="Slide" />
@@ -113,10 +117,14 @@ export default function CragsDirectoryPage() {
               onClick={() => setViewMode("thumbnail")}
               title="Thumbnail"
               aria-label="Thumbnail View Mode"
-              className={`p-1.5 rounded-lg transition-all ${
+              className={`p-1.5 transition-all ${
                 viewMode === "thumbnail"
-                  ? isSandstone ? "bg-[#1a1815]/15 text-[#1a1815]" : "bg-lime/20 text-lime"
-                  : isSandstone ? "text-[#1a1815]/40 hover:text-[#1a1815]" : "text-slate-ash hover:text-chalk"
+                  ? isSandstone
+                    ? "scale-110 opacity-100 text-[#1a1815]"
+                    : "scale-110 opacity-100 text-lime"
+                  : isSandstone
+                  ? "opacity-35 hover:opacity-75 text-[#1a1815]"
+                  : "opacity-40 hover:opacity-80 text-slate-ash"
               }`}
             >
               <Pictogram name="view-mode-thumbnail" size={18} alt="Thumbnail" />
@@ -127,10 +135,14 @@ export default function CragsDirectoryPage() {
               onClick={() => setViewMode("list")}
               title="List"
               aria-label="List View Mode"
-              className={`p-1.5 rounded-lg transition-all ${
+              className={`p-1.5 transition-all ${
                 viewMode === "list"
-                  ? isSandstone ? "bg-[#1a1815]/15 text-[#1a1815]" : "bg-lime/20 text-lime"
-                  : isSandstone ? "text-[#1a1815]/40 hover:text-[#1a1815]" : "text-slate-ash hover:text-chalk"
+                  ? isSandstone
+                    ? "scale-110 opacity-100 text-[#1a1815]"
+                    : "scale-110 opacity-100 text-lime"
+                  : isSandstone
+                  ? "opacity-35 hover:opacity-75 text-[#1a1815]"
+                  : "opacity-40 hover:opacity-80 text-slate-ash"
               }`}
             >
               <Pictogram name="view-mode-list" size={18} alt="List" />
@@ -150,23 +162,17 @@ export default function CragsDirectoryPage() {
 
       {/* Search & Filter Controls */}
       <div className="space-y-3 mb-8">
-        {/* Search input */}
-        <div className="relative">
-          <Search
-            size={16}
-            className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${
-              isSandstone ? "text-[#1a1815]/40" : "text-slate-ash"
-            }`}
-          />
+        {/* Search input — Disamakan dengan bentuk pill di Problem */}
+        <div className="relative pt-0.5">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search crags, regions, or rock types..."
-            className={`w-full pl-10 pr-4 py-2.5 rounded-2xl text-xs md:text-sm border outline-none transition-all ${
+            className={`w-full py-2.5 px-6 rounded-full text-xs sm:text-sm outline-none transition-all border ${
               isSandstone
-                ? "bg-white/80 border-[#1a1815]/20 text-[#1a1815] placeholder:text-[#1a1815]/40 focus:border-[#1a1815]"
-                : "bg-crag border-white/10 text-chalk placeholder:text-white/40 focus:border-lime/50"
+                ? "bg-black/[0.03] text-[#1a1815] placeholder:text-[#1a1815]/40 border-[#1a1815]/25 focus:border-[#1a1815]"
+                : "bg-white/[0.05] text-chalk placeholder:text-white/40 border-white/15 focus:border-lime/50"
             }`}
           />
         </div>
@@ -348,28 +354,6 @@ export default function CragsDirectoryPage() {
                               `${crag.name} is a natural outdoor crag in ${crag.province} featuring ${crag.sectorCount} climbing sectors.`}
                           </p>
 
-                          {/* Sectors badges */}
-                          {crag.sectors && crag.sectors.length > 0 && (
-                            <div className="flex flex-wrap gap-2 pt-1">
-                              {crag.sectors.map((sec) => (
-                                <Link
-                                  key={sec.id}
-                                  href={`/crags/${crag.id}#sector-${sec.id}`}
-                                  className={`text-[11px] px-2.5 py-1 rounded-lg border flex items-center gap-1.5 transition-colors ${
-                                    isSandstone
-                                      ? "border-[#1a1815]/20 hover:border-[#1a1815] text-[#1a1815]"
-                                      : "border-white/10 hover:border-lime/40 text-chalk"
-                                  }`}
-                                >
-                                  <span>{sec.name}</span>
-                                  <span className="opacity-60 text-[10px]">
-                                    ({sec.problems.length} problems)
-                                  </span>
-                                </Link>
-                              ))}
-                            </div>
-                          )}
-
                           <div className="pt-2 flex items-center gap-2">
                             <Link
                               href={`/crags/${crag.id}`}
@@ -388,10 +372,10 @@ export default function CragsDirectoryPage() {
                                 setActiveModalCrag(crag);
                                 setShowBookTrip(true);
                               }}
-                              className={`text-xs font-bold px-3 py-2 rounded-xl border transition-colors ${
+                              className={`text-xs font-bold px-3.5 py-2 rounded-xl border flex items-center justify-center transition-colors ${
                                 isSandstone
-                                  ? "border-[#1a1815]/30 text-[#1a1815] hover:bg-[#1a1815]/10"
-                                  : "border-white/20 text-chalk hover:border-cyan-400 hover:text-cyan-400"
+                                  ? "bg-[#1a1815] text-white border-[#1a1815] hover:bg-black"
+                                  : "bg-lime text-granite border-lime hover:bg-lime-dim"
                               }`}
                             >
                               Book Trip
