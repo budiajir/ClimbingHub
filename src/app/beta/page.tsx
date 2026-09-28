@@ -803,8 +803,54 @@ function BetaPageContent() {
               {/* DIRECT PROBLEMS LIST (Kategori & Theme) */}
               {!showMyAscentsView && (
                 <div className="space-y-3.5 my-2">
-                  {/* 1. Category Switcher Tabs (BOULDER, LEAD, MULTIPITCH) */}
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
+                  {/* 1. Stats & Description Block (Informasi text dituker ke atas) */}
+                  <div className="flex items-center gap-3.5 sm:gap-4 py-1.5 sm:py-2">
+                    <div
+                      className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight flex-shrink-0"
+                      style={{ color: themeTextColor }}
+                    >
+                      {selectedCategory === 'boulder' ? '26' : filteredProblemsList.length}
+                    </div>
+                    <p
+                      className="text-xs sm:text-sm leading-snug font-normal max-w-sm sm:max-w-md"
+                      style={{ color: themeTextColor }}
+                    >
+                      {currentTheme.desc}
+                    </p>
+                  </div>
+
+                  {/* 2. Pill-shaped Search Bar ("Discover") */}
+                  <div className="relative pt-0.5">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="Discover"
+                      className={`w-full py-2.5 px-6 rounded-full text-xs sm:text-sm outline-none transition-all border ${
+                        isSandstone
+                          ? 'bg-black/[0.03] text-[#1a1815] placeholder:text-[#1a1815]/40'
+                          : 'bg-white/[0.05] text-chalk placeholder:text-white/40'
+                      }`}
+                      style={{
+                        borderColor: currentTheme.primary + '55',
+                      }}
+                    />
+                  </div>
+
+                  {/* 3. Category Feature Graphic Hero Banner — Full screen dari ujung kiri ke kanan */}
+                  <div
+                    className="-mx-4 sm:-mx-6 lg:-mx-8 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] rounded-none overflow-hidden my-3 relative shadow-md transition-colors duration-300"
+                    style={{ backgroundColor: currentTheme.bannerBg }}
+                  >
+                    <div className="py-6 sm:py-8 px-4 flex items-center justify-center min-h-[220px] sm:min-h-[280px]">
+                      {selectedCategory === 'boulder' && <SumatraSilhouetteSvg />}
+                      {selectedCategory === 'lead' && <LeadCragSilhouetteSvg />}
+                      {selectedCategory === 'multipitch' && <MultipitchWallSilhouetteSvg />}
+                    </div>
+                  </div>
+
+                  {/* 4. Button filter kategori (boulder - lead - multipitch dituker ke bawah agar nyaman 1 tangan) */}
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3.5 pt-1">
                     {(['boulder', 'lead', 'multipitch'] as ProblemCategory[]).map(catId => {
                       const cat = CATEGORY_THEMES[catId]
                       const isActive = selectedCategory === catId
@@ -829,55 +875,9 @@ function BetaPageContent() {
                     })}
                   </div>
 
-                  {/* 2. Pill-shaped Search Bar ("Discover") */}
-                  <div className="relative pt-1">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                      placeholder="Discover"
-                      className={`w-full py-2.5 px-6 rounded-full text-xs sm:text-sm outline-none transition-all border ${
-                        isSandstone
-                          ? 'bg-black/[0.03] text-[#1a1815] placeholder:text-[#1a1815]/40'
-                          : 'bg-white/[0.05] text-chalk placeholder:text-white/40'
-                      }`}
-                      style={{
-                        borderColor: currentTheme.primary + '55',
-                      }}
-                    />
-                  </div>
-
-                  {/* 3. Category Feature Graphic Hero Banner */}
-                  <div
-                    className="w-full rounded-2xl overflow-hidden my-3 relative shadow-md transition-colors duration-300"
-                    style={{ backgroundColor: currentTheme.bannerBg }}
-                  >
-                    <div className="py-6 sm:py-8 px-4 flex items-center justify-center min-h-[220px] sm:min-h-[280px]">
-                      {selectedCategory === 'boulder' && <SumatraSilhouetteSvg />}
-                      {selectedCategory === 'lead' && <LeadCragSilhouetteSvg />}
-                      {selectedCategory === 'multipitch' && <MultipitchWallSilhouetteSvg />}
-                    </div>
-                  </div>
-
-                  {/* 4. Stats & Description Block */}
-                  <div className="flex items-center gap-4 py-2 sm:py-3">
-                    <div
-                      className="text-5xl sm:text-6xl font-light tracking-tight flex-shrink-0"
-                      style={{ color: themeTextColor }}
-                    >
-                      {selectedCategory === 'boulder' ? '26' : filteredProblemsList.length}
-                    </div>
-                    <p
-                      className="text-xs sm:text-sm leading-snug font-normal max-w-sm sm:max-w-md"
-                      style={{ color: themeTextColor }}
-                    >
-                      {currentTheme.desc}
-                    </p>
-                  </div>
-
                   {/* Divider Line */}
                   <div
-                    className="w-full border-b mb-1"
+                    className="w-full border-b mb-1 pt-1"
                     style={{ borderColor: currentTheme.primary + '40' }}
                   />
 
