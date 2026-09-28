@@ -234,7 +234,7 @@ export default function HomePage() {
                       <polyline
                         points={markers.map((m) => `${m.x}%,${m.y}%`).join(' ')}
                         fill="none"
-                        stroke="#B1FA63"
+                        stroke="#FE7733"
                         strokeWidth="6"
                         opacity="0.3"
                         strokeLinecap="round"
@@ -245,7 +245,7 @@ export default function HomePage() {
                       <polyline
                         points={markers.map((m) => `${m.x}%,${m.y}%`).join(' ')}
                         fill="none"
-                        stroke="#B1FA63"
+                        stroke="#FE7733"
                         strokeWidth="3.5"
                         strokeDasharray="6 4"
                         strokeLinecap="round"

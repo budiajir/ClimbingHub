@@ -7,12 +7,12 @@
   --color-graphite-700: #3A3F47;
   --color-cloud-zink: #D1D5DB;
   --color-safety-orange: #FE7733;
-  --color-neon-sprout: #B1FA63;
+  --color-neon-sprout: #FE7733;
   --color-paper-white: #FFFFFF;
 
   --color-granite: #23262C;
   --color-crag: #3A3F47;
-  --color-lime: #B1FA63;
+  --color-lime: #FE7733;
   --color-cyan: #06B6D4;
   --color-red: #FE7733;
   --color-orange: #FE7733;
@@ -151,9 +151,9 @@ body {
 
 /* Lime badge */
 .badge-lime {
-  background: rgba(177, 250, 99, 0.15);
-  color: #B1FA63;
-  border: 1px solid rgba(177, 250, 99, 0.3);
+  background: rgba(254, 119, 51, 0.15);
+  color: #FE7733;
+  border: 1px solid rgba(254, 119, 51, 0.3);
 }
 
 /* Grade badges */

@@ -387,7 +387,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                   <polyline
                     points={markers.map((m) => `${m.x}%,${m.y}%`).join(' ')}
                     fill="none"
-                    stroke={isSandstone ? '#1a1815' : '#B1FA63'}
+                    stroke={isSandstone ? '#1a1815' : '#FE7733'}
                     strokeWidth="3.5"
                     strokeDasharray="6 3"
                     strokeLinecap="round"

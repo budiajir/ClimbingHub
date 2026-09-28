@@ -7,7 +7,7 @@ export const colors = {
   graphite700: '#3A3F47',
   cloudZink: '#D1D5DB',
   safetyOrange: '#FE7733',
-  neonSprout: '#B1FA63',
+  neonSprout: '#FE7733',
   paperWhite: '#FFFFFF',
 
   // Theme Mappings
@@ -17,9 +17,9 @@ export const colors = {
   cragBorder: '#4E5661',
 
   // Accents
-  lime: '#B1FA63',
-  limeDim: '#9FE350',
-  limeAlpha: 'rgba(177,250,99,0.15)',
+  lime: '#FE7733',
+  limeDim: '#E5601F',
+  limeAlpha: 'rgba(254,119,51,0.15)',
 
   cyan: '#06B6D4',
   cyanAlpha: 'rgba(6,182,212,0.15)',
@@ -39,7 +39,7 @@ export const colors = {
 
 // Ascent type color mapping
 export const ascentColors = {
-  flash: { bg: 'rgba(177,250,99,0.15)', text: '#B1FA63', border: 'rgba(177,250,99,0.3)' },
+  flash: { bg: 'rgba(254,119,51,0.15)', text: '#FE7733', border: 'rgba(254,119,51,0.3)' },
   onsight: { bg: 'rgba(6,182,212,0.15)', text: '#06B6D4', border: 'rgba(6,182,212,0.3)' },
   redpoint: { bg: 'rgba(254,119,51,0.15)', text: '#FE7733', border: 'rgba(254,119,51,0.3)' },
   repeat: { bg: 'rgba(209,213,219,0.15)', text: '#D1D5DB', border: 'rgba(209,213,219,0.3)' },

@@ -13,15 +13,15 @@ module.exports = {
         'graphite-700': '#3A3F47',
         'cloud-zink': '#D1D5DB',
         'safety-orange': '#FE7733',
-        'neon-sprout': '#B1FA63',
+        'neon-sprout': '#FE7733',
         'paper-white': '#FFFFFF',
 
         // Theme Mappings
         'granite': '#23262C',       // Graphite 900
         'crag': '#3A3F47',          // Graphite 700
         'crag-light': '#4A505A',
-        'lime': '#B1FA63',          // Neon Sprout
-        'lime-dim': '#9FE350',
+        'lime': '#FE7733',          // Safety Orange (replaces neon sprout)
+        'lime-dim': '#E5601F',
         'slate-ash': '#D1D5DB',     // Cloud Zink
         'project': '#FE7733',       // Safety Orange
         'chalk': '#FFFFFF',         // Paper White
@@ -61,8 +61,8 @@ module.exports = {
         'card-gradient': 'linear-gradient(135deg, #3A3F47 0%, #23262C 100%)',
       },
       boxShadow: {
-        'lime-glow': '0 0 20px rgba(177, 250, 99, 0.35)',
-        'lime-glow-sm': '0 0 10px rgba(177, 250, 99, 0.25)',
+        'lime-glow': '0 0 20px rgba(254, 119, 51, 0.35)',
+        'lime-glow-sm': '0 0 10px rgba(254, 119, 51, 0.25)',
         'cyan-glow': '0 0 20px rgba(6, 182, 212, 0.3)',
         'card': '0 4px 24px rgba(0,0,0,0.4)',
         'card-hover': '0 8px 32px rgba(0,0,0,0.6)',
@@ -83,8 +83,8 @@ module.exports = {
       },
       keyframes: {
         'pulse-lime': {
-          '0%, 100%': { boxShadow: '0 0 10px rgba(177,250,99,0.25)' },
-          '50%': { boxShadow: '0 0 25px rgba(177,250,99,0.5)' },
+          '0%, 100%': { boxShadow: '0 0 10px rgba(254, 119, 51, 0.25)' },
+          '50%': { boxShadow: '0 0 25px rgba(254, 119, 51, 0.5)' },
         },
         'slide-up': {
           '0%': { transform: 'translateY(100%)' },
