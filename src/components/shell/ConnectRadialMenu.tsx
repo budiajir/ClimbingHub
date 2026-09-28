@@ -43,10 +43,10 @@ export default function ConnectRadialMenu({
             onClick={onClose}
           />
 
-          {/* Radial Arc Menu (Emerges from the bottom) */}
+          {/* Radial Arc Menu (Emerges from the bottom flush with the bottom nav) */}
           <div
             className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none"
-            style={{ bottom: "calc(4rem + max(env(safe-area-inset-bottom), 0px) - 2px)" }}
+            style={{ bottom: "calc(4rem + max(env(safe-area-inset-bottom), 0px) - 6px)" }}
           >
             <motion.div
               initial={{ y: 240, scale: 0.65, opacity: 0 }}
@@ -86,19 +86,11 @@ export default function ConnectRadialMenu({
                   />
                 </defs>
 
-                {/* Outer Arc Shell with Soft Silver-to-White Gradient (Radius 174px) */}
+                {/* Outer Arc Shell with Soft Silver-to-White Gradient (Radius 174px, flush to y=236) */}
                 <path
-                  d="M 11 230 A 174 174 0 0 1 359 230 Z"
+                  d="M 11 230 A 174 174 0 0 1 359 230 L 359 236 L 11 236 Z"
                   fill="url(#connectOuterShellGrad)"
-                  stroke="rgba(0,0,0,0.14)"
-                  strokeWidth="1.2"
-                />
-
-                {/* Outer Perimeter Inner Accent Rim */}
-                <path
-                  d="M 17 230 A 168 168 0 0 1 353 230"
-                  fill="none"
-                  stroke="rgba(255,255,255,0.85)"
+                  stroke="rgba(0,0,0,0.12)"
                   strokeWidth="1"
                 />
 
@@ -173,51 +165,33 @@ export default function ConnectRadialMenu({
                   </text>
                 </g>
 
-                {/* Concentric Tonal Acoustic Waves / Rings Radiating from Hub */}
+                {/* Concentric Tonal Acoustic Waves / Rings Radiating from Hub (Tanpa outline putih) */}
                 {/* Ring 3 (Radius 104px - Soft Light Slate Gray) */}
                 <path
-                  d="M 81 230 A 104 104 0 0 1 289 230 Z"
+                  d="M 81 230 A 104 104 0 0 1 289 230 L 289 236 L 81 236 Z"
                   fill="rgba(195, 201, 210, 0.48)"
-                  stroke="rgba(255, 255, 255, 0.7)"
-                  strokeWidth="1.2"
+                  stroke="none"
                 />
 
                 {/* Ring 2 (Radius 88px - Medium Light Slate Gray) */}
                 <path
-                  d="M 97 230 A 88 88 0 0 1 273 230 Z"
+                  d="M 97 230 A 88 88 0 0 1 273 230 L 273 236 L 97 236 Z"
                   fill="rgba(152, 159, 170, 0.58)"
-                  stroke="rgba(255, 255, 255, 0.6)"
-                  strokeWidth="1.2"
+                  stroke="none"
                 />
 
                 {/* Ring 1 (Radius 72px - Medium Slate Gray) */}
                 <path
-                  d="M 113 230 A 72 72 0 0 1 257 230 Z"
+                  d="M 113 230 A 72 72 0 0 1 257 230 L 257 236 L 113 236 Z"
                   fill="rgba(118, 125, 137, 0.72)"
-                  stroke="rgba(255, 255, 255, 0.5)"
-                  strokeWidth="1.2"
+                  stroke="none"
                 />
 
                 {/* Central Hub Dome (Radius 54px - Deep Slate Gradient) */}
                 <path
-                  d="M 131 230 A 54 54 0 0 1 239 230 Z"
+                  d="M 131 230 A 54 54 0 0 1 239 230 L 239 236 L 131 236 Z"
                   fill="url(#connectCenterHubGrad)"
-                  stroke="rgba(255, 255, 255, 0.45)"
-                  strokeWidth="1.2"
-                />
-
-                {/* Concentric Subtle Arcs inside Hub */}
-                <path
-                  d="M 147 230 A 38 38 0 0 1 223 230"
-                  fill="none"
-                  stroke="rgba(255, 255, 255, 0.24)"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M 163 230 A 22 22 0 0 1 207 230"
-                  fill="none"
-                  stroke="rgba(255, 255, 255, 0.18)"
-                  strokeWidth="1"
+                  stroke="none"
                 />
 
                 {/* Hub Label: CONNECT */}
