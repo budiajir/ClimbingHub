@@ -57,13 +57,14 @@ export default function CragsDirectoryPage() {
 
   // Filtered crags
   const filteredCrags = useMemo(() => {
-    return cragRegions.filter((crag) => {
+    return (cragRegions || []).filter((crag) => {
+      const q = searchQuery.toLowerCase().trim();
       const matchSearch =
-        searchQuery.trim() === "" ||
-        crag.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        crag.province.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        crag.rockType?.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        crag.description?.toLowerCase().includes(searchQuery.toLowerCase());
+        q === "" ||
+        (crag.name || "").toLowerCase().includes(q) ||
+        (crag.province || "").toLowerCase().includes(q) ||
+        (crag.rockType?.type || "").toLowerCase().includes(q) ||
+        (crag.description || "").toLowerCase().includes(q);
 
       const matchProvince =
         selectedProvince === "all" || crag.province === selectedProvince;

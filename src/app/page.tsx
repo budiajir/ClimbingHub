@@ -46,16 +46,16 @@ export default function HomePage() {
   }
 
   // Flatten featured problems across crags
-  const featuredProblems = cragRegions.flatMap(r =>
-    r.sectors.flatMap(s =>
-      s.problems.map(p => ({
+  const featuredProblems = (cragRegions || []).flatMap(r =>
+    (r.sectors || []).flatMap(s =>
+      (s.problems || []).map(p => ({
         ...p,
         regionId: r.id,
         sectorId: s.id,
-        cragName: r.name,
-        sectorName: s.name,
-        cragImage: r.image,
-        sectorImage: s.image,
+        cragName: r.name || '',
+        sectorName: s.name || '',
+        cragImage: r.image || '',
+        sectorImage: s.image || '',
       }))
     )
   )
@@ -191,8 +191,13 @@ export default function HomePage() {
             {featuredProblems.slice(0, 8).map((problem, idx) => {
               const gradeColor = gradeColors[problem.grade] || '#CCFF00'
               const photoUrl = problem.imageUrl || problem.sectorImage || problem.cragImage || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=800&q=80'
-              const markers = (problem.markers && problem.markers.length >= 2)
-                ? problem.markers
+              const rawMarkers = Array.isArray(problem.markers) ? problem.markers : []
+              const markers = rawMarkers.length >= 2
+                ? rawMarkers.map((m) => ({
+                    x: typeof m?.x === 'number' ? m.x : (Number(m?.x) || 50),
+                    y: typeof m?.y === 'number' ? m.y : (Number(m?.y) || 50),
+                    type: m?.type || 'B',
+                  }))
                 : [
                     { x: 28, y: 80, type: 'S' },
                     { x: 48, y: 52, type: 'Z' },
@@ -304,7 +309,7 @@ export default function HomePage() {
                         {problem.name}
                       </h3>
                       <p className="text-xs text-white/75 truncate font-light">
-                        {problem.cragName} · {problem.sectorName.split('—')[0]}
+                        {problem.cragName} · {(problem.sectorName || '').split('—')[0]}
                       </p>
 
                       <div className="pt-2 border-t border-white/15 flex items-center justify-between text-xs">
@@ -392,7 +397,7 @@ export default function HomePage() {
                       }`}>
                         <span className={`font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>Starts from</span>
                         <span className={`font-bold font-mono ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
-                          Rp {gym.pricePerSession.toLocaleString('en-US')}/session
+                          Rp {(gym.pricePerSession ?? 0).toLocaleString('en-US')}/session
                         </span>
                       </div>
                     </div>

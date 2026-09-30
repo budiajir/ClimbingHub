@@ -238,9 +238,9 @@ function BetaPageContent() {
 
     if (problemParam) {
       const pParam = problemParam.toLowerCase()
-      for (const reg of regions) {
-        for (const sec of reg.sectors) {
-          const match = sec.problems.find(p => p.id.toLowerCase() === pParam || p.name.toLowerCase() === pParam)
+      for (const reg of regions || []) {
+        for (const sec of reg.sectors || []) {
+          const match = (sec.problems || []).find(p => (p.id || '').toLowerCase() === pParam || (p.name || '').toLowerCase() === pParam)
           if (match) {
             setSelectedRegion(reg.id)
             setSelectedSector(sec.id)
@@ -252,8 +252,8 @@ function BetaPageContent() {
       }
     } else if (sectorParam) {
       const sParam = sectorParam.toLowerCase()
-      for (const reg of regions) {
-        const secMatch = reg.sectors.find(s => s.id.toLowerCase() === sParam || s.name.toLowerCase() === sParam)
+      for (const reg of regions || []) {
+        const secMatch = (reg.sectors || []).find(s => (s.id || '').toLowerCase() === sParam || (s.name || '').toLowerCase() === sParam)
         if (secMatch) {
           setSelectedRegion(reg.id)
           setSelectedSector(secMatch.id)
@@ -472,7 +472,7 @@ function BetaPageContent() {
 
   const backLabel = useMemo(() => {
     if (level === 'topo') {
-      return sector?.name.split('—')[0].trim() || region?.name || 'Problems'
+      return (sector?.name || '').split('—')[0].trim() || region?.name || 'Problems'
     }
     if (level === 'problems') {
       return region?.name || 'Sectors'
@@ -486,9 +486,9 @@ function BetaPageContent() {
   // Flat list of all problems across all crags & sectors
   const allProblems = useMemo(() => {
     const list: { problem: Problem; region: CragRegion; sector: { id: string; name: string; image?: string } }[] = []
-    for (const r of regions) {
-      for (const s of r.sectors) {
-        for (const p of s.problems) {
+    for (const r of regions || []) {
+      for (const s of r.sectors || []) {
+        for (const p of s.problems || []) {
           list.push({ problem: p, region: r, sector: s })
         }
       }
@@ -502,11 +502,11 @@ function BetaPageContent() {
         const q = searchQuery.toLowerCase().trim()
         const matchSearch =
           q === '' ||
-          p.name.toLowerCase().includes(q) ||
-          p.grade.toLowerCase().includes(q) ||
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.grade || '').toLowerCase().includes(q) ||
           (p.fontGrade && p.fontGrade.toLowerCase().includes(q)) ||
-          r.name.toLowerCase().includes(q) ||
-          s.name.toLowerCase().includes(q)
+          (r.name || '').toLowerCase().includes(q) ||
+          (s.name || '').toLowerCase().includes(q)
 
         const disc = p.discipline || 'bouldering'
         const matchCategory =

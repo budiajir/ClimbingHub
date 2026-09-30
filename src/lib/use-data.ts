@@ -26,21 +26,29 @@ export function useGyms() {
 
         setGyms((data as any[]).map((g: any) => ({
           id: g.id,
-          name: g.name,
-          city: g.city,
-          province: g.province,
-          image: g.image,
-          rating: Number(g.rating),
-          reviewCount: g.review_count,
-          slots: { morning: g.slots_morning, afternoon: g.slots_afternoon, evening: g.slots_evening },
-          maxSlots: { morning: g.max_slots_morning, afternoon: g.max_slots_afternoon, evening: g.max_slots_evening },
-          facilities: g.facilities,
-          pricePerSession: g.price_per_session,
-          address: g.address,
-          routeSetters: g.route_setters,
-          description: g.description,
-          phone: g.phone,
-          instagram: g.instagram,
+          name: g.name || 'Climbing Gym',
+          city: g.city || '',
+          province: g.province || '',
+          image: g.image || '',
+          rating: Number(g.rating || 0),
+          reviewCount: Number(g.review_count || 0),
+          slots: {
+            morning: Number(g.slots_morning || 0),
+            afternoon: Number(g.slots_afternoon || 0),
+            evening: Number(g.slots_evening || 0),
+          },
+          maxSlots: {
+            morning: Number(g.max_slots_morning || 0),
+            afternoon: Number(g.max_slots_afternoon || 0),
+            evening: Number(g.max_slots_evening || 0),
+          },
+          facilities: Array.isArray(g.facilities) ? g.facilities : [],
+          pricePerSession: Number(g.price_per_session || 0),
+          address: g.address || '',
+          routeSetters: Array.isArray(g.route_setters) ? g.route_setters : [],
+          description: g.description || '',
+          phone: g.phone || '',
+          instagram: g.instagram || '',
         })))
       } catch {
         const { gyms: mockGyms } = await import('./mock-data')
@@ -80,24 +88,43 @@ export function useCragRegions() {
         const routes = (routesRes.data || []) as any[]
 
         const { cragRegions: mockCrags } = await import('./mock-data')
-        const dbCrags = (cragsRes.data as any[]).map((crag: any) => ({
-          id: crag.id,
-          name: crag.name,
-          province: crag.province,
-          image: crag.image,
-          sectorCount: crag.sector_count,
-          problemCount: crag.problem_count,
-          sectors: sectors
-            .filter((s: any) => s.crag_id === crag.id)
-            .map((sector: any) => ({
-              id: sector.id,
-              name: sector.name,
-              image: sector.image,
-              problems: routes
+        const dbCrags = (cragsRes.data as any[]).map((crag: any) => {
+          const mockMatch = mockCrags.find(m => m.id.toLowerCase() === String(crag.id).toLowerCase())
+          const cragSectors = sectors.filter((s: any) => s.crag_id === crag.id)
+
+          // If db has sectors for this crag, map them; otherwise fall back to mockMatch sectors
+          let finalSectors = (mockMatch?.sectors || []).map(s => ({
+            ...s,
+            problems: Array.isArray(s.problems) ? s.problems : [],
+          }))
+
+          if (cragSectors.length > 0) {
+            finalSectors = cragSectors.map((sector: any) => {
+              const secRoutes = routes
                 .filter((r: any) => r.sector_id === sector.id)
-                .map(mapRouteRow),
-            })),
-        }))
+                .map(mapRouteRow)
+              const mockSector = mockMatch?.sectors?.find(ms => ms.id.toLowerCase() === String(sector.id).toLowerCase())
+              return {
+                id: sector.id,
+                name: sector.name || mockSector?.name || 'Sector',
+                image: sector.image || mockSector?.image || crag.image || '',
+                problems: secRoutes.length > 0 ? secRoutes : (mockSector?.problems || []),
+              }
+            })
+          }
+
+          return {
+            ...mockMatch,
+            id: crag.id,
+            name: crag.name || mockMatch?.name || '',
+            province: crag.province || mockMatch?.province || '',
+            image: crag.image || mockMatch?.image || '',
+            description: crag.description || mockMatch?.description || '',
+            sectorCount: crag.sector_count ?? mockMatch?.sectorCount ?? finalSectors.length,
+            problemCount: crag.problem_count ?? mockMatch?.problemCount ?? 0,
+            sectors: finalSectors,
+          }
+        })
 
         const dbIds = new Set(dbCrags.map((c: any) => c.id.toLowerCase()))
         const additionalMocks = mockCrags.filter(m => !dbIds.has(m.id.toLowerCase()))
@@ -136,17 +163,17 @@ export function useCommunities() {
 
         setCommunities((data as any[]).map((c: any) => ({
           id: c.id,
-          name: c.name,
-          city: c.city,
-          province: c.province,
-          image: c.image,
-          memberCount: c.member_count,
-          homebase: c.homebase,
-          description: c.description,
-          whatsapp: c.whatsapp,
-          instagram: c.instagram,
-          tags: c.tags,
-          members: (c.members || []) as { name: string; avatar: string; role: string }[],
+          name: c.name || 'Community',
+          city: c.city || '',
+          province: c.province || '',
+          image: c.image || '',
+          memberCount: Number(c.member_count || 0),
+          homebase: c.homebase || '',
+          description: c.description || '',
+          whatsapp: c.whatsapp || '',
+          instagram: c.instagram || '',
+          tags: Array.isArray(c.tags) ? c.tags : [],
+          members: Array.isArray(c.members) ? c.members : [],
         })))
       } catch {
         const { communities: mockComm } = await import('./mock-data')
@@ -284,29 +311,79 @@ export async function insertSector(data: {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapRouteRow(row: any): Problem {
+  let parsedMarkers: TopoMarker[] = []
+  if (Array.isArray(row.markers)) {
+    parsedMarkers = row.markers.map((m: any, i: number) => ({
+      id: m?.id || `m-${i}`,
+      x: typeof m?.x === 'number' ? m.x : (Number(m?.x) || 50),
+      y: typeof m?.y === 'number' ? m.y : (Number(m?.y) || 50),
+      type: m?.type || 'B',
+      label: m?.label || '',
+    }))
+  } else if (typeof row.markers === 'string' && row.markers.trim()) {
+    try {
+      const parsed = JSON.parse(row.markers)
+      if (Array.isArray(parsed)) {
+        parsedMarkers = parsed.map((m: any, i: number) => ({
+          id: m?.id || `m-${i}`,
+          x: typeof m?.x === 'number' ? m.x : (Number(m?.x) || 50),
+          y: typeof m?.y === 'number' ? m.y : (Number(m?.y) || 50),
+          type: m?.type || 'B',
+          label: m?.label || '',
+        }))
+      }
+    } catch {
+      parsedMarkers = []
+    }
+  }
+
+  let parsedGradeVotes: { grade: string; votes: number }[] = []
+  if (Array.isArray(row.grade_votes)) {
+    parsedGradeVotes = row.grade_votes
+  } else if (typeof row.grade_votes === 'string' && row.grade_votes.trim()) {
+    try {
+      const parsed = JSON.parse(row.grade_votes)
+      if (Array.isArray(parsed)) parsedGradeVotes = parsed
+    } catch {
+      parsedGradeVotes = []
+    }
+  }
+
+  let parsedPitchBreakdown: PitchDetail[] | undefined = undefined
+  if (Array.isArray(row.pitch_breakdown)) {
+    parsedPitchBreakdown = row.pitch_breakdown
+  } else if (typeof row.pitch_breakdown === 'string' && row.pitch_breakdown.trim()) {
+    try {
+      const parsed = JSON.parse(row.pitch_breakdown)
+      if (Array.isArray(parsed)) parsedPitchBreakdown = parsed
+    } catch {
+      parsedPitchBreakdown = undefined
+    }
+  }
+
   return {
     id: row.id,
-    name: row.name,
-    discipline: row.discipline as RouteDiscipline,
-    grade: row.grade,
-    fontGrade: row.font_grade,
-    setter: row.setter,
-    fa: row.fa,
+    name: row.name || 'Unnamed Route',
+    discipline: (row.discipline as RouteDiscipline) || 'bouldering',
+    grade: row.grade || 'V0',
+    fontGrade: row.font_grade || '',
+    setter: row.setter || 'Community',
+    fa: row.fa || '',
     faDate: row.fa_date || '',
-    description: row.description,
+    description: row.description || '',
     imageUrl: row.image_url || undefined,
     betaVideoUrl: row.beta_video_url || undefined,
-    accessInfo: row.access_info,
-    localContact: row.local_contact,
-    ascentCount: row.ascent_count,
-    gradeVotes: (row.grade_votes || []) as { grade: string; votes: number }[],
-    markers: (row.markers || []) as TopoMarker[],
+    accessInfo: row.access_info || '',
+    localContact: row.local_contact || '',
+    ascentCount: Number(row.ascent_count || 0),
+    gradeVotes: parsedGradeVotes,
+    markers: parsedMarkers,
     pitchLength: row.pitch_length || undefined,
-    boltCount: row.bolt_count || undefined,
+    boltCount: row.bolt_count ? Number(row.bolt_count) : undefined,
     anchorType: row.anchor_type || undefined,
-    totalPitches: row.total_pitches || undefined,
+    totalPitches: row.total_pitches ? Number(row.total_pitches) : undefined,
     totalHeight: row.total_height || undefined,
-    pitchBreakdown: (row.pitch_breakdown || undefined) as PitchDetail[] | undefined,
+    pitchBreakdown: parsedPitchBreakdown,
     descentInfo: row.descent_info || undefined,
     padRecommendation: row.pad_recommendation || undefined,
     landingQuality: row.landing_quality || undefined,

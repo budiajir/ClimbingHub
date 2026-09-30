@@ -93,7 +93,7 @@ export default function CragDetailPage() {
   if (!crag) return notFound();
 
   // Filter problems across sectors
-  const allProblems = crag.sectors.flatMap((s) => s.problems.map((p) => ({ ...p, sectorName: s.name })));
+  const allProblems = (crag.sectors || []).flatMap((s) => (s.problems || []).map((p) => ({ ...p, sectorName: s.name || '' })));
   const filteredProblems = allProblems.filter((p) => {
     const matchCategory =
       selectedCategoryFilter === "all" ||
@@ -101,7 +101,7 @@ export default function CragDetailPage() {
       (selectedCategoryFilter === "lead" && (p.category === "lead" || p.discipline === "sport")) ||
       (selectedCategoryFilter === "trad" && (p.category === "trad" || p.discipline === "multipitch"));
 
-    const matchSector = activeSectorId === "all" || crag.sectors.find((s) => s.id === activeSectorId)?.problems.some((pr) => pr.id === p.id);
+    const matchSector = activeSectorId === "all" || (crag.sectors || []).find((s) => s.id === activeSectorId)?.problems?.some((pr) => pr.id === p.id);
 
     return matchCategory && matchSector;
   });
@@ -117,7 +117,7 @@ export default function CragDetailPage() {
     if (crag?.sectors) {
       crag.sectors.forEach((sec) => {
         if (sec.image && !list.includes(sec.image)) list.push(sec.image);
-        sec.problems.forEach((p) => {
+        (sec.problems || []).forEach((p) => {
           if (p.imageUrl && !list.includes(p.imageUrl)) list.push(p.imageUrl);
         });
       });
