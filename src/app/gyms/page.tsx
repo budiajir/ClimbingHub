@@ -65,20 +65,20 @@ export default function GymsPage() {
         />
       </div>
 
-      {/* 3. Map Banner — Ditambahkan di bawah Search Box (Kaya di 'Problems') */}
+      {/* 3. Map Banner — Fullframe edge-to-edge (Disamakan dengan 'Crags' dan 'Problems') */}
       <div
-        className={`w-full rounded-2xl overflow-hidden my-3 relative shadow-md transition-colors duration-300 border ${
+        className={`-mx-4 sm:-mx-6 lg:-mx-8 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] rounded-none overflow-hidden my-4 relative shadow-md transition-colors duration-300 border-y ${
           isSandstone
             ? 'bg-[#C4B48A] border-[#1a1815]/15'
             : 'bg-[#181C20] border-white/10'
         }`}
       >
-        <div className="relative py-6 sm:py-8 px-4 flex items-center justify-center min-h-[200px] sm:min-h-[250px] overflow-hidden">
+        <div className="relative py-6 sm:py-8 px-4 flex items-center justify-center min-h-[220px] sm:min-h-[280px] md:min-h-[340px] overflow-hidden">
           {/* Subtle overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20 pointer-events-none" />
 
           {/* Map Graphic with Interactive City Dots */}
-          <div className="relative w-full max-w-[540px] aspect-[2.16/1] flex items-center justify-center">
+          <div className="relative w-full max-w-4xl aspect-[2.16/1] flex items-center justify-center">
             <img
               src="/images/indonesia-gyms-map.jpg"
               alt="Indonesia Climbing Gyms Map"

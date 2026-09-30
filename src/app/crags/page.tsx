@@ -177,6 +177,127 @@ export default function CragsDirectoryPage() {
           />
         </div>
 
+        {/* Interactive Indonesia Crag Map Banner (Fullframe edge-to-edge) */}
+        <div
+          className={`-mx-4 sm:-mx-6 lg:-mx-8 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] rounded-none overflow-hidden my-4 relative shadow-md transition-colors duration-300 border-y ${
+            isSandstone
+              ? 'bg-[#C4B48A] border-[#1a1815]/15'
+              : 'bg-[#181C20] border-white/10'
+          }`}
+        >
+          <div className="relative py-6 sm:py-8 px-4 flex items-center justify-center min-h-[220px] sm:min-h-[280px] md:min-h-[340px] overflow-hidden">
+            {/* Subtle overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20 pointer-events-none" />
+
+            {/* Map Graphic with Interactive Crag Region Dots */}
+            <div className="relative w-full max-w-4xl aspect-[2.16/1] flex items-center justify-center">
+              <img
+                src="/images/indonesia-gyms-map.jpg"
+                alt="Indonesia Outdoor Crags Map"
+                className={`w-full h-full object-contain filter drop-shadow-md select-none ${
+                  isSandstone
+                    ? 'mix-blend-multiply opacity-85'
+                    : 'invert mix-blend-screen opacity-90'
+                }`}
+              />
+
+              {/* Region Pin: West Sumatra / Harau (approx 15% left, 38% top) */}
+              <button
+                type="button"
+                onClick={() => setSelectedProvince(selectedProvince === 'West Sumatra' ? 'all' : 'West Sumatra')}
+                className="group absolute top-[38%] left-[15%] -translate-x-1/2 -translate-y-1/2 z-10 focus:outline-none"
+                title="West Sumatra (Harau Valley)"
+              >
+                <span className={`absolute -inset-1 rounded-full animate-ping ${selectedProvince === 'West Sumatra' ? 'bg-lime/60' : 'bg-lime/40'}`} />
+                <span className={`relative flex h-3 w-3 rounded-full border-2 border-black transition-transform group-hover:scale-125 ${
+                  selectedProvince === 'West Sumatra' ? 'bg-lime ring-2 ring-white scale-125' : 'bg-lime'
+                }`} />
+                <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold text-white bg-black/85 px-1.5 py-0.5 rounded shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
+                  Harau Valley
+                </span>
+              </button>
+
+              {/* Region Pin: West Java / Citatah (approx 30% left, 70% top) */}
+              <button
+                type="button"
+                onClick={() => setSelectedProvince(selectedProvince === 'West Java' ? 'all' : 'West Java')}
+                className="group absolute top-[70%] left-[30%] -translate-x-1/2 -translate-y-1/2 z-10 focus:outline-none"
+                title="West Java (Citatah, Padalarang)"
+              >
+                <span className={`absolute -inset-1 rounded-full animate-ping ${selectedProvince === 'West Java' ? 'bg-lime/60' : 'bg-lime/40'}`} />
+                <span className={`relative flex h-3 w-3 rounded-full border-2 border-black transition-transform group-hover:scale-125 ${
+                  selectedProvince === 'West Java' ? 'bg-lime ring-2 ring-white scale-125' : 'bg-lime'
+                }`} />
+                <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold text-white bg-black/85 px-1.5 py-0.5 rounded shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
+                  West Java (7 Crags)
+                </span>
+              </button>
+
+              {/* Region Pin: DI Yogyakarta / Siung (approx 36% left, 73% top) */}
+              <button
+                type="button"
+                onClick={() => setSelectedProvince(selectedProvince === 'DI Yogyakarta' ? 'all' : 'DI Yogyakarta')}
+                className="group absolute top-[73%] left-[36%] -translate-x-1/2 -translate-y-1/2 z-10 focus:outline-none"
+                title="DI Yogyakarta (Pantai Siung)"
+              >
+                <span className={`absolute -inset-1 rounded-full animate-ping ${selectedProvince === 'DI Yogyakarta' ? 'bg-lime/60' : 'bg-lime/40'}`} />
+                <span className={`relative flex h-3 w-3 rounded-full border-2 border-black transition-transform group-hover:scale-125 ${
+                  selectedProvince === 'DI Yogyakarta' ? 'bg-lime ring-2 ring-white scale-125' : 'bg-lime'
+                }`} />
+                <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold text-white bg-black/85 px-1.5 py-0.5 rounded shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
+                  Yogyakarta · Siung
+                </span>
+              </button>
+
+              {/* Region Pin: South Sulawesi / Maros (approx 57% left, 60% top) */}
+              <button
+                type="button"
+                onClick={() => setSelectedProvince(selectedProvince === 'South Sulawesi' ? 'all' : 'South Sulawesi')}
+                className="group absolute top-[60%] left-[57%] -translate-x-1/2 -translate-y-1/2 z-10 focus:outline-none"
+                title="South Sulawesi (Maros / Rammang-Rammang)"
+              >
+                <span className={`absolute -inset-1 rounded-full animate-ping ${selectedProvince === 'South Sulawesi' ? 'bg-lime/60' : 'bg-lime/40'}`} />
+                <span className={`relative flex h-3 w-3 rounded-full border-2 border-black transition-transform group-hover:scale-125 ${
+                  selectedProvince === 'South Sulawesi' ? 'bg-lime ring-2 ring-white scale-125' : 'bg-lime'
+                }`} />
+                <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold text-white bg-black/85 px-1.5 py-0.5 rounded shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
+                  Maros Karst
+                </span>
+              </button>
+
+              {/* Region Pin: East Java / Bali (approx 44% left, 74% top) */}
+              <button
+                type="button"
+                onClick={() => setSelectedProvince(selectedProvince === 'Bali' ? 'all' : 'Bali')}
+                className="group absolute top-[74%] left-[44%] -translate-x-1/2 -translate-y-1/2 z-10 focus:outline-none opacity-80"
+                title="Bali & East Java"
+              >
+                <span className="relative flex h-2.5 w-2.5 rounded-full bg-white/90 border border-black group-hover:scale-125 transition-transform" />
+                <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-medium text-white/80 bg-black/70 px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                  Bali / East Java
+                </span>
+              </button>
+            </div>
+
+            {/* Map bottom badges */}
+            <div className="absolute bottom-2.5 left-3 sm:left-4 flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-semibold text-white border border-white/15">
+                <MapPin size={10} className="text-lime" />
+                Indonesian Crag Network
+              </span>
+              <span className="text-[10px] text-black/60 dark:text-white/50 hidden sm:inline font-medium">
+                Tap a region pin to filter
+              </span>
+            </div>
+
+            <div className="absolute bottom-2.5 right-3 sm:right-4">
+              <span className="text-[10px] font-bold text-black/70 dark:text-white/70 bg-black/10 dark:bg-white/10 px-2 py-0.5 rounded-full">
+                {cragRegions.length} Crags Mapped
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Filters: Province & Rock Type */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           {/* Province Filter */}
