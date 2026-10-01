@@ -325,7 +325,7 @@ export default function CragDetailPage() {
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-bold text-sm flex items-center gap-2">
                   <MapPin size={16} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
-                  1. Area Location Map
+                  Area Location Map
                 </h3>
                 {crag.coordinates && (
                   <span className="font-mono text-[11px] opacity-60">
@@ -356,7 +356,7 @@ export default function CragDetailPage() {
             )}
           </div>
 
-          {/* 2. HOW TO GET THERE */}
+          {/* HOW TO GET THERE */}
           <div
             className={`p-5 rounded-3xl border space-y-3 ${
               isSandstone ? "bg-[#f4efe6] border-[#1a1815]/15" : "bg-[#1a1f24] border-white/10"
@@ -364,7 +364,7 @@ export default function CragDetailPage() {
           >
             <h3 className="font-bold text-sm flex items-center gap-2">
               <Car size={16} className={isSandstone ? "text-[#1a1815]" : "text-cyan-climb"} />
-              2. How to Get There (Access Guide)
+              How to Get There (Access Guide)
             </h3>
             {crag.howToGetThere ? (
               <div className="space-y-2.5 text-xs">
@@ -392,7 +392,7 @@ export default function CragDetailPage() {
             )}
           </div>
 
-          {/* 3. WHO TO CONTACT */}
+          {/* WHO TO CONTACT */}
           <div
             className={`p-5 rounded-3xl border space-y-3 ${
               isSandstone ? "bg-[#f4efe6] border-[#1a1815]/15" : "bg-[#1a1f24] border-white/10"
@@ -400,7 +400,7 @@ export default function CragDetailPage() {
           >
             <h3 className="font-bold text-sm flex items-center gap-2">
               <Phone size={16} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
-              3. Who to Contact (Management & Local Guides)
+              Who to Contact (Management & Local Guides)
             </h3>
             {crag.whoToContact ? (
               <div className="space-y-2.5 text-xs">
@@ -432,7 +432,7 @@ export default function CragDetailPage() {
             )}
           </div>
 
-          {/* 4. JENIS BATUAN */}
+          {/* JENIS BATUAN */}
           <div
             className={`p-5 rounded-3xl border space-y-3 ${
               isSandstone ? "bg-[#f4efe6] border-[#1a1815]/15" : "bg-[#1a1f24] border-white/10"
@@ -440,7 +440,7 @@ export default function CragDetailPage() {
           >
             <h3 className="font-bold text-sm flex items-center gap-2">
               <Layers size={16} className={isSandstone ? "text-[#1a1815]" : "text-cyan-climb"} />
-              4. Rock Type & Wall Characteristics
+              Rock Type & Wall Characteristics
             </h3>
             {crag.rockType ? (
               <div className="space-y-2.5 text-xs">
@@ -466,7 +466,7 @@ export default function CragDetailPage() {
             )}
           </div>
 
-          {/* 5. PERKIRAAN CUACA */}
+          {/* PERKIRAAN CUACA */}
           <div
             className={`p-5 rounded-3xl border space-y-3 md:col-span-2 ${
               isSandstone ? "bg-[#f4efe6] border-[#1a1815]/15" : "bg-[#1a1f24] border-white/10"
@@ -474,7 +474,7 @@ export default function CragDetailPage() {
           >
             <h3 className="font-bold text-sm flex items-center gap-2">
               <CloudSun size={16} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
-              5. Weather Forecast & Best Season
+              Weather Forecast & Best Season
             </h3>
             {crag.weatherForecast ? (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -513,7 +513,7 @@ export default function CragDetailPage() {
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-base md:text-lg flex items-center gap-2">
               <Layers size={18} className={isSandstone ? "text-[#1a1815]" : "text-cyan-climb"} />
-              6. Climbing Sectors ({crag.sectors.length} Sectors)
+              Climbing Sectors ({crag.sectors.length} Sectors)
             </h3>
             <span className="text-xs opacity-60">Select a sector to filter routes</span>
           </div>
@@ -574,7 +574,7 @@ export default function CragDetailPage() {
             <div>
               <h3 className="font-bold text-base md:text-xl flex items-center gap-2">
                 <Compass size={18} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
-                7. Problems & Climbing Routes
+                Problems & Climbing Routes
                 <span className="text-xs font-light opacity-65">({filteredProblems.length} routes)</span>
               </h3>
               <p className="text-xs opacity-75 font-light">

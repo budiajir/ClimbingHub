@@ -635,7 +635,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       <div className="mx-4 md:mx-0 grid grid-cols-3 gap-2.5 text-center">
         <div className={`p-3 rounded-2xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/15 shadow-sm' : 'bg-crag/50 border-white/5'}`}>
           <div className={`text-[10px] uppercase font-bold tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-            7. Route Height
+            Route Height
           </div>
           <div className={`text-base font-bold font-mono mt-1 ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
             {heightDisplay}
@@ -644,7 +644,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
 
         <div className={`p-3 rounded-2xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/15 shadow-sm' : 'bg-crag/50 border-white/5'}`}>
           <div className={`text-[10px] uppercase font-bold tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-            8. Holds & Grip
+            Holds & Grip
           </div>
           <div className={`text-base font-bold font-mono mt-1 ${isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'}`}>
             ~{holdsCountDisplay} Holds
@@ -653,7 +653,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
 
         <div className={`p-3 rounded-2xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/15 shadow-sm' : 'bg-crag/50 border-white/5'}`}>
           <div className={`text-[10px] uppercase font-bold tracking-wider ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-            9. Anchor / Protection
+            Anchor / Protection
           </div>
           <div className={`text-base font-bold font-mono mt-1 truncate ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
             {isLeadOrTrad ? `${anchorCountDisplay} Bolts` : 'Crashpad'}
@@ -662,7 +662,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       </div>
 
       {/* ============================================================ */}
-      {/* 4. SECTION 1: SPECS & ROUTE CHARACTERISTICS                  */}
+      {/* SECTION: SPECS & ROUTE CHARACTERISTICS                       */}
       {/* ============================================================ */}
       <div
         className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-4 transition-colors ${
@@ -674,7 +674,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
         <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
           <Layers size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
           <h3 className="font-bold text-sm uppercase tracking-wider">
-            1. Specs & Route Characteristics
+            Specs & Route Characteristics
           </h3>
         </div>
 
@@ -690,13 +690,13 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           </p>
         </div>
 
-        {/* 8. Grip Characteristics & Start Position */}
+        {/* Grip Characteristics & Start Position */}
         <div className={`p-3.5 rounded-xl border ${
           isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
         }`}>
           <div className="flex items-center gap-1.5 mb-1.5 text-xs font-bold uppercase tracking-wider">
             <Hand size={14} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'} />
-            <span>8. Grip Characteristics & Start Position</span>
+            <span>Grip Characteristics & Start Position</span>
           </div>
           <p className={`text-xs leading-relaxed mb-2.5 ${isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'}`}>
             {holdDetailsDisplay}
@@ -715,13 +715,13 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           </div>
         </div>
 
-        {/* 9. Anchor & Protection */}
+        {/* Anchor & Protection */}
         <div className={`p-3.5 rounded-xl border ${
           isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
         }`}>
           <div className="flex items-center gap-1.5 mb-1.5 text-xs font-bold uppercase tracking-wider">
             <Anchor size={14} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
-            <span>9. Anchors & Protection</span>
+            <span>Anchors & Protection</span>
           </div>
           {isLeadOrTrad ? (
             <div className="space-y-1 text-xs">
@@ -786,7 +786,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
         <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
           <Compass size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'} />
           <h3 className="font-bold text-sm uppercase tracking-wider">
-            2. Topo Markers Sequence
+            Topo Markers Sequence
           </h3>
         </div>
 
@@ -823,7 +823,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       </div>
 
       {/* ============================================================ */}
-      {/* 6. SECTION 3: BETA & CRUX SEQUENCE                           */}
+      {/* SECTION: BETA & CRUX SEQUENCE                                */}
       {/* ============================================================ */}
       <div
         className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-4 transition-colors ${
@@ -835,16 +835,16 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
         <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
           <Video size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
           <h3 className="font-bold text-sm uppercase tracking-wider">
-            3. Beta & Crux Sequence
+            Beta & Crux Sequence
           </h3>
         </div>
 
-        {/* 10. Crux Sequence & Beta Tips */}
+        {/* Crux Sequence & Beta Tips */}
         <div>
           <div className={`text-[11px] font-bold uppercase tracking-wider mb-1.5 ${
             isSandstone ? 'text-[#1a1815]' : 'text-lime'
           }`}>
-            10. Crux Sequence & Beta Tips
+            Crux Sequence & Beta Tips
           </div>
           <p className={`text-xs md:text-sm leading-relaxed p-3.5 rounded-xl border ${
             isSandstone
@@ -896,7 +896,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       </div>
 
       {/* ============================================================ */}
-      {/* 7. SECTION 4: CRAG ACCESS & ETHICS                           */}
+      {/* SECTION: CRAG ACCESS & ETHICS                                */}
       {/* ============================================================ */}
       <div
         className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3 transition-colors ${
@@ -908,7 +908,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
         <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
           <AlertCircle size={16} className="text-project" />
           <h3 className="font-bold text-sm uppercase tracking-wider text-project">
-            4. Crag Access & Ethics
+            Crag Access & Ethics
           </h3>
         </div>
         <p className="text-xs leading-relaxed opacity-90">

@@ -100,10 +100,10 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
   const anchorTypeDisplay = problem.anchorType || (isLeadOrTrad ? 'Double Ring Stainless Chain Anchor' : 'N/A (Bouldering Crashpad landing)')
 
   const tabs: { key: 'specs' | 'topo' | 'beta' | 'access'; label: string }[] = [
-    { key: 'specs', label: '1. Specs & Route' },
-    { key: 'topo', label: '2. Photo & Topo' },
-    { key: 'beta', label: '3. Beta & Crux' },
-    { key: 'access', label: '4. Access & Ethics' },
+    { key: 'specs', label: 'Specs & Route' },
+    { key: 'topo', label: 'Photo & Topo' },
+    { key: 'beta', label: 'Beta & Crux' },
+    { key: 'access', label: 'Access & Ethics' },
   ]
 
   // Topo marker style helper
@@ -206,11 +206,11 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
           </button>
         </div>
 
-        {/* Quick Spec Strip: 7. Height, 8. Holds, 9. Anchor / Protection */}
-        <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-dashed border-current/15 text-center">
+        {/* Quick Spec Strip: Height, Holds, Anchor / Protection */}
+        <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-dashed border-current/15 text-center">
           <div className={`p-2 rounded-xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/50 border-white/5'}`}>
             <div className={`text-[10px] uppercase font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-              7. Route Height
+              Route Height
             </div>
             <div className={`text-sm font-bold font-mono mt-0.5 ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
               {heightDisplay}
@@ -219,7 +219,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
 
           <div className={`p-2 rounded-xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/50 border-white/5'}`}>
             <div className={`text-[10px] uppercase font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-              8. Holds & Grip
+              Holds & Grip
             </div>
             <div className={`text-sm font-bold font-mono mt-0.5 ${isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'}`}>
               ~{holdsCountDisplay} Holds
@@ -228,7 +228,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
 
           <div className={`p-2 rounded-xl border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/50 border-white/5'}`}>
             <div className={`text-[10px] uppercase font-light ${isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'}`}>
-              9. Anchor / Protection
+              Anchor / Protection
             </div>
             <div className={`text-sm font-bold font-mono mt-0.5 truncate ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
               {isLeadOrTrad ? `${anchorCountDisplay} Bolts` : 'Crashpad'}
@@ -284,12 +284,12 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                 </p>
               </div>
 
-              {/* 8. Holds Details */}
+              {/* Holds Details */}
               <div className={`p-3.5 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
                 <div className="flex items-center gap-2 mb-1.5">
                   <Hand size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'} />
                   <span className={`text-xs font-bold uppercase tracking-wider ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
-                    8. Holds & Grip Details
+                    Holds & Grip Details
                   </span>
                 </div>
                 <p className={`text-xs leading-relaxed mb-2 ${isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'}`}>
@@ -305,12 +305,12 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                 </div>
               </div>
 
-              {/* 9. Anchor / Protection Details */}
+              {/* Anchor / Protection Details */}
               <div className={`p-3.5 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
                 <div className="flex items-center gap-2 mb-1.5">
                   <Anchor size={15} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
                   <span className={`text-xs font-bold uppercase tracking-wider ${isSandstone ? 'text-[#1a1815]' : 'text-chalk'}`}>
-                    9. Anchors & Protection
+                    Anchors & Protection
                   </span>
                 </div>
                 {isLeadOrTrad ? (
@@ -432,7 +432,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
                 <div className={`font-bold uppercase tracking-wider text-[11px] mb-1 ${
                   isSandstone ? 'text-[#1a1815]' : 'text-chalk'
                 }`}>
-                  5. Topo Markers Sequence
+                  Topo Markers Sequence
                 </div>
                 {markers.map((m, idx) => (
                   <div key={m.id || idx} className="flex items-center justify-between py-0.5 border-b border-current/10 last:border-0">
@@ -459,7 +459,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
             </motion.div>
           )}
 
-          {/* TAB 3: 10. BETA (CRUX & VIDEO) */}
+          {/* TAB 3: BETA (CRUX & VIDEO) */}
           {activeTab === 'beta' && (
             <motion.div
               key="beta"
@@ -472,7 +472,7 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
               <div className={`p-4 rounded-2xl border ${isSandstone ? 'bg-white border-[#1a1815]/10' : 'bg-crag border-white/5'}`}>
                 <div className="flex items-center gap-2 mb-2">
                   <span className={`text-xs font-bold uppercase tracking-wider ${isSandstone ? 'text-[#1a1815]' : 'text-lime'}`}>
-                    10. Crux Sequence & Beta Tips
+                    Crux Sequence & Beta Tips
                   </span>
                 </div>
                 <p className={`text-sm leading-relaxed font-normal ${isSandstone ? 'text-[#1a1815]/90' : 'text-chalk/90'}`}>
