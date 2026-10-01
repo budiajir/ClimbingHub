@@ -23,22 +23,22 @@ const SLIDES: SlideItem[] = [
   },
   {
     id: 2,
-    src: '/landing/slide-2-climber.jpg',
-    alt: '2. Outdoor Bouldering Roof Climber',
-    bg: '#250821',
-  },
-  {
-    id: 3,
     src: '/landing/slide-3-development.png',
-    alt: '3. Our Website Are (Still) Under Development',
+    alt: '2. Our Website Are (Still) Under Development',
     bg: '#3c0f32',
     hasHotspots: true,
   },
   {
-    id: 4,
+    id: 3,
     src: '/landing/slide-4-discover.png',
-    alt: '4. Discover Soon',
+    alt: '3. Discover Soon',
     bg: '#471138',
+  },
+  {
+    id: 4,
+    src: '/landing/slide-2-climber.jpg',
+    alt: '4. Outdoor Bouldering Roof Climber',
+    bg: '#250821',
   },
   {
     id: 5,
