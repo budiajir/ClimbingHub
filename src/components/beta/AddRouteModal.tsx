@@ -23,6 +23,7 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import { RouteDiscipline, Problem, PitchDetail, TopoMarker, CragRegion, cragRegions } from '@/lib/mock-data'
+import { normalizeCragName } from '@/lib/use-data'
 
 export interface NewRegionData {
   id: string
@@ -76,6 +77,27 @@ export default function AddRouteModal({
   const currentRegion = availableRegions.find(r => r.id === selectedRegionId) || availableRegions[0]
   const [selectedSectorId, setSelectedSectorId] = useState(initialSectorId || currentRegion?.sectors[0]?.id || '')
   const currentSector = currentRegion?.sectors.find(s => s.id === selectedSectorId) || currentRegion?.sectors[0]
+
+  const matchedExistingCrag =
+    isCreatingNewRegion && newRegionName.trim()
+      ? availableRegions.find(
+          r =>
+            normalizeCragName(r.name) === normalizeCragName(newRegionName) ||
+            r.id.toLowerCase() === normalizeCragName(newRegionName) ||
+            r.aliases?.some(a => a.toLowerCase() === normalizeCragName(newRegionName))
+        )
+      : undefined
+
+  const targetCragForSector = isCreatingNewRegion ? matchedExistingCrag : currentRegion
+
+  const matchedExistingSector =
+    (isCreatingNewSector || isCreatingNewRegion) && newSectorName.trim() && targetCragForSector
+      ? targetCragForSector.sectors?.find(
+          s =>
+            normalizeCragName(s.name) === normalizeCragName(newSectorName) ||
+            s.id.toLowerCase() === newSectorName.trim().toLowerCase()
+        )
+      : undefined
 
   // Validation alert
   const [validationError, setValidationError] = useState<string | null>(null)
@@ -258,21 +280,54 @@ export default function AddRouteModal({
     let newSectorData: NewSectorData | undefined
 
     if (isCreatingNewRegion) {
-      finalRegionId = `crag-${Date.now()}`
-      newRegionData = {
-        id: finalRegionId,
-        name: newRegionName.trim() || 'New Crag',
-        province: newRegionProvince.trim() || 'Indonesia',
-        image: activePhoto,
+      const existingMatch = availableRegions.find(
+        r =>
+          normalizeCragName(r.name) === normalizeCragName(newRegionName) ||
+          r.id.toLowerCase() === normalizeCragName(newRegionName) ||
+          r.aliases?.some(a => a.toLowerCase() === normalizeCragName(newRegionName))
+      )
+
+      if (existingMatch) {
+        // Reuse existing crag instead of creating a duplicate
+        finalRegionId = existingMatch.id
+        newRegionData = undefined
+      } else {
+        finalRegionId = `crag-${Date.now()}`
+        newRegionData = {
+          id: finalRegionId,
+          name: newRegionName.trim() || 'New Crag',
+          province: newRegionProvince.trim() || 'Indonesia',
+          image: activePhoto,
+        }
       }
     }
 
     if (isCreatingNewSector || isCreatingNewRegion) {
-      finalSectorId = `sector-${Date.now()}`
-      newSectorData = {
-        id: finalSectorId,
-        name: newSectorName.trim() || 'Sector 1',
-        image: activePhoto,
+      const targetCrag = isCreatingNewRegion
+        ? availableRegions.find(
+            r =>
+              normalizeCragName(r.name) === normalizeCragName(newRegionName) ||
+              r.id.toLowerCase() === finalRegionId.toLowerCase()
+          )
+        : availableRegions.find(r => r.id === finalRegionId)
+
+      const existingSectorMatch = targetCrag?.sectors?.find(
+        s =>
+          normalizeCragName(s.name) === normalizeCragName(newSectorName) ||
+          s.id.toLowerCase() === newSectorName.trim().toLowerCase()
+      )
+
+      if (existingSectorMatch) {
+        // Reuse existing sector instead of creating a duplicate
+        finalSectorId = existingSectorMatch.id
+        newSectorData = undefined
+      } else {
+        finalSectorId = `sector-${Date.now()}`
+        newSectorData = {
+          id: finalSectorId,
+          name: newSectorName.trim() || 'Sector 1',
+          image: activePhoto,
+        }
       }
     }
 
@@ -516,6 +571,17 @@ export default function AddRouteModal({
                             className="w-full bg-granite border border-white/10 rounded-lg px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-lime/40 placeholder:text-slate-ash/50"
                           />
                         </div>
+                        {matchedExistingCrag && (
+                          <div className="col-span-full p-2.5 rounded-xl bg-lime/10 border border-lime/30 text-[11px] text-lime flex items-start gap-2">
+                            <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5 text-lime" />
+                            <div>
+                              <span className="font-bold">Tebing &ldquo;{matchedExistingCrag.name}&rdquo; sudah ada di Jalur.</span>
+                              <p className="text-slate-ash text-[10px] mt-0.5">
+                                Rute baru ini akan otomatis digabungkan ke tebing &ldquo;{matchedExistingCrag.name}&rdquo; tanpa membuat entri tebing duplikat.
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -573,6 +639,17 @@ export default function AddRouteModal({
                           placeholder="e.g. Sector A — Main Wall, West Tower, Lower Cave"
                           className="w-full bg-granite border border-white/10 rounded-lg px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-cyan-climb/40 placeholder:text-slate-ash/50"
                         />
+                        {matchedExistingSector && (
+                          <div className="mt-2 p-2.5 rounded-xl bg-cyan-climb/10 border border-cyan-climb/30 text-[11px] text-cyan-climb flex items-start gap-2">
+                            <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5 text-cyan-climb" />
+                            <div>
+                              <span className="font-bold">Sektor &ldquo;{matchedExistingSector.name}&rdquo; sudah ada.</span>
+                              <p className="text-slate-ash text-[10px] mt-0.5">
+                                Jalur baru ini akan langsung dimasukkan ke sektor ini.
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

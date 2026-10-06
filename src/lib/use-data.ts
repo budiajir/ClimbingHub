@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getSupabaseBrowserClient } from './supabase'
-import type { Gym, CragRegion, Community, Problem, TopoMarker, PitchDetail, RouteDiscipline } from './mock-data'
+import type { Gym, CragRegion, Community, Problem, TopoMarker, PitchDetail, RouteDiscipline, Sector } from './mock-data'
 
 /**
  * Client-side hook to fetch gyms from the database.
@@ -64,6 +64,155 @@ export function useGyms() {
 }
 
 /**
+ * Normalizes a crag or sector name for robust deduplication.
+ * Strips out leading prefixes like "tebing", "crag", "sektor", "sector", and ignores case & extra spaces.
+ */
+export function normalizeCragName(str: string): string {
+  return (str || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^(tebing|crag|sektor|sector)\s+/i, '')
+    .replace(/[\s\-_]+/g, ' ')
+    .trim()
+}
+
+/**
+ * Deduplicates and merges crags from multiple sources (database + mock data).
+ * If a crag exists in both places (e.g. mock Hanyawong and DB crag-1790860469553):
+ * - Groups by canonical name/id.
+ * - Merges their sectors (preserving existing sectors while adding newly created ones).
+ * - Merges routes/problems within identical sectors.
+ * - Preserves aliases for backward-compatible routing (/crags/hanyawong & /crags/crag-1790860469553).
+ * - Aggregates accurate sector and problem counts.
+ */
+export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
+  const merged: CragRegion[] = []
+
+  for (const crag of cragList) {
+    if (!crag || !crag.name) continue
+
+    const normName = normalizeCragName(crag.name)
+    const normId = crag.id.toLowerCase()
+
+    // Find existing match by ID, aliases, or normalized name
+    const existingIndex = merged.findIndex(existing => {
+      const exNormName = normalizeCragName(existing.name)
+      const exNormId = existing.id.toLowerCase()
+      const exAliases = (existing.aliases || []).map(a => a.toLowerCase())
+
+      return (
+        exNormId === normId ||
+        exNormName === normName ||
+        exAliases.includes(normId) ||
+        exAliases.includes(normName)
+      )
+    })
+
+    if (existingIndex === -1) {
+      // First time seeing this crag
+      merged.push({
+        ...crag,
+        aliases: [crag.id],
+      })
+    } else {
+      // Merge with existing crag
+      const existing = merged[existingIndex]
+      const aliases = Array.from(
+        new Set([...(existing.aliases || [existing.id]), crag.id, ...((crag.aliases || []))])
+      )
+
+      // Canonical ID: prefer a human-friendly slug over auto-generated 'crag-179...'
+      const isExistingTimestamp = existing.id.startsWith('crag-')
+      const isIncomingTimestamp = crag.id.startsWith('crag-')
+      const canonicalId = isExistingTimestamp && !isIncomingTimestamp ? crag.id : existing.id
+
+      // Prefer rich mock metadata if DB fields are empty
+      const name = existing.name || crag.name
+      const province = existing.province || crag.province
+      const image =
+        existing.image && !existing.image.includes('placeholder')
+          ? existing.image
+          : crag.image || existing.image
+      const description =
+        existing.description && existing.description.length > (crag.description?.length || 0)
+          ? existing.description
+          : crag.description || existing.description
+
+      // Merge sectors without duplicates
+      const mergedSectors: Sector[] = [...(existing.sectors || [])]
+
+      for (const incSec of crag.sectors || []) {
+        const incSecNorm = normalizeCragName(incSec.name)
+        const incSecId = incSec.id.toLowerCase()
+
+        const existingSecIndex = mergedSectors.findIndex(
+          s => s.id.toLowerCase() === incSecId || normalizeCragName(s.name) === incSecNorm
+        )
+
+        if (existingSecIndex === -1) {
+          // Sector is new, add it
+          mergedSectors.push(incSec)
+        } else {
+          // Sector matches, merge its problems
+          const exSec = mergedSectors[existingSecIndex]
+          const mergedProblems: Problem[] = [...(exSec.problems || [])]
+
+          for (const incProb of incSec.problems || []) {
+            const incProbNorm = incProb.name.trim().toLowerCase()
+            const incProbId = incProb.id.toLowerCase()
+
+            const hasProb = mergedProblems.some(
+              p => p.id.toLowerCase() === incProbId || p.name.trim().toLowerCase() === incProbNorm
+            )
+
+            if (!hasProb) {
+              mergedProblems.push(incProb)
+            }
+          }
+
+          mergedSectors[existingSecIndex] = {
+            ...exSec,
+            image: exSec.image || incSec.image,
+            description: exSec.description || incSec.description,
+            problems: mergedProblems,
+          }
+        }
+      }
+
+      const totalActualProblems = mergedSectors.reduce((acc, s) => acc + (s.problems?.length || 0), 0)
+      const maxProblemCount = Math.max(
+        existing.problemCount || 0,
+        crag.problemCount || 0,
+        totalActualProblems
+      )
+
+      merged[existingIndex] = {
+        ...existing,
+        ...crag,
+        id: canonicalId,
+        name,
+        province,
+        image,
+        description,
+        coordinates: existing.coordinates || crag.coordinates,
+        gmapsUrl: existing.gmapsUrl || crag.gmapsUrl,
+        mapEmbedUrl: existing.mapEmbedUrl || crag.mapEmbedUrl,
+        howToGetThere: existing.howToGetThere || crag.howToGetThere,
+        whoToContact: existing.whoToContact || crag.whoToContact,
+        rockType: existing.rockType || crag.rockType,
+        weatherForecast: existing.weatherForecast || crag.weatherForecast,
+        sectors: mergedSectors,
+        sectorCount: mergedSectors.length,
+        problemCount: maxProblemCount,
+        aliases,
+      }
+    }
+  }
+
+  return merged
+}
+
+/**
  * Client-side hook to fetch crag regions with nested sectors and routes.
  */
 export function useCragRegions() {
@@ -88,50 +237,39 @@ export function useCragRegions() {
         const routes = (routesRes.data || []) as any[]
 
         const { cragRegions: mockCrags } = await import('./mock-data')
-        const dbCrags = (cragsRes.data as any[]).map((crag: any) => {
-          const mockMatch = mockCrags.find(m => m.id.toLowerCase() === String(crag.id).toLowerCase())
+
+        const dbCrags: CragRegion[] = (cragsRes.data as any[]).map((crag: any) => {
           const cragSectors = sectors.filter((s: any) => s.crag_id === crag.id)
-
-          // If db has sectors for this crag, map them; otherwise fall back to mockMatch sectors
-          let finalSectors = (mockMatch?.sectors || []).map(s => ({
-            ...s,
-            problems: Array.isArray(s.problems) ? s.problems : [],
-          }))
-
-          if (cragSectors.length > 0) {
-            finalSectors = cragSectors.map((sector: any) => {
-              const secRoutes = routes
-                .filter((r: any) => r.sector_id === sector.id)
-                .map(mapRouteRow)
-              const mockSector = mockMatch?.sectors?.find(ms => ms.id.toLowerCase() === String(sector.id).toLowerCase())
-              return {
-                id: sector.id,
-                name: sector.name || mockSector?.name || 'Sector',
-                image: sector.image || mockSector?.image || crag.image || '',
-                problems: secRoutes.length > 0 ? secRoutes : (mockSector?.problems || []),
-              }
-            })
-          }
+          const mappedSectors: Sector[] = cragSectors.map((sector: any) => {
+            const secRoutes = routes
+              .filter((r: any) => r.sector_id === sector.id)
+              .map(mapRouteRow)
+            return {
+              id: sector.id,
+              name: sector.name || 'Sector',
+              image: sector.image || crag.image || '',
+              problems: secRoutes,
+            }
+          })
 
           return {
-            ...mockMatch,
             id: crag.id,
-            name: crag.name || mockMatch?.name || '',
-            province: crag.province || mockMatch?.province || '',
-            image: crag.image || mockMatch?.image || '',
-            description: crag.description || mockMatch?.description || '',
-            sectorCount: crag.sector_count ?? mockMatch?.sectorCount ?? finalSectors.length,
-            problemCount: crag.problem_count ?? mockMatch?.problemCount ?? 0,
-            sectors: finalSectors,
+            name: crag.name || '',
+            province: crag.province || '',
+            image: crag.image || '',
+            description: crag.description || '',
+            sectorCount: crag.sector_count ?? mappedSectors.length,
+            problemCount: crag.problem_count ?? mappedSectors.reduce((acc, s) => acc + s.problems.length, 0),
+            sectors: mappedSectors,
           }
         })
 
-        const dbIds = new Set(dbCrags.map((c: any) => c.id.toLowerCase()))
-        const additionalMocks = mockCrags.filter(m => !dbIds.has(m.id.toLowerCase()))
-        setCragRegions([...dbCrags, ...additionalMocks])
+        // Merge mockCrags with dbCrags (mockCrags provides rich metadata base, dbCrags merges user added sectors/routes)
+        const combined = mergeCragRegions([...mockCrags, ...dbCrags])
+        setCragRegions(combined)
       } catch {
         const { cragRegions: mockCrags } = await import('./mock-data')
-        setCragRegions(mockCrags)
+        setCragRegions(mergeCragRegions(mockCrags))
       } finally {
         setLoading(false)
       }

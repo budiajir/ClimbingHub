@@ -356,7 +356,7 @@ function BetaPageContent() {
 
       if (newSectorData) {
         return prev.map(r => {
-          if (r.id !== regionId) return r
+          if (r.id !== regionId && !r.aliases?.includes(regionId)) return r
           const newSec = {
             id: sectorId,
             name: newSectorData.name,
@@ -373,7 +373,7 @@ function BetaPageContent() {
       }
 
       return prev.map(r => {
-        if (r.id !== regionId) return r
+        if (r.id !== regionId && !r.aliases?.includes(regionId)) return r
         return {
           ...r,
           problemCount: r.problemCount + 1,

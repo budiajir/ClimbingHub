@@ -21,16 +21,16 @@ import {
   CheckCircle2,
   Camera,
 } from "lucide-react";
-import { useCragRegions } from "@/lib/use-data";
+import { useCragRegions, insertRoute, insertCragRegion, insertSector } from "@/lib/use-data";
 import { useTheme } from "@/lib/theme-context";
-import { Problem, Sector } from "@/lib/mock-data";
+import { Problem, Sector, CragRegion } from "@/lib/mock-data";
 import OpenTripModal from "@/components/crag/OpenTripModal";
 import BookTripModal from "@/components/crag/BookTripModal";
 import RentEquipmentModal from "@/components/crag/RentEquipmentModal";
 import ProblemSheet from "@/components/beta/ProblemSheet";
 import LogAscentModal from "@/components/beta/LogAscentModal";
 import AscentShareModal from "@/components/beta/AscentShareModal";
-import AddRouteModal from "@/components/beta/AddRouteModal";
+import AddRouteModal, { NewRegionData, NewSectorData } from "@/components/beta/AddRouteModal";
 import { UserAscent, saveUserAscent } from "@/lib/user-ascents";
 import { useAuth } from "@/lib/auth-context";
 import { canLogAscent, canCreateCragRoute } from "@/lib/permissions";
@@ -39,13 +39,16 @@ import Pictogram from "@/components/common/Pictogram";
 export default function CragDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { cragRegions, loading } = useCragRegions();
+  const { cragRegions, setCragRegions, loading } = useCragRegions();
   const { theme } = useTheme();
   const isSandstone = theme === "sandstone";
   const { role, user, openAuthModal } = useAuth();
 
   const crag = cragRegions.find(
-    (c) => c.id.toLowerCase() === String(params.id).toLowerCase()
+    (c) =>
+      c.id.toLowerCase() === String(params.id).toLowerCase() ||
+      c.aliases?.some((a) => a.toLowerCase() === String(params.id).toLowerCase()) ||
+      c.name.toLowerCase() === decodeURIComponent(String(params.id)).toLowerCase()
   );
 
   // Modals state
@@ -777,8 +780,106 @@ export default function CragDetailPage() {
           initialRegionId={crag.id}
           regionsList={cragRegions}
           onClose={() => setShowAddRouteModal(false)}
-          onAddRoute={async (newRoute, regionId, sectorId) => {
+          onAddRoute={async (newRoute, regionId, sectorId, newRegionData, newSectorData) => {
             setShowAddRouteModal(false);
+
+            // Optimistic update of cragRegions
+            setCragRegions((prev) => {
+              if (newRegionData) {
+                const newReg: CragRegion = {
+                  id: newRegionData.id,
+                  name: newRegionData.name,
+                  province: newRegionData.province,
+                  image: newRegionData.image || newRoute.imageUrl || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
+                  sectorCount: 1,
+                  problemCount: 1,
+                  sectors: [
+                    {
+                      id: sectorId,
+                      name: newSectorData?.name || 'Sector 1',
+                      image: newSectorData?.image || newRoute.imageUrl || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
+                      problems: [newRoute],
+                    },
+                  ],
+                };
+                return [newReg, ...prev];
+              }
+
+              return prev.map((r) => {
+                if (r.id !== regionId && !r.aliases?.includes(regionId)) return r;
+                let sectors = [...r.sectors];
+                const secIndex = sectors.findIndex((s) => s.id === sectorId);
+                if (secIndex >= 0) {
+                  sectors[secIndex] = {
+                    ...sectors[secIndex],
+                    problems: [newRoute, ...sectors[secIndex].problems],
+                  };
+                } else {
+                  sectors = [
+                    {
+                      id: sectorId,
+                      name: newSectorData?.name || 'Sector 1',
+                      image: newSectorData?.image || newRoute.imageUrl || r.image,
+                      problems: [newRoute],
+                    },
+                    ...sectors,
+                  ];
+                }
+                return {
+                  ...r,
+                  sectorCount: sectors.length,
+                  problemCount: (r.problemCount || 0) + 1,
+                  sectors,
+                };
+              });
+            });
+
+            // Persist to Supabase in background
+            try {
+              if (newRegionData) {
+                await insertCragRegion({
+                  id: newRegionData.id,
+                  name: newRegionData.name,
+                  province: newRegionData.province,
+                  image: newRegionData.image || newRoute.imageUrl,
+                });
+              }
+              if (newSectorData || newRegionData) {
+                await insertSector({
+                  id: sectorId,
+                  cragId: regionId,
+                  name: newSectorData?.name || 'Sector 1',
+                  image: newSectorData?.image || newRoute.imageUrl,
+                });
+              }
+              await insertRoute({
+                sectorId,
+                name: newRoute.name,
+                discipline: newRoute.discipline || 'bouldering',
+                grade: newRoute.grade,
+                fontGrade: newRoute.fontGrade,
+                setter: newRoute.setter,
+                fa: newRoute.fa,
+                faDate: newRoute.faDate,
+                description: newRoute.description,
+                imageUrl: newRoute.imageUrl,
+                accessInfo: newRoute.accessInfo,
+                localContact: newRoute.localContact,
+                markers: newRoute.markers,
+                pitchLength: newRoute.pitchLength,
+                boltCount: newRoute.boltCount,
+                anchorType: newRoute.anchorType,
+                totalPitches: newRoute.totalPitches,
+                totalHeight: newRoute.totalHeight,
+                pitchBreakdown: newRoute.pitchBreakdown,
+                descentInfo: newRoute.descentInfo,
+                padRecommendation: newRoute.padRecommendation,
+                landingQuality: newRoute.landingQuality,
+                startType: newRoute.startType,
+              });
+            } catch (err) {
+              console.error('Failed to persist route to database:', err);
+            }
           }}
         />
       )}

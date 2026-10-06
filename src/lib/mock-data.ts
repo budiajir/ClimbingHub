@@ -27,6 +27,7 @@ export interface CragRegion {
   problemCount: number
   sectors: Sector[]
   description?: string
+  aliases?: string[]
   // 1. Peta lokasi + link gmaps
   coordinates?: { lat: number; lng: number }
   gmapsUrl?: string
