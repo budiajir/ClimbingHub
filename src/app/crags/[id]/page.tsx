@@ -21,7 +21,7 @@ import {
   CheckCircle2,
   Camera,
 } from "lucide-react";
-import { useCragRegions, insertRoute, insertCragRegion, insertSector } from "@/lib/use-data";
+import { useCragRegions, normalizeCragName, insertRoute, insertCragRegion, insertSector } from "@/lib/use-data";
 import { useTheme } from "@/lib/theme-context";
 import { Problem, Sector, CragRegion } from "@/lib/mock-data";
 import OpenTripModal from "@/components/crag/OpenTripModal";
@@ -44,12 +44,29 @@ export default function CragDetailPage() {
   const isSandstone = theme === "sandstone";
   const { role, user, openAuthModal } = useAuth();
 
-  const crag = cragRegions.find(
-    (c) =>
-      c.id.toLowerCase() === String(params.id).toLowerCase() ||
-      c.aliases?.some((a) => a.toLowerCase() === String(params.id).toLowerCase()) ||
-      c.name.toLowerCase() === decodeURIComponent(String(params.id)).toLowerCase()
-  );
+  const rawId = params?.id;
+  const paramId = (typeof rawId === "string" ? rawId : Array.isArray(rawId) ? rawId[0] : "") || "";
+  let decodedParamId = "";
+  try {
+    decodedParamId = paramId ? decodeURIComponent(paramId).toLowerCase().trim() : "";
+  } catch {
+    decodedParamId = paramId.toLowerCase().trim();
+  }
+  const normalizedParamId = paramId.toLowerCase().trim();
+
+  const crag = cragRegions.find((c) => {
+    if (!c) return false;
+    const cId = String(c.id || "").toLowerCase().trim();
+    const cName = String(c.name || "").toLowerCase().trim();
+    const aliases = (c.aliases || []).map((a) => String(a || "").toLowerCase().trim());
+
+    return (
+      (normalizedParamId && cId === normalizedParamId) ||
+      (normalizedParamId && aliases.includes(normalizedParamId)) ||
+      (decodedParamId && cName === decodedParamId) ||
+      (decodedParamId && normalizeCragName(cName) === normalizeCragName(decodedParamId))
+    );
+  });
 
   // Modals state
   const [showOpenTrip, setShowOpenTrip] = useState(false);
@@ -84,7 +101,7 @@ export default function CragDetailPage() {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<"all" | "boulder" | "lead" | "trad">("all");
   const [activeSectorId, setActiveSectorId] = useState<string>("all");
 
-  if (loading) {
+  if (loading && !crag) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
         <div className="w-8 h-8 border-2 border-lime border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -93,7 +110,27 @@ export default function CragDetailPage() {
     );
   }
 
-  if (!crag) return notFound();
+  if (!crag) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 mx-auto">
+          <Compass size={32} />
+        </div>
+        <h2 className="text-xl font-bold">Crag Not Found</h2>
+        <p className="text-xs opacity-75 font-light">
+          The crag or bouldering area you requested ({paramId || "unknown"}) could not be found or has not been mapped yet.
+        </p>
+        <div className="pt-2">
+          <Link
+            href="/crags"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-lime text-granite shadow-lime-glow-sm hover:bg-lime-dim transition-all"
+          >
+            <ChevronLeft size={16} /> Back to Crags Directory
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Filter problems across sectors
   const allProblems = (crag.sectors || []).flatMap((s) => (s.problems || []).map((p) => ({ ...p, sectorName: s.name || '' })));
@@ -417,18 +454,20 @@ export default function CragDetailPage() {
                     <div className="opacity-70 font-light text-[11px]">{crag.whoToContact.basecampAddress}</div>
                   )}
                 </div>
-                <a
-                  href={`https://wa.me/${crag.whoToContact.phone.replace(/[^0-9]/g, "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold ${
-                    isSandstone
-                      ? "border-[#1a1815]/20 hover:border-[#1a1815] text-[#1a1815]"
-                      : "border-white/20 hover:border-lime text-chalk"
-                  }`}
-                >
-                  <Phone size={13} /> Contact Manager ({crag.whoToContact.phone})
-                </a>
+                {crag.whoToContact.phone && (
+                  <a
+                    href={`https://wa.me/${String(crag.whoToContact.phone).replace(/[^0-9]/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold ${
+                      isSandstone
+                        ? "border-[#1a1815]/20 hover:border-[#1a1815] text-[#1a1815]"
+                        : "border-white/20 hover:border-lime text-chalk"
+                    }`}
+                  >
+                    <Phone size={13} /> Contact Manager ({crag.whoToContact.phone})
+                  </a>
+                )}
               </div>
             ) : (
               <p className="text-xs opacity-75">Local basecamp coordinator contact.</p>
@@ -516,7 +555,7 @@ export default function CragDetailPage() {
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-base md:text-lg flex items-center gap-2">
               <Layers size={18} className={isSandstone ? "text-[#1a1815]" : "text-cyan-climb"} />
-              Climbing Sectors ({crag.sectors.length} Sectors)
+              Climbing Sectors ({(crag.sectors || []).length} Sectors)
             </h3>
             <span className="text-xs opacity-60">Select a sector to filter routes</span>
           </div>
@@ -542,7 +581,7 @@ export default function CragDetailPage() {
               <ChevronRight size={16} />
             </div>
 
-            {crag.sectors.map((sector) => {
+            {(crag.sectors || []).map((sector) => {
               const isSelected = activeSectorId === sector.id;
               return (
                 <div
@@ -560,7 +599,7 @@ export default function CragDetailPage() {
                 >
                   <div>
                     <div className="font-bold text-xs">{sector.name}</div>
-                    <div className="text-[11px] opacity-75">{sector.problems.length} Routes</div>
+                    <div className="text-[11px] opacity-75">{(sector.problems || []).length} Routes</div>
                   </div>
                   <ChevronRight size={16} />
                 </div>
@@ -635,7 +674,7 @@ export default function CragDetailPage() {
                         {category}
                       </span>
                       <span className="font-mono font-bold text-xs">
-                        {p.grade} ({p.fontGrade})
+                        {p.grade}{p.fontGrade ? ` (${p.fontGrade})` : ""}
                       </span>
                     </div>
 

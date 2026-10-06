@@ -3,14 +3,19 @@
 import { useState, useEffect } from 'react'
 import { getSupabaseBrowserClient } from './supabase'
 import type { Gym, CragRegion, Community, Problem, TopoMarker, PitchDetail, RouteDiscipline, Sector } from './mock-data'
+import {
+  cragRegions as initialMockCrags,
+  gyms as initialMockGyms,
+  communities as initialMockCommunities,
+} from './mock-data'
 
 /**
  * Client-side hook to fetch gyms from the database.
  * Falls back to mock data if the database is empty or unreachable.
  */
 export function useGyms() {
-  const [gyms, setGyms] = useState<Gym[]>([])
-  const [loading, setLoading] = useState(true)
+  const [gyms, setGyms] = useState<Gym[]>(initialMockGyms)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -25,7 +30,7 @@ export function useGyms() {
         if (!data || data.length === 0) throw new Error('empty')
 
         setGyms((data as any[]).map((g: any) => ({
-          id: g.id,
+          id: String(g.id || ''),
           name: g.name || 'Climbing Gym',
           city: g.city || '',
           province: g.province || '',
@@ -51,8 +56,7 @@ export function useGyms() {
           instagram: g.instagram || '',
         })))
       } catch {
-        const { gyms: mockGyms } = await import('./mock-data')
-        setGyms(mockGyms)
+        setGyms(initialMockGyms)
       } finally {
         setLoading(false)
       }
@@ -67,8 +71,9 @@ export function useGyms() {
  * Normalizes a crag or sector name for robust deduplication.
  * Strips out leading prefixes like "tebing", "crag", "sektor", "sector", and ignores case & extra spaces.
  */
-export function normalizeCragName(str: string): string {
-  return (str || '')
+export function normalizeCragName(str?: string | null): string {
+  if (!str) return ''
+  return String(str)
     .trim()
     .toLowerCase()
     .replace(/^(tebing|crag|sektor|sector)\s+/i, '')
@@ -88,23 +93,26 @@ export function normalizeCragName(str: string): string {
 export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
   const merged: CragRegion[] = []
 
-  for (const crag of cragList) {
+  for (const crag of cragList || []) {
     if (!crag || !crag.name) continue
 
+    const cragIdStr = String(crag.id || '')
     const normName = normalizeCragName(crag.name)
-    const normId = crag.id.toLowerCase()
+    const normId = cragIdStr.toLowerCase().trim()
 
     // Find existing match by ID, aliases, or normalized name
     const existingIndex = merged.findIndex(existing => {
+      if (!existing) return false
+      const exIdStr = String(existing.id || '')
       const exNormName = normalizeCragName(existing.name)
-      const exNormId = existing.id.toLowerCase()
-      const exAliases = (existing.aliases || []).map(a => a.toLowerCase())
+      const exNormId = exIdStr.toLowerCase().trim()
+      const exAliases = (existing.aliases || []).map(a => String(a || '').toLowerCase().trim())
 
       return (
-        exNormId === normId ||
-        exNormName === normName ||
-        exAliases.includes(normId) ||
-        exAliases.includes(normName)
+        (normId && exNormId === normId) ||
+        (normName && exNormName === normName) ||
+        (normId && exAliases.includes(normId)) ||
+        (normName && exAliases.includes(normName))
       )
     })
 
@@ -118,12 +126,12 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
       // Merge with existing crag
       const existing = merged[existingIndex]
       const aliases = Array.from(
-        new Set([...(existing.aliases || [existing.id]), crag.id, ...((crag.aliases || []))])
+        new Set([...(existing.aliases || [existing.id]), crag.id, ...((crag.aliases || []))].filter(Boolean))
       )
 
       // Canonical ID: prefer a human-friendly slug over auto-generated 'crag-179...'
-      const isExistingTimestamp = existing.id.startsWith('crag-')
-      const isIncomingTimestamp = crag.id.startsWith('crag-')
+      const isExistingTimestamp = String(existing.id || '').startsWith('crag-')
+      const isIncomingTimestamp = String(crag.id || '').startsWith('crag-')
       const canonicalId = isExistingTimestamp && !isIncomingTimestamp ? crag.id : existing.id
 
       // Prefer rich mock metadata if DB fields are empty
@@ -142,11 +150,13 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
       const mergedSectors: Sector[] = [...(existing.sectors || [])]
 
       for (const incSec of crag.sectors || []) {
+        if (!incSec) continue
         const incSecNorm = normalizeCragName(incSec.name)
-        const incSecId = incSec.id.toLowerCase()
+        const incSecId = String(incSec.id || '').toLowerCase().trim()
 
         const existingSecIndex = mergedSectors.findIndex(
-          s => s.id.toLowerCase() === incSecId || normalizeCragName(s.name) === incSecNorm
+          s => (incSecId && String(s.id || '').toLowerCase().trim() === incSecId) ||
+               (incSecNorm && normalizeCragName(s.name) === incSecNorm)
         )
 
         if (existingSecIndex === -1) {
@@ -158,11 +168,13 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
           const mergedProblems: Problem[] = [...(exSec.problems || [])]
 
           for (const incProb of incSec.problems || []) {
-            const incProbNorm = incProb.name.trim().toLowerCase()
-            const incProbId = incProb.id.toLowerCase()
+            if (!incProb) continue
+            const incProbNorm = String(incProb.name || '').trim().toLowerCase()
+            const incProbId = String(incProb.id || '').toLowerCase().trim()
 
             const hasProb = mergedProblems.some(
-              p => p.id.toLowerCase() === incProbId || p.name.trim().toLowerCase() === incProbNorm
+              p => (incProbId && String(p.id || '').toLowerCase().trim() === incProbId) ||
+                   (incProbNorm && String(p.name || '').trim().toLowerCase() === incProbNorm)
             )
 
             if (!hasProb) {
@@ -216,8 +228,8 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
  * Client-side hook to fetch crag regions with nested sectors and routes.
  */
 export function useCragRegions() {
-  const [cragRegions, setCragRegions] = useState<CragRegion[]>([])
-  const [loading, setLoading] = useState(true)
+  const [cragRegions, setCragRegions] = useState<CragRegion[]>(() => mergeCragRegions(initialMockCrags))
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -236,8 +248,6 @@ export function useCragRegions() {
         const sectors = (sectorsRes.data || []) as any[]
         const routes = (routesRes.data || []) as any[]
 
-        const { cragRegions: mockCrags } = await import('./mock-data')
-
         const dbCrags: CragRegion[] = (cragsRes.data as any[]).map((crag: any) => {
           const cragSectors = sectors.filter((s: any) => s.crag_id === crag.id)
           const mappedSectors: Sector[] = cragSectors.map((sector: any) => {
@@ -245,7 +255,7 @@ export function useCragRegions() {
               .filter((r: any) => r.sector_id === sector.id)
               .map(mapRouteRow)
             return {
-              id: sector.id,
+              id: String(sector.id || ''),
               name: sector.name || 'Sector',
               image: sector.image || crag.image || '',
               problems: secRoutes,
@@ -253,23 +263,22 @@ export function useCragRegions() {
           })
 
           return {
-            id: crag.id,
+            id: String(crag.id || ''),
             name: crag.name || '',
             province: crag.province || '',
             image: crag.image || '',
             description: crag.description || '',
             sectorCount: crag.sector_count ?? mappedSectors.length,
-            problemCount: crag.problem_count ?? mappedSectors.reduce((acc, s) => acc + s.problems.length, 0),
+            problemCount: crag.problem_count ?? mappedSectors.reduce((acc, s) => acc + (s.problems?.length || 0), 0),
             sectors: mappedSectors,
           }
         })
 
-        // Merge mockCrags with dbCrags (mockCrags provides rich metadata base, dbCrags merges user added sectors/routes)
-        const combined = mergeCragRegions([...mockCrags, ...dbCrags])
+        // Merge initialMockCrags with dbCrags (mockCrags provides rich metadata base, dbCrags merges user added sectors/routes)
+        const combined = mergeCragRegions([...initialMockCrags, ...dbCrags])
         setCragRegions(combined)
       } catch {
-        const { cragRegions: mockCrags } = await import('./mock-data')
-        setCragRegions(mergeCragRegions(mockCrags))
+        setCragRegions(mergeCragRegions(initialMockCrags))
       } finally {
         setLoading(false)
       }
@@ -284,8 +293,8 @@ export function useCragRegions() {
  * Client-side hook to fetch communities.
  */
 export function useCommunities() {
-  const [communities, setCommunities] = useState<Community[]>([])
-  const [loading, setLoading] = useState(true)
+  const [communities, setCommunities] = useState<Community[]>(initialMockCommunities)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -300,7 +309,7 @@ export function useCommunities() {
         if (!data || data.length === 0) throw new Error('empty')
 
         setCommunities((data as any[]).map((c: any) => ({
-          id: c.id,
+          id: String(c.id || ''),
           name: c.name || 'Community',
           city: c.city || '',
           province: c.province || '',
@@ -314,8 +323,7 @@ export function useCommunities() {
           members: Array.isArray(c.members) ? c.members : [],
         })))
       } catch {
-        const { communities: mockComm } = await import('./mock-data')
-        setCommunities(mockComm)
+        setCommunities(initialMockCommunities)
       } finally {
         setLoading(false)
       }

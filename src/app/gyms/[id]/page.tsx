@@ -16,14 +16,16 @@ function generateBookingCode() {
 
 export default function GymDetailPage() {
   const params = useParams()
+  const rawId = params?.id
+  const paramId = (typeof rawId === 'string' ? rawId : Array.isArray(rawId) ? rawId[0] : '') || ''
   const { gyms, loading } = useGyms()
   const { theme } = useTheme()
   const isSandstone = theme === 'sandstone'
-  const gym = gyms.find(g => g.id === params.id)
+  const gym = gyms.find(g => String(g.id || '').toLowerCase() === paramId.toLowerCase())
   const [booking, setBooking] = useState<BookingData | null>(null)
   const [bookingCode] = useState(generateBookingCode())
 
-  if (loading) {
+  if (loading && !gym) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
         <div className="w-8 h-8 border-2 border-lime border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -32,7 +34,24 @@ export default function GymDetailPage() {
     )
   }
 
-  if (!gym) return notFound()
+  if (!gym) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-4">
+        <h2 className="text-xl font-bold">Gym Not Found</h2>
+        <p className="text-xs opacity-75 font-light">
+          The climbing gym you requested ({paramId || 'unknown'}) could not be found.
+        </p>
+        <div className="pt-2">
+          <Link
+            href="/gyms"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-lime text-granite shadow-lime-glow-sm hover:bg-lime-dim transition-all"
+          >
+            Back to Gyms Directory
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-12 pt-2">
