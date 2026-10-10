@@ -366,11 +366,19 @@ export async function insertRoute(data: {
     const supabase = getSupabaseBrowserClient()
     const routeId = `route-${Date.now()}`
 
+    const rawDisc = String(data.discipline || '').toLowerCase().trim()
+    const validDiscipline: 'sport' | 'multipitch' | 'bouldering' =
+      rawDisc === 'sport' || rawDisc === 'lead'
+        ? 'sport'
+        : rawDisc === 'multipitch' || rawDisc === 'trad'
+        ? 'multipitch'
+        : 'bouldering'
+
     const { error } = await supabase.from('routes').insert({
       id: routeId,
       sector_id: data.sectorId,
       name: data.name,
-      discipline: data.discipline,
+      discipline: validDiscipline,
       grade: data.grade,
       font_grade: data.fontGrade || '',
       setter: data.setter || '',
@@ -414,14 +422,14 @@ export async function insertCragRegion(data: {
 }): Promise<{ id: string } | { error: string }> {
   try {
     const supabase = getSupabaseBrowserClient()
-    const { error } = await supabase.from('crag_regions').insert({
+    const { error } = await supabase.from('crag_regions').upsert({
       id: data.id,
       name: data.name,
       province: data.province,
       image: data.image || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
       sector_count: 1,
       problem_count: 1,
-    })
+    }, { onConflict: 'id', ignoreDuplicates: true })
     if (error) throw error
     return { id: data.id }
   } catch (err) {
@@ -441,12 +449,12 @@ export async function insertSector(data: {
 }): Promise<{ id: string } | { error: string }> {
   try {
     const supabase = getSupabaseBrowserClient()
-    const { error } = await supabase.from('sectors').insert({
+    const { error } = await supabase.from('sectors').upsert({
       id: data.id,
       crag_id: data.cragId,
       name: data.name,
       image: data.image || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
-    })
+    }, { onConflict: 'id', ignoreDuplicates: true })
     if (error) throw error
     return { id: data.id }
   } catch (err) {
