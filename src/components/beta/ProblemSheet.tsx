@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X,
@@ -67,7 +68,7 @@ function GradeBar({
 export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onClose }: ProblemSheetProps) {
   const { theme } = useTheme()
   const isSandstone = theme === 'sandstone'
-  const [activeTab, setActiveTab] = useState<'specs' | 'topo' | 'beta' | 'access'>('specs')
+  const [activeTab, setActiveTab] = useState<'specs' | 'topo' | 'beta' | 'access'>('topo')
 
   const totalVotes = (problem.gradeVotes || []).reduce((acc, v) => acc + v.votes, 0)
 
@@ -100,8 +101,8 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
   const anchorTypeDisplay = problem.anchorType || (isLeadOrTrad ? 'Double Ring Stainless Chain Anchor' : 'N/A (Bouldering Crashpad landing)')
 
   const tabs: { key: 'specs' | 'topo' | 'beta' | 'access'; label: string }[] = [
-    { key: 'specs', label: 'Specs & Route' },
     { key: 'topo', label: 'Photo & Topo' },
+    { key: 'specs', label: 'Specs & Route' },
     { key: 'beta', label: 'Beta & Crux' },
     { key: 'access', label: 'Access & Ethics' },
   ]
@@ -187,10 +188,19 @@ export default function ProblemSheet({ problem, onLogAscent, onSetNewRoute, onCl
               {problem.name}
             </h3>
 
-            {/* 3. Route Setter + Tahun */}
-            <p className={`text-xs mt-0.5 font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-              Setter: <span className="font-medium">{setterDisplay}</span>
-            </p>
+            {/* 3. Route Setter + Tahun & Link to Full Topo */}
+            <div className="flex items-center gap-3 flex-wrap mt-0.5">
+              <p className={`text-xs font-light ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                Setter: <span className="font-medium">{setterDisplay}</span>
+              </p>
+              <Link
+                href={`/beta?problem=${problem.id}`}
+                className="text-xs font-bold text-[#FF6B00] hover:underline inline-flex items-center gap-1"
+              >
+                <span>Buka Topo Fullscreen</span>
+                <ExternalLink size={12} />
+              </Link>
+            </div>
           </div>
 
           <button

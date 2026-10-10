@@ -141,7 +141,7 @@ export default function CragDetailPage() {
   }
 
   // Filter problems across sectors
-  const allProblems = (crag.sectors || []).flatMap((s) => (s.problems || []).map((p) => ({ ...p, sectorName: s.name || '' })));
+  const allProblems = (crag.sectors || []).flatMap((s) => (s.problems || []).map((p) => ({ ...p, sectorId: s.id, sectorName: s.name || '' })));
   const filteredProblems = allProblems.filter((p) => {
     const matchCategory =
       selectedCategoryFilter === "all" ||
@@ -736,9 +736,9 @@ export default function CragDetailPage() {
                 const category = p.category || (p.discipline === "bouldering" ? "boulder" : "lead");
                 const routeImg = p.imageUrl || crag.image || "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=600&q=80";
                 return (
-                  <div
+                  <Link
                     key={p.id}
-                    onClick={() => setSelectedProblem(p)}
+                    href={`/beta?region=${crag.id}&sector=${p.sectorId || ''}&problem=${p.id}`}
                     className="min-w-[280px] sm:min-w-[320px] snap-center rounded-2xl border border-white/10 bg-[#1a1f24] overflow-hidden cursor-pointer group hover:border-[#FF6B00]/50 transition-all shadow-md flex flex-col justify-between"
                   >
                     <div className="h-44 w-full relative overflow-hidden bg-black/40">
@@ -767,7 +767,7 @@ export default function CragDetailPage() {
                         <span className="font-bold text-[#FF6B00]">View Topo &rarr;</span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -778,9 +778,9 @@ export default function CragDetailPage() {
                 const category = p.category || (p.discipline === "bouldering" ? "boulder" : "lead");
                 const routeImg = p.imageUrl || crag.image || "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=600&q=80";
                 return (
-                  <div
+                  <Link
                     key={p.id}
-                    onClick={() => setSelectedProblem(p)}
+                    href={`/beta?region=${crag.id}&sector=${p.sectorId || ''}&problem=${p.id}`}
                     className="p-2.5 rounded-2xl border border-white/10 bg-[#1a1f24] hover:border-[#FF6B00]/40 transition-all cursor-pointer flex items-center justify-between gap-3 group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -803,7 +803,7 @@ export default function CragDetailPage() {
                       </span>
                       <ChevronRight size={16} className="text-[#FF6B00]" />
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -814,9 +814,9 @@ export default function CragDetailPage() {
                 const category = p.category || (p.discipline === "bouldering" ? "boulder" : "lead");
                 const routeImg = p.imageUrl || crag.image || "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=600&q=80";
                 return (
-                  <div
+                  <Link
                     key={p.id}
-                    onClick={() => setSelectedProblem(p)}
+                    href={`/beta?region=${crag.id}&sector=${p.sectorId || ''}&problem=${p.id}`}
                     className="rounded-2xl border border-white/10 bg-[#1a1f24] hover:border-[#FF6B00]/40 transition-all cursor-pointer overflow-hidden group flex flex-col justify-between shadow-sm"
                   >
                     <div className="h-36 w-full relative overflow-hidden bg-black/40">
@@ -848,7 +848,7 @@ export default function CragDetailPage() {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
