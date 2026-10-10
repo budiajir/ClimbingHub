@@ -100,10 +100,15 @@ export default function GymCard() {
                   {/* Price + CTA */}
                   <div className="flex items-center justify-between pt-2 border-t border-white/5">
                     <div>
-                      <span className="text-chalk font-bold text-base md:text-lg">
-                        Rp {gym.pricePerSession.toLocaleString('en-US')}
+                      <span className="text-[10px] block text-slate-ash font-light leading-none mb-0.5">
+                        Start From
                       </span>
-                      <span className="text-slate-ash text-[11px] font-light">/session</span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-chalk font-bold text-base md:text-lg">
+                          Rp {gym.pricePerSession.toLocaleString('en-US')}
+                        </span>
+                        <span className="text-slate-ash text-[11px] font-light">/session</span>
+                      </div>
                     </div>
                     <button className="bg-lime text-granite text-xs font-light tracking-wide px-4 py-2 rounded-xl hover:bg-lime-dim transition-all shadow-lime-glow-sm group-hover:scale-105 touch-ripple">
                       Book Session

@@ -211,16 +211,6 @@ export default function GymsPage() {
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                     style={{ backgroundImage: `url(${gym.image})` }}
                   />
-
-                  {/* 4. Harga di pojok kiri atas (sesuai arahan) */}
-                  <div className="absolute top-3 left-3 bg-black/65 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1 border border-white/20 shadow-sm z-10">
-                    <span className="text-white text-xs font-bold">
-                      Rp {(gym.pricePerSession / 1000).toFixed(0)}k
-                    </span>
-                    <span className="text-white/70 text-[10px] font-normal">
-                      /session
-                    </span>
-                  </div>
                 </div>
 
                 {/* Gym Card Body */}
@@ -327,12 +317,38 @@ export default function GymsPage() {
                     </div>
                   </div>
 
-                  {/* 5 & 6. Slot dihilangkan, Book Session dikasih outline button */}
+                  {/* Harga 'Start From' & Book Session outline button */}
                   <div
-                    className={`flex items-center justify-end pt-3 border-t ${
+                    className={`flex items-center justify-between pt-3 border-t ${
                       isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
                     }`}
                   >
+                    <div>
+                      <span
+                        className={`text-[10px] block font-light leading-tight ${
+                          isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                        }`}
+                      >
+                        Start From
+                      </span>
+                      <div className="flex items-baseline gap-1">
+                        <span
+                          className={`text-sm md:text-base font-bold ${
+                            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                          }`}
+                        >
+                          Rp {(gym.pricePerSession / 1000).toFixed(0)}k
+                        </span>
+                        <span
+                          className={`text-[11px] font-light ${
+                            isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                          }`}
+                        >
+                          /session
+                        </span>
+                      </div>
+                    </div>
+
                     <span
                       className={`px-4 py-1.5 rounded-full border text-xs font-semibold tracking-wide transition-all ${
                         isSandstone
