@@ -180,7 +180,7 @@ export default function InteractiveIndonesiaMap({
   const markersLayerRef = useRef<any>(null)
 
   const [activePopupData, setActivePopupData] = useState<CragLocation | null>(null)
-  const [mapStyle, setMapStyle] = useState<'voyager' | 'osm'>('voyager')
+  const [mapStyle, setMapStyle] = useState<'terrain' | 'street'>('terrain')
   const [currentZoom, setCurrentZoom] = useState<number>(5)
 
   // Map initialization
@@ -221,15 +221,16 @@ export default function InteractiveIndonesiaMap({
 
       mapInstanceRef.current = map
 
-      // Base Tile Layer (CartoDB Voyager: clean, detailed terrain with cities & natural colors)
+      // Base Tile Layer:
+      // Terrain: ESRI World Topo Map (crisp mountain contours, elevation shading & natural terrain without API keys or watermarks)
+      // Street: OpenStreetMap (clean road & city infrastructure)
       const tileUrl =
-        mapStyle === 'voyager'
-          ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+        mapStyle === 'terrain'
+          ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
           : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
 
       const tiles = L.tileLayer(tileUrl, {
-        subdomains: 'abcd',
-        maxZoom: 19,
+        maxZoom: 18,
       }).addTo(map)
 
       // Layer group for pins
@@ -429,9 +430,9 @@ export default function InteractiveIndonesiaMap({
         <div className="pointer-events-auto flex items-center gap-1 p-1 rounded-full bg-black/80 backdrop-blur-md border border-white/15 shadow-lg">
           <button
             type="button"
-            onClick={() => setMapStyle('voyager')}
+            onClick={() => setMapStyle('terrain')}
             className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-              mapStyle === 'voyager'
+              mapStyle === 'terrain'
                 ? 'bg-[#FF6B00] text-white shadow-sm'
                 : 'text-white/70 hover:text-white'
             }`}
@@ -440,9 +441,9 @@ export default function InteractiveIndonesiaMap({
           </button>
           <button
             type="button"
-            onClick={() => setMapStyle('osm')}
+            onClick={() => setMapStyle('street')}
             className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-              mapStyle === 'osm'
+              mapStyle === 'street'
                 ? 'bg-[#FF6B00] text-white shadow-sm'
                 : 'text-white/70 hover:text-white'
             }`}
