@@ -132,7 +132,7 @@ export default function MobileNav() {
 
   const handleAddFriend = () => {
     setShowConnect(false);
-    router.push("/community");
+    router.push("/climbers");
   };
 
   return (

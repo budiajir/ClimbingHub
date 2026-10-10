@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Compass, ShieldCheck, X } from "lucide-react";
+import { Compass, ShieldCheck, X, ChevronRight } from "lucide-react";
 import { useTheme } from "@/lib/theme-context";
 
 export interface ConnectRadialMenuProps {
@@ -27,27 +27,86 @@ export default function ConnectRadialMenu({
   const { isSandstone } = useTheme();
   const [showTripDialog, setShowTripDialog] = useState(false);
 
+  const desktopActions = [
+    {
+      id: "rent-gear",
+      title: "Rent Gear",
+      subtitle: "Sewa crashpad, tali, helm & gear panjat",
+      tag: "Gear Rental",
+      icon: "/pictograms/connect-rent-gear.png",
+      onClick: () => {
+        onClose();
+        onRentGear();
+      },
+    },
+    {
+      id: "set-problems",
+      title: "Set Problems",
+      subtitle: "Petakan rute boulder & rute baru",
+      tag: "Route Setter",
+      icon: "/pictograms/connect-set-problems.png",
+      onClick: () => {
+        onClose();
+        onSetProblems();
+      },
+    },
+    {
+      id: "project-sent",
+      title: "Project Sent",
+      subtitle: "Catat verified ascent & buat Sent Card",
+      tag: "Ascent Card",
+      icon: "/pictograms/connect-project-sent.png",
+      onClick: () => {
+        onClose();
+        onProjectSent();
+      },
+    },
+    {
+      id: "open-trip",
+      title: "Open Trip",
+      subtitle: "Gabung open trip atau booking guide lokal",
+      tag: "Trip Plan",
+      icon: "/pictograms/connect-open-trip.png",
+      onClick: () => {
+        onClose();
+        setShowTripDialog(true);
+      },
+    },
+    {
+      id: "add-friend",
+      title: "Add Friend",
+      subtitle: "Cari sesama climber & komunitas panjat",
+      tag: "Climbers",
+      icon: "/pictograms/connect-add-friend.png",
+      onClick: () => {
+        onClose();
+        onAddFriend();
+      },
+    },
+  ];
+
   if (!isOpen && !showTripDialog) return null;
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-40 pointer-events-none md:hidden">
-          {/* Dimmed backdrop */}
+        <>
+          {/* Dimmed backdrop across all devices */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
-            className="fixed inset-0 bg-black/65 backdrop-blur-sm pointer-events-auto"
+            className="fixed inset-0 bg-black/65 backdrop-blur-sm pointer-events-auto z-40"
             onClick={onClose}
           />
 
-          {/* Radial Arc Menu (Emerges from the bottom flush with the bottom nav) */}
-          <div
-            className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none"
-            style={{ bottom: "calc(4rem + max(env(safe-area-inset-bottom), 0px) - 6px)" }}
-          >
+          {/* 1. MOBILE: Radial Arc Menu (Emerges from bottom nav) */}
+          <div className="fixed inset-0 z-50 pointer-events-none md:hidden">
+            <div
+              className="fixed left-0 right-0 flex justify-center pointer-events-none"
+              style={{ bottom: "calc(4rem + max(env(safe-area-inset-bottom), 0px) - 6px)" }}
+            >
             <motion.div
               initial={{ y: 240, scale: 0.65, opacity: 0 }}
               animate={{ y: 0, scale: 1, opacity: 1 }}
@@ -325,7 +384,100 @@ export default function ConnectRadialMenu({
             </motion.div>
           </div>
         </div>
-      )}
+
+        {/* 2. TABLET & DESKTOP: Flyout Dock Menu (Anchored to right vertical nav bar) */}
+        <div className="fixed right-20 sm:right-24 top-1/2 -translate-y-1/2 z-50 hidden md:block pointer-events-auto select-none">
+          <motion.div
+            initial={{ x: 40, scale: 0.94, opacity: 0 }}
+            animate={{ x: 0, scale: 1, opacity: 1 }}
+            exit={{ x: 40, scale: 0.94, opacity: 0 }}
+            transition={{ type: "spring", damping: 26, stiffness: 350 }}
+            className={`relative w-[340px] lg:w-[360px] rounded-3xl p-5 border shadow-2xl space-y-3.5 backdrop-blur-xl ${
+              isSandstone
+                ? "bg-[#ded3be]/95 border-[#1a1815]/20 text-[#1a1815]"
+                : "bg-[#181D22]/95 border-white/15 text-white"
+            }`}
+          >
+            {/* Pointing notch linking flyout to vertical nav bar on the right */}
+            <div
+              className={`absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rotate-45 border-t border-r hidden md:block ${
+                isSandstone
+                  ? "bg-[#ded3be] border-[#1a1815]/20"
+                  : "bg-[#181D22] border-white/15"
+              }`}
+            />
+
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-current/10">
+              <div className="space-y-0.5">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF6B00]/15 text-[#FF6B00] text-[10px] font-extrabold tracking-widest uppercase">
+                  CONNECT
+                </div>
+                <h3 className="font-bold text-base leading-tight">Climbing Hub Actions</h3>
+                <p className="text-[11px] opacity-70 font-light">Pilih aksi & interaksi komunitas panjat</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-7 h-7 rounded-full flex items-center justify-center opacity-60 hover:opacity-100 hover:bg-current/10 transition-all"
+                title="Close Connect Menu"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* 5 Action Items */}
+            <div className="space-y-2">
+              {desktopActions.map((action, idx) => (
+                <motion.button
+                  key={action.id}
+                  initial={{ x: 20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.04 * idx, type: "spring", stiffness: 400, damping: 25 }}
+                  whileHover={{ scale: 1.02, x: -3 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={action.onClick}
+                  className={`w-full p-2.5 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all group ${
+                    isSandstone
+                      ? "bg-white/40 border-[#1a1815]/10 hover:border-[#FF6B00] hover:bg-white/80"
+                      : "bg-white/5 border-white/10 hover:border-[#FF6B00]/70 hover:bg-white/10"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-11 h-11 rounded-full overflow-hidden bg-white shadow-sm border border-[#20252D]/20 flex items-center justify-center p-1.5 shrink-0 group-hover:scale-105 transition-transform">
+                      <img
+                        src={action.icon}
+                        alt={action.title}
+                        className="w-full h-full object-contain pointer-events-none select-none"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm tracking-tight group-hover:text-[#FF6B00] transition-colors truncate">
+                          {action.title}
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-medium bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/25 shrink-0">
+                          {action.tag}
+                        </span>
+                      </div>
+                      <p className="text-[11px] opacity-70 font-light truncate mt-0.5">
+                        {action.subtitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  <ChevronRight
+                    size={16}
+                    className="opacity-40 group-hover:opacity-100 group-hover:text-[#FF6B00] group-hover:translate-x-0.5 transition-all shrink-0"
+                  />
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </>
+    )}
 
       {/* Trip Option Selection Dialog (Open A Trip vs Book A Trip) */}
       {showTripDialog && (
