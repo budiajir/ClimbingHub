@@ -196,7 +196,7 @@ export default function GymDetailPage() {
                 }`}>Book a Session</h2>
                 <p className={`text-xs font-light ${
                   isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-                }`}>Select time slot, climbers & rental add-ons</p>
+                }`}>Select time slot, climbers & add-ons</p>
               </div>
               <div className="text-right">
                 <span className={`font-bold text-xl ${

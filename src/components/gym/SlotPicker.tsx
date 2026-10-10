@@ -30,7 +30,7 @@ const sessions = [
 const addonItems = [
   { key: 'shoes', label: 'Climbing Shoes', price: 25000, icon: '👟' },
   { key: 'chalk', label: 'Chalk Bag', price: 10000, icon: '🤍' },
-  { key: 'crashpad', label: 'Crash Pad', price: 50000, icon: '🛏️' },
+  { key: 'trainer', label: 'Private Trainer', price: 75000, icon: '🧗‍♂️' },
 ]
 
 export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
@@ -128,7 +128,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
       {/* Add-ons */}
       <div>
         <p className="text-slate-ash text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1 font-light">
-          <ShoppingBag size={11} /> Rental Add-ons (Optional)
+          <ShoppingBag size={11} /> Add-ons & Services (Optional)
         </p>
         <div className="space-y-2">
           {addonItems.map(item => {
