@@ -8,6 +8,19 @@ import { useGyms } from '@/lib/use-data'
 import { useTheme } from '@/lib/theme-context'
 import { Gym } from '@/lib/mock-data'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
+import dynamic from 'next/dynamic'
+
+const InteractiveIndonesiaMap = dynamic(
+  () => import('@/components/common/InteractiveIndonesiaMap'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[460px] sm:h-[480px] md:h-[380px] lg:h-[440px] rounded-3xl bg-[#181C20] animate-pulse flex items-center justify-center text-white/50 text-xs">
+        Memuat Peta Interaktif Gyms...
+      </div>
+    ),
+  }
+)
 
 export default function GymsPage() {
   const { gyms } = useGyms()
@@ -100,106 +113,13 @@ export default function GymsPage() {
         />
       </div>
 
-      {/* 3. Map Banner — Fullframe edge-to-edge (Portrait mobile aspect-[3/4], landscape desktop aspect-[2.16/1]) */}
-      <div
-        className={`-mx-4 sm:-mx-6 lg:-mx-8 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] rounded-none overflow-hidden my-4 relative shadow-md transition-colors duration-300 border-y ${
-          isSandstone
-            ? 'bg-[#C4B48A] border-[#1a1815]/15'
-            : 'bg-[#181C20] border-white/10'
-        }`}
-      >
-        <div className="relative py-6 sm:py-8 px-4 flex items-center justify-center min-h-[220px] sm:min-h-[280px] md:min-h-[340px] overflow-hidden">
-          {/* Subtle overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20 pointer-events-none" />
-
-          {/* Map Graphic with Interactive City Dots (Portrait mobile aspect-[3/4], landscape desktop aspect-[2.16/1]) */}
-          <div className="relative w-full max-w-4xl aspect-[3/4] md:aspect-[2.16/1] flex items-center justify-center">
-            <img
-              src="/images/indonesia-gyms-map.jpg"
-              alt="Indonesia Climbing Gyms Map"
-              className={`w-full h-full object-contain filter drop-shadow-md select-none ${
-                isSandstone
-                  ? 'mix-blend-multiply opacity-85'
-                  : 'invert mix-blend-screen opacity-90'
-              }`}
-            />
-
-            {/* City Pin: Jakarta (approx 28% left, 69% top) */}
-            <button
-              type="button"
-              onClick={() => setSelectedCity(selectedCity === 'South Jakarta' ? 'all' : 'South Jakarta')}
-              className="group absolute top-[68%] left-[28%] -translate-x-1/2 -translate-y-1/2 z-10 focus:outline-none"
-              title="Jakarta Gyms"
-            >
-              <span className="absolute -inset-1 rounded-full bg-lime/40 animate-ping" />
-              <span className="relative flex h-3 w-3 rounded-full bg-lime border-2 border-black" />
-              <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold text-white bg-black/85 px-1.5 py-0.5 rounded shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
-                Jakarta
-              </span>
-            </button>
-
-            {/* City Pin: Bandung (approx 31% left, 71% top) */}
-            <button
-              type="button"
-              onClick={() => setSelectedCity(selectedCity === 'Bandung' ? 'all' : 'Bandung')}
-              className="group absolute top-[70%] left-[31%] -translate-x-1/2 -translate-y-1/2 z-10 focus:outline-none"
-              title="Bandung Gyms"
-            >
-              <span className="absolute -inset-1 rounded-full bg-lime/40 animate-ping" />
-              <span className="relative flex h-3 w-3 rounded-full bg-lime border-2 border-black" />
-              <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold text-white bg-black/85 px-1.5 py-0.5 rounded shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
-                Bandung
-              </span>
-            </button>
-
-            {/* City Pin: Yogyakarta (approx 36% left, 73% top) */}
-            <button
-              type="button"
-              onClick={() => setSelectedCity(selectedCity === 'Yogyakarta' ? 'all' : 'Yogyakarta')}
-              className="group absolute top-[72%] left-[36%] -translate-x-1/2 -translate-y-1/2 z-10 focus:outline-none"
-              title="Yogyakarta Gyms"
-            >
-              <span className="absolute -inset-1 rounded-full bg-lime/40 animate-ping" />
-              <span className="relative flex h-3 w-3 rounded-full bg-lime border-2 border-black" />
-              <span className="absolute left-1/2 -bottom-5 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold text-white bg-black/85 px-1.5 py-0.5 rounded shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
-                Yogyakarta
-              </span>
-            </button>
-
-            {/* City Pin: Surabaya / East Java (approx 40% left, 72% top) */}
-            <div
-              className="group absolute top-[72%] left-[40%] -translate-x-1/2 -translate-y-1/2 z-10 opacity-70"
-              title="East Java"
-            >
-              <span className="relative flex h-2 w-2 rounded-full bg-white/80 border border-black" />
-            </div>
-
-            {/* City Pin: Bali (approx 44% left, 74% top) */}
-            <div
-              className="group absolute top-[74%] left-[44%] -translate-x-1/2 -translate-y-1/2 z-10 opacity-70"
-              title="Bali"
-            >
-              <span className="relative flex h-2 w-2 rounded-full bg-white/80 border border-black" />
-            </div>
-          </div>
-
-          {/* Map bottom badges */}
-          <div className="absolute bottom-2.5 left-3 sm:left-4 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-semibold text-white border border-white/15">
-              <MapPin size={10} className="text-lime" />
-              Indonesian Gym Network
-            </span>
-            <span className="text-[10px] text-black/60 dark:text-white/50 hidden sm:inline font-medium">
-              Tap a city pin to filter
-            </span>
-          </div>
-
-          <div className="absolute bottom-2.5 right-3 sm:right-4">
-            <span className="text-[10px] font-bold text-black/70 dark:text-white/70 bg-black/10 dark:bg-white/10 px-2 py-0.5 rounded-full">
-              {gyms.length} Gyms Mapped
-            </span>
-          </div>
-        </div>
+      {/* 3. Interactive Indonesia Gyms Map */}
+      <div className="my-4">
+        <InteractiveIndonesiaMap
+          mode="gyms"
+          selectedProvince={selectedCity}
+          onSelectProvince={(city) => setSelectedCity(city)}
+        />
       </div>
 
       {/* 4. City Filter Pills */}
