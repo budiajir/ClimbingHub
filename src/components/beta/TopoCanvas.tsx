@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Problem, TopoMarker } from '@/lib/mock-data'
 import {
@@ -17,8 +17,12 @@ import {
   AlertCircle,
   Plus,
   ExternalLink,
+  Heart,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
+import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
 
 interface TopoCanvasProps {
   problem: Problem
@@ -29,10 +33,21 @@ interface TopoCanvasProps {
 
 const markerStyle: Record<string, { bg: string; text: string; glow: string; label: string }> = {
   S: { bg: '#CCFF00', text: '#12161A', glow: 'rgba(204,255,0,0.6)', label: 'START' },
-  B: { bg: '#06B6D4', text: '#12161A', glow: 'rgba(6,182,212,0.6)', label: 'BOLT' },
+  B: { bg: '#94A3B8', text: '#0F172A', glow: 'rgba(148,163,184,0.6)', label: 'HANGER' },
+  H: { bg: '#94A3B8', text: '#0F172A', glow: 'rgba(148,163,184,0.6)', label: 'HANGER' },
   Z: { bg: '#06B6D4', text: '#12161A', glow: 'rgba(6,182,212,0.6)', label: 'CRUX' },
   P: { bg: '#FF6B00', text: '#FFFFFF', glow: 'rgba(255,107,0,0.6)', label: 'PITCH' },
   T: { bg: '#EF4444', text: '#FFFFFF', glow: 'rgba(239,68,68,0.6)', label: 'TOP' },
+}
+
+function HangerSymbol() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.4">
+      <circle cx="12" cy="7" r="2.2" fill="currentColor" />
+      <path d="M8 8 C8 4 16 4 16 8 C16 11 19 14 19 17 C19 20 16 21 12 21 C8 21 5 20 5 17 C5 14 8 11 8 8 Z" fill="none" />
+      <circle cx="12" cy="16" r="2" fill="none" />
+    </svg>
+  )
 }
 
 function TopoMarkerPin({
@@ -40,13 +55,16 @@ function TopoMarkerPin({
   index,
   isMultiPitch,
   totalMarkers,
+  isLeadRoute,
 }: {
   marker: TopoMarker
   index: number
   isMultiPitch: boolean
   totalMarkers: number
+  isLeadRoute?: boolean
 }) {
-  const style = markerStyle[marker.type] || markerStyle.B
+  const isHanger = marker.type === 'B' || marker.type === 'H' || ((isLeadRoute || isMultiPitch) && marker.type !== 'S' && marker.type !== 'T' && marker.type !== 'P')
+  const style = isHanger ? markerStyle.H : (markerStyle[marker.type] || markerStyle.B)
   const displayLabel =
     marker.label ||
     (isMultiPitch && marker.type === 'P'
@@ -61,6 +79,8 @@ function TopoMarkerPin({
       : marker.type === 'T'
       ? `Summit / Top Out (P${totalMarkers - 1})`
       : `Belay Station ${displayLabel} (Anchor)`
+    : isHanger
+    ? `Bolt Hanger #${index} (Quickdraw Clip)`
     : `${style.label} (${marker.x.toFixed(0)}%, ${marker.y.toFixed(0)}%)`
 
   return (
@@ -95,7 +115,7 @@ function TopoMarkerPin({
           boxShadow: `0 0 16px ${style.glow}`,
         }}
       >
-        {displayLabel}
+        {isHanger ? <HangerSymbol /> : displayLabel}
       </div>
       {/* Anchor line pin */}
       <div
@@ -117,7 +137,32 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
   const [activePitch, setActivePitch] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const activeImage = problem.imageUrl || imageUrl
+  const additionalImages = (problem as any).images || []
+  const allImages = Array.from(new Set([problem.imageUrl || imageUrl, ...additionalImages].filter(Boolean)))
+  const [photoIndex, setPhotoIndex] = useState(0)
+  const activeImage = allImages[photoIndex] || problem.imageUrl || imageUrl
+
+  const [wishlisted, setWishlisted] = useState(false)
+  useEffect(() => {
+    setWishlisted(isInWishlist(problem.id))
+    const handleUpdate = () => setWishlisted(isInWishlist(problem.id))
+    window.addEventListener('wishlist-updated', handleUpdate)
+    return () => window.removeEventListener('wishlist-updated', handleUpdate)
+  }, [problem.id])
+
+  const handleToggleWishlist = () => {
+    const updated = toggleWishlist({
+      id: problem.id,
+      type: 'problem',
+      title: problem.name,
+      subtitle: `${problem.grade} · ${problem.discipline || 'Bouldering'}`,
+      image: activeImage,
+      location: (problem as any).sectorName || 'Crag',
+      grade: problem.grade,
+      discipline: problem.discipline,
+    })
+    setWishlisted(updated)
+  }
 
   const isMultiPitch = problem.discipline === 'multipitch'
   const isSport = problem.discipline === 'sport'
@@ -180,9 +225,9 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* ============================================================ */}
-      {/* 1. PHOTO CANVAS AREA                                         */}
+      {/* 1. PHOTO CANVAS AREA (Full Frame)                            */}
       {/* ============================================================ */}
       <div
         ref={containerRef}
@@ -216,29 +261,28 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
         >
           {/* Topo Cliff Photo — Full frame */}
           <div
-            className="absolute inset-0 bg-cover bg-center w-full h-full"
+            className="absolute inset-0 bg-cover bg-center w-full h-full transition-all duration-300"
             style={{
               backgroundImage: `url(${activeImage})`,
             }}
           />
 
-          {/* CONNECTED TOPO VECTOR PATH (SVG) — PURE WHITE LINE ONLY */}
+          {/* CONNECTED TOPO VECTOR PATH (SVG) — PURE SOLID WHITE LINE (NO DASH) */}
           {svgPathD && (
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
-              {/* Clean crisp pure white dashed line */}
+              {/* Clean solid pure white line */}
               <path
                 d={svgPathD}
                 stroke="#FFFFFF"
-                strokeWidth="1.8"
-                strokeDasharray="2.5 1.5"
+                strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
-                style={{ filter: 'drop-shadow(0 0 3px rgba(0,0,0,0.85))' }}
+                style={{ filter: 'drop-shadow(0 0 4px rgba(0,0,0,0.9))' }}
               />
 
               {/* MULTI PITCH: Highlighted active pitch segment */}
@@ -321,7 +365,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
             </div>
           )}
 
-          {/* Vector Markers / Pins (Start, Belay Stations P1-P3, Top) */}
+          {/* Vector Markers / Pins (Start, Belay Stations P1-P3, Top, Bolt Hangers) */}
           <div className="absolute inset-0 w-full h-full">
             {problem.markers.map((marker, idx) => (
               <TopoMarkerPin
@@ -330,55 +374,46 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
                 index={idx}
                 isMultiPitch={isMultiPitch}
                 totalMarkers={problem.markers.length}
+                isLeadRoute={isLeadOrTrad}
               />
             ))}
           </div>
         </motion.div>
 
-        {/* FLOATING ZOOM CONTROLS */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/75 backdrop-blur-md p-1 rounded-xl border border-white/20 z-30 shadow-2xl">
-          <button
-            onClick={handleZoomOut}
-            disabled={scale <= 1}
-            className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-transparent flex items-center justify-center text-white transition-all touch-ripple"
-            title="Zoom Out (-)"
-            aria-label="Zoom Out"
-          >
-            <ZoomOut size={15} />
-          </button>
-
-          <button
-            onClick={handleResetZoom}
-            className="px-2 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-[11px] font-mono font-bold text-white transition-all"
-            title="Click to reset zoom (1.0x)"
-          >
-            {scale.toFixed(1)}x
-          </button>
-
-          <button
-            onClick={handleZoomIn}
-            disabled={scale >= 3}
-            className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-transparent flex items-center justify-center text-white transition-all touch-ripple"
-            title="Zoom In (+)"
-            aria-label="Zoom In"
-          >
-            <ZoomIn size={15} />
-          </button>
-
-          {scale > 1 && (
+        {/* SLIDESHOW NAVIGATION ARROWS & INDICATOR */}
+        {allImages.length > 1 && (
+          <>
             <button
-              onClick={handleResetZoom}
-              className="w-8 h-8 rounded-lg bg-redpoint/20 hover:bg-redpoint/30 text-redpoint flex items-center justify-center transition-all"
-              title="Reset Zoom"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setPhotoIndex((idx) => (idx > 0 ? idx - 1 : allImages.length - 1))
+              }}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center justify-center z-30 transition-all border border-white/20 shadow-lg cursor-pointer"
+              title="Previous photo"
             >
-              <RotateCcw size={13} />
+              <ChevronLeftIcon size={18} />
             </button>
-          )}
-        </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setPhotoIndex((idx) => (idx < allImages.length - 1 ? idx + 1 : 0))
+              }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center justify-center z-30 transition-all border border-white/20 shadow-lg cursor-pointer"
+              title="Next photo"
+            >
+              <ChevronRightIcon size={18} />
+            </button>
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md z-30 border border-white/20 text-[11px] text-white font-mono shadow-md">
+              <span>{photoIndex + 1} / {allImages.length}</span>
+            </div>
+          </>
+        )}
 
         {/* MULTI PITCH: Top Pitch Navigator Bar */}
         {isMultiPitch && problem.pitchBreakdown && problem.pitchBreakdown.length > 0 && (
-          <div className="absolute top-3 left-3 right-28 flex items-center gap-1.5 overflow-x-auto no-scrollbar z-30 pb-1">
+          <div className="absolute top-3 left-3 right-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar z-30 pb-1">
             <button
               onClick={() => setActivePitch(null)}
               className={`px-3 py-1.5 rounded-xl text-[11px] font-mono transition-all flex-shrink-0 backdrop-blur-md ${
@@ -414,6 +449,86 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
             })}
           </div>
         )}
+      </div>
+
+      {/* ============================================================ */}
+      {/* PHOTO CONTROLS TOOLBAR (OUTSIDE / BELOW PHOTO BOX)          */}
+      {/* ============================================================ */}
+      <div className="flex items-center justify-between px-4 md:px-0 py-1 gap-2 flex-wrap">
+        {/* Slideshow image switcher indicators */}
+        <div className="flex items-center gap-2">
+          {allImages.length > 1 ? (
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-bold opacity-75">Photo {photoIndex + 1} of {allImages.length}</span>
+              <div className="flex items-center gap-1">
+                {allImages.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPhotoIndex(i)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      photoIndex === i ? 'bg-[#FF6B00] scale-125' : 'bg-white/20 hover:bg-white/40'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <span className="text-[11px] opacity-60 font-medium">Topo View</span>
+          )}
+        </div>
+
+        {/* Zoom Controls Outside Photo + Wishlist Button */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 bg-black/30 dark:bg-white/5 p-1 rounded-xl border border-white/10 shadow-sm">
+            <button
+              onClick={handleZoomOut}
+              disabled={scale <= 1}
+              className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-transparent flex items-center justify-center text-white transition-all"
+              title="Zoom Out (-)"
+              aria-label="Zoom Out"
+            >
+              <ZoomOut size={14} />
+            </button>
+            <button
+              onClick={handleResetZoom}
+              className="px-2 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-[10px] font-mono font-bold text-white transition-all"
+              title="Reset Zoom (1.0x)"
+            >
+              {scale.toFixed(1)}x
+            </button>
+            <button
+              onClick={handleZoomIn}
+              disabled={scale >= 3}
+              className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-transparent flex items-center justify-center text-white transition-all"
+              title="Zoom In (+)"
+              aria-label="Zoom In"
+            >
+              <ZoomIn size={14} />
+            </button>
+            {scale > 1 && (
+              <button
+                onClick={handleResetZoom}
+                className="w-7 h-7 rounded-lg bg-[#FF6B00]/20 hover:bg-[#FF6B00]/30 text-[#FF6B00] flex items-center justify-center transition-all"
+                title="Reset Zoom"
+              >
+                <RotateCcw size={12} />
+              </button>
+            )}
+          </div>
+
+          {/* Save to Wishlist Button */}
+          <button
+            onClick={handleToggleWishlist}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+              wishlisted
+                ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
+                : 'border-[#FF6B00]/50 hover:bg-[#FF6B00]/10 text-[#FF6B00]'
+            }`}
+          >
+            <Heart size={14} className={wishlisted ? 'fill-rose-400 text-rose-400' : ''} />
+            <span>{wishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
+          </button>
+        </div>
       </div>
 
       {/* ============================================================ */}

@@ -148,7 +148,7 @@ export default function MobileNav() {
         onAddFriend={handleAddFriend}
       />
 
-      {/* BOTTOM NAVIGATION BAR */}
+      {/* BOTTOM NAVIGATION BAR (Mobile Portrait) */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe md:hidden">
         <div
           className={clsx(
@@ -158,20 +158,18 @@ export default function MobileNav() {
           style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
         >
           <div className="flex items-center justify-around h-16 max-w-md mx-auto px-2">
-            {/* 1. CRAGS (Paling Kiri) */}
+            {/* 1. CRAGS */}
             <Link
               href="/crags"
               title="Crags"
               onClick={() => setShowConnect(false)}
               className={clsx(
-                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
+                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-colors duration-150 touch-ripple",
                 isCragsActive && !showConnect
-                  ? isSandstone
-                    ? "text-[#1a1815] scale-110 font-bold"
-                    : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
+                  ? "text-[#FF6B00] font-bold"
                   : isSandstone
-                    ? "text-[#1a1815]/70 hover:text-[#1a1815]"
-                    : "text-slate-ash hover:text-chalk",
+                  ? "text-[#1a1815]/70 hover:text-[#1a1815]"
+                  : "text-slate-ash hover:text-chalk",
               )}
             >
               <CragIcon size={24} />
@@ -183,14 +181,12 @@ export default function MobileNav() {
               title="Problems"
               onClick={() => setShowConnect(false)}
               className={clsx(
-                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
+                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-colors duration-150 touch-ripple",
                 isProblemsActive && !showConnect
-                  ? isSandstone
-                    ? "text-[#1a1815] scale-110 font-bold"
-                    : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
+                  ? "text-[#FF6B00] font-bold"
                   : isSandstone
-                    ? "text-[#1a1815]/70 hover:text-[#1a1815]"
-                    : "text-slate-ash hover:text-chalk",
+                  ? "text-[#1a1815]/70 hover:text-[#1a1815]"
+                  : "text-slate-ash hover:text-chalk",
               )}
             >
               <BoulderIcon size={24} />
@@ -201,18 +197,16 @@ export default function MobileNav() {
               onClick={() => setShowConnect((prev) => !prev)}
               title={showConnect ? "Close Connect" : "Connect"}
               className={clsx(
-                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
+                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-colors duration-150 touch-ripple",
                 showConnect
-                  ? isSandstone
-                    ? "text-[#1a1815] scale-110 font-bold"
-                    : "text-white scale-110 drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]"
+                  ? "text-[#FF6B00] font-bold"
                   : isSandstone
-                    ? "text-[#1a1815]/70 hover:text-[#1a1815]"
-                    : "text-slate-ash hover:text-chalk",
+                  ? "text-[#1a1815]/70 hover:text-[#1a1815]"
+                  : "text-slate-ash hover:text-chalk",
               )}
             >
               <motion.div
-                animate={{ rotate: showConnect ? 90 : 0, scale: showConnect ? 1.08 : 1 }}
+                animate={{ rotate: showConnect ? 90 : 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
                 {showConnect ? <X size={26} strokeWidth={2.4} /> : <CreateIcon size={28} />}
@@ -225,39 +219,112 @@ export default function MobileNav() {
               title="Climbing Gym"
               onClick={() => setShowConnect(false)}
               className={clsx(
-                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
+                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-colors duration-150 touch-ripple",
                 isGymActive && !showConnect
-                  ? isSandstone
-                    ? "text-[#1a1815] scale-110 font-bold"
-                    : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
+                  ? "text-[#FF6B00] font-bold"
                   : isSandstone
-                    ? "text-[#1a1815]/70 hover:text-[#1a1815]"
-                    : "text-slate-ash hover:text-chalk",
+                  ? "text-[#1a1815]/70 hover:text-[#1a1815]"
+                  : "text-slate-ash hover:text-chalk",
               )}
             >
               <GymClimbingIcon size={24} />
             </Link>
 
-            {/* 5. COMMUNITY (Paling Kanan) */}
+            {/* 5. COMMUNITY */}
             <Link
               href="/community"
               title="Community"
               onClick={() => setShowConnect(false)}
               className={clsx(
-                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-all duration-200 touch-ripple",
+                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-2xl transition-colors duration-150 touch-ripple",
                 isCommunityActive && !showConnect
-                  ? isSandstone
-                    ? "text-[#1a1815] scale-110 font-bold"
-                    : "text-white scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]"
+                  ? "text-[#FF6B00] font-bold"
                   : isSandstone
-                    ? "text-[#1a1815]/70 hover:text-[#1a1815]"
-                    : "text-slate-ash hover:text-chalk",
+                  ? "text-[#1a1815]/70 hover:text-[#1a1815]"
+                  : "text-slate-ash hover:text-chalk",
               )}
             >
               <CommunityIcon size={24} />
             </Link>
           </div>
         </div>
+      </nav>
+
+      {/* VERTICAL NAVIGATION BAR FOR TABLET (LANDSCAPE) & PC (Right edge) */}
+      <nav className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col items-center gap-3 p-2.5 rounded-2xl border shadow-2xl backdrop-blur-md transition-all duration-300 bg-[#181D22]/85 border-white/15">
+        {/* 1. CRAGS */}
+        <Link
+          href="/crags"
+          title="Crags"
+          onClick={() => setShowConnect(false)}
+          className={clsx(
+            "p-3 rounded-xl transition-colors duration-150 flex items-center justify-center",
+            isCragsActive && !showConnect
+              ? "text-[#FF6B00] bg-[#FF6B00]/15"
+              : "text-slate-ash hover:text-white hover:bg-white/5",
+          )}
+        >
+          <CragIcon size={24} />
+        </Link>
+
+        {/* 2. PROBLEMS */}
+        <Link
+          href="/beta"
+          title="Problems"
+          onClick={() => setShowConnect(false)}
+          className={clsx(
+            "p-3 rounded-xl transition-colors duration-150 flex items-center justify-center",
+            isProblemsActive && !showConnect
+              ? "text-[#FF6B00] bg-[#FF6B00]/15"
+              : "text-slate-ash hover:text-white hover:bg-white/5",
+          )}
+        >
+          <BoulderIcon size={24} />
+        </Link>
+
+        {/* 3. CONNECT */}
+        <button
+          onClick={() => setShowConnect((prev) => !prev)}
+          title={showConnect ? "Close Connect" : "Connect"}
+          className={clsx(
+            "p-3 rounded-xl transition-colors duration-150 flex items-center justify-center",
+            showConnect
+              ? "text-[#FF6B00] bg-[#FF6B00]/15"
+              : "text-slate-ash hover:text-white hover:bg-white/5",
+          )}
+        >
+          {showConnect ? <X size={26} /> : <CreateIcon size={26} />}
+        </button>
+
+        {/* 4. CLIMBING GYM */}
+        <Link
+          href="/gyms"
+          title="Climbing Gym"
+          onClick={() => setShowConnect(false)}
+          className={clsx(
+            "p-3 rounded-xl transition-colors duration-150 flex items-center justify-center",
+            isGymActive && !showConnect
+              ? "text-[#FF6B00] bg-[#FF6B00]/15"
+              : "text-slate-ash hover:text-white hover:bg-white/5",
+          )}
+        >
+          <GymClimbingIcon size={24} />
+        </Link>
+
+        {/* 5. COMMUNITY */}
+        <Link
+          href="/community"
+          title="Community"
+          onClick={() => setShowConnect(false)}
+          className={clsx(
+            "p-3 rounded-xl transition-colors duration-150 flex items-center justify-center",
+            isCommunityActive && !showConnect
+              ? "text-[#FF6B00] bg-[#FF6B00]/15"
+              : "text-slate-ash hover:text-white hover:bg-white/5",
+          )}
+        >
+          <CommunityIcon size={24} />
+        </Link>
       </nav>
 
       {/* Global Modals for CONNECT feature */}

@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Star, MapPin, Compass, ExternalLink, X } from 'lucide-react'
+import { Search, Star, MapPin, Compass, ExternalLink, X, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { useGyms } from '@/lib/use-data'
 import { useTheme } from '@/lib/theme-context'
 import { Gym } from '@/lib/mock-data'
+import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
 
 export default function GymsPage() {
   const { gyms } = useGyms()
@@ -15,6 +16,26 @@ export default function GymsPage() {
   const [query, setQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState('all')
   const [selectedGymForMap, setSelectedGymForMap] = useState<Gym | null>(null)
+  const [isGymWishlisted, setIsGymWishlisted] = useState(false)
+
+  useEffect(() => {
+    setIsGymWishlisted(isInWishlist('gyms_directory'))
+    const handleUpdate = () => setIsGymWishlisted(isInWishlist('gyms_directory'))
+    window.addEventListener('wishlist-updated', handleUpdate)
+    return () => window.removeEventListener('wishlist-updated', handleUpdate)
+  }, [])
+
+  const handleToggleGymsWishlist = () => {
+    const updated = toggleWishlist({
+      id: 'gyms_directory',
+      type: 'gym',
+      title: 'Indonesian Climbing Gyms',
+      subtitle: `${gyms.length} Gyms Nationwide`,
+      image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=800&q=80',
+      location: 'Indonesia',
+    })
+    setIsGymWishlisted(updated)
+  }
 
   const cities = ['all', ...Array.from(new Set(gyms.map(g => g.city)))]
 
@@ -34,13 +55,27 @@ export default function GymsPage() {
           isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
         }`}
       >
-        <h1
-          className={`font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight ${
-            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-          }`}
-        >
-          Climbing Gym
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1
+            className={`font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight ${
+              isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+            }`}
+          >
+            Climbing Gym
+          </h1>
+          <button
+            onClick={handleToggleGymsWishlist}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+              isGymWishlisted
+                ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
+                : 'border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00]/10'
+            }`}
+            title="Save to Wishlist"
+          >
+            <Heart size={14} className={isGymWishlisted ? 'fill-rose-400 text-rose-400' : ''} />
+            <span className="hidden sm:inline">{isGymWishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
+          </button>
+        </div>
         <p
           className={`text-xs md:text-sm font-light mt-1 ${
             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
@@ -56,7 +91,7 @@ export default function GymsPage() {
           type="text"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Search gym, city, or facility..."
+          placeholder="Discover gyms, cities, facilities..."
           className={`w-full py-2.5 px-6 rounded-full text-xs sm:text-sm outline-none transition-all border ${
             isSandstone
               ? 'bg-black/[0.03] text-[#1a1815] placeholder:text-[#1a1815]/40 border-[#1a1815]/25 focus:border-[#1a1815]'
@@ -65,7 +100,7 @@ export default function GymsPage() {
         />
       </div>
 
-      {/* 3. Map Banner — Fullframe edge-to-edge (Disamakan dengan 'Crags' dan 'Problems') */}
+      {/* 3. Map Banner — Fullframe edge-to-edge (Portrait mobile aspect-[3/4], landscape desktop aspect-[2.16/1]) */}
       <div
         className={`-mx-4 sm:-mx-6 lg:-mx-8 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] rounded-none overflow-hidden my-4 relative shadow-md transition-colors duration-300 border-y ${
           isSandstone
@@ -77,8 +112,8 @@ export default function GymsPage() {
           {/* Subtle overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20 pointer-events-none" />
 
-          {/* Map Graphic with Interactive City Dots */}
-          <div className="relative w-full max-w-4xl aspect-[2.16/1] flex items-center justify-center">
+          {/* Map Graphic with Interactive City Dots (Portrait mobile aspect-[3/4], landscape desktop aspect-[2.16/1]) */}
+          <div className="relative w-full max-w-4xl aspect-[3/4] md:aspect-[2.16/1] flex items-center justify-center">
             <img
               src="/images/indonesia-gyms-map.jpg"
               alt="Indonesia Climbing Gyms Map"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -23,6 +24,7 @@ import RequestToJoinModal from "./RequestToJoinModal";
 import UploadCommunityPhotoModal from "./UploadCommunityPhotoModal";
 
 export default function CommunityDirectory() {
+  const router = useRouter();
   const { communities } = useCommunities();
   const { theme } = useTheme();
   const isSandstone = theme === "sandstone";
@@ -109,9 +111,9 @@ export default function CommunityDirectory() {
                     : "bg-crag border border-white/5 hover:border-lime/30 hover:shadow-card-hover"
                 }`}
               >
-                {/* Header image & Click to open Detail */}
+                {/* Header image & Click to open Detail Page */}
                 <div
-                  onClick={() => setSelectedDetail(comm)}
+                  onClick={() => router.push(`/community/${comm.id}`)}
                   className="cursor-pointer"
                 >
                   <div
@@ -205,7 +207,7 @@ export default function CommunityDirectory() {
                     </button>
                   ) : status === "approved" ? (
                     <button
-                      onClick={() => setSelectedDetail(comm)}
+                      onClick={() => router.push(`/community/${comm.id}`)}
                       className={`flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-semibold touch-ripple transition-colors ${
                         isSandstone
                           ? "bg-emerald-100/70 border-emerald-300 text-emerald-900"
@@ -217,11 +219,7 @@ export default function CommunityDirectory() {
                   ) : (
                     <button
                       onClick={() => setSelectedJoin(comm)}
-                      className={`flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-bold touch-ripple transition-all ${
-                        isSandstone
-                          ? "bg-[#1a1815] text-[#ded3be] border-[#1a1815] hover:opacity-90"
-                          : "bg-lime text-granite border-lime hover:bg-lime-dim shadow-lime-glow-sm"
-                      }`}
+                      className="flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-bold touch-ripple transition-all bg-[#FF6B00] text-white border-[#FF6B00] hover:bg-[#FF6B00]/90 shadow-md cursor-pointer"
                     >
                       <UserPlus size={14} /> Request to Join
                     </button>

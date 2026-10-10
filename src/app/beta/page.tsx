@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Mountain, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Mountain, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2, Search, Heart } from 'lucide-react'
 import { Problem, CragRegion, RouteDiscipline } from '@/lib/mock-data'
 import { useCragRegions, insertRoute, insertCragRegion, insertSector } from '@/lib/use-data'
 import { gradeColors } from '@/lib/tokens'
@@ -18,6 +18,7 @@ import { canLogAscent, canCreateCragRoute } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
 import { UserAscent, getUserAscents, saveUserAscent, deleteUserAscent } from '@/lib/user-ascents'
 import Pictogram from '@/components/common/Pictogram'
+import { toggleWishlist, isInWishlist } from '@/lib/wishlist-store'
 
 type ViewLevel = 'regions' | 'sectors' | 'problems' | 'topo'
 type ProblemCategory = 'boulder' | 'lead' | 'multipitch'
@@ -201,12 +202,36 @@ function BetaPageContent() {
   const currentTheme = CATEGORY_THEMES[selectedCategory]
   const themeTextColor = isSandstone ? currentTheme.lightText : currentTheme.darkText
 
+  const [selectedCity, setSelectedCity] = useState<string>('all')
+  const [selectedGrade, setSelectedGrade] = useState<string>('all')
+  const [isProblemsWishlisted, setIsProblemsWishlisted] = useState<boolean>(false)
+
   const [showLogModal, setShowLogModal] = useState(false)
   const [activeShareAscent, setActiveShareAscent] = useState<UserAscent | null>(null)
   const [userAscents, setUserAscents] = useState<UserAscent[]>([])
   const [showMyAscentsView, setShowMyAscentsView] = useState(false)
   const [showAddRouteModal, setShowAddRouteModal] = useState(false)
   const [showRoadmapModal, setShowRoadmapModal] = useState(false)
+
+  useEffect(() => {
+    setIsProblemsWishlisted(isInWishlist('problems_collection'))
+    const handleUpdate = () => setIsProblemsWishlisted(isInWishlist('problems_collection'))
+    window.addEventListener('wishlist-updated', handleUpdate)
+    return () => window.removeEventListener('wishlist-updated', handleUpdate)
+  }, [])
+
+  const handleWishlistProblems = () => {
+    const updated = toggleWishlist({
+      id: 'problems_collection',
+      type: 'problem',
+      title: 'Indonesian Climbing Problems',
+      subtitle: `${filteredProblemsList.length} Curated Routes`,
+      image: '/images/indonesia-gyms-map.jpg',
+      location: 'Indonesia',
+      discipline: selectedCategory,
+    })
+    setIsProblemsWishlisted(updated)
+  }
 
   useEffect(() => {
     if (cragRegions && cragRegions.length > 0) {
@@ -517,7 +542,27 @@ function BetaPageContent() {
           (selectedCategory === 'multipitch' &&
             (disc === 'multipitch' || p.category === 'trad'))
 
-        return matchSearch && matchCategory
+        const matchCity =
+          selectedCity === 'all' ||
+          (r.name || '').toLowerCase().includes(selectedCity.toLowerCase()) ||
+          (r.province || '').toLowerCase().includes(selectedCity.toLowerCase()) ||
+          (s.name || '').toLowerCase().includes(selectedCity.toLowerCase())
+
+        const matchGrade =
+          selectedGrade === 'all' ||
+          (() => {
+            const g = (p.grade || '').toUpperCase()
+            if (selectedGrade === 'v0-v2') return ['V0', 'V1', 'V2'].some(v => g.includes(v))
+            if (selectedGrade === 'v3-v5') return ['V3', 'V4', 'V5'].some(v => g.includes(v))
+            if (selectedGrade === 'v6-v8') return ['V6', 'V7', 'V8'].some(v => g.includes(v))
+            if (selectedGrade === 'v9+') return ['V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15'].some(v => g.includes(v))
+            if (selectedGrade === '5-6a') return g.includes('5') || g.includes('6A')
+            if (selectedGrade === '6b-7a') return g.includes('6B') || g.includes('6C') || g.includes('7A')
+            if (selectedGrade === '7b-8a') return g.includes('7B') || g.includes('7C') || g.includes('8A')
+            return g.includes(selectedGrade.toUpperCase())
+          })()
+
+        return matchSearch && matchCategory && matchCity && matchGrade
       })
       .sort((a, b) => {
         if (selectedCategory === 'boulder') {
@@ -527,7 +572,7 @@ function BetaPageContent() {
         }
         return 0
       })
-  }, [allProblems, searchQuery, selectedCategory])
+  }, [allProblems, searchQuery, selectedCategory, selectedCity, selectedGrade])
 
   const filteredProblems = sector ? sector.problems : []
 
@@ -568,15 +613,29 @@ function BetaPageContent() {
                 </button>
               </div>
             ) : (
-              /* Headline Row: Clean "Problems" with View Mode Switcher Icons */
+              /* Headline Row: Clean "Problems" with Wishlist button and View Mode Switcher Icons */
               <div className="flex items-center justify-between gap-3 pt-1 pb-1">
-                <h1
-                  className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight ${
-                    isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                  }`}
-                >
-                  Problems
-                </h1>
+                <div className="flex items-center gap-3">
+                  <h1
+                    className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight ${
+                      isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                    }`}
+                  >
+                    Problems
+                  </h1>
+                  <button
+                    onClick={handleWishlistProblems}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                      isProblemsWishlisted
+                        ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
+                        : 'border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00]/10'
+                    }`}
+                    title="Save to Wishlist"
+                  >
+                    <Heart size={14} className={isProblemsWishlisted ? 'fill-rose-400 text-rose-400' : ''} />
+                    <span className="hidden sm:inline">{isProblemsWishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
+                  </button>
+                </div>
 
                 <div className="flex items-center gap-2 sm:gap-3">
                   {/* View Mode Switcher Icons: Slide, Grid, List */}
@@ -835,6 +894,70 @@ function BetaPageContent() {
                         borderColor: currentTheme.primary + '55',
                       }}
                     />
+                  </div>
+
+                  {/* Filter Buttons: Kota/Daerah & Grade */}
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    {/* Filter Kota/Daerah */}
+                    <div className="relative">
+                      <select
+                        value={selectedCity}
+                        onChange={(e) => setSelectedCity(e.target.value)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold appearance-none pr-7 cursor-pointer border transition-all ${
+                          selectedCity !== 'all'
+                            ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
+                            : isSandstone
+                            ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815]'
+                            : 'bg-white/5 border-white/10 text-chalk hover:border-[#FF6B00]/40'
+                        }`}
+                      >
+                        <option value="all" className="bg-[#1a1f24] text-white">Filter Kota / Daerah: All</option>
+                        <option value="harau" className="bg-[#1a1f24] text-white">Harau Valley · Sumatera</option>
+                        <option value="citatah" className="bg-[#1a1f24] text-white">Citatah · Bandung</option>
+                        <option value="siung" className="bg-[#1a1f24] text-white">Siung · Yogyakarta</option>
+                        <option value="maros" className="bg-[#1a1f24] text-white">Maros · Sulawesi Selatan</option>
+                        <option value="kintamani" className="bg-[#1a1f24] text-white">Kintamani · Bali</option>
+                        <option value="parang" className="bg-[#1a1f24] text-white">Gunung Parang · Purwakarta</option>
+                      </select>
+                      <ChevronRight size={13} className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none opacity-60" />
+                    </div>
+
+                    {/* Filter Grade */}
+                    <div className="relative">
+                      <select
+                        value={selectedGrade}
+                        onChange={(e) => setSelectedGrade(e.target.value)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold appearance-none pr-7 cursor-pointer border transition-all ${
+                          selectedGrade !== 'all'
+                            ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
+                            : isSandstone
+                            ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815]'
+                            : 'bg-white/5 border-white/10 text-chalk hover:border-[#FF6B00]/40'
+                        }`}
+                      >
+                        <option value="all" className="bg-[#1a1f24] text-white">Filter Grade: All</option>
+                        <option value="v0-v2" className="bg-[#1a1f24] text-white">V0 – V2 (Beginner)</option>
+                        <option value="v3-v5" className="bg-[#1a1f24] text-white">V3 – V5 (Intermediate)</option>
+                        <option value="v6-v8" className="bg-[#1a1f24] text-white">V6 – V8 (Advanced)</option>
+                        <option value="v9+" className="bg-[#1a1f24] text-white">V9+ (Expert / Pro)</option>
+                        <option value="5-6a" className="bg-[#1a1f24] text-white">5a – 6a (Sport)</option>
+                        <option value="6b-7a" className="bg-[#1a1f24] text-white">6b – 7a (Sport)</option>
+                        <option value="7b-8a" className="bg-[#1a1f24] text-white">7b – 8a (Sport)</option>
+                      </select>
+                      <ChevronRight size={13} className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none opacity-60" />
+                    </div>
+
+                    {(selectedCity !== 'all' || selectedGrade !== 'all') && (
+                      <button
+                        onClick={() => {
+                          setSelectedCity('all')
+                          setSelectedGrade('all')
+                        }}
+                        className="px-2.5 py-1 text-xs text-rose-400 hover:underline font-bold"
+                      >
+                        Reset Filter
+                      </button>
+                    )}
                   </div>
 
                   {/* 3. Interactive Indonesia Problems Map Banner — Fullframe edge-to-edge */}

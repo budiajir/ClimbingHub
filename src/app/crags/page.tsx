@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -16,6 +16,7 @@ import {
   Phone,
   Package,
   ChevronRight,
+  Heart,
 } from "lucide-react";
 import { useCragRegions } from "@/lib/use-data";
 import { useTheme } from "@/lib/theme-context";
@@ -24,11 +25,17 @@ import OpenTripModal from "@/components/crag/OpenTripModal";
 import BookTripModal from "@/components/crag/BookTripModal";
 import RentEquipmentModal from "@/components/crag/RentEquipmentModal";
 import Pictogram from "@/components/common/Pictogram";
+import { toggleWishlist, isInWishlist } from "@/lib/wishlist-store";
 
 export default function CragsDirectoryPage() {
   const { cragRegions, loading } = useCragRegions();
   const { theme } = useTheme();
   const isSandstone = theme === "sandstone";
+  const [isSavedWishlist, setIsSavedWishlist] = useState(false);
+
+  useEffect(() => {
+    setIsSavedWishlist(isInWishlist("crags-directory"));
+  }, []);
 
   // View Mode: 'list' (default matching user UI) | 'thumbnail' | 'slide'
   const [viewMode, setViewMode] = useState<"list" | "thumbnail" | "slide">("list");
@@ -85,13 +92,33 @@ export default function CragsDirectoryPage() {
       {/* Header Section */}
       <div className="py-2 md:py-6">
         <div className="flex items-center justify-between gap-3">
-          <h1
-            className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight ${
-              isSandstone ? "text-[#1a1815]" : "text-chalk"
-            }`}
-          >
-            Crags
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1
+              className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight ${
+                isSandstone ? "text-[#1a1815]" : "text-chalk"
+              }`}
+            >
+              Crags
+            </h1>
+            <button
+              onClick={() => {
+                toggleWishlist({
+                  id: "crags-directory",
+                  type: "crag",
+                  title: "Outdoor Climbing Crags",
+                  subtitle: "Indonesia Natural Crags Catalog",
+                  image: "/home-hero-bg.jpg",
+                  savedAt: new Date().toISOString().split("T")[0],
+                });
+                setIsSavedWishlist(!isSavedWishlist);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white transition-all shadow-sm"
+              title="Save to Wishlist"
+            >
+              <Heart size={14} className={isSavedWishlist ? "fill-[#FF6B00]" : ""} />
+              <span>{isSavedWishlist ? "Saved to Wishlist" : "Save to Wishlist"}</span>
+            </button>
+          </div>
 
           {/* View Mode Icon Toolbar (Slide, Thumbnail, List matching official Jalur pictograms without background boxes) */}
           <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
@@ -169,16 +196,16 @@ export default function CragsDirectoryPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search crags, regions, or rock types..."
+            placeholder="Discover crags, regions, or rock types..."
             className={`w-full py-2.5 px-6 rounded-full text-xs sm:text-sm outline-none transition-all border ${
               isSandstone
                 ? "bg-black/[0.03] text-[#1a1815] placeholder:text-[#1a1815]/40 border-[#1a1815]/25 focus:border-[#1a1815]"
-                : "bg-white/[0.05] text-chalk placeholder:text-white/40 border-white/15 focus:border-lime/50"
+                : "bg-white/[0.05] text-chalk placeholder:text-white/40 border-white/15 focus:border-[#FF6B00]"
             }`}
           />
         </div>
 
-        {/* Interactive Indonesia Crag Map Banner (Fullframe edge-to-edge) */}
+        {/* Interactive Indonesia Crag Map Banner (Fullframe edge-to-edge, Portrait on mobile, Landscape on tablet/desktop) */}
         <div
           className={`-mx-4 sm:-mx-6 lg:-mx-8 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] rounded-none overflow-hidden my-4 relative shadow-md transition-colors duration-300 border-y ${
             isSandstone
@@ -186,12 +213,12 @@ export default function CragsDirectoryPage() {
               : 'bg-[#181C20] border-white/10'
           }`}
         >
-          <div className="relative py-6 sm:py-8 px-4 flex items-center justify-center min-h-[220px] sm:min-h-[280px] md:min-h-[340px] overflow-hidden">
+          <div className="relative py-6 sm:py-8 px-4 flex items-center justify-center min-h-[380px] sm:min-h-[440px] md:min-h-[340px] overflow-hidden">
             {/* Subtle overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20 pointer-events-none" />
 
-            {/* Map Graphic with Interactive Crag Region Dots */}
-            <div className="relative w-full max-w-4xl aspect-[2.16/1] flex items-center justify-center">
+            {/* Map Graphic: Portrait on mobile, Landscape on desktop */}
+            <div className="relative w-full max-w-4xl aspect-[3/4] sm:aspect-[4/4.5] md:aspect-[2.16/1] flex items-center justify-center">
               <img
                 src="/images/indonesia-gyms-map.jpg"
                 alt="Indonesia Outdoor Crags Map"

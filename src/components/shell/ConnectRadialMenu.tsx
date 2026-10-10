@@ -197,7 +197,7 @@ export default function ConnectRadialMenu({
                 {/* Hub Label: CONNECT */}
                 <text
                   x="185"
-                  y="209"
+                  y="215"
                   textAnchor="middle"
                   fill="#FFFFFF"
                   className="select-none font-bold tracking-[0.22em]"
@@ -205,7 +205,7 @@ export default function ConnectRadialMenu({
                     fontSize: "11.5px",
                     fontWeight: 700,
                     letterSpacing: "0.22em",
-                    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+                    fontFamily: "'BDO Grotesk', 'BDOGrotesk', 'Space Grotesk', system-ui, sans-serif",
                   }}
                 >
                   CONNECT

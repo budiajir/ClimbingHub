@@ -1,14 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, notFound } from 'next/navigation'
-import { ChevronLeft, Star, MapPin, Phone, Instagram, Check, ShieldCheck, Sparkles, Clock, Users } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Star, MapPin, Phone, Instagram, Check, ShieldCheck, Sparkles, Clock, Users, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { useGyms } from '@/lib/use-data'
 import { useTheme } from '@/lib/theme-context'
 import SlotPicker, { BookingData } from '@/components/gym/SlotPicker'
 import ETicket from '@/components/gym/ETicket'
+import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
 
 function generateBookingCode() {
   return 'CH' + Math.random().toString(36).substring(2, 8).toUpperCase()
@@ -24,6 +25,30 @@ export default function GymDetailPage() {
   const gym = gyms.find(g => String(g.id || '').toLowerCase() === paramId.toLowerCase())
   const [booking, setBooking] = useState<BookingData | null>(null)
   const [bookingCode] = useState(generateBookingCode())
+  const [activeImgIndex, setActiveImgIndex] = useState(0)
+  const [isWishlisted, setIsWishlisted] = useState(false)
+
+  useEffect(() => {
+    if (gym?.id) {
+      setIsWishlisted(isInWishlist(gym.id))
+      const handleUpdate = () => setIsWishlisted(isInWishlist(gym.id))
+      window.addEventListener('wishlist-updated', handleUpdate)
+      return () => window.removeEventListener('wishlist-updated', handleUpdate)
+    }
+  }, [gym?.id])
+
+  const handleToggleWishlist = () => {
+    if (!gym) return
+    const updated = toggleWishlist({
+      id: gym.id,
+      type: 'gym',
+      title: gym.name,
+      subtitle: `${gym.city}, ${gym.province}`,
+      image: gym.image,
+      location: gym.address,
+    })
+    setIsWishlisted(updated)
+  }
 
   if (loading && !gym) {
     return (
@@ -74,29 +99,98 @@ export default function GymDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         {/* Left Column (12 cols mobile, 7 cols desktop) */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Hero Banner */}
-          <div className="relative h-64 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-black/10 dark:border-white/10">
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${gym.image})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-granite via-granite/30 to-transparent" />
-
-            {/* Gym name & Rating */}
-            <div className="absolute bottom-4 left-4 right-4 md:left-6 md:right-6">
-              <h1 className="text-chalk font-bold text-2xl md:text-3xl lg:text-4xl">{gym.name}</h1>
-              <div className="flex items-center gap-3 mt-1.5">
-                <div className="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                  <Star size={13} className="text-lime fill-lime" />
-                  <span className="text-chalk font-bold text-sm">{gym.rating}</span>
-                  <span className="text-slate-ash text-xs font-light">({gym.reviewCount} reviews)</span>
-                </div>
-                <div className="flex items-center gap-1 text-slate-ash text-xs font-light bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                  <MapPin size={11} className="text-lime" /> {gym.city}, {gym.province}
+          {/* Gym Title, Rating, and Address ABOVE the photo banner */}
+          <div className="space-y-2">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <h1 className={`font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight ${
+                  isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                }`}>
+                  {gym.name}
+                </h1>
+                <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs">
+                    <Star size={13} className="text-amber-400 fill-amber-400" />
+                    <span className="font-bold text-white">{gym.rating}</span>
+                    <span className="opacity-65 font-light">({gym.reviewCount} reviews)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs opacity-75 font-light">
+                    <MapPin size={13} className="text-[#FF6B00] shrink-0" />
+                    <span>{gym.address || `${gym.city}, ${gym.province}`}</span>
+                  </div>
                 </div>
               </div>
+
+              {/* Save to Wishlist button */}
+              <button
+                type="button"
+                onClick={handleToggleWishlist}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  isWishlisted
+                    ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
+                    : 'border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00]/10'
+                }`}
+                title="Save to Wishlist"
+              >
+                <Heart size={14} className={isWishlisted ? 'fill-rose-400 text-rose-400' : ''} />
+                <span>{isWishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
+              </button>
             </div>
           </div>
+
+          {/* Full-Frame Photo Banner with Slideshow */}
+          {(() => {
+            const gymImages = Array.from(new Set([
+              gym.image,
+              ...(gym.images || []),
+              'https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?auto=format&fit=crop&w=800&q=80',
+            ].filter(Boolean)))
+            return (
+              <div className="relative h-64 sm:h-80 md:h-96 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-white/10 group select-none">
+                <img
+                  src={gymImages[activeImgIndex % gymImages.length]}
+                  alt={gym.name}
+                  className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+
+                {/* Slideshow Arrows & Indicator Dots */}
+                {gymImages.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setActiveImgIndex(i => (i > 0 ? i - 1 : gymImages.length - 1))}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center justify-center transition-all border border-white/20 shadow-md cursor-pointer"
+                      title="Previous image"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveImgIndex(i => (i < gymImages.length - 1 ? i + 1 : 0))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center justify-center transition-all border border-white/20 shadow-md cursor-pointer"
+                      title="Next image"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/20">
+                      {gymImages.map((_, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setActiveImgIndex(idx)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            activeImgIndex === idx ? 'bg-[#FF6B00] scale-125' : 'bg-white/40 hover:bg-white/70'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          })()}
 
           {/* Details Section */}
           <div className="px-4 md:px-0 space-y-6">

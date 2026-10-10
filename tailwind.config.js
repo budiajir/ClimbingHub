@@ -42,8 +42,9 @@ module.exports = {
         'grade-v10plus': '#1D4ED8',
       },
       fontFamily: {
-        sans: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
-        helvetica: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+        sans: ['"BDO Grotesk"', '"BDOGrotesk"', '"Space Grotesk"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
+        helvetica: ['"BDO Grotesk"', '"BDOGrotesk"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+        grotesk: ['"BDO Grotesk"', '"BDOGrotesk"', '"Space Grotesk"', 'sans-serif'],
         mono: ['"SF Mono"', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       fontWeight: {

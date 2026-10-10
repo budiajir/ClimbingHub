@@ -52,6 +52,7 @@ export default function TopBar({
   const [showDrawer, setShowDrawer] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [policyKey, setPolicyKey] = useState<PolicyKey | null>(null)
+  const [activeDropdownKey, setActiveDropdownKey] = useState<string | null>(null)
   const [showRoleSelector, setShowRoleSelector] = useState(false)
 
   const handleNavClick = (href: string) => {
@@ -108,35 +109,36 @@ export default function TopBar({
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-14 md:h-16 grid grid-cols-3 items-center">
-          {/* Left: User Account Button (Sent Cards) */}
+          {/* Left: User Account Button (Personal Account) */}
           <div className="flex items-center justify-start">
             <button
               onClick={() => {
                 if (role === 'guest') {
-                  openAuthModal('Please sign in or register to view your Sent Cards and logged ascents.')
+                  openAuthModal('Please sign in or register to access your Personal Account.')
                 } else {
-                  if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new CustomEvent('open-personal-beta-book'))
-                  }
-                  router.push('/beta?view=my-ascents')
+                  router.push('/account')
                 }
               }}
-              className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center transition-all border ${
+              className={`relative w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all border ${
                 isSandstone
                   ? 'border-[#1a1815]/30 hover:border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
-                  : 'border-white/20 hover:border-lime text-chalk hover:text-lime hover:bg-white/5'
+                  : 'border-white/20 hover:border-[#FF6B00] text-chalk hover:text-[#FF6B00] hover:bg-white/5'
               }`}
-              title={role === 'guest' ? 'Sign In / Sent Cards' : `${user?.name || 'Climber'} · Sent Cards`}
-              aria-label="Sent Cards"
+              title={role === 'guest' ? 'Sign In / Account' : `${user?.name || 'Climber'} · Personal Account`}
+              aria-label="Personal Account"
             >
               {user?.avatar ? (
-                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover rounded-xl" />
+                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover rounded-full" />
               ) : role === 'super_admin' ? (
                 <Crown size={18} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
               ) : role === 'gym_admin' ? (
                 <Store size={18} className={isSandstone ? 'text-[#1a1815]' : 'text-project'} />
               ) : (
                 <Pictogram name="profile-picture" size={20} />
+              )}
+              {/* Notification dot on top-right of profile avatar */}
+              {role !== 'guest' && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
               )}
             </button>
           </div>
@@ -266,48 +268,194 @@ export default function TopBar({
                   </button>
                 </div>
 
-                {/* 2. SEARCH INPUT: Rounded Pill with 'SEARCH' Placeholder */}
+                {/* 2. SEARCH INPUT: Rounded Pill with 'DISCOVER' Placeholder */}
                 <form onSubmit={handleSearchSubmit} className="pt-1">
                   <div className="relative">
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
-                      placeholder="SEARCH"
+                      placeholder="DISCOVER"
                       className={`w-full py-2.5 px-5 text-xs font-normal tracking-widest uppercase rounded-full border outline-none transition-all ${
                         isSandstone
                           ? 'bg-transparent border-[#1a1815]/25 text-[#1a1815] placeholder:text-[#1a1815]/40 focus:border-[#1a1815]'
-                          : 'bg-transparent border-white/20 text-chalk placeholder:text-white/40 focus:border-lime/40'
+                          : 'bg-transparent border-white/20 text-chalk placeholder:text-white/40 focus:border-[#FF6B00]'
                       }`}
                     />
                   </div>
                 </form>
 
-                {/* 3. EDITORIAL TEXT NAVIGATION LINKS */}
-                <nav className="pt-2 sm:pt-4 space-y-3 sm:space-y-4">
+                {/* 3. EDITORIAL ACCORDION DROPDOWN NAVIGATION LINKS */}
+                <nav className="pt-2 sm:pt-4 space-y-3 sm:space-y-4 max-h-[58vh] overflow-y-auto no-scrollbar pr-1">
                   {[
-                    { key: 'faq', label: 'F.A.Q' },
-                    { key: 'privacy', label: 'Privacy' },
-                    { key: 'guideline', label: 'Community Guideline' },
-                    { key: 'cancellation', label: 'Cancellation Policy' },
-                    { key: 'refund', label: 'Refund Policy' },
-                    { key: 'contact', label: 'Contact' },
-                    { key: 'about', label: 'About' },
-                  ].map(item => (
-                    <button
-                      key={item.key}
-                      onClick={() => {
-                        setPolicyKey(item.key as PolicyKey)
-                      }}
-                      className={`block w-full text-left text-[24px] sm:text-[28px] md:text-[30px] font-normal leading-tight tracking-tight transition-all hover:translate-x-1.5 ${
-                        isSandstone
-                          ? 'text-[#1a1815] hover:opacity-60'
-                          : 'text-chalk hover:text-lime'
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
+                    {
+                      key: 'faq',
+                      label: 'F.A.Q',
+                      content: (
+                        <div className="space-y-3 pt-2 text-xs opacity-85 leading-relaxed">
+                          <div>
+                            <p className="font-bold">How do I log a verified ascent?</p>
+                            <p className="font-light mt-0.5">Open Problems, select your completed route, and click Log Ascent. Upload your action photo or video clip to generate your official Send Card.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">Can I add an outdoor crag route?</p>
+                            <p className="font-light mt-0.5">Outdoor crags are curated to maintain topography accuracy and community safety. Submit route additions via + Set New Route.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">How do I book a session pass at a Bouldering Gym?</p>
+                            <p className="font-light mt-0.5">Visit Gyms directory, select preferred date and session slot, and checkout. Your E-Ticket QR is stored directly in your Order Wallet.</p>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'privacy',
+                      label: 'Privacy',
+                      content: (
+                        <div className="space-y-3 pt-2 text-xs opacity-85 leading-relaxed">
+                          <div>
+                            <p className="font-bold">Information We Collect</p>
+                            <p className="font-light mt-0.5">Climber profile details, ascent logs, and gym booking records.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">Media & Video Usage</p>
+                            <p className="font-light mt-0.5">Uploaded photos and videos are strictly used for ascent verification and personal Send Card generation. All copyrights remain 100% with the climber.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">Data Security</p>
+                            <p className="font-light mt-0.5">We never sell personal information to third parties. All transaction records adhere to end-to-end encrypted standards.</p>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'guideline',
+                      label: 'Community Guideline',
+                      content: (
+                        <div className="space-y-3 pt-2 text-xs opacity-85 leading-relaxed">
+                          <div>
+                            <p className="font-bold">Leave No Trace (LNT)</p>
+                            <p className="font-light mt-0.5">Pack out all trash without exception. Never alter natural rock formations or disturb flora surrounding the boulder zones.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">Clean Chalk & Tick Marks</p>
+                            <p className="font-light mt-0.5">Always brush off heavy chalk buildup and tick marks after your session using a soft brush.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">Gym & Crag Etiquette</p>
+                            <p className="font-light mt-0.5">Give space to active climbers, never stand underneath a fall zone, and maintain positive psyche.</p>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'cancellation',
+                      label: 'Cancellation Policy',
+                      content: (
+                        <div className="space-y-3 pt-2 text-xs opacity-85 leading-relaxed">
+                          <div>
+                            <p className="font-bold">Cancellation Deadline</p>
+                            <p className="font-light mt-0.5">Cancellations or reschedule requests can be made up to 24 hours prior to reserved session start time.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">Free Reschedule</p>
+                            <p className="font-light mt-0.5">Every gym pass includes 1 free schedule change to another available slot within 30 days of purchase.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">No-Show Policy</p>
+                            <p className="font-light mt-0.5">Failure to attend without prior notice forfeits the ticket.</p>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'refund',
+                      label: 'Refund Policy',
+                      content: (
+                        <div className="space-y-3 pt-2 text-xs opacity-85 leading-relaxed">
+                          <div>
+                            <p className="font-bold">Full Refund (100%)</p>
+                            <p className="font-light mt-0.5">Provided if facility closure occurs due to gym management decisions or emergency maintenance.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">Processing Timelines</p>
+                            <p className="font-light mt-0.5">Approved refunds are credited back to the original payment method within 3 to 5 business days.</p>
+                          </div>
+                          <div>
+                            <p className="font-bold">Credit Voucher</p>
+                            <p className="font-light mt-0.5">Option for balance credit voucher for future sessions with no expiration date.</p>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'contact',
+                      label: 'Contact',
+                      content: (
+                        <div className="space-y-2 pt-2 text-xs opacity-85 leading-relaxed">
+                          <p className="font-light">Official Support Channels:</p>
+                          <p>
+                            <span className="font-bold">Email: </span>
+                            <a href="mailto:support@jalur.world" className="text-[#FF6B00] underline">
+                              support@jalur.world
+                            </a>
+                          </p>
+                          <p>
+                            <span className="font-bold">Instagram: </span>
+                            <a
+                              href="https://instagram.com/jalur.world"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#FF6B00] underline"
+                            >
+                              @jalur.world
+                            </a>
+                          </p>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'about',
+                      label: 'About',
+                      content: (
+                        <div className="pt-2 text-xs opacity-85 leading-relaxed font-light">
+                          Jalur is a modern bouldering and rock climbing platform uniting outdoor crag guides, technical route betas, verified send logs, gym bookings, and community networking across Indonesia.
+                        </div>
+                      ),
+                    },
+                  ].map(item => {
+                    const isOpen = activeDropdownKey === item.key
+                    return (
+                      <div key={item.key} className="border-b border-white/5 pb-2">
+                        <button
+                          type="button"
+                          onClick={() => setActiveDropdownKey(isOpen ? null : item.key)}
+                          className={`w-full flex items-center justify-between text-left text-[22px] sm:text-[26px] font-normal leading-tight tracking-tight transition-all ${
+                            isSandstone
+                              ? 'text-[#1a1815] hover:opacity-60'
+                              : isOpen
+                              ? 'text-[#FF6B00]'
+                              : 'text-chalk hover:text-[#FF6B00]'
+                          }`}
+                        >
+                          <span>{item.label}</span>
+                          <span className="text-sm opacity-60 font-mono">{isOpen ? '—' : '+'}</span>
+                        </button>
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="overflow-hidden"
+                            >
+                              {item.content}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )
+                  })}
                 </nav>
               </div>
 

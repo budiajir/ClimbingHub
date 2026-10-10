@@ -147,7 +147,7 @@ export default function HeroBanner() {
           >
             <Link
               href={slide.link}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-lime text-granite text-xs sm:text-sm font-bold shadow-lime-glow hover:bg-lime-dim transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FF6B00] text-white text-xs sm:text-sm font-bold shadow-[0_0_15px_rgba(255,107,0,0.35)] hover:bg-[#E5601F] transition-all"
             >
               <span>{slide.ctaText || 'View Details'}</span>
               <ArrowRight size={14} />
@@ -182,7 +182,7 @@ export default function HeroBanner() {
             aria-label={`Go to slide ${idx + 1}`}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               currentIdx === idx
-                ? 'w-6 bg-lime shadow-lime-glow-sm'
+                ? 'w-6 bg-[#FF6B00]'
                 : 'w-2 bg-white/40 hover:bg-white/70'
             }`}
           />

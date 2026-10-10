@@ -20,6 +20,10 @@ import {
   Clock,
   CheckCircle2,
   Camera,
+  Heart,
+  LayoutGrid,
+  List as ListIcon,
+  GalleryHorizontal,
 } from "lucide-react";
 import { useCragRegions, normalizeCragName, insertRoute, insertCragRegion, insertSector } from "@/lib/use-data";
 import { useTheme } from "@/lib/theme-context";
@@ -35,6 +39,7 @@ import { UserAscent, saveUserAscent } from "@/lib/user-ascents";
 import { useAuth } from "@/lib/auth-context";
 import { canLogAscent, canCreateCragRoute } from "@/lib/permissions";
 import Pictogram from "@/components/common/Pictogram";
+import { toggleWishlist, isInWishlist } from "@/lib/wishlist-store";
 
 export default function CragDetailPage() {
   const params = useParams();
@@ -43,6 +48,9 @@ export default function CragDetailPage() {
   const { theme } = useTheme();
   const isSandstone = theme === "sandstone";
   const { role, user, openAuthModal } = useAuth();
+
+  const [problemsViewMode, setProblemsViewMode] = useState<"thumbnail" | "list" | "slide">("thumbnail");
+  const [isCragWishlisted, setIsCragWishlisted] = useState(false);
 
   const rawId = params?.id;
   const paramId = (typeof rawId === "string" ? rawId : Array.isArray(rawId) ? rawId[0] : "") || "";
@@ -208,21 +216,43 @@ export default function CragDetailPage() {
         </Link>
       </div>
 
-      {/* 1. Judul crags naik ke atas & 2. Lokasi 'West Java' di bawah judul crags */}
+      {/* 1. Judul crags naik ke atas & Save to Wishlist Button */}
       <div className="space-y-1 pb-3">
-        <h1
-          className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight ${
-            isSandstone ? "text-[#1a1815]" : "text-chalk"
-          }`}
-        >
-          {crag.name}
-        </h1>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h1
+            className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight ${
+              isSandstone ? "text-[#1a1815]" : "text-chalk"
+            }`}
+          >
+            {crag.name}
+          </h1>
+
+          <button
+            onClick={() => {
+              toggleWishlist({
+                id: crag.id,
+                type: "crag",
+                title: crag.name,
+                subtitle: crag.province,
+                image: crag.image,
+                location: crag.province,
+                savedAt: new Date().toISOString().split("T")[0],
+              });
+              setIsCragWishlisted(!isCragWishlisted);
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white transition-all shadow-sm"
+          >
+            <Heart size={14} className={isCragWishlisted ? "fill-[#FF6B00]" : ""} />
+            <span>{isCragWishlisted ? "Saved to Wishlist" : "Save to Wishlist"}</span>
+          </button>
+        </div>
+
         <div
           className={`flex items-center gap-1.5 text-xs sm:text-sm font-medium ${
             isSandstone ? "text-[#1a1815]/75" : "text-slate-ash"
           }`}
         >
-          <MapPin size={13} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
+          <MapPin size={13} className={isSandstone ? "text-[#1a1815]" : "text-[#FF6B00]"} />
           <span>{crag.province}</span>
         </div>
       </div>
@@ -560,48 +590,62 @@ export default function CragDetailPage() {
             <span className="text-xs opacity-60">Select a sector to filter routes</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {/* All Sectors Option */}
             <div
               onClick={() => setActiveSectorId("all")}
-              className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+              className={`rounded-2xl border cursor-pointer transition-all overflow-hidden flex flex-col justify-between p-3.5 ${
                 activeSectorId === "all"
                   ? isSandstone
                     ? "border-[#1a1815] bg-[#1a1815] text-[#ded3be]"
-                    : "border-lime bg-lime/10 text-lime"
+                    : "border-[#FF6B00] ring-1 ring-[#FF6B00] bg-[#FF6B00]/10 text-white"
                   : isSandstone
                   ? "border-[#1a1815]/15 bg-[#f4efe6] text-[#1a1815]"
-                  : "border-white/10 bg-[#1a1f24] text-chalk"
+                  : "border-white/10 bg-[#1a1f24] text-chalk hover:border-[#FF6B00]/40"
               }`}
             >
-              <div>
-                <div className="font-bold text-xs">All Sectors</div>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase font-bold tracking-wider opacity-70">Overview</span>
+                <ChevronRight size={14} className="text-[#FF6B00]" />
+              </div>
+              <div className="mt-3">
+                <div className="font-bold text-sm">All Sectors</div>
                 <div className="text-[11px] opacity-75">{allProblems.length} Total Routes</div>
               </div>
-              <ChevronRight size={16} />
             </div>
 
             {(crag.sectors || []).map((sector) => {
               const isSelected = activeSectorId === sector.id;
+              const sectorImg = sector.image || crag.image || "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=600&q=80";
               return (
                 <div
                   key={sector.id}
                   onClick={() => setActiveSectorId(sector.id)}
-                  className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+                  className={`rounded-2xl border cursor-pointer transition-all overflow-hidden group ${
                     isSelected
                       ? isSandstone
-                        ? "border-[#1a1815] bg-[#1a1815] text-[#ded3be]"
-                        : "border-lime bg-lime/10 text-lime"
+                        ? "border-[#1a1815] ring-2 ring-[#1a1815]"
+                        : "border-[#FF6B00] ring-2 ring-[#FF6B00]"
                       : isSandstone
-                      ? "border-[#1a1815]/15 bg-[#f4efe6] text-[#1a1815]"
-                      : "border-white/10 bg-[#1a1f24] text-chalk"
+                      ? "border-[#1a1815]/15 hover:border-[#1a1815]/40"
+                      : "border-white/10 hover:border-[#FF6B00]/50"
                   }`}
                 >
-                  <div>
-                    <div className="font-bold text-xs">{sector.name}</div>
-                    <div className="text-[11px] opacity-75">{(sector.problems || []).length} Routes</div>
+                  <div className="h-28 w-full relative overflow-hidden bg-black/40">
+                    <img
+                      src={sectorImg}
+                      alt={sector.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                    <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-white">
+                      <div>
+                        <div className="font-bold text-xs drop-shadow leading-snug">{sector.name}</div>
+                        <div className="text-[10px] text-white/80">{(sector.problems || []).length} Routes</div>
+                      </div>
+                      <ChevronRight size={14} className="text-[#FF6B00] shrink-0" />
+                    </div>
                   </div>
-                  <ChevronRight size={16} />
                 </div>
               );
             })}
@@ -615,100 +659,200 @@ export default function CragDetailPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-base md:text-xl flex items-center gap-2">
-                <Compass size={18} className={isSandstone ? "text-[#1a1815]" : "text-lime"} />
+                <Compass size={18} className="text-[#FF6B00]" />
                 Problems & Climbing Routes
                 <span className="text-xs font-light opacity-65">({filteredProblems.length} routes)</span>
               </h3>
               <p className="text-xs opacity-75 font-light">
-                Click any route to view the full 10-point technical specifications, topo lines, and beta videos.
+                Select any route to view high-res topo lines, technical specs, and beta videos.
               </p>
             </div>
 
-            {/* Category Filter Pills (Lead / Trad / Boulder) */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
-              {(["all", "boulder", "lead", "trad"] as const).map((cat) => (
+            {/* Controls: Category Filter + View Mode Switcher */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Category Filter Pills */}
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+                {(["all", "boulder", "lead", "trad"] as const).map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategoryFilter(cat)}
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                      selectedCategoryFilter === cat
+                        ? "bg-[#FF6B00] text-white border-[#FF6B00]"
+                        : isSandstone
+                        ? "bg-transparent border-[#1a1815]/20 text-[#1a1815]/70"
+                        : "bg-transparent border-white/10 text-slate-ash hover:text-chalk"
+                    }`}
+                  >
+                    {cat === "all" ? "All" : cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* View Mode Switcher */}
+              <div className="flex items-center gap-1 bg-black/20 dark:bg-white/5 p-1 rounded-xl border border-white/10">
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategoryFilter(cat)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border ${
-                    selectedCategoryFilter === cat
-                      ? isSandstone
-                        ? "bg-[#1a1815] text-[#ded3be] border-[#1a1815]"
-                        : "bg-lime text-granite border-lime"
-                      : isSandstone
-                      ? "bg-transparent border-[#1a1815]/20 text-[#1a1815]/70"
-                      : "bg-transparent border-white/10 text-slate-ash hover:text-chalk"
+                  onClick={() => setProblemsViewMode("thumbnail")}
+                  title="Thumbnail View"
+                  className={`p-1.5 rounded-lg transition-all ${
+                    problemsViewMode === "thumbnail"
+                      ? "bg-[#FF6B00] text-white shadow-sm"
+                      : "opacity-60 hover:opacity-100 text-chalk"
                   }`}
                 >
-                  {cat === "all" ? "All Categories" : cat}
+                  <LayoutGrid size={15} />
                 </button>
-              ))}
+                <button
+                  onClick={() => setProblemsViewMode("list")}
+                  title="List View"
+                  className={`p-1.5 rounded-lg transition-all ${
+                    problemsViewMode === "list"
+                      ? "bg-[#FF6B00] text-white shadow-sm"
+                      : "opacity-60 hover:opacity-100 text-chalk"
+                  }`}
+                >
+                  <ListIcon size={15} />
+                </button>
+                <button
+                  onClick={() => setProblemsViewMode("slide")}
+                  title="Slide View"
+                  className={`p-1.5 rounded-lg transition-all ${
+                    problemsViewMode === "slide"
+                      ? "bg-[#FF6B00] text-white shadow-sm"
+                      : "opacity-60 hover:opacity-100 text-chalk"
+                  }`}
+                >
+                  <GalleryHorizontal size={15} />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Problems Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProblems.map((p) => {
-              const category = p.category || (p.discipline === "bouldering" ? "boulder" : "lead");
-              return (
-                <div
-                  key={p.id}
-                  onClick={() => setSelectedProblem(p)}
-                  className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between group touch-ripple ${
-                    isSandstone
-                      ? "bg-[#f4efe6] border-[#1a1815]/15 hover:border-[#1a1815]/50"
-                      : "bg-[#1a1f24] border-white/10 hover:border-lime/40 shadow-sm"
-                  }`}
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
-                          category === "boulder"
-                            ? "bg-cyan-climb/10 border-cyan-climb/30 text-cyan-climb"
-                            : category === "lead"
-                            ? "bg-lime/10 border-lime/30 text-lime"
-                            : "bg-amber-500/10 border-amber-500/30 text-amber-400"
-                        }`}
-                      >
-                        {category}
-                      </span>
-                      <span className="font-mono font-bold text-xs">
+          {/* Render Problems based on View Mode */}
+          {problemsViewMode === "slide" ? (
+            /* Slide View (Horizontal Carousel) */
+            <div className="flex gap-4 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory no-scrollbar">
+              {filteredProblems.map((p) => {
+                const category = p.category || (p.discipline === "bouldering" ? "boulder" : "lead");
+                const routeImg = p.imageUrl || crag.image || "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=600&q=80";
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => setSelectedProblem(p)}
+                    className="min-w-[280px] sm:min-w-[320px] snap-center rounded-2xl border border-white/10 bg-[#1a1f24] overflow-hidden cursor-pointer group hover:border-[#FF6B00]/50 transition-all shadow-md flex flex-col justify-between"
+                  >
+                    <div className="h-44 w-full relative overflow-hidden bg-black/40">
+                      <img
+                        src={routeImg}
+                        alt={p.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[#FF6B00] border border-[#FF6B00]/40">
+                          {category}
+                        </span>
+                      </div>
+                      <div className="absolute top-2.5 right-2.5 font-mono font-bold text-xs px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-white border border-white/20">
                         {p.grade}{p.fontGrade ? ` (${p.fontGrade})` : ""}
-                      </span>
-                    </div>
-
-                    <div>
-                      <h4 className={`font-bold text-base transition-colors group-hover:underline ${
-                        isSandstone ? "text-[#1a1815]" : "text-chalk"
-                      }`}>
-                        {p.name}
-                      </h4>
-                      <div className="text-[11px] opacity-65 font-light mt-0.5">
-                        {p.sectorName || "Crag"} · Setter: {p.setterYear || p.setter}
                       </div>
                     </div>
-
-                    <p className="text-xs opacity-75 font-light line-clamp-2 leading-relaxed">
-                      {p.description}
-                    </p>
+                    <div className="p-3.5 space-y-2">
+                      <div>
+                        <h4 className="font-bold text-base text-chalk group-hover:text-[#FF6B00] transition-colors">{p.name}</h4>
+                        <div className="text-[11px] opacity-65 font-light">{p.sectorName || "Crag"} · Setter: {p.setterYear || p.setter}</div>
+                      </div>
+                      <p className="text-xs opacity-75 font-light line-clamp-2 leading-relaxed">{p.description}</p>
+                      <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
+                        <span className="opacity-70">Height: <b>{p.height || "4m"}</b> · Holds: <b>{p.holdsCount || 12}</b></span>
+                        <span className="font-bold text-[#FF6B00]">View Topo &rarr;</span>
+                      </div>
+                    </div>
                   </div>
-
-                  {/* Route Quick Specs Footer */}
-                  <div className="pt-3 mt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-[11px]">
-                    <span className="opacity-70">
-                      Height: <b className="opacity-100">{p.height || "4m"}</b> · Holds: <b className="opacity-100">{p.holdsCount || 12}</b>
-                    </span>
-                    <span className={`font-bold flex items-center gap-0.5 ${
-                      isSandstone ? "text-[#1a1815]" : "text-lime"
-                    }`}>
-                      View Topo &rarr;
-                    </span>
+                );
+              })}
+            </div>
+          ) : problemsViewMode === "list" ? (
+            /* List View */
+            <div className="space-y-2">
+              {filteredProblems.map((p) => {
+                const category = p.category || (p.discipline === "bouldering" ? "boulder" : "lead");
+                const routeImg = p.imageUrl || crag.image || "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=600&q=80";
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => setSelectedProblem(p)}
+                    className="p-2.5 rounded-2xl border border-white/10 bg-[#1a1f24] hover:border-[#FF6B00]/40 transition-all cursor-pointer flex items-center justify-between gap-3 group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-black/30 border border-white/10">
+                        <img src={routeImg} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-sm text-chalk truncate group-hover:text-[#FF6B00] transition-colors">{p.name}</h4>
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-white/5 border border-white/10 text-white/70">{category}</span>
+                        </div>
+                        <div className="text-[11px] opacity-60 font-light truncate mt-0.5">
+                          {p.sectorName || "Crag"} · {p.height || "4m"} · {p.holdsCount || 12} holds
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="font-mono font-bold text-xs px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-chalk">
+                        {p.grade}{p.fontGrade ? ` (${p.fontGrade})` : ""}
+                      </span>
+                      <ChevronRight size={16} className="text-[#FF6B00]" />
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Thumbnail View (Grid with Photos) */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredProblems.map((p) => {
+                const category = p.category || (p.discipline === "bouldering" ? "boulder" : "lead");
+                const routeImg = p.imageUrl || crag.image || "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=600&q=80";
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => setSelectedProblem(p)}
+                    className="rounded-2xl border border-white/10 bg-[#1a1f24] hover:border-[#FF6B00]/40 transition-all cursor-pointer overflow-hidden group flex flex-col justify-between shadow-sm"
+                  >
+                    <div className="h-36 w-full relative overflow-hidden bg-black/40">
+                      <img
+                        src={routeImg}
+                        alt={p.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      <div className="absolute top-2.5 left-2.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[#FF6B00] border border-[#FF6B00]/40">
+                          {category}
+                        </span>
+                      </div>
+                      <div className="absolute top-2.5 right-2.5 font-mono font-bold text-xs px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-white border border-white/20">
+                        {p.grade}{p.fontGrade ? ` (${p.fontGrade})` : ""}
+                      </div>
+                      <div className="absolute bottom-2 left-3 right-3">
+                        <h4 className="font-bold text-sm text-white drop-shadow group-hover:text-[#FF6B00] transition-colors">{p.name}</h4>
+                        <div className="text-[10px] text-white/70 font-light">{p.sectorName || "Crag"}</div>
+                      </div>
+                    </div>
+                    <div className="p-3 space-y-2">
+                      <p className="text-xs opacity-75 font-light line-clamp-2 leading-relaxed">{p.description}</p>
+                      <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px]">
+                        <span className="opacity-70">Height: <b>{p.height || "4m"}</b> · Holds: <b>{p.holdsCount || 12}</b></span>
+                        <span className="font-bold text-[#FF6B00] flex items-center gap-0.5">
+                          View Topo &rarr;
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 

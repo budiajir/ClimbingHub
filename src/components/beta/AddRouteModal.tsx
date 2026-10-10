@@ -21,9 +21,14 @@ import {
   ArrowRight,
   ArrowLeft,
   AlertCircle,
+  Lock,
+  Bookmark,
+  Save,
 } from 'lucide-react'
 import { RouteDiscipline, Problem, PitchDetail, TopoMarker, CragRegion, cragRegions } from '@/lib/mock-data'
 import { normalizeCragName } from '@/lib/use-data'
+import { useAuth } from '@/lib/auth-context'
+import { saveDraftProblem } from '@/lib/draft-problems-store'
 
 export interface NewRegionData {
   id: string
@@ -59,6 +64,10 @@ export default function AddRouteModal({
   initialSectorId,
   regionsList,
 }: AddRouteModalProps) {
+  const { role, user } = useAuth()
+  const isCuratorOrSetter = role === 'super_admin' || role === 'gym_admin' || user?.handle?.includes('setter') || user?.id === 'owner-1'
+  const [isDraftSaved, setIsDraftSaved] = useState(false)
+
   const availableRegions = regionsList && regionsList.length > 0 ? regionsList : cragRegions
 
   const [modalStep, setModalStep] = useState<'details' | 'topo'>('details')
@@ -157,6 +166,37 @@ export default function AddRouteModal({
   const [activeMarkerTool, setActiveMarkerTool] = useState<'S' | 'B' | 'T'>('B')
 
   const [isSuccess, setIsSuccess] = useState(false)
+
+  // Save Problem As Draft handler
+  const handleSaveAsDraft = () => {
+    const currentCragTitle = isCreatingNewRegion ? newRegionName.trim() || 'New Crag' : currentRegion?.name || 'Crag'
+    const currentSectorTitle = (isCreatingNewSector || isCreatingNewRegion) ? newSectorName.trim() || 'Sector' : currentSector?.name || 'Sector'
+
+    let progress = 20
+    if (name.trim()) progress += 25
+    if (markers.length >= 2) progress += 35
+    if (uploadedImage || imageUrlInput || currentSector?.image) progress += 20
+
+    saveDraftProblem({
+      id: `draft-${Date.now()}`,
+      name: name.trim() || 'Draft Jalur Tanpa Judul',
+      cragName: currentCragTitle,
+      sectorName: currentSectorTitle,
+      grade: discipline === 'bouldering' ? vGrade : grade,
+      discipline,
+      imageUrl: activePhoto,
+      notes: `Draft rute (${markers.length} titik topo). Disimpan pada ${new Date().toLocaleDateString('id-ID')}`,
+      progressPercent: Math.min(progress, 90),
+      savedAt: new Date().toISOString().split('T')[0],
+      isComplete: false,
+    })
+
+    setIsDraftSaved(true)
+    setTimeout(() => {
+      setIsDraftSaved(false)
+      onClose()
+    }, 1600)
+  }
 
   // File upload handler (reads image to base64 Data URL)
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -269,8 +309,19 @@ export default function AddRouteModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) {
-      setModalStep('details')
+
+    // Strict validation for publishing
+    const hasName = name.trim().length > 0
+    const hasCrag = isCreatingNewRegion ? newRegionName.trim().length > 0 : Boolean(currentRegion)
+    const hasSector = (isCreatingNewRegion || isCreatingNewSector) ? newSectorName.trim().length > 0 : Boolean(currentSector)
+    const hasStart = markers.some(m => m.type === 'S')
+    const hasTop = markers.some(m => m.type === 'T')
+    const hasMinMarkers = markers.length >= 2 && hasStart && hasTop
+
+    if (!hasName || !hasCrag || !hasSector || !hasMinMarkers) {
+      setValidationError(
+        'Data jalur belum lengkap untuk dipublish! Wajib mengisi Nama Rute, Sektor, dan minimal 2 titik Topo (Start [S] dan Top [T]). Jika data belum lengkap, silakan simpan sebagai Draft terlebih dahulu.'
+      )
       return
     }
 
@@ -392,23 +443,33 @@ export default function AddRouteModal({
         initial={{ scale: 0.95, opacity: 0, y: 15 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 15 }}
-        className="w-full max-w-2xl bg-crag border border-lime/30 rounded-3xl p-5 md:p-7 shadow-2xl relative my-auto max-h-[94vh] overflow-y-auto no-scrollbar"
+        className="w-full max-w-2xl popup-form-purple rounded-3xl p-5 md:p-7 shadow-2xl relative my-auto max-h-[94vh] overflow-y-auto no-scrollbar"
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-granite flex items-center justify-center text-slate-ash hover:text-chalk transition-colors z-20"
+          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-purple-200 hover:text-white transition-colors z-20"
         >
           <X size={16} />
         </button>
 
-        {isSuccess ? (
+        {isDraftSaved ? (
           <div className="py-12 text-center space-y-3">
-            <div className="w-16 h-16 rounded-full bg-lime/20 border border-lime/40 text-lime flex items-center justify-center mx-auto text-3xl font-bold shadow-lime-glow">
+            <div className="w-16 h-16 rounded-full bg-[#FF6B00]/20 border border-[#FF6B00]/40 text-[#FF6B00] flex items-center justify-center mx-auto text-3xl font-bold">
+              <Bookmark size={36} />
+            </div>
+            <h2 className="text-white font-bold text-2xl">Problem Saved as Draft!</h2>
+            <p className="text-purple-200 text-xs font-light max-w-sm mx-auto">
+              Draft rute <b>{name || 'Tanpa Judul'}</b> telah tersimpan di browser Anda. Anda dapat membuka dan melanjutkannya kembali di menu <b>Personal Account</b>.
+            </p>
+          </div>
+        ) : isSuccess ? (
+          <div className="py-12 text-center space-y-3">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-3xl font-bold">
               <CheckCircle2 size={36} />
             </div>
-            <h2 className="text-chalk font-bold text-2xl">Route & Topo Published!</h2>
-            <p className="text-slate-ash text-xs font-light">
+            <h2 className="text-white font-bold text-2xl">Route & Topo Published!</h2>
+            <p className="text-purple-200 text-xs font-light">
               Route <b>{name}</b> ({discipline.toUpperCase()}) at{' '}
               <b>{isCreatingNewRegion ? newRegionName : currentRegion?.name}</b> ·{' '}
               <b>{isCreatingNewSector || isCreatingNewRegion ? newSectorName : currentSector?.name}</b>{' '}
@@ -417,25 +478,53 @@ export default function AddRouteModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Header Badge */}
+            {/* Header Badge & Action */}
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-lime/10 border border-lime/30 text-lime text-xs font-mono font-light uppercase mb-2">
-                <ShieldCheck size={14} /> Official Curator · Website Admin
+              <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+                <div
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono uppercase ${
+                    isCuratorOrSetter
+                      ? 'bg-purple-500/20 border border-purple-400/40 text-purple-200'
+                      : 'bg-amber-500/20 border border-amber-400/40 text-amber-300'
+                  }`}
+                >
+                  {isCuratorOrSetter ? (
+                    <>
+                      <ShieldCheck size={14} className="text-[#FF6B00]" />
+                      <span>Official Route Setter / Curator</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock size={14} className="text-amber-400" />
+                      <span>Climber Mode (Technical Specs Locked)</span>
+                    </>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSaveAsDraft}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 hover:bg-white/20 border border-purple-400/30 text-purple-200 hover:text-white text-xs font-semibold transition-all active:scale-95"
+                >
+                  <Bookmark size={13} className="text-[#FF6B00]" />
+                  <span>Save Problem As Draft</span>
+                </button>
               </div>
-              <h2 className="text-chalk font-bold text-xl md:text-2xl">
+
+              <h2 className="text-white font-bold text-xl md:text-2xl">
                 Add Route & Draw Cliff Topo
               </h2>
             </div>
 
             {/* STEP TABS: [1. Detail Rute] <-> [2. Foto & Gambar Jalur Topo] */}
-            <div className="grid grid-cols-2 bg-granite p-1 rounded-2xl border border-white/5">
+            <div className="grid grid-cols-2 bg-black/40 p-1 rounded-2xl border border-purple-500/20">
               <button
                 type="button"
                 onClick={() => setModalStep('details')}
                 className={`py-2.5 px-3 text-xs rounded-xl flex items-center justify-center gap-2 transition-all ${
                   modalStep === 'details'
-                    ? 'bg-lime text-granite font-bold shadow-lime-glow-sm'
-                    : 'text-slate-ash hover:text-chalk font-light'
+                    ? 'bg-[#FF6B00] text-white font-bold shadow-md'
+                    : 'text-purple-200 hover:text-white font-normal'
                 }`}
               >
                 <Mountain size={14} />
@@ -446,8 +535,8 @@ export default function AddRouteModal({
                 onClick={handleProceedToTopo}
                 className={`py-2.5 px-3 text-xs rounded-xl flex items-center justify-center gap-2 transition-all ${
                   modalStep === 'topo'
-                    ? 'bg-lime text-granite font-bold shadow-lime-glow-sm'
-                    : 'text-slate-ash hover:text-chalk font-light'
+                    ? 'bg-[#FF6B00] text-white font-bold shadow-md'
+                    : 'text-purple-200 hover:text-white font-normal'
                 }`}
               >
                 <MousePointerClick size={14} />
@@ -698,95 +787,133 @@ export default function AddRouteModal({
 
                 {/* CONDITIONAL TECHNICAL SPECS */}
                 {discipline === 'sport' && (
-                  <div className="bg-granite/80 border border-lime/20 rounded-2xl p-4 space-y-3">
-                    <div className="flex items-center gap-2 text-lime font-bold text-xs uppercase tracking-wider">
-                      <Mountain size={14} /> Sport Climbing Specs (Single Pitch)
+                  <div className="bg-black/30 border border-purple-500/20 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-wider">
+                        <Mountain size={14} className="text-[#FF6B00]" /> Sport Climbing Specs (Single Pitch)
+                      </div>
+                      {!isCuratorOrSetter && (
+                        <span className="flex items-center gap-1 text-[10px] text-amber-300 font-mono bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                          <Lock size={10} /> Locked (Curator Only)
+                        </span>
+                      )}
                     </div>
+
+                    {!isCuratorOrSetter && (
+                      <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-950/70 border border-purple-400/30 text-purple-200 text-[11px]">
+                        <Lock size={13} className="text-[#FF6B00] shrink-0" />
+                        <span>
+                          <strong className="text-white">Route Technical Specs Terkunci:</strong> Karakter & spesifikasi jalur dikunci untuk climber dan hanya dapat diedit oleh Route Setter / Curator terverifikasi demi menjaga validitas jalur.
+                        </span>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">YDS Grade</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">YDS Grade</label>
                         <input
+                          disabled={!isCuratorOrSetter}
                           value={grade}
                           onChange={e => setGrade(e.target.value)}
                           placeholder="5.10c"
-                          className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk font-mono focus:outline-none focus:border-lime/40"
+                          className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">French Grade</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">French Grade</label>
                         <input
+                          disabled={!isCuratorOrSetter}
                           value={fontGrade}
                           onChange={e => setFontGrade(e.target.value)}
                           placeholder="6b"
-                          className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk font-mono focus:outline-none focus:border-lime/40"
+                          className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Pitch Length (m)</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">Pitch Length (m)</label>
                         <input
+                          disabled={!isCuratorOrSetter}
                           value={pitchLength}
                           onChange={e => setPitchLength(e.target.value)}
                           placeholder="24m"
-                          className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-lime/40"
+                          className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Bolt Count</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">Bolt Count</label>
                         <input
+                          disabled={!isCuratorOrSetter}
                           type="number"
                           value={boltCount}
                           onChange={e => setBoltCount(Number(e.target.value))}
                           placeholder="9"
-                          className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-lime/40"
+                          className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="text-[10px] text-slate-ash uppercase block mb-1">Top Anchor Station Type</label>
+                      <label className="text-[10px] text-purple-200 uppercase block mb-1">Top Anchor Station Type</label>
                       <input
+                        disabled={!isCuratorOrSetter}
                         value={anchorType}
                         onChange={e => setAnchorType(e.target.value)}
                         placeholder="Double Ring Chain Anchor / Stainless Steel Carabiners"
-                        className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-lime/40"
+                        className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
                 )}
 
                 {discipline === 'multipitch' && (
-                  <div className="bg-granite/80 border border-project/20 rounded-2xl p-4 space-y-3">
+                  <div className="bg-black/30 border border-purple-500/20 rounded-2xl p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-project font-bold text-xs uppercase tracking-wider">
-                        <Layers size={14} /> Multi-Pitch Specs
+                      <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-wider">
+                        <Layers size={14} className="text-[#FF6B00]" /> Multi-Pitch Specs
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleAddPitch}
-                        className="text-[11px] px-2.5 py-1 bg-project/10 text-project border border-project/30 rounded-lg hover:bg-project/20 transition-colors flex items-center gap-1 font-bold"
-                      >
-                        <Plus size={12} /> Add Pitch
-                      </button>
+                      {isCuratorOrSetter ? (
+                        <button
+                          type="button"
+                          onClick={handleAddPitch}
+                          className="text-[11px] px-2.5 py-1 bg-[#FF6B00]/20 text-white border border-[#FF6B00]/40 rounded-lg hover:bg-[#FF6B00]/30 transition-colors flex items-center gap-1 font-bold"
+                        >
+                          <Plus size={12} /> Add Pitch
+                        </button>
+                      ) : (
+                        <span className="flex items-center gap-1 text-[10px] text-amber-300 font-mono bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                          <Lock size={10} /> Locked (Curator Only)
+                        </span>
+                      )}
                     </div>
+
+                    {!isCuratorOrSetter && (
+                      <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-950/70 border border-purple-400/30 text-purple-200 text-[11px]">
+                        <Lock size={13} className="text-[#FF6B00] shrink-0" />
+                        <span>
+                          <strong className="text-white">Route Technical Specs Terkunci:</strong> Karakter & spesifikasi teknis pitch rute dikunci untuk climber dan hanya dapat diedit oleh Route Setter / Curator terverifikasi.
+                        </span>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Total Height (m)</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">Total Height (m)</label>
                         <input
+                          disabled={!isCuratorOrSetter}
                           value={totalHeight}
                           onChange={e => setTotalHeight(e.target.value)}
                           placeholder="160m"
-                          className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-project/40"
+                          className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Crux Grade</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">Crux Grade</label>
                         <input
+                          disabled={!isCuratorOrSetter}
                           value={grade}
                           onChange={e => setGrade(e.target.value)}
                           placeholder="5.11a"
-                          className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk font-mono focus:outline-none focus:border-project/40"
+                          className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                     </div>
@@ -794,33 +921,36 @@ export default function AddRouteModal({
                     {/* Pitches List */}
                     <div className="space-y-1.5 max-h-36 overflow-y-auto no-scrollbar">
                       {pitches.map((p, idx) => (
-                        <div key={idx} className="flex items-center gap-2 bg-crag p-2 rounded-xl border border-white/5">
-                          <span className="w-6 h-6 rounded bg-granite text-project font-bold text-xs flex items-center justify-center flex-shrink-0">
+                        <div key={idx} className="flex items-center gap-2 bg-black/40 p-2 rounded-xl border border-white/5">
+                          <span className="w-6 h-6 rounded bg-purple-900/60 text-[#FF6B00] font-bold text-xs flex items-center justify-center flex-shrink-0">
                             P{p.pitchNumber}
                           </span>
                           <input
+                            disabled={!isCuratorOrSetter}
                             placeholder="Grade"
                             value={p.grade}
                             onChange={e => handlePitchChange(idx, 'grade', e.target.value)}
-                            className="w-20 bg-granite border border-white/5 rounded px-2 py-1 text-xs text-chalk font-mono focus:outline-none"
+                            className="w-20 bg-white/5 border border-purple-500/20 rounded px-2 py-1 text-xs text-white font-mono focus:outline-none disabled:opacity-50"
                           />
                           <input
+                            disabled={!isCuratorOrSetter}
                             placeholder="Length"
                             value={p.length}
                             onChange={e => handlePitchChange(idx, 'length', e.target.value)}
-                            className="w-20 bg-granite border border-white/5 rounded px-2 py-1 text-xs text-chalk focus:outline-none"
+                            className="w-20 bg-white/5 border border-purple-500/20 rounded px-2 py-1 text-xs text-white focus:outline-none disabled:opacity-50"
                           />
                           <input
+                            disabled={!isCuratorOrSetter}
                             placeholder="Pitch notes"
                             value={p.description}
                             onChange={e => handlePitchChange(idx, 'description', e.target.value)}
-                            className="flex-1 bg-granite border border-white/5 rounded px-2 py-1 text-xs text-chalk focus:outline-none"
+                            className="flex-1 bg-white/5 border border-purple-500/20 rounded px-2 py-1 text-xs text-white focus:outline-none disabled:opacity-50"
                           />
-                          {pitches.length > 1 && (
+                          {isCuratorOrSetter && pitches.length > 1 && (
                             <button
                               type="button"
                               onClick={() => handleRemovePitch(idx)}
-                              className="text-slate-ash hover:text-redpoint p-1"
+                              className="text-purple-300 hover:text-red-400 p-1"
                             >
                               <Trash2 size={13} />
                             </button>
@@ -832,48 +962,68 @@ export default function AddRouteModal({
                 )}
 
                 {discipline === 'bouldering' && (
-                  <div className="bg-granite/80 border border-cyan-climb/20 rounded-2xl p-4 space-y-3">
-                    <div className="flex items-center gap-2 text-cyan-climb font-bold text-xs uppercase tracking-wider">
-                      <Compass size={14} /> Bouldering Specs
+                  <div className="bg-black/30 border border-purple-500/20 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-wider">
+                        <Compass size={14} className="text-[#FF6B00]" /> Bouldering Specs
+                      </div>
+                      {!isCuratorOrSetter && (
+                        <span className="flex items-center gap-1 text-[10px] text-amber-300 font-mono bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                          <Lock size={10} /> Locked (Curator Only)
+                        </span>
+                      )}
                     </div>
+
+                    {!isCuratorOrSetter && (
+                      <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-950/70 border border-purple-400/30 text-purple-200 text-[11px]">
+                        <Lock size={13} className="text-[#FF6B00] shrink-0" />
+                        <span>
+                          <strong className="text-white">Route Technical Specs Terkunci:</strong> Karakter & spesifikasi jalur boulder dikunci untuk climber dan hanya dapat diedit oleh Route Setter / Curator terverifikasi demi menjaga validitas jalur.
+                        </span>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">V-Grade</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">V-Grade</label>
                         <input
+                          disabled={!isCuratorOrSetter}
                           value={vGrade}
                           onChange={e => setVGrade(e.target.value)}
                           placeholder="V5"
-                          className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk font-mono focus:outline-none focus:border-cyan-climb/40"
+                          className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Font Grade</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">Font Grade</label>
                         <input
+                          disabled={!isCuratorOrSetter}
                           value={boulderFont}
                           onChange={e => setBoulderFont(e.target.value)}
                           placeholder="6C"
-                          className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk font-mono focus:outline-none focus:border-cyan-climb/40"
+                          className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Start Type</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">Start Type</label>
                         <select
+                          disabled={!isCuratorOrSetter}
                           value={startType}
                           onChange={e => setStartType(e.target.value as 'Sit Start (SS)' | 'Stand Start')}
-                          className="w-full bg-crag border border-white/10 rounded-xl px-2 py-1.5 text-xs text-chalk focus:outline-none"
+                          className="w-full bg-[#24123a] border border-purple-500/25 rounded-xl px-2 py-1.5 text-xs text-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <option value="Sit Start (SS)">Sit Start (SS)</option>
                           <option value="Stand Start">Stand Start</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-ash uppercase block mb-1">Pad Recommendation</label>
+                        <label className="text-[10px] text-purple-200 uppercase block mb-1">Pad Recommendation</label>
                         <input
+                          disabled={!isCuratorOrSetter}
                           value={padRecommendation}
                           onChange={e => setPadRecommendation(e.target.value)}
                           placeholder="2 Crashpads"
-                          className="w-full bg-crag border border-white/10 rounded-xl px-3 py-1.5 text-xs text-chalk focus:outline-none focus:border-cyan-climb/40"
+                          className="w-full bg-white/5 border border-purple-500/25 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#FF6B00] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                     </div>
@@ -882,21 +1032,40 @@ export default function AddRouteModal({
 
                 {/* Validation Error Message */}
                 {validationError && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-redpoint/10 border border-redpoint/30 text-redpoint text-xs font-light">
-                    <AlertCircle size={15} className="flex-shrink-0" />
-                    <span>{validationError}</span>
+                  <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-red-900/30 border border-red-500/40 text-red-200 text-xs">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle size={15} className="flex-shrink-0 text-red-400" />
+                      <span>{validationError}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleSaveAsDraft}
+                      className="px-2.5 py-1 rounded-lg bg-[#FF6B00] text-white text-[11px] font-bold shrink-0 hover:bg-[#E56000]"
+                    >
+                      Simpan Draft
+                    </button>
                   </div>
                 )}
 
-                {/* Next Step Button */}
-                <button
-                  type="button"
-                  onClick={handleProceedToTopo}
-                  className="w-full py-3.5 bg-lime text-granite font-bold tracking-wide rounded-xl shadow-lime-glow hover:bg-lime-dim transition-all text-xs flex items-center justify-center gap-2 mt-3"
-                >
-                  <span>Continue: Upload Photo & Draw Topo Line</span>
-                  <ArrowRight size={16} />
-                </button>
+                {/* Step 1 Actions */}
+                <div className="flex gap-2.5 mt-3">
+                  <button
+                    type="button"
+                    onClick={handleSaveAsDraft}
+                    className="py-3 px-4 bg-white/10 hover:bg-white/20 border border-purple-400/30 text-purple-200 hover:text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all"
+                  >
+                    <Bookmark size={14} className="text-[#FF6B00]" />
+                    <span>Save Draft</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleProceedToTopo}
+                    className="flex-1 py-3 bg-[#FF6B00] hover:bg-[#E56000] text-white font-bold tracking-wide rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <span>Continue: Photo & Topo</span>
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
               </div>
             )}
 
@@ -1060,7 +1229,7 @@ export default function AddRouteModal({
                     />
                     <div className="absolute inset-0 bg-black/30 pointer-events-none" />
 
-                    {/* CONNECTED SVG NEON TOPO LINE */}
+                    {/* CONNECTED SVG NEON TOPO LINE (Solid straight line) */}
                     {svgPathD && (
                       <svg
                         className="absolute inset-0 w-full h-full pointer-events-none"
@@ -1071,8 +1240,7 @@ export default function AddRouteModal({
                         <path
                           d={svgPathD}
                           stroke={lineColor}
-                          strokeWidth="2"
-                          strokeDasharray="2.5 1.5"
+                          strokeWidth="2.5"
                           strokeLinecap="round"
                           fill="none"
                           style={{
@@ -1082,12 +1250,11 @@ export default function AddRouteModal({
                                 : 'drop-shadow(0 0 6px rgba(204,255,0,0.8))',
                           }}
                         />
-                        {/* Inner crisp line */}
+                        {/* Inner crisp solid line */}
                         <path
                           d={svgPathD}
                           stroke="#FFFFFF"
-                          strokeWidth="0.8"
-                          strokeDasharray="2.5 1.5"
+                          strokeWidth="1"
                           strokeLinecap="round"
                           fill="none"
                         />
@@ -1113,8 +1280,8 @@ export default function AddRouteModal({
                             }}
                             className="absolute pointer-events-none z-20"
                           >
-                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-black/85 border border-project/70 text-project font-mono text-[10px] font-bold shadow-xl">
-                              <span className="w-1.5 h-1.5 rounded-full bg-project" />
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-black/85 border border-[#FF6B00]/70 text-[#FF6B00] font-mono text-[10px] font-bold shadow-xl">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B00]" />
                               <span>Pitch {pitchNum}</span>
                               {pitchInfo && (
                                 <span className="text-white/80 font-normal">
@@ -1154,7 +1321,7 @@ export default function AddRouteModal({
                     {/* Live Instruction Overlay */}
                     <div className="absolute bottom-2 left-3 right-3 pointer-events-none flex justify-between items-center text-[10px] font-mono text-white/90 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15">
                       <span className="flex items-center gap-1.5">
-                        <MousePointerClick size={12} className="text-lime" />
+                        <MousePointerClick size={12} className="text-[#FF6B00]" />
                         Click photo to place{' '}
                         {activeMarkerTool === 'S'
                           ? 'Start Point'
@@ -1164,25 +1331,51 @@ export default function AddRouteModal({
                           ? 'Belay Station'
                           : 'Bolt'}
                       </span>
-                      <span className="text-lime font-bold">{markers.length} Points Placed</span>
+                      <span className="text-[#FF6B00] font-bold">{markers.length} Points Placed</span>
                     </div>
                   </div>
                 </div>
 
+                {/* Validation Error Message in Step 2 */}
+                {validationError && (
+                  <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-red-900/30 border border-red-500/40 text-red-200 text-xs">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle size={15} className="flex-shrink-0 text-red-400" />
+                      <span>{validationError}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleSaveAsDraft}
+                      className="px-2.5 py-1 rounded-lg bg-[#FF6B00] text-white text-[11px] font-bold shrink-0 hover:bg-[#E56000]"
+                    >
+                      Simpan Draft
+                    </button>
+                  </div>
+                )}
+
                 {/* Action Buttons */}
-                <div className="flex gap-3 pt-2">
+                <div className="flex gap-2.5 pt-2">
                   <button
                     type="button"
                     onClick={() => setModalStep('details')}
-                    className="w-1/3 py-3.5 bg-granite border border-white/10 hover:border-lime/30 text-chalk font-light rounded-xl text-xs flex items-center justify-center gap-1.5"
+                    className="py-3 px-4 bg-white/10 border border-purple-400/30 hover:bg-white/20 text-purple-200 hover:text-white rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all"
                   >
-                    <ArrowLeft size={15} />
+                    <ArrowLeft size={14} />
                     <span>Back</span>
                   </button>
 
                   <button
+                    type="button"
+                    onClick={handleSaveAsDraft}
+                    className="py-3 px-4 bg-white/10 border border-purple-400/30 hover:bg-white/20 text-purple-200 hover:text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all"
+                  >
+                    <Bookmark size={14} className="text-[#FF6B00]" />
+                    <span>Save Draft</span>
+                  </button>
+
+                  <button
                     type="submit"
-                    className="w-2/3 py-3.5 bg-lime text-granite font-bold tracking-wide rounded-xl shadow-lime-glow hover:bg-lime-dim transition-all text-xs flex items-center justify-center gap-2"
+                    className="flex-1 py-3 bg-[#FF6B00] hover:bg-[#E56000] text-white font-bold tracking-wide rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-2 active:scale-95"
                   >
                     <CheckCircle2 size={16} />
                     <span>Publish Route & Topo 🚀</span>

@@ -5,6 +5,7 @@ export interface Gym {
   city: string
   province: string
   image: string
+  images?: string[]
   rating: number
   reviewCount: number
   slots: { morning: number; afternoon: number; evening: number }
@@ -123,7 +124,7 @@ export interface Problem {
 
 export interface TopoMarker {
   id: string
-  type: 'S' | 'Z' | 'T' | 'B' | 'P' // S = Start, Z = Crux/Zone, T = Top, B = Bolt, P = Pitch
+  type: 'S' | 'Z' | 'T' | 'B' | 'P' | 'H' // S = Start, Z = Crux/Zone, T = Top, B = Bolt, P = Pitch, H = Hanger
   x: number
   y: number
   label?: string
