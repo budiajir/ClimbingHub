@@ -766,6 +766,8 @@ export default function CragDetailPage() {
           markers={selectedProblem.markers}
           problemId={selectedProblem.id}
           discipline={selectedProblem.discipline}
+          wallHeight={selectedProblem.height || selectedProblem.totalHeight}
+          boltsCount={selectedProblem.boltCount ? `${selectedProblem.boltCount} Bolts` : selectedProblem.padRecommendation}
           onClose={() => setShowLogModal(false)}
           onSubmit={(data) => {
             const saved = saveUserAscent({

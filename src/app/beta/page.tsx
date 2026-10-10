@@ -1427,6 +1427,8 @@ function BetaPageContent() {
             markers={problem.markers}
             problemId={problem.id}
             discipline={problem.discipline || 'bouldering'}
+            wallHeight={problem.height || problem.totalHeight}
+            boltsCount={problem.boltCount ? `${problem.boltCount} Bolts` : problem.padRecommendation}
             onClose={() => setShowLogModal(false)}
             onSubmit={data => {
               const saved = saveUserAscent({

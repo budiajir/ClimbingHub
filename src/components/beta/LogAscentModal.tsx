@@ -21,6 +21,7 @@ import {
   Award,
   ChevronRight,
   Sliders,
+  Lock,
 } from 'lucide-react'
 import { ascentColors, AscentType, gradeColors } from '@/lib/tokens'
 import { TopoMarker } from '@/lib/mock-data'
@@ -91,7 +92,8 @@ export default function LogAscentModal({
   onClose,
   onSubmit,
 }: LogAscentModalProps) {
-  const { user } = useAuth()
+  const { user, role } = useAuth()
+  const isCurator = role === 'super_admin'
 
   // Format initial date & time
   const now = new Date()
@@ -631,7 +633,7 @@ export default function LogAscentModal({
                   </div>
                 </div>
 
-                {/* 5. Route Technical Specs Accordion (Wall Angle, Height, Bolts) */}
+                {/* 5. Route Technical Specs Accordion (Wall Angle, Height, Bolts) - Locked for Climbers */}
                 <div className="rounded-2xl bg-[#20232A] border border-white/5 overflow-hidden">
                   <button
                     type="button"
@@ -639,8 +641,21 @@ export default function LogAscentModal({
                     className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs text-slate-ash hover:text-white transition-colors"
                   >
                     <span className="flex items-center gap-1.5 font-medium">
-                      <Sliders size={13} className="text-[#E6392D]" />
+                      {isCurator ? (
+                        <Sliders size={13} className="text-lime" />
+                      ) : (
+                        <Lock size={13} className="text-amber-400" />
+                      )}
                       <span>Route Technical Specs (Top 4 Pills on Send Card)</span>
+                      {!isCurator ? (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20 font-normal">
+                          Locked
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-lime/10 text-lime border border-lime/20 font-normal">
+                          Curator Edit
+                        </span>
+                      )}
                     </span>
                     <span className="text-[11px] text-slate-ash flex items-center gap-1">
                       {wallAngle} · {wallHeight} · {boltsCount}
@@ -652,37 +667,75 @@ export default function LogAscentModal({
                   </button>
 
                   {showAdvancedSpecs && (
-                    <div className="p-3.5 pt-0 grid grid-cols-3 gap-2 border-t border-white/5 mt-1">
-                      <div>
-                        <label className="block text-slate-ash text-[10px] mb-1">Wall Angle</label>
-                        <input
-                          type="text"
-                          value={wallAngle}
-                          onChange={e => setWallAngle(e.target.value)}
-                          placeholder="110°"
-                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white"
-                        />
+                    <div className="p-3.5 pt-0 border-t border-white/5 mt-1 space-y-2.5">
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="block text-slate-ash text-[10px] mb-1 flex items-center gap-1">
+                            {!isCurator && <Lock size={9} className="text-amber-400/80" />}
+                            Wall Angle
+                          </label>
+                          <input
+                            type="text"
+                            value={wallAngle}
+                            onChange={e => isCurator && setWallAngle(e.target.value)}
+                            disabled={!isCurator}
+                            placeholder="110°"
+                            className={`w-full border rounded-lg px-2 py-1.5 text-xs ${
+                              isCurator
+                                ? 'bg-black/40 border-white/10 text-white focus:outline-none focus:border-lime/50'
+                                : 'bg-black/20 border-white/5 text-white/70 cursor-not-allowed select-none'
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-ash text-[10px] mb-1 flex items-center gap-1">
+                            {!isCurator && <Lock size={9} className="text-amber-400/80" />}
+                            Route Height
+                          </label>
+                          <input
+                            type="text"
+                            value={wallHeight}
+                            onChange={e => isCurator && setWallHeight(e.target.value)}
+                            disabled={!isCurator}
+                            placeholder="12 m"
+                            className={`w-full border rounded-lg px-2 py-1.5 text-xs ${
+                              isCurator
+                                ? 'bg-black/40 border-white/10 text-white focus:outline-none focus:border-lime/50'
+                                : 'bg-black/20 border-white/5 text-white/70 cursor-not-allowed select-none'
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-ash text-[10px] mb-1 flex items-center gap-1">
+                            {!isCurator && <Lock size={9} className="text-amber-400/80" />}
+                            Bolts / Pads
+                          </label>
+                          <input
+                            type="text"
+                            value={boltsCount}
+                            onChange={e => isCurator && setBoltsCount(e.target.value)}
+                            disabled={!isCurator}
+                            placeholder="6 Bolts"
+                            className={`w-full border rounded-lg px-2 py-1.5 text-xs ${
+                              isCurator
+                                ? 'bg-black/40 border-white/10 text-white focus:outline-none focus:border-lime/50'
+                                : 'bg-black/20 border-white/5 text-white/70 cursor-not-allowed select-none'
+                            }`}
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-slate-ash text-[10px] mb-1">Route Height</label>
-                        <input
-                          type="text"
-                          value={wallHeight}
-                          onChange={e => setWallHeight(e.target.value)}
-                          placeholder="12 m"
-                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-slate-ash text-[10px] mb-1">Bolts / Pads</label>
-                        <input
-                          type="text"
-                          value={boltsCount}
-                          onChange={e => setBoltsCount(e.target.value)}
-                          placeholder="6 Bolts"
-                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white"
-                        />
-                      </div>
+
+                      {!isCurator ? (
+                        <p className="text-[10px] text-amber-400/80 font-light flex items-center gap-1.5 bg-amber-400/5 p-2 rounded-lg border border-amber-400/10">
+                          <Lock size={11} className="text-amber-400 flex-shrink-0" />
+                          <span>Spesifikasi teknis jalur ini dikunci untuk climber dan hanya dapat diedit oleh Route Setter / Curator resmi untuk menjaga validitas jalur.</span>
+                        </p>
+                      ) : (
+                        <p className="text-[10px] text-lime/80 font-light flex items-center gap-1.5 bg-lime/5 p-2 rounded-lg border border-lime/10">
+                          <Sliders size={11} className="flex-shrink-0" />
+                          <span>Akses Route Setter / Curator: Anda memiliki izin untuk mengubah spesifikasi teknis jalur ini.</span>
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
