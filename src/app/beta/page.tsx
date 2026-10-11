@@ -18,7 +18,6 @@ import { canLogAscent, canCreateCragRoute } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
 import { UserAscent, getUserAscents, saveUserAscent, deleteUserAscent } from '@/lib/user-ascents'
 import Pictogram from '@/components/common/Pictogram'
-import { toggleWishlist, isInWishlist } from '@/lib/wishlist-store'
 import dynamic from 'next/dynamic'
 
 const InteractiveIndonesiaMap = dynamic(
@@ -217,7 +216,6 @@ function BetaPageContent() {
 
   const [selectedCity, setSelectedCity] = useState<string>('all')
   const [selectedGrade, setSelectedGrade] = useState<string>('all')
-  const [isProblemsWishlisted, setIsProblemsWishlisted] = useState<boolean>(false)
 
   const [showLogModal, setShowLogModal] = useState(false)
   const [activeShareAscent, setActiveShareAscent] = useState<UserAscent | null>(null)
@@ -225,26 +223,6 @@ function BetaPageContent() {
   const [showMyAscentsView, setShowMyAscentsView] = useState(false)
   const [showAddRouteModal, setShowAddRouteModal] = useState(false)
   const [showRoadmapModal, setShowRoadmapModal] = useState(false)
-
-  useEffect(() => {
-    setIsProblemsWishlisted(isInWishlist('problems_collection'))
-    const handleUpdate = () => setIsProblemsWishlisted(isInWishlist('problems_collection'))
-    window.addEventListener('wishlist-updated', handleUpdate)
-    return () => window.removeEventListener('wishlist-updated', handleUpdate)
-  }, [])
-
-  const handleWishlistProblems = () => {
-    const updated = toggleWishlist({
-      id: 'problems_collection',
-      type: 'problem',
-      title: 'Indonesian Climbing Problems',
-      subtitle: `${filteredProblemsList.length} Curated Routes`,
-      image: '/images/indonesia-gyms-map.jpg',
-      location: 'Indonesia',
-      discipline: selectedCategory,
-    })
-    setIsProblemsWishlisted(updated)
-  }
 
   useEffect(() => {
     if (cragRegions && cragRegions.length > 0) {
@@ -626,33 +604,15 @@ function BetaPageContent() {
                 </button>
               </div>
             ) : (
-              /* Headline Row: Clean "Problems" with Wishlist button and View Mode Switcher Icons */
+              /* Headline Row: Clean "Problems" and View Mode Switcher Icons */
               <div className="flex items-center justify-between gap-3 pt-1 pb-1">
-                <div className="flex items-center gap-3">
-                  <h1
-                    className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight ${
-                      isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                    }`}
-                  >
-                    Problems
-                  </h1>
-                  <button
-                    onClick={handleWishlistProblems}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                      isProblemsWishlisted
-                        ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
-                        : 'border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00]/10'
-                    }`}
-                    title="Save to Wishlist"
-                  >
-                    <Pictogram
-                      name={isProblemsWishlisted ? "wishlisted" : "wishlist"}
-                      size={14}
-                      className={isProblemsWishlisted ? "text-rose-400" : "text-[#FF6B00]"}
-                    />
-                    <span className="hidden sm:inline">{isProblemsWishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
-                  </button>
-                </div>
+                <h1
+                  className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight ${
+                    isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                  }`}
+                >
+                  Problems
+                </h1>
 
                 <div className="flex items-center gap-2 sm:gap-3">
                   {/* View Mode Switcher Icons: Slide, Grid, List */}

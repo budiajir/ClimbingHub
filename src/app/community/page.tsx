@@ -19,7 +19,6 @@ import {
 } from 'lucide-react'
 import CommunityDirectory from '@/components/community/CommunityDirectory'
 import { useTheme } from '@/lib/theme-context'
-import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
 import Pictogram from '@/components/common/Pictogram'
 
 interface FriendPost {
@@ -105,7 +104,6 @@ export default function CommunityPage() {
   const [friendSearch, setFriendSearch] = useState('')
   const [posts, setPosts] = useState<FriendPost[]>(INITIAL_FRIEND_POSTS)
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({})
-  const [isWishlisted, setIsWishlisted] = useState(false)
 
   const handleToggleLike = (postId: string) => {
     setPosts(prev =>
@@ -157,40 +155,13 @@ export default function CommunityPage() {
         }`}
       >
         <div>
-          <div className="flex items-center gap-3">
-            <h1
-              className={`font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight ${
-                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-              }`}
-            >
-              Community
-            </h1>
-            <button
-              onClick={() => {
-                const updated = toggleWishlist({
-                  id: 'community_hub',
-                  type: 'community',
-                  title: 'Indonesian Climbing Community Hub',
-                  subtitle: 'Friends timeline and local squads',
-                  image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=800&q=80',
-                  location: 'Indonesia',
-                })
-                setIsWishlisted(updated)
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                isWishlisted
-                  ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
-                  : 'border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00]/10'
-              }`}
-            >
-              <Pictogram
-                name={isWishlisted ? "wishlisted" : "wishlist"}
-                size={14}
-                className={isWishlisted ? "text-rose-400" : "text-[#FF6B00]"}
-              />
-              <span className="hidden sm:inline">{isWishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
-            </button>
-          </div>
+          <h1
+            className={`font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight ${
+              isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+            }`}
+          >
+            Community
+          </h1>
           <p
             className={`text-xs md:text-sm font-light mt-1.5 ${
               isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
