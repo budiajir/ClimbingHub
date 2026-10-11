@@ -25,7 +25,6 @@ import OpenTripModal from "@/components/crag/OpenTripModal";
 import BookTripModal from "@/components/crag/BookTripModal";
 import RentEquipmentModal from "@/components/crag/RentEquipmentModal";
 import dynamic from "next/dynamic";
-import { toggleWishlist, isInWishlist } from "@/lib/wishlist-store";
 import Pictogram from "@/components/common/Pictogram";
 
 const InteractiveIndonesiaMap = dynamic(
@@ -44,11 +43,6 @@ export default function CragsDirectoryPage() {
   const { cragRegions, loading } = useCragRegions();
   const { theme } = useTheme();
   const isSandstone = theme === "sandstone";
-  const [isSavedWishlist, setIsSavedWishlist] = useState(false);
-
-  useEffect(() => {
-    setIsSavedWishlist(isInWishlist("crags-directory"));
-  }, []);
 
   // View Mode: 'list' (default matching user UI) | 'thumbnail' | 'slide'
   const [viewMode, setViewMode] = useState<"list" | "thumbnail" | "slide">("list");
@@ -105,37 +99,13 @@ export default function CragsDirectoryPage() {
       {/* Header Section */}
       <div className="py-2 md:py-6">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <h1
-              className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight ${
-                isSandstone ? "text-[#1a1815]" : "text-chalk"
-              }`}
-            >
-              Crags
-            </h1>
-            <button
-              onClick={() => {
-                toggleWishlist({
-                  id: "crags-directory",
-                  type: "crag",
-                  title: "Outdoor Climbing Crags",
-                  subtitle: "Indonesia Natural Crags Catalog",
-                  image: "/home-hero-bg.jpg",
-                  savedAt: new Date().toISOString().split("T")[0],
-                });
-                setIsSavedWishlist(!isSavedWishlist);
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white transition-all shadow-sm"
-              title="Save to Wishlist"
-            >
-              <Pictogram
-                name={isSavedWishlist ? "wishlisted" : "wishlist"}
-                size={14}
-                className={isSavedWishlist ? "text-[#FF6B00]" : "text-[#FF6B00]"}
-              />
-              <span>{isSavedWishlist ? "Saved to Wishlist" : "Save to Wishlist"}</span>
-            </button>
-          </div>
+          <h1
+            className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight ${
+              isSandstone ? "text-[#1a1815]" : "text-chalk"
+            }`}
+          >
+            Crags
+          </h1>
 
           {/* View Mode Icon Toolbar (Slide, Thumbnail, List matching official Jalur pictograms without background boxes) */}
           <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
