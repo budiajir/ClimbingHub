@@ -17,6 +17,10 @@ export type PictogramName =
   | "beta-cards"
   | "like"
   | "liked"
+  | "wishlist"
+  | "wishlisted"
+  | "wishlist-mark"
+  | "bookmark"
   | "share-link"
   | "shoes"
   | "chalk-bag"
@@ -77,6 +81,12 @@ const ALIASES: Record<string, string> = {
   profile: "profile-picture",
   "profile-picture": "profile-picture",
   account: "profile-picture",
+  wishlist: "wishlist",
+  "wishlist-mark": "wishlist",
+  bookmark: "wishlist",
+  wishlisted: "wishlisted",
+  "wishlist-saved": "wishlisted",
+  "wishlist-filled": "wishlisted",
   "connect-rent-gear": "connect-rent-gear",
   "connect-set-problems": "connect-set-problems",
   "connect-project-sent": "connect-project-sent",

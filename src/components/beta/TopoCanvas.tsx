@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
+import Pictogram from '@/components/common/Pictogram'
 
 interface TopoCanvasProps {
   problem: Problem
@@ -525,7 +526,11 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
                 : 'border-[#FF6B00]/50 hover:bg-[#FF6B00]/10 text-[#FF6B00]'
             }`}
           >
-            <Heart size={14} className={wishlisted ? 'fill-rose-400 text-rose-400' : ''} />
+            <Pictogram
+              name={wishlisted ? "wishlisted" : "wishlist"}
+              size={14}
+              className={wishlisted ? "text-rose-400" : "text-[#FF6B00]"}
+            />
             <span>{wishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
           </button>
         </div>

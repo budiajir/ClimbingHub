@@ -39,6 +39,7 @@ import { getWalletOrders, OrderWalletItem } from '@/lib/wallet-store'
 import { getUserGears, addUserGear, deleteUserGear, UserGearItem } from '@/lib/user-gear-store'
 import { getDraftProblems, DraftProblemItem, deleteDraftProblem } from '@/lib/draft-problems-store'
 import { QRCodeSVG } from 'qrcode.react'
+import Pictogram from '@/components/common/Pictogram'
 
 function PersonalAccountContent() {
   const searchParams = useSearchParams()
@@ -642,7 +643,7 @@ function PersonalAccountContent() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-2xl font-bold tracking-tight text-[#EC4899] flex items-center gap-2">
-              <Heart size={20} className="fill-[#EC4899]" /> Wishlist
+              <Pictogram name="wishlisted" size={20} className="text-[#EC4899]" /> Wishlist
             </h2>
             <p className="text-xs opacity-70">
               Saved crags, boulder problems, and climbing gyms
@@ -697,6 +698,10 @@ function PersonalAccountContent() {
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
+                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[#FF6B00] flex items-center gap-1 border border-[#FF6B00]/30 shadow-sm">
+                      <Pictogram name="wishlisted" size={10} />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Mark</span>
+                    </div>
                     <button
                       onClick={() => removeFromWishlist(item.id)}
                       title="Remove from wishlist"

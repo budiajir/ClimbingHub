@@ -20,6 +20,7 @@ import {
 import CommunityDirectory from '@/components/community/CommunityDirectory'
 import { useTheme } from '@/lib/theme-context'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
+import Pictogram from '@/components/common/Pictogram'
 
 interface FriendPost {
   id: string
@@ -182,7 +183,11 @@ export default function CommunityPage() {
                   : 'border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00]/10'
               }`}
             >
-              <Heart size={14} className={isWishlisted ? 'fill-rose-400 text-rose-400' : ''} />
+              <Pictogram
+                name={isWishlisted ? "wishlisted" : "wishlist"}
+                size={14}
+                className={isWishlisted ? "text-rose-400" : "text-[#FF6B00]"}
+              />
               <span className="hidden sm:inline">{isWishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
             </button>
           </div>

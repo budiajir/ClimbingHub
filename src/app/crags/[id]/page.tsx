@@ -242,7 +242,11 @@ export default function CragDetailPage() {
             }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white transition-all shadow-sm"
           >
-            <Heart size={14} className={isCragWishlisted ? "fill-[#FF6B00]" : ""} />
+            <Pictogram
+              name={isCragWishlisted ? "wishlisted" : "wishlist"}
+              size={14}
+              className={isCragWishlisted ? "text-[#FF6B00]" : "text-[#FF6B00]"}
+            />
             <span>{isCragWishlisted ? "Saved to Wishlist" : "Save to Wishlist"}</span>
           </button>
         </div>

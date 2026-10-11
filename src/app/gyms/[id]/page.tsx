@@ -10,6 +10,7 @@ import { useTheme } from '@/lib/theme-context'
 import SlotPicker, { BookingData } from '@/components/gym/SlotPicker'
 import ETicket from '@/components/gym/ETicket'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
+import Pictogram from '@/components/common/Pictogram'
 
 function generateBookingCode() {
   return 'CH' + Math.random().toString(36).substring(2, 8).toUpperCase()
@@ -132,7 +133,11 @@ export default function GymDetailPage() {
                 }`}
                 title="Save to Wishlist"
               >
-                <Heart size={14} className={isWishlisted ? 'fill-rose-400 text-rose-400' : ''} />
+                <Pictogram
+                  name={isWishlisted ? "wishlisted" : "wishlist"}
+                  size={14}
+                  className={isWishlisted ? "text-rose-400" : "text-[#FF6B00]"}
+                />
                 <span>{isWishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
               </button>
             </div>

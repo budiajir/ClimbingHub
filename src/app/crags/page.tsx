@@ -128,7 +128,11 @@ export default function CragsDirectoryPage() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white transition-all shadow-sm"
               title="Save to Wishlist"
             >
-              <Heart size={14} className={isSavedWishlist ? "fill-[#FF6B00]" : ""} />
+              <Pictogram
+                name={isSavedWishlist ? "wishlisted" : "wishlist"}
+                size={14}
+                className={isSavedWishlist ? "text-[#FF6B00]" : "text-[#FF6B00]"}
+              />
               <span>{isSavedWishlist ? "Saved to Wishlist" : "Save to Wishlist"}</span>
             </button>
           </div>

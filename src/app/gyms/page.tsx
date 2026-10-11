@@ -8,6 +8,7 @@ import { useGyms } from '@/lib/use-data'
 import { useTheme } from '@/lib/theme-context'
 import { Gym } from '@/lib/mock-data'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
+import Pictogram from '@/components/common/Pictogram'
 import dynamic from 'next/dynamic'
 
 const InteractiveIndonesiaMap = dynamic(
@@ -85,7 +86,11 @@ export default function GymsPage() {
             }`}
             title="Save to Wishlist"
           >
-            <Heart size={14} className={isGymWishlisted ? 'fill-rose-400 text-rose-400' : ''} />
+            <Pictogram
+              name={isGymWishlisted ? "wishlisted" : "wishlist"}
+              size={14}
+              className={isGymWishlisted ? "text-rose-400" : "text-[#FF6B00]"}
+            />
             <span className="hidden sm:inline">{isGymWishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
           </button>
         </div>

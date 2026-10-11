@@ -645,7 +645,11 @@ function BetaPageContent() {
                     }`}
                     title="Save to Wishlist"
                   >
-                    <Heart size={14} className={isProblemsWishlisted ? 'fill-rose-400 text-rose-400' : ''} />
+                    <Pictogram
+                      name={isProblemsWishlisted ? "wishlisted" : "wishlist"}
+                      size={14}
+                      className={isProblemsWishlisted ? "text-rose-400" : "text-[#FF6B00]"}
+                    />
                     <span className="hidden sm:inline">{isProblemsWishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
                   </button>
                 </div>
