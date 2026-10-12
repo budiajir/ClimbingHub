@@ -76,7 +76,7 @@ export default function HomePage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/crags" className="group inline-block">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#EC4899] transition-opacity group-hover:opacity-80">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
                 Crags
               </h2>
             </Link>
@@ -170,7 +170,7 @@ export default function HomePage() {
         </section>
 
         {/* PINK DIVIDER LINE */}
-        <div className="border-t border-[#EC4899]/30" />
+        <div className="border-t border-[#F90657]/30" />
 
         {/* ============================================================ */}
         {/* SECTION 2: PROBLEMS                                          */}
@@ -178,7 +178,7 @@ export default function HomePage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/beta" className="group inline-block">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#EC4899] transition-opacity group-hover:opacity-80">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
                 Problems
               </h2>
             </Link>
@@ -344,7 +344,7 @@ export default function HomePage() {
         </section>
 
         {/* PINK DIVIDER LINE */}
-        <div className="border-t border-[#EC4899]/30" />
+        <div className="border-t border-[#F90657]/30" />
 
         {/* ============================================================ */}
         {/* SECTION 3: CLIMBING GYM                                      */}
@@ -352,7 +352,7 @@ export default function HomePage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/gyms" className="group inline-block">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#EC4899] transition-opacity group-hover:opacity-80">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
                 Climbing Gym
               </h2>
             </Link>
@@ -442,7 +442,7 @@ export default function HomePage() {
         </section>
 
         {/* PINK DIVIDER LINE */}
-        <div className="border-t border-[#EC4899]/30" />
+        <div className="border-t border-[#F90657]/30" />
 
         {/* ============================================================ */}
         {/* SECTION 4: COMMUNITY                                         */}
@@ -450,7 +450,7 @@ export default function HomePage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/community" className="group inline-block">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#EC4899] transition-opacity group-hover:opacity-80">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
                 Community
               </h2>
             </Link>

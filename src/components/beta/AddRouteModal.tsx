@@ -1010,7 +1010,7 @@ export default function AddRouteModal({
                           disabled={!isCuratorOrSetter}
                           value={startType}
                           onChange={e => setStartType(e.target.value as 'Sit Start (SS)' | 'Stand Start')}
-                          className="w-full bg-[#24123a] border border-purple-500/25 rounded-xl px-2 py-1.5 text-xs text-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full bg-[#4F1D49] border border-purple-500/25 rounded-xl px-2 py-1.5 text-xs text-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <option value="Sit Start (SS)">Sit Start (SS)</option>
                           <option value="Stand Start">Stand Start</option>

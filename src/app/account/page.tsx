@@ -216,7 +216,7 @@ function PersonalAccountContent() {
       {/* ============================================================ */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-[#EC4899] flex items-center gap-2">
+          <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
             <Sparkles size={20} /> Experience
           </h2>
           <p className="text-xs opacity-70">
@@ -229,7 +229,7 @@ function PersonalAccountContent() {
           {[
             { label: 'Problems Sent', value: experienceData.problemsSent, unit: 'routes', color: 'text-[#FF6B00]' },
             { label: 'Crags Visited', value: experienceData.cragsVisited, unit: 'crags', color: 'text-[#06B6D4]' },
-            { label: 'Gym Visited', value: experienceData.gymVisited, unit: 'gyms', color: 'text-[#EC4899]' },
+            { label: 'Gym Visited', value: experienceData.gymVisited, unit: 'gyms', color: 'text-[#F90657]' },
             { label: 'Friends Connected', value: experienceData.friendsConnected, unit: 'climbers', color: 'text-emerald-400' },
           ].map((stat, i) => (
             <div
@@ -334,7 +334,7 @@ function PersonalAccountContent() {
       </section>
 
       {/* Pink divider */}
-      <div className="border-t border-[#EC4899]/30" />
+      <div className="border-t border-[#F90657]/30" />
 
       {/* ============================================================ */}
       {/* 3. ORDER WALLET (Trip Plan, Rent Gear, Gym Booking)          */}
@@ -342,7 +342,7 @@ function PersonalAccountContent() {
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#EC4899] flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
               <Wallet size={20} /> Order Wallet
             </h2>
             <p className="text-xs opacity-70">
@@ -437,7 +437,7 @@ function PersonalAccountContent() {
       </section>
 
       {/* Pink divider */}
-      <div className="border-t border-[#EC4899]/30" />
+      <div className="border-t border-[#F90657]/30" />
 
       {/* ============================================================ */}
       {/* 4. GEAR SECTION (Ditempatkan sebelum Sent Card)              */}
@@ -445,7 +445,7 @@ function PersonalAccountContent() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#EC4899] flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
               <Layers size={20} /> My Gear Collection
             </h2>
             <p className="text-xs opacity-70">
@@ -498,7 +498,7 @@ function PersonalAccountContent() {
       </section>
 
       {/* Pink divider */}
-      <div className="border-t border-[#EC4899]/30" />
+      <div className="border-t border-[#F90657]/30" />
 
       {/* ============================================================ */}
       {/* 5. SENT CARDS SECTION (View Modes: List, Thumbnail, Full)    */}
@@ -506,7 +506,7 @@ function PersonalAccountContent() {
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#EC4899] flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
               <Award size={20} /> Sent Cards
             </h2>
             <p className="text-xs opacity-70">
@@ -634,7 +634,7 @@ function PersonalAccountContent() {
       </section>
 
       {/* Pink divider */}
-      <div className="border-t border-[#EC4899]/30" />
+      <div className="border-t border-[#F90657]/30" />
 
       {/* ============================================================ */}
       {/* 6. WISHLIST SECTION (Crags, Problems, Gyms)                 */}
@@ -642,8 +642,8 @@ function PersonalAccountContent() {
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#EC4899] flex items-center gap-2">
-              <Pictogram name="wishlisted" size={20} className="text-[#EC4899]" /> Wishlist
+            <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
+              <Pictogram name="wishlisted" size={20} className="text-[#F90657]" /> Wishlist
             </h2>
             <p className="text-xs opacity-70">
               Saved crags, boulder problems, and climbing gyms
@@ -741,14 +741,14 @@ function PersonalAccountContent() {
       </section>
 
       {/* Pink divider */}
-      <div className="border-t border-[#EC4899]/30" />
+      <div className="border-t border-[#F90657]/30" />
 
       {/* ============================================================ */}
       {/* 7. SET PROBLEMS DRAFTS SECTION                                */}
       {/* ============================================================ */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-[#EC4899] flex items-center gap-2">
+          <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
             <FileText size={20} /> Route Drafts (Set Problems)
           </h2>
           <p className="text-xs opacity-70">

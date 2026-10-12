@@ -15,6 +15,8 @@ module.exports = {
         'safety-orange': '#FE7733',
         'neon-sprout': '#FE7733',
         'paper-white': '#FFFFFF',
+        'brand-pink': '#F90657',      // RGB(249, 6, 87)
+        'brand-purple': '#4F1D49',    // RGB(79, 29, 73)
 
         // Theme Mappings
         'granite': '#23262C',       // Graphite 900

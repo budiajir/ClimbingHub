@@ -286,12 +286,12 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-black/40 text-white outline-none focus:border-[#FF6B00]"
                   >
-                    <option value="Bandung" className="bg-[#24123a]">Bandung (Citatah)</option>
-                    <option value="Padang / Harau" className="bg-[#24123a]">Padang / Harau (Sumatera Barat)</option>
-                    <option value="Yogyakarta" className="bg-[#24123a]">Yogyakarta (Siung)</option>
-                    <option value="Purwakarta" className="bg-[#24123a]">Purwakarta (Gn. Parang)</option>
-                    <option value="Jakarta" className="bg-[#24123a]">Jakarta (Drop Point)</option>
-                    <option value="Bali" className="bg-[#24123a]">Bali (Kintamani / Songan)</option>
+                    <option value="Bandung" className="bg-[#4F1D49]">Bandung (Citatah)</option>
+                    <option value="Padang / Harau" className="bg-[#4F1D49]">Padang / Harau (Sumatera Barat)</option>
+                    <option value="Yogyakarta" className="bg-[#4F1D49]">Yogyakarta (Siung)</option>
+                    <option value="Purwakarta" className="bg-[#4F1D49]">Purwakarta (Gn. Parang)</option>
+                    <option value="Jakarta" className="bg-[#4F1D49]">Jakarta (Drop Point)</option>
+                    <option value="Bali" className="bg-[#4F1D49]">Bali (Kintamani / Songan)</option>
                   </select>
                 </div>
                 <div>
@@ -306,10 +306,10 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
                     }}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-black/40 text-white outline-none focus:border-[#FF6B00]"
                   >
-                    <option value="Basecamp Crag (Resmi)" className="bg-[#24123a]">Basecamp Crag (Resmi)</option>
-                    <option value="Homestay Partner" className="bg-[#24123a]">Homestay Partner Terdekat</option>
-                    <option value="Rental Hub Kota" className="bg-[#24123a]">Rental Hub Pusat Kota</option>
-                    <option value="Diantar ke Lokasi (COD)" className="bg-[#24123a]">Diantar ke Lokasi (COD)</option>
+                    <option value="Basecamp Crag (Resmi)" className="bg-[#4F1D49]">Basecamp Crag (Resmi)</option>
+                    <option value="Homestay Partner" className="bg-[#4F1D49]">Homestay Partner Terdekat</option>
+                    <option value="Rental Hub Kota" className="bg-[#4F1D49]">Rental Hub Pusat Kota</option>
+                    <option value="Diantar ke Lokasi (COD)" className="bg-[#4F1D49]">Diantar ke Lokasi (COD)</option>
                   </select>
                 </div>
               </div>

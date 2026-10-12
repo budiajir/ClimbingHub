@@ -222,10 +222,10 @@ body {
   animation: shimmerSweep 4s infinite ease-in-out;
 }
 
-/* Purple Pop Up Modal Container Theme */
+/* Purple Pop Up Modal Container Theme (Ungu: R:79 G:29 B:73 / Pink: R:249 G:6 B:87) */
 .popup-form-purple {
-  background: linear-gradient(180deg, #2D144E 0%, #1E0D36 100%) !important;
-  border-color: rgba(192, 132, 252, 0.3) !important;
+  background: #4F1D49 !important;
+  border-color: rgba(249, 6, 87, 0.3) !important;
   color: #FFFFFF !important;
 }
 

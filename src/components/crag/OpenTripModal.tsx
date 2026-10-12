@@ -421,7 +421,7 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
                 <select
                   value={targetLevel}
                   onChange={(e) => setTargetLevel(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#24123a] border border-purple-500/25 text-white focus:border-[#FF6B00] outline-none transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#4F1D49] border border-purple-500/25 text-white focus:border-[#FF6B00] outline-none transition-all"
                 >
                   <option value="All Levels (Beginner Friendly)">All Levels (Beginner Friendly)</option>
                   <option value="Intermediate (V3 - V5 / 6a - 6c)">Intermediate (V3 - V5 / 6a - 6c)</option>

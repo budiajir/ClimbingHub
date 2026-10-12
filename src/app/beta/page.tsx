@@ -51,11 +51,11 @@ const CATEGORY_THEMES: Record<ProblemCategory, CategoryTheme> = {
   boulder: {
     id: 'boulder',
     label: 'BOULDER',
-    primary: '#83358B', // Ungu / Purple
-    lightText: '#83358B',
+    primary: '#4F1D49', // Ungu / Purple (RGB: 79, 29, 73)
+    lightText: '#4F1D49',
     darkText: '#C084FC',
-    bannerBg: '#83358B',
-    activePillBg: 'bg-[#83358B]',
+    bannerBg: '#4F1D49',
+    activePillBg: 'bg-[#4F1D49]',
     desc: 'Boulder problems has been discovered across Sumatra Island. Explore our findings from the list below',
   },
   lead: {
