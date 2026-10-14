@@ -3,6 +3,29 @@ import { getSupabaseServerClient } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
+}
+
+function jsonResponse(data: any, init?: ResponseInit) {
+  return NextResponse.json(data, {
+    ...init,
+    headers: {
+      ...CORS_HEADERS,
+      ...(init?.headers || {}),
+    },
+  })
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: CORS_HEADERS,
+  })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -10,7 +33,7 @@ export async function POST(request: NextRequest) {
     const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : ''
 
     if (!name || name.length < 2) {
-      return NextResponse.json(
+      return jsonResponse(
         { success: false, message: 'Mohon masukkan nama Anda dengan benar.' },
         { status: 400 }
       )
@@ -18,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!email || !emailRegex.test(email)) {
-      return NextResponse.json(
+      return jsonResponse(
         { success: false, message: 'Mohon masukkan format email yang valid.' },
         { status: 400 }
       )
@@ -37,7 +60,7 @@ export async function POST(request: NextRequest) {
       .select()
 
     if (!waitlistError && waitlistData) {
-      return NextResponse.json({
+      return jsonResponse({
         success: true,
         message: 'Terima kasih! Kamu sudah berhasil terdaftar dalam antrean beta testing Jalur.',
         destination: 'waitlist',
@@ -46,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // If waitlist table exists and returned duplicate key error (code 23505)
     if (waitlistError && waitlistError.code === '23505') {
-      return NextResponse.json({
+      return jsonResponse({
         success: true,
         isExisting: true,
         message: 'Email kamu sudah terdaftar sebelumnya di antrean beta testing Jalur!',
@@ -67,7 +90,7 @@ export async function POST(request: NextRequest) {
       .select()
 
     if (!userError && userData) {
-      return NextResponse.json({
+      return jsonResponse({
         success: true,
         message: 'Terima kasih! Kamu sudah berhasil terdaftar dalam antrean beta testing Jalur.',
         destination: 'users',
@@ -76,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     // If users table returned unique email violation (code 23505)
     if (userError && userError.code === '23505') {
-      return NextResponse.json({
+      return jsonResponse({
         success: true,
         isExisting: true,
         message: 'Email kamu sudah pernah terdaftar di sistem kami!',
@@ -86,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     // If both failed with another error, report failure
     console.error('Waitlist submission error:', { waitlistError, userError })
-    return NextResponse.json(
+    return jsonResponse(
       {
         success: false,
         message: userError?.message || waitlistError?.message || 'Gagal menyimpan data ke database.',
@@ -95,7 +118,7 @@ export async function POST(request: NextRequest) {
     )
   } catch (err: any) {
     console.error('API Waitlist error:', err)
-    return NextResponse.json(
+    return jsonResponse(
       { success: false, message: err?.message || 'Terjadi kesalahan pada server.' },
       { status: 500 }
     )
@@ -113,7 +136,7 @@ export async function GET() {
       .order('created_at', { ascending: false })
 
     if (!waitlistErr && waitlistItems) {
-      return NextResponse.json({
+      return jsonResponse({
         success: true,
         sourceTable: 'waitlist',
         total: waitlistItems.length,
@@ -129,7 +152,7 @@ export async function GET() {
       .order('created_at', { ascending: false })
 
     if (!userErr && guestUsers) {
-      return NextResponse.json({
+      return jsonResponse({
         success: true,
         sourceTable: 'users',
         total: guestUsers.length,
@@ -143,14 +166,14 @@ export async function GET() {
       })
     }
 
-    return NextResponse.json({
+    return jsonResponse({
       success: false,
       message: 'Belum ada data pendaftar.',
       total: 0,
       items: [],
     })
   } catch (err: any) {
-    return NextResponse.json(
+    return jsonResponse(
       { success: false, message: err?.message || 'Gagal mengambil data waitlist' },
       { status: 500 }
     )
