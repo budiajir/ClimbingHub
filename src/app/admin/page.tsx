@@ -2,15 +2,16 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { QrCode, Sliders, Store, ShieldAlert, Lock, ArrowRight, Building2, UserPlus, LogIn, ChevronLeft } from 'lucide-react'
+import { QrCode, Sliders, Store, ShieldAlert, Lock, ArrowRight, Building2, UserPlus, LogIn, ChevronLeft, Users } from 'lucide-react'
 import CashierView from '@/components/admin/CashierView'
 import SlotManager from '@/components/admin/SlotManager'
+import WaitlistView from '@/components/admin/WaitlistView'
 import { useAuth } from '@/lib/auth-context'
 import { canAccessGymAdmin } from '@/lib/permissions'
 import Link from 'next/link'
 import { useTheme } from '@/lib/theme-context'
 
-type AdminTab = 'cashier' | 'slots'
+type AdminTab = 'cashier' | 'slots' | 'waitlist'
 
 export default function AdminDashboardPage() {
   const { role, gymTenant, loginAsGymAdmin } = useAuth()
@@ -180,6 +181,16 @@ export default function AdminDashboardPage() {
           >
             <Sliders size={16} /> Slot & Quota Manager
           </button>
+          <button
+            onClick={() => setActiveTab('waitlist')}
+            className={`flex-1 md:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 text-xs md:text-sm rounded-lg transition-all touch-ripple ${
+              activeTab === 'waitlist'
+                ? 'bg-[#F90657] text-white shadow-md font-bold'
+                : 'text-slate-ash hover:text-chalk font-light'
+            }`}
+          >
+            <Users size={16} /> Beta Leads (Jalur)
+          </button>
         </div>
       </div>
 
@@ -206,6 +217,18 @@ export default function AdminDashboardPage() {
             transition={{ duration: 0.2 }}
           >
             <SlotManager />
+          </motion.div>
+        )}
+
+        {activeTab === 'waitlist' && (
+          <motion.div
+            key="waitlist"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <WaitlistView />
           </motion.div>
         )}
       </AnimatePresence>

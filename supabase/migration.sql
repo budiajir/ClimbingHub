@@ -187,3 +187,19 @@ CREATE POLICY "Allow insert bookings" ON bookings FOR INSERT WITH CHECK (true);
 -- Allow updates for gym slots and route ascents
 CREATE POLICY "Allow update gyms" ON gyms FOR UPDATE USING (true) WITH CHECK (true);
 CREATE POLICY "Allow update routes" ON routes FOR UPDATE USING (true) WITH CHECK (true);
+
+-- ============================================
+-- 10. Beta Testing & Early Access Waitlist (jalur.world)
+-- ============================================
+CREATE TABLE IF NOT EXISTS waitlist (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  source TEXT DEFAULT 'jalur.world',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE waitlist ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read waitlist" ON waitlist FOR SELECT USING (true);
+CREATE POLICY "Allow insert waitlist" ON waitlist FOR INSERT WITH CHECK (true);
+

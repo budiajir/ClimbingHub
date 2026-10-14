@@ -363,6 +363,29 @@ export type Database = {
           status?: string
         }
       }
+      waitlist: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          source: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email: string
+          source?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          source?: string
+          created_at?: string
+        }
+      }
     }
     Enums: {
       route_discipline: RouteDiscipline
