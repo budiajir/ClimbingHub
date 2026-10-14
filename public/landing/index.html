@@ -82,47 +82,49 @@
       position: absolute;
       border-radius: 9999px;
       background: transparent;
-      border: none;
+      border: 1px solid transparent;
       outline: none;
-      padding: 0 16px;
+      padding: 0 20px;
       color: #FAF5EE;
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 500;
       font-family: inherit;
       z-index: 10;
       user-select: text;
       -webkit-user-select: text;
-      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+      caret-color: #F90657;
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .form-input::placeholder {
-      color: rgba(255, 255, 255, 0.28);
+      color: rgba(250, 245, 238, 0.35);
     }
 
     .form-input:focus {
-      background: rgba(0, 0, 0, 0.4);
-      box-shadow: 0 0 0 2px rgba(249, 6, 87, 0.7);
+      background: rgba(0, 0, 0, 0.35);
+      border-color: #F90657;
+      box-shadow: 0 0 12px rgba(249, 6, 87, 0.3);
     }
 
     #inputName {
-      left: 20.9%;
+      left: 25.22%;
       top: 73.05%;
-      width: 68.0%;
-      height: 4.8%;
+      width: 63.65%;
+      height: 4.785%;
     }
 
     #inputEmail {
-      left: 21.0%;
-      top: 79.7%;
-      width: 67.8%;
-      height: 4.9%;
+      left: 25.22%;
+      top: 79.69%;
+      width: 63.65%;
+      height: 4.785%;
     }
 
     .btn-submit {
       position: absolute;
       left: 32.35%;
       top: 89.16%;
-      width: 38.95%;
+      width: 38.78%;
       height: 4.49%;
       border-radius: 9999px;
       background: #C4B59D;
@@ -323,18 +325,18 @@
           type="text"
           id="inputName"
           class="form-input"
-          placeholder="Type your name..."
-          required
+          placeholder="Your name"
           autocomplete="name"
+          spellcheck="false"
         />
 
         <input
           type="email"
           id="inputEmail"
           class="form-input"
-          placeholder="name@email.com"
-          required
+          placeholder="Your email"
           autocomplete="email"
+          spellcheck="false"
         />
 
         <div id="errorBubble" class="error-bubble"></div>

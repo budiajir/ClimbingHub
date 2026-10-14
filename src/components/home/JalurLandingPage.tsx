@@ -189,21 +189,21 @@ export default function JalurLandingPage() {
                   <input
                     type="text"
                     name="name"
-                    required
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value)
                       if (status === 'error') setStatus('idle')
                     }}
-                    placeholder="Type your name..."
+                    placeholder="Your name"
                     disabled={isLoading}
                     autoComplete="name"
-                    className="absolute text-xs sm:text-sm font-medium text-[#FAF5EE] px-4 outline-none rounded-full bg-transparent border-0 focus:ring-2 focus:ring-[#F90657]/70 focus:bg-black/30 transition-all placeholder:text-white/30"
+                    spellCheck={false}
+                    className="absolute text-xs sm:text-sm font-medium text-[#FAF5EE] px-5 sm:px-6 outline-none rounded-full bg-transparent border border-transparent focus:border-[#F90657] focus:bg-black/35 focus:shadow-[0_0_12px_rgba(249,6,87,0.3)] caret-[#F90657] transition-all placeholder:text-[#FAF5EE]/35"
                     style={{
-                      left: '20.9%',
+                      left: '25.22%',
                       top: '73.05%',
-                      width: '68.0%',
-                      height: '4.8%',
+                      width: '63.65%',
+                      height: '4.785%',
                     }}
                   />
 
@@ -211,28 +211,28 @@ export default function JalurLandingPage() {
                   <input
                     type="email"
                     name="email"
-                    required
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value)
                       if (status === 'error') setStatus('idle')
                     }}
-                    placeholder="name@email.com"
+                    placeholder="Your email"
                     disabled={isLoading}
                     autoComplete="email"
-                    className="absolute text-xs sm:text-sm font-medium text-[#FAF5EE] px-4 outline-none rounded-full bg-transparent border-0 focus:ring-2 focus:ring-[#F90657]/70 focus:bg-black/30 transition-all placeholder:text-white/30"
+                    spellCheck={false}
+                    className="absolute text-xs sm:text-sm font-medium text-[#FAF5EE] px-5 sm:px-6 outline-none rounded-full bg-transparent border border-transparent focus:border-[#F90657] focus:bg-black/35 focus:shadow-[0_0_12px_rgba(249,6,87,0.3)] caret-[#F90657] transition-all placeholder:text-[#FAF5EE]/35"
                     style={{
-                      left: '21.0%',
-                      top: '79.7%',
-                      width: '67.8%',
-                      height: '4.9%',
+                      left: '25.22%',
+                      top: '79.69%',
+                      width: '63.65%',
+                      height: '4.785%',
                     }}
                   />
 
                   {/* Error Notification Bubble */}
                   {status === 'error' && (
                     <div
-                      className="absolute left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-red-600/90 text-white text-[10px] font-medium shadow-lg z-20 flex items-center gap-1 max-w-[85%] text-center backdrop-blur-sm pointer-events-none"
+                      className="absolute left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-red-600/90 text-white text-[10px] font-medium shadow-xl z-20 flex items-center gap-1.5 max-w-[85%] text-center backdrop-blur-sm pointer-events-none"
                       style={{ top: '85.4%' }}
                     >
                       <span>⚠️ {message}</span>
@@ -247,7 +247,7 @@ export default function JalurLandingPage() {
                     style={{
                       left: '32.35%',
                       top: '89.16%',
-                      width: '38.95%',
+                      width: '38.78%',
                       height: '4.49%',
                     }}
                   >
