@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>JALUR · Indonesian Climbing & Bouldering Hub</title>
+  <meta name="description" content="JALUR — Indonesian Climbing & Bouldering Community Hub. Our website are (still) under development. Discover soon." />
+  <meta name="theme-color" content="#d5c7b3" />
+  <link rel="icon" type="image/png" href="images/jalur-logo.png" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="JALUR · Indonesian Climbing & Bouldering Hub" />
+  <meta property="og:description" content="Our website are (still) under development. Discover soon." />
+  <meta property="og:image" content="images/slide-1.jpg" />
+  <meta property="og:type" content="website" />
+
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: #000;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       FULL BLEED SEAMLESS ARTWORK STRIP (0 GAP, 0 MARGIN)
+       ═══════════════════════════════════════════════════ */
+    .artwork-strip {
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      line-height: 0;
+      font-size: 0;
+    }
+
+    .artwork-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin: 0;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      outline: none;
+      vertical-align: top;
+      pointer-events: none;
+    }
+
+    .slide-wrap {
+      position: relative;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      line-height: 0;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       INTERACTIVE FORM OVERLAY (MATCHES POSTER ARTWORK)
+       ═══════════════════════════════════════════════════ */
+    .form-input {
+      position: absolute;
+      border-radius: 9999px;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0 16px;
+      color: #FAF5EE;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      z-index: 10;
+      user-select: text;
+      -webkit-user-select: text;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.28);
+    }
+
+    .form-input:focus {
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 2px rgba(249, 6, 87, 0.7);
+    }
+
+    #inputName {
+      left: 20.9%;
+      top: 73.05%;
+      width: 68.0%;
+      height: 4.8%;
+    }
+
+    #inputEmail {
+      left: 21.0%;
+      top: 79.7%;
+      width: 67.8%;
+      height: 4.9%;
+    }
+
+    .btn-submit {
+      position: absolute;
+      left: 32.35%;
+      top: 89.16%;
+      width: 38.95%;
+      height: 4.49%;
+      border-radius: 9999px;
+      background: #C4B59D;
+      border: none;
+      outline: none;
+      color: #1E1119;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      z-index: 10;
+      font-family: inherit;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+    }
+
+    .btn-submit:hover {
+      background: #D4C6AF;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.96);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.75;
+      cursor: wait;
+    }
+
+    .error-bubble {
+      position: absolute;
+      left: 50%;
+      top: 85.5%;
+      transform: translateX(-50%);
+      background: rgba(220, 38, 38, 0.95);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      z-index: 15;
+      display: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .success-card {
+      position: absolute;
+      left: 7%;
+      right: 7%;
+      top: 71%;
+      bottom: 4%;
+      border-radius: 24px;
+      background: rgba(37, 14, 35, 0.96);
+      border: 1px solid rgba(249, 6, 87, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 20px;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 20;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .success-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(249, 6, 87, 0.2);
+      border: 1px solid #F90657;
+      color: #F90657;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .success-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .success-desc {
+      font-size: 11px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.85);
+      max-width: 290px;
+    }
+
+    .btn-reset {
+      margin-top: 4px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #C4B59D;
+      color: #1E1119;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-reset:hover {
+      background: #D4C6AF;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #1E1119;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       FLOATING DOTS NAVIGATION (HANYA TITIK, TANPA BOX)
+       ═══════════════════════════════════════════════════ */
+    .dots-nav {
+      position: fixed;
+      right: max(12px, env(safe-area-inset-right));
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 100;
+      background: transparent;
+      border: none;
+      padding: 0;
+      pointer-events: auto;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .dot:hover {
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    .dot.active {
+      background: #ff6600;
+      transform: scale(1.6);
+      box-shadow: 0 0 6px rgba(255, 102, 0, 0.8);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Navigation Dots -->
+  <nav class="dots-nav" id="dotsNav" aria-label="Slide Indicator">
+    <button class="dot active" data-index="0" title="1. Cover"></button>
+    <button class="dot" data-index="1" title="2. Development"></button>
+    <button class="dot" data-index="2" title="3. Discover"></button>
+    <button class="dot" data-index="3" title="4. Climber"></button>
+    <button class="dot" data-index="4" title="5. Waitlist"></button>
+  </nav>
+
+  <!-- Murni 5 Foto / Artwork Nempel Tanpa Jarak & Tanpa Komponen Ekstra -->
+  <main class="artwork-strip" id="artworkStrip">
+    <img src="images/slide-1.jpg" alt="1. Jalur - Cover Poster" class="artwork-img" id="img-0" />
+    <img src="images/slide-3.png" alt="2. Our Website Are (Still) Under Development" class="artwork-img" id="img-1" loading="lazy" />
+    <img src="images/slide-4.png" alt="3. Discover Soon" class="artwork-img" id="img-2" loading="lazy" />
+    <img src="images/slide-2.jpg" alt="4. Outdoor Bouldering Climber" class="artwork-img" id="img-3" loading="lazy" />
+
+    <!-- Slide 5 with Interactive Waitlist Form Overlay -->
+    <div class="slide-wrap" id="img-4">
+      <img src="images/slide-5.png" alt="5. We'll Let You Know When It's Ready" class="artwork-img" loading="lazy" />
+
+      <!-- Form Overlay -->
+      <form id="waitlistForm" onsubmit="handleWaitlistSubmit(event)" novalidate>
+        <input
+          type="text"
+          id="inputName"
+          class="form-input"
+          placeholder="Type your name..."
+          required
+          autocomplete="name"
+        />
+
+        <input
+          type="email"
+          id="inputEmail"
+          class="form-input"
+          placeholder="name@email.com"
+          required
+          autocomplete="email"
+        />
+
+        <div id="errorBubble" class="error-bubble"></div>
+
+        <button type="submit" id="submitBtn" class="btn-submit">
+          <span id="btnText">Submit</span>
+        </button>
+      </form>
+
+      <!-- Success Confirmation Card Overlay -->
+      <div id="successCard" class="success-card">
+        <div class="success-badge">✓</div>
+        <div class="success-title">You're On The List!</div>
+        <div class="success-desc">
+          Terima kasih, <strong id="successName" style="color: #F90657;"></strong>! Email kamu (<span id="successEmail" style="color: #C4B59D; font-family: monospace;"></span>) telah berhasil tercatat di database antrean beta testing Jalur.
+        </div>
+        <div style="font-size: 10px; color: rgba(255,255,255,0.5);">
+          Kami akan kabari kamu segera setelah web testing dibuka.
+        </div>
+        <button type="button" class="btn-reset" onclick="resetWaitlistForm()">Daftarkan Email Lain</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // 1. Navigation dots scroll handler
+    const images = document.querySelectorAll(".artwork-img, .slide-wrap");
+    const dots = document.querySelectorAll(".dot");
+
+    function scrollToImage(index) {
+      if (images[index]) {
+        images[index].scrollIntoView({ behavior: "smooth" });
+      }
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const index = Array.from(images).indexOf(entry.target);
+          dots.forEach((dot, i) => {
+            dot.classList.toggle("active", i === index);
+          });
+        }
+      });
+    }, {
+      threshold: 0.35,
+      rootMargin: "0px"
+    });
+
+    images.forEach(img => observer.observe(img));
+
+    dots.forEach(dot => {
+      dot.addEventListener("click", () => {
+        const idx = parseInt(dot.dataset.index);
+        scrollToImage(idx);
+      });
+    });
+
+    // 2. Waitlist Form Submission to Supabase & ClimbingHub API
+    const SUPABASE_URL = 'https://ykhgdptnhbahvosfzhfd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlraGdkcHRuaGJhaHZvc2Z6aGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODYzNzEsImV4cCI6MjA5NDg2MjM3MX0.nZ3CqW9QgtVfsmqX6JuKnXMj1l-s8HCoqF6646biQ0s';
+    const VERCEL_API = 'https://climbinghub.vercel.app/api/waitlist';
+
+    async function handleWaitlistSubmit(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById('inputName');
+      const emailInput = document.getElementById('inputEmail');
+      const submitBtn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const errorBubble = document.getElementById('errorBubble');
+      const successCard = document.getElementById('successCard');
+      const successName = document.getElementById('successName');
+      const successEmail = document.getElementById('successEmail');
+
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim().toLowerCase();
+
+      // Client validation
+      if (!name) {
+        showError('Mohon isi nama Anda.');
+        nameInput.focus();
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        showError('Mohon isi format email yang valid.');
+        emailInput.focus();
+        return;
+      }
+
+      hideError();
+      submitBtn.disabled = true;
+      btnText.innerHTML = '<span class="spinner"></span> <span>Submitting...</span>';
+
+      try {
+        let isSaved = false;
+
+        // Try direct Supabase REST insertion
+        try {
+          const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Prefer': 'return=representation'
+            },
+            body: JSON.stringify({
+              name: name,
+              email: email,
+              role: 'guest',
+              grade_max: 'Beta Tester (jalur.world)',
+              ascents_count: 0
+            })
+          });
+
+          if (sbRes.ok || sbRes.status === 201) {
+            isSaved = true;
+          } else if (sbRes.status === 409) {
+            // Already registered
+            isSaved = true;
+          }
+        } catch (sbErr) {
+          console.warn('Supabase direct attempt error, falling back to Vercel API:', sbErr);
+        }
+
+        // Secondary fallback to Vercel API
+        if (!isSaved) {
+          const apiRes = await fetch(VERCEL_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email })
+          });
+          const apiData = await apiRes.json();
+          if (apiRes.ok && apiData.success) {
+            isSaved = true;
+          }
+        }
+
+        if (isSaved) {
+          successName.textContent = name;
+          successEmail.textContent = email;
+          successCard.style.display = 'flex';
+          nameInput.value = '';
+          emailInput.value = '';
+        } else {
+          showError('Gagal menyimpan pendaftaran. Silakan coba kembali.');
+        }
+      } catch (err) {
+        showError('Terjadi gangguan jaringan. Silakan coba kembali.');
+      } finally {
+        submitBtn.disabled = false;
+        btnText.innerHTML = 'Submit';
+      }
+    }
+
+    function showError(msg) {
+      const errorBubble = document.getElementById('errorBubble');
+      errorBubble.textContent = '⚠️ ' + msg;
+      errorBubble.style.display = 'block';
+    }
+
+    function hideError() {
+      const errorBubble = document.getElementById('errorBubble');
+      errorBubble.style.display = 'none';
+    }
+
+    function resetWaitlistForm() {
+      document.getElementById('successCard').style.display = 'none';
+      document.getElementById('inputName').value = '';
+      document.getElementById('inputEmail').value = '';
+      hideError();
+    }
+  </script>
+
+</body>
+</html>
