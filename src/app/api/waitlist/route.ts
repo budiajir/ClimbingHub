@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     if (!name || name.length < 2) {
       return jsonResponse(
-        { success: false, message: 'Mohon masukkan nama Anda dengan benar.' },
+        { success: false, message: 'Please enter your name.' },
         { status: 400 }
       )
     }
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!email || !emailRegex.test(email)) {
       return jsonResponse(
-        { success: false, message: 'Mohon masukkan format email yang valid.' },
+        { success: false, message: 'Please enter a valid email address.' },
         { status: 400 }
       )
     }
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     if (!waitlistError && waitlistData) {
       return jsonResponse({
         success: true,
-        message: 'Terima kasih! Kamu sudah berhasil terdaftar dalam antrean beta testing Jalur.',
+        message: 'Thank you! You have been successfully added to the Jalur beta testing waitlist.',
         destination: 'waitlist',
       })
     }
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       return jsonResponse({
         success: true,
         isExisting: true,
-        message: 'Email kamu sudah terdaftar sebelumnya di antrean beta testing Jalur!',
+        message: 'Your email is already registered on the Jalur beta testing waitlist!',
         destination: 'waitlist',
       })
     }
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     if (!userError && userData) {
       return jsonResponse({
         success: true,
-        message: 'Terima kasih! Kamu sudah berhasil terdaftar dalam antrean beta testing Jalur.',
+        message: 'Thank you! You have been successfully added to the Jalur beta testing waitlist.',
         destination: 'users',
       })
     }
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       return jsonResponse({
         success: true,
         isExisting: true,
-        message: 'Email kamu sudah pernah terdaftar di sistem kami!',
+        message: 'Your email is already registered in our system!',
         destination: 'users',
       })
     }
@@ -112,14 +112,14 @@ export async function POST(request: NextRequest) {
     return jsonResponse(
       {
         success: false,
-        message: userError?.message || waitlistError?.message || 'Gagal menyimpan data ke database.',
+        message: userError?.message || waitlistError?.message || 'Failed to save data to database.',
       },
       { status: 500 }
     )
   } catch (err: any) {
     console.error('API Waitlist error:', err)
     return jsonResponse(
-      { success: false, message: err?.message || 'Terjadi kesalahan pada server.' },
+      { success: false, message: err?.message || 'An error occurred on the server.' },
       { status: 500 }
     )
   }
@@ -168,13 +168,13 @@ export async function GET() {
 
     return jsonResponse({
       success: false,
-      message: 'Belum ada data pendaftar.',
+      message: 'No registered waitlist entries found.',
       total: 0,
       items: [],
     })
   } catch (err: any) {
     return jsonResponse(
-      { success: false, message: err?.message || 'Gagal mengambil data waitlist' },
+      { success: false, message: err?.message || 'Failed to fetch waitlist entries.' },
       { status: 500 }
     )
   }

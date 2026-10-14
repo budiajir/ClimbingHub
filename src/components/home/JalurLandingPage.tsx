@@ -52,12 +52,12 @@ export default function JalurLandingPage() {
     e.preventDefault()
     if (!name.trim()) {
       setStatus('error')
-      setMessage('Mohon isi nama Anda.')
+      setMessage('Please enter your name.')
       return
     }
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       setStatus('error')
-      setMessage('Mohon isi format email yang valid.')
+      setMessage('Please enter a valid email address.')
       return
     }
 
@@ -82,11 +82,11 @@ export default function JalurLandingPage() {
         setEmail('')
       } else {
         setStatus('error')
-        setMessage(data.message || 'Gagal menyimpan pendaftaran.')
+        setMessage(data.message || 'Failed to submit. Please try again.')
       }
     } catch {
       setStatus('error')
-      setMessage('Terjadi kendala jaringan. Silakan coba kembali.')
+      setMessage('Network error. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -155,31 +155,28 @@ export default function JalurLandingPage() {
                 draggable={false}
               />
 
-              {/* Interactive Form Form Layer */}
+              {/* Interactive Form Layer */}
               {status === 'success' ? (
-                /* Success Confirmation Card Overlay */
+                /* Success Confirmation Card Overlay (Left-aligned, full English, BDO Grotesk, NO checkmark badge) */
                 <div
-                  className="absolute inset-x-[7%] rounded-3xl p-5 sm:p-6 text-center flex flex-col items-center justify-center gap-2.5 shadow-2xl backdrop-blur-md bg-[#250E23]/95 border border-[#F90657]/50 animate-fade-in z-20"
-                  style={{ top: '71%', bottom: '4%' }}
+                  className="absolute inset-x-[6%] rounded-3xl p-6 text-left flex flex-col items-start justify-center gap-2.5 shadow-2xl backdrop-blur-md bg-[#250E23]/98 border border-[#F90657]/45 animate-fade-in z-20 font-['BDO_Grotesk','BDOGrotesk','Space_Grotesk',sans-serif]"
+                  style={{ top: '70%', bottom: '3.5%' }}
                 >
-                  <div className="w-10 h-10 rounded-full bg-[#F90657]/20 border border-[#F90657] text-[#F90657] flex items-center justify-center text-xl font-bold">
-                    ✓
-                  </div>
-                  <h4 className="font-bold text-sm sm:text-base text-white tracking-tight">
-                    You&apos;re On The List!
+                  <h4 className="font-bold text-base sm:text-lg text-white tracking-tight">
+                    You&apos;re on the list!
                   </h4>
-                  <p className="text-[11px] sm:text-xs text-white/85 leading-relaxed max-w-xs">
-                    Terima kasih, <span className="font-bold text-[#F90657]">{submittedName}</span>! Email kamu (<span className="text-[#C4B59D] font-mono">{submittedEmail}</span>) telah berhasil tercatat di database antrean beta testing Jalur.
+                  <p className="text-xs sm:text-[13px] text-white/90 leading-relaxed">
+                    Thank you, <span className="font-bold text-[#F90657]">{submittedName}</span>! Your email (<span className="text-[#C4B59D] font-mono">{submittedEmail}</span>) has been recorded in our beta testing waitlist.
                   </p>
-                  <p className="text-[10px] text-white/50">
-                    Kami akan kabari kamu segera setelah web testing dibuka.
+                  <p className="text-[11px] text-white/60">
+                    We will notify you as soon as Jalur is ready for testing.
                   </p>
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="mt-1 px-4 py-1.5 rounded-full text-[11px] font-bold bg-[#C4B59D] hover:bg-[#D4C6AF] text-[#1E1119] transition-all shadow-md active:scale-95"
+                    className="mt-1 px-5 py-2 rounded-full text-xs font-bold bg-[#C4B59D] hover:bg-[#D4C6AF] text-[#1E1119] transition-all shadow-md active:scale-95"
                   >
-                    Daftarkan Email Lain
+                    Register Another Email
                   </button>
                 </div>
               ) : (
@@ -198,12 +195,13 @@ export default function JalurLandingPage() {
                     disabled={isLoading}
                     autoComplete="name"
                     spellCheck={false}
-                    className="absolute text-xs sm:text-sm font-medium text-[#FAF5EE] px-5 sm:px-6 outline-none rounded-full bg-transparent border border-transparent focus:border-[#F90657] focus:bg-black/35 focus:shadow-[0_0_12px_rgba(249,6,87,0.3)] caret-[#F90657] transition-all placeholder:text-[#FAF5EE]/35"
+                    className="absolute text-base font-normal text-[#FAF5EE] px-5 sm:px-6 outline-none rounded-full bg-[#461C2A] border border-[rgba(220,205,195,0.45)] focus:border-[#F90657] focus:bg-[#3B1623] focus:shadow-[0_0_10px_rgba(249,6,87,0.35)] caret-[#F90657] transition-all placeholder:text-[#FAF5EE]/40 font-['BDO_Grotesk','BDOGrotesk','Space_Grotesk',sans-serif]"
                     style={{
                       left: '25.22%',
                       top: '73.05%',
                       width: '63.65%',
                       height: '4.785%',
+                      fontSize: '16px', // Prevents iOS Safari auto-zoom
                     }}
                   />
 
@@ -220,19 +218,20 @@ export default function JalurLandingPage() {
                     disabled={isLoading}
                     autoComplete="email"
                     spellCheck={false}
-                    className="absolute text-xs sm:text-sm font-medium text-[#FAF5EE] px-5 sm:px-6 outline-none rounded-full bg-transparent border border-transparent focus:border-[#F90657] focus:bg-black/35 focus:shadow-[0_0_12px_rgba(249,6,87,0.3)] caret-[#F90657] transition-all placeholder:text-[#FAF5EE]/35"
+                    className="absolute text-base font-normal text-[#FAF5EE] px-5 sm:px-6 outline-none rounded-full bg-[#461C2A] border border-[rgba(220,205,195,0.45)] focus:border-[#F90657] focus:bg-[#3B1623] focus:shadow-[0_0_10px_rgba(249,6,87,0.35)] caret-[#F90657] transition-all placeholder:text-[#FAF5EE]/40 font-['BDO_Grotesk','BDOGrotesk','Space_Grotesk',sans-serif]"
                     style={{
                       left: '25.22%',
                       top: '79.69%',
                       width: '63.65%',
                       height: '4.785%',
+                      fontSize: '16px', // Prevents iOS Safari auto-zoom
                     }}
                   />
 
                   {/* Error Notification Bubble */}
                   {status === 'error' && (
                     <div
-                      className="absolute left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-red-600/90 text-white text-[10px] font-medium shadow-xl z-20 flex items-center gap-1.5 max-w-[85%] text-center backdrop-blur-sm pointer-events-none"
+                      className="absolute left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-red-600/90 text-white text-[10px] font-medium shadow-xl z-20 flex items-center gap-1.5 max-w-[85%] text-center backdrop-blur-sm pointer-events-none font-['BDO_Grotesk','BDOGrotesk','Space_Grotesk',sans-serif]"
                       style={{ top: '85.4%' }}
                     >
                       <span>⚠️ {message}</span>
@@ -243,7 +242,7 @@ export default function JalurLandingPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="absolute rounded-full text-xs sm:text-sm font-bold tracking-wider text-[#1E1119] bg-[#C4B59D] hover:bg-[#D4C6AF] active:scale-95 transition-all shadow-md flex items-center justify-center cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+                    className="absolute rounded-full text-xs sm:text-sm font-bold tracking-wider text-[#1E1119] bg-[#C4B59D] hover:bg-[#D4C6AF] active:scale-95 transition-all shadow-md flex items-center justify-center cursor-pointer disabled:opacity-75 disabled:cursor-wait font-['BDO_Grotesk','BDOGrotesk','Space_Grotesk',sans-serif]"
                     style={{
                       left: '32.35%',
                       top: '89.16%',
