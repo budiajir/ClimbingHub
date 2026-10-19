@@ -157,27 +157,31 @@ export default function JalurLandingPage() {
 
               {/* Interactive Form Layer */}
               {status === 'success' ? (
-                /* Success Confirmation Card Overlay (Left-aligned, full English, BDO Grotesk, NO checkmark badge) */
+                /* Success Confirmation Card Overlay (Left-aligned, full English, BDO Grotesk, Centered button) */
                 <div
-                  className="absolute inset-x-[6%] rounded-3xl p-6 text-left flex flex-col items-start justify-center gap-2.5 shadow-2xl backdrop-blur-md bg-[#250E23]/98 border border-[#F90657]/45 animate-fade-in z-20 font-['BDO_Grotesk','BDOGrotesk','Space_Grotesk',sans-serif]"
-                  style={{ top: '70%', bottom: '3.5%' }}
+                  className="absolute inset-x-[5%] rounded-2xl px-5 py-4 text-left flex flex-col justify-between items-stretch shadow-2xl backdrop-blur-md bg-[#1E0A18]/97 border border-[#F90657]/45 animate-fade-in z-20 font-['BDO_Grotesk','BDOGrotesk','Space_Grotesk',sans-serif] overflow-hidden box-border"
+                  style={{ top: '66%', bottom: '2%' }}
                 >
-                  <h4 className="font-bold text-base sm:text-lg text-white tracking-tight">
-                    You&apos;re on the list!
-                  </h4>
-                  <p className="text-xs sm:text-[13px] text-white/90 leading-relaxed">
-                    Thank you, <span className="font-bold text-[#F90657]">{submittedName}</span>! Your email (<span className="text-[#C4B59D] font-mono">{submittedEmail}</span>) has been recorded in our beta testing waitlist.
-                  </p>
-                  <p className="text-[11px] text-white/60">
-                    We will notify you as soon as Jalur is ready for testing.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="mt-1 px-5 py-2 rounded-full text-xs font-bold bg-[#C4B59D] hover:bg-[#D4C6AF] text-[#1E1119] transition-all shadow-md active:scale-95"
-                  >
-                    Register Another Email
-                  </button>
+                  <div className="flex flex-col gap-1.5 text-left">
+                    <h4 className="font-bold text-base text-white tracking-tight leading-tight">
+                      You&apos;re on the list!
+                    </h4>
+                    <p className="text-xs text-white/90 leading-relaxed break-words">
+                      Thank you, <span className="font-bold text-[#F90657]">{submittedName}</span>! Your email (<span className="text-[#E6D8C3] font-medium break-all">{submittedEmail}</span>) has been recorded in our beta testing waitlist.
+                    </p>
+                    <p className="text-[11px] text-white/60 leading-normal">
+                      We will notify you as soon as Jalur is ready for testing.
+                    </p>
+                  </div>
+                  <div className="flex justify-center items-center w-full mt-2">
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      className="px-5 py-2 rounded-full text-xs font-bold bg-[#C4B59D] hover:bg-[#D4C6AF] text-[#1E1119] transition-all shadow-md active:scale-95 text-center"
+                    >
+                      Register Another Email
+                    </button>
+                  </div>
                 </div>
               ) : (
                 /* Interactive Form Fields Overlay */

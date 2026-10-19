@@ -224,50 +224,86 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
 
-    /* Left-aligned, BDO Grotesk, clean English Success Card (NO checkmark badge) */
+    /* Clean English Success Card (BDO Grotesk, Left-aligned text, Centered Button, No text overflow) */
     .success-card {
       position: absolute;
-      left: 6%;
-      right: 6%;
-      top: 70%;
-      bottom: 3.5%;
-      border-radius: 24px;
-      background: rgba(35, 12, 30, 0.98);
-      border: 1.5px solid rgba(249, 6, 87, 0.45);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 22px 24px;
+      left: 5%;
+      right: 5%;
+      top: 66%;
+      bottom: 2%;
+      border-radius: 20px;
+      background: rgba(30, 10, 24, 0.97);
+      border: 1px solid rgba(249, 6, 87, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 16px 20px 14px 20px;
       text-align: left;
       display: none;
       flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 9px;
+      justify-content: space-between;
+      align-items: stretch;
       z-index: 20;
       box-shadow: 0 12px 36px rgba(0,0,0,0.85);
       user-select: text;
       -webkit-user-select: text;
       font-family: 'BDO Grotesk', 'BDOGrotesk', 'Space Grotesk', -apple-system, sans-serif;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .success-content {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      text-align: left;
     }
 
     .success-title {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 700;
       color: #FFFFFF;
       letter-spacing: -0.01em;
       margin: 0;
+      line-height: 1.25;
     }
 
     .success-desc {
       font-size: 12px;
-      line-height: 1.55;
-      color: rgba(255, 255, 255, 0.88);
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .success-name {
+      color: #F90657;
+      font-weight: 700;
+    }
+
+    .success-email {
+      color: #E6D8C3;
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    .success-sub {
+      font-size: 11px;
+      line-height: 1.35;
+      color: rgba(255, 255, 255, 0.6);
       margin: 0;
     }
 
+    .success-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-top: 8px;
+    }
+
     .btn-reset {
-      margin-top: 4px;
-      padding: 7px 18px;
+      margin: 0 auto;
+      padding: 7px 22px;
       border-radius: 9999px;
       font-size: 12px;
       font-weight: 700;
@@ -278,6 +314,10 @@
       font-family: inherit;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       transition: background-color 0.15s ease, transform 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
 
     .btn-reset:hover {
@@ -392,16 +432,20 @@
         </button>
       </form>
 
-      <!-- Success Confirmation Card Overlay (Left-aligned, full English, BDO Grotesk) -->
+      <!-- Success Confirmation Card Overlay (Left-aligned, full English, BDO Grotesk, Centered button) -->
       <div id="successCard" class="success-card">
-        <h4 class="success-title">You're on the list!</h4>
-        <p class="success-desc">
-          Thank you, <strong id="successName" style="color: #F90657;"></strong>! Your email (<span id="successEmail" style="color: #C4B59D; font-family: monospace;"></span>) has been recorded in our beta testing waitlist.
-        </p>
-        <p style="font-size: 11px; color: rgba(255,255,255,0.6); margin: 0; line-height: 1.4;">
-          We will notify you as soon as Jalur is ready for testing.
-        </p>
-        <button type="button" class="btn-reset" onclick="resetWaitlistForm()">Register Another Email</button>
+        <div class="success-content">
+          <h4 class="success-title">You're on the list!</h4>
+          <p class="success-desc">
+            Thank you, <strong id="successName" class="success-name"></strong>! Your email (<span id="successEmail" class="success-email"></span>) has been recorded in our beta testing waitlist.
+          </p>
+          <p class="success-sub">
+            We will notify you as soon as Jalur is ready for testing.
+          </p>
+        </div>
+        <div class="success-actions">
+          <button type="button" class="btn-reset" onclick="resetWaitlistForm()">Register Another Email</button>
+        </div>
       </div>
     </div>
   </main>
