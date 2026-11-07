@@ -1,7 +1,7 @@
 'use client'
 
-export type OrderType = 'gym' | 'rent' | 'trip'
-export type OrderStatus = 'active' | 'history'
+export type OrderType = 'gym' | 'rent' | 'trip' | 'event'
+export type OrderStatus = 'draft' | 'active' | 'history'
 
 export interface OrderWalletItem {
   id: string
@@ -22,6 +22,62 @@ export interface OrderWalletItem {
 }
 
 const DEFAULT_ORDERS: OrderWalletItem[] = [
+  // 1. DRAFT PURCHASING ACTIVITIES (Unfinished / Pending Checkout)
+  {
+    id: 'ord-draft-1',
+    type: 'gym',
+    status: 'draft',
+    title: 'Peak to Peak Bouldering — Single Entry Pass',
+    categoryLabel: 'Gym Booking',
+    venueOrLocation: 'Tangerang Selatan, Banten',
+    bookingCode: 'DFT-PP2091',
+    date: 'Saturday, 2 May 2026',
+    time: '14:00 – 18:00 (Afternoon Slot)',
+    totalPrice: 135000,
+    quantity: 1,
+    details: {
+      step: 'Awaiting Payment Confirmation',
+      items: ['Day Pass (1x)', 'Rental Climbing Shoes (1x)'],
+      expiresIn: '23h 40m',
+    },
+    createdAt: '2026-04-14',
+  },
+  {
+    id: 'ord-draft-2',
+    type: 'rent',
+    status: 'draft',
+    title: 'Citatah Outdoor Bouldering Crash Pad Rental',
+    categoryLabel: 'Rent Gear',
+    venueOrLocation: 'Basecamp Padalarang, Bandung Barat',
+    bookingCode: 'DFT-RG8812',
+    date: 'Sunday, 3 May 2026',
+    totalPrice: 95000,
+    details: {
+      step: 'Items in Cart · Unfinished Checkout',
+      items: ['Mad Rock Crashpad (1x)', 'Boar Hair Brush (1x)'],
+      pickupPoint: 'Basecamp Citatah 125',
+    },
+    createdAt: '2026-04-14',
+  },
+  {
+    id: 'ord-draft-3',
+    type: 'trip',
+    status: 'draft',
+    title: 'Harau Valley 3D2N Open Trip — Slot Booking',
+    categoryLabel: 'Trip Plan',
+    venueOrLocation: 'Lembah Harau, Sumatera Barat',
+    bookingCode: 'DFT-TR4019',
+    date: '25 – 27 May 2026',
+    totalPrice: 650000,
+    details: {
+      step: 'Draft Registration · Incomplete Roster',
+      coordinator: 'Local Guides & Jalur Crew',
+      slots: '1 Climber',
+    },
+    createdAt: '2026-04-12',
+  },
+
+  // 2. ACTIVE ORDERS (Confirmed Passes & Bookings)
   {
     id: 'ord-gym-1',
     type: 'gym',
@@ -76,6 +132,8 @@ const DEFAULT_ORDERS: OrderWalletItem[] = [
     createdAt: '2026-04-05',
     expiryDate: '2026-04-27',
   },
+
+  // 3. HISTORY PURCHASING ACTIVITIES (Past Completed Transactions)
   {
     id: 'ord-hist-1',
     type: 'gym',
@@ -106,7 +164,7 @@ const DEFAULT_ORDERS: OrderWalletItem[] = [
   },
 ]
 
-const STORAGE_KEY = 'jalur_wallet_orders'
+const STORAGE_KEY = 'jalur_wallet_orders_v2'
 
 export function getWalletOrders(): OrderWalletItem[] {
   if (typeof window === 'undefined') return DEFAULT_ORDERS
@@ -126,6 +184,22 @@ export function addWalletOrder(order: OrderWalletItem): void {
   if (typeof window === 'undefined') return
   const current = getWalletOrders()
   const next = [order, ...current]
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  window.dispatchEvent(new CustomEvent('wallet-updated', { detail: next }))
+}
+
+export function updateOrderStatus(id: string, status: OrderStatus): void {
+  if (typeof window === 'undefined') return
+  const current = getWalletOrders()
+  const next = current.map((ord) => (ord.id === id ? { ...ord, status } : ord))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  window.dispatchEvent(new CustomEvent('wallet-updated', { detail: next }))
+}
+
+export function deleteWalletOrder(id: string): void {
+  if (typeof window === 'undefined') return
+  const current = getWalletOrders()
+  const next = current.filter((ord) => ord.id !== id)
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
   window.dispatchEvent(new CustomEvent('wallet-updated', { detail: next }))
 }

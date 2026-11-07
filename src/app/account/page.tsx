@@ -29,13 +29,19 @@ import {
   Heart,
   X,
   Share2,
+  Lock,
+  CreditCard,
+  Receipt,
+  EyeOff,
+  Check,
+  ArrowRight,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { useTheme } from '@/lib/theme-context'
 import { getUserAscents, UserAscent } from '@/lib/user-ascents'
 import SendCard from '@/components/beta/SendCard'
 import { getWishlist, removeFromWishlist, WishlistItem } from '@/lib/wishlist-store'
-import { getWalletOrders, OrderWalletItem } from '@/lib/wallet-store'
+import { getWalletOrders, OrderWalletItem, updateOrderStatus } from '@/lib/wallet-store'
 import { getUserGears, addUserGear, deleteUserGear, UserGearItem } from '@/lib/user-gear-store'
 import { getDraftProblems, DraftProblemItem, deleteDraftProblem } from '@/lib/draft-problems-store'
 import { QRCodeSVG } from 'qrcode.react'
@@ -48,15 +54,20 @@ function PersonalAccountContent() {
   const { user, role, openAuthModal } = useAuth()
   const { isSandstone } = useTheme()
 
-  // Profile data
-  const isSelf = !targetUserId || targetUserId === user?.id || targetUserId === 'self'
-  const climberName = isSelf ? (user?.name || 'Ahmad Rizki') : 'Nana Herdiana'
-  const fullName = isSelf ? 'Ahmad Rizki Nugraha' : 'Nana Herdiana Kusuma'
-  const homeCity = isSelf ? 'Bandung, Jawa Barat' : 'Jakarta Selatan, DKI Jakarta'
-  const avatarUrl = isSelf
-    ? (user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=240&q=80')
-    : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&q=80'
-  const hasNotifications = isSelf // Notification red dot on profile picture
+  // Profile data & Access Control
+  const isViewingOther = !!targetUserId && targetUserId !== user?.id && targetUserId !== 'self'
+  const [previewPublicMode, setPreviewPublicMode] = useState(false)
+
+  // Personal access only is active when viewing own account and NOT in preview-as-public mode
+  const isPersonalAccess = !isViewingOther && !previewPublicMode
+
+  const climberName = isViewingOther ? 'Nana Herdiana' : (user?.name || 'Ahmad Rizki')
+  const fullName = isViewingOther ? 'Nana Herdiana Kusuma' : 'Ahmad Rizki Nugraha'
+  const homeCity = isViewingOther ? 'Jakarta Selatan, DKI Jakarta' : 'Bandung, Jawa Barat'
+  const avatarUrl = isViewingOther
+    ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&q=80'
+    : (user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=240&q=80')
+  const hasNotifications = isPersonalAccess
 
   // Experience Stats
   const experienceData = {
@@ -80,10 +91,12 @@ function PersonalAccountContent() {
   const [sentCardViewMode, setSentCardViewMode] = useState<'list' | 'thumbnail' | 'full'>('thumbnail')
   const [activeSendCardModal, setActiveSendCardModal] = useState<UserAscent | null>(null)
 
-  // Wallet state
-  const [walletTab, setWalletTab] = useState<'active' | 'history'>('active')
+  // Order Wallet state: Draft + Active + History of purchasing activities
+  const [walletTab, setWalletTab] = useState<'draft' | 'active' | 'history'>('draft')
   const [walletOrders, setWalletOrders] = useState<OrderWalletItem[]>([])
   const [selectedQRModal, setSelectedQRModal] = useState<OrderWalletItem | null>(null)
+  const [selectedReceiptModal, setSelectedReceiptModal] = useState<OrderWalletItem | null>(null)
+  const [selectedCheckoutModal, setSelectedCheckoutModal] = useState<OrderWalletItem | null>(null)
 
   // Gear state
   const [gears, setGears] = useState<UserGearItem[]>([])
@@ -93,11 +106,11 @@ function PersonalAccountContent() {
   const [newGearCategory, setNewGearCategory] = useState<UserGearItem['category']>('shoes')
   const [newGearImage, setNewGearImage] = useState('')
 
-  // Wishlist state
+  // Wishlist state: Crags / Problems / Gym / Trip / Event
   const [wishlist, setWishlist] = useState<WishlistItem[]>([])
-  const [wishlistFilter, setWishlistFilter] = useState<'all' | 'crag' | 'problem' | 'gym'>('all')
+  const [wishlistFilter, setWishlistFilter] = useState<'all' | 'crag' | 'problem' | 'gym' | 'trip' | 'event'>('all')
 
-  // Drafts state
+  // Route Drafts state: Unfinished data submission for setting a route
   const [drafts, setDrafts] = useState<DraftProblemItem[]>([])
 
   // User ascents
@@ -165,30 +178,97 @@ function PersonalAccountContent() {
     setNewGearImage('')
   }
 
+  // Handle Pay / Complete Draft Order
+  const handleCompletePayment = (orderId: string) => {
+    updateOrderStatus(orderId, 'active')
+    setSelectedCheckoutModal(null)
+    setWalletTab('active')
+  }
+
   return (
     <div className={`min-h-screen pb-28 pt-4 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 ${
       isSandstone ? 'text-[#1a1815]' : 'text-chalk'
     }`}>
       {/* ============================================================ */}
-      {/* 1. PERSONAL HEADER (Hi, name + Circular Avatar + Red Dot)   */}
+      {/* PUBLIC PREVIEW ALERT BANNER (If user is testing public view) */}
+      {/* ============================================================ */}
+      {previewPublicMode && (
+        <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <Eye size={18} className="text-amber-400 shrink-0" />
+            <span>
+              <strong>Public Profile Preview Active:</strong> Personal access sections (<strong>Order Wallet</strong>, <strong>Wishlist</strong>, and <strong>Route Draft</strong>) are strictly closed to the public and hidden below.
+            </span>
+          </div>
+          <button
+            onClick={() => setPreviewPublicMode(false)}
+            className="px-3.5 py-1.5 rounded-xl font-bold bg-amber-500 text-black hover:bg-amber-400 self-start sm:self-auto transition-all shrink-0"
+          >
+            Exit Public Preview
+          </button>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* 1. HEADER (Personal Account vs Public Climber Profile)       */}
       {/* ============================================================ */}
       <div className={`p-6 sm:p-8 rounded-3xl border shadow-card transition-colors ${
         isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
       }`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           {/* Left Greeting & Identity */}
-          <div className="space-y-1">
-            <span className="text-xs uppercase tracking-widest font-semibold text-[#FF6B00]">
-              Personal Account
-            </span>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs uppercase tracking-widest font-semibold text-[#FF6B00]">
+                {isPersonalAccess ? 'Personal Account' : 'Climber Profile'}
+              </span>
+
+              {isPersonalAccess ? (
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shadow-sm">
+                  <ShieldCheck size={11} /> Personal Access (Owner)
+                </span>
+              ) : (
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white/70 border border-white/20 flex items-center gap-1">
+                  <Eye size={11} /> Public View
+                </span>
+              )}
+            </div>
+
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Hi, {climberName}
+              {isPersonalAccess ? `Hi, ${climberName}` : climberName}
             </h1>
             <p className="text-base font-medium opacity-90">{fullName}</p>
             <div className="flex items-center gap-1.5 text-xs opacity-70 pt-0.5">
               <MapPin size={13} className="text-[#FF6B00] flex-shrink-0" />
               <span>{homeCity}</span>
             </div>
+
+            {/* Quick action buttons for owner */}
+            {!isViewingOther && (
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  onClick={() => setPreviewPublicMode(!previewPublicMode)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-all ${
+                    previewPublicMode
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      : isSandstone
+                      ? 'border-[#1a1815]/20 hover:border-[#1a1815] text-[#1a1815]'
+                      : 'border-white/20 hover:border-white text-white'
+                  }`}
+                  title="Toggle between personal owner view and public visitor view"
+                >
+                  {previewPublicMode ? (
+                    <>
+                      <EyeOff size={13} /> Exit Public Preview
+                    </>
+                  ) : (
+                    <>
+                      <Eye size={13} /> Preview as Public
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right Circular Avatar with Notification Indicator */}
@@ -212,7 +292,32 @@ function PersonalAccountContent() {
       </div>
 
       {/* ============================================================ */}
+      {/* PUBLIC VIEW PRIVACY NOTICE (When not personal access)        */}
+      {/* ============================================================ */}
+      {!isPersonalAccess && (
+        <div className={`p-4 rounded-2xl border flex items-center gap-3.5 text-xs ${
+          isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15 text-[#1a1815]' : 'bg-[#181D22] border-white/10 text-white'
+        }`}>
+          <div className="w-9 h-9 rounded-xl bg-[#F90657]/15 border border-[#F90657]/30 flex items-center justify-center text-[#F90657] shrink-0">
+            <Lock size={18} />
+          </div>
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <h4 className="font-bold text-sm">Personal Sections Protected</h4>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-semibold">
+                Closed for public
+              </span>
+            </div>
+            <p className="opacity-75 text-xs">
+              <strong>Order Wallet</strong> (Draft + Active + History), <strong>Wishlist</strong>, and <strong>Route Drafts</strong> are personal access only and closed for public viewing.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
       {/* 2. EXPERIENCE SECTION (Counters + SVG Progression Line Chart) */}
+      {/* (Public & Personal Portfolio)                                 */}
       {/* ============================================================ */}
       <section className="space-y-4">
         <div>
@@ -337,110 +442,153 @@ function PersonalAccountContent() {
       <div className="border-t border-[#F90657]/30" />
 
       {/* ============================================================ */}
-      {/* 3. ORDER WALLET (Trip Plan, Rent Gear, Gym Booking)          */}
+      {/* 3. ORDER WALLET [PERSONAL ACCESS ONLY · CLOSED FOR PUBLIC]    */}
+      {/* Scope: Draft + Active + History of purchasing activities     */}
+      {/* CTA Button: Yes                                              */}
       {/* ============================================================ */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
-              <Wallet size={20} /> Order Wallet
-            </h2>
-            <p className="text-xs opacity-70">
-              Active booking passes and verified transaction receipts
-            </p>
-          </div>
-
-          {/* Active vs History Switcher */}
-          <div className={`p-1 rounded-2xl flex border ${
-            isSandstone ? 'bg-[#1a1815]/10 border-[#1a1815]/20' : 'bg-black/40 border-white/10'
-          }`}>
-            <button
-              onClick={() => setWalletTab('active')}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                walletTab === 'active'
-                  ? 'bg-[#FF6B00] text-white shadow-md'
-                  : 'opacity-70 hover:opacity-100'
-              }`}
-            >
-              Active ({walletOrders.filter((o) => o.status === 'active').length})
-            </button>
-            <button
-              onClick={() => setWalletTab('history')}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                walletTab === 'history'
-                  ? 'bg-[#FF6B00] text-white shadow-md'
-                  : 'opacity-70 hover:opacity-100'
-              }`}
-            >
-              History ({walletOrders.filter((o) => o.status === 'history').length})
-            </button>
-          </div>
-        </div>
-
-        {/* Orders List */}
-        {filteredOrders.length === 0 ? (
-          <div className={`p-8 text-center rounded-3xl border opacity-75 ${
-            isSandstone ? 'border-[#1a1815]/15' : 'border-white/10'
-          }`}>
-            <p className="text-sm">No {walletTab} orders in your wallet.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredOrders.map((ord) => (
-              <div
-                key={ord.id}
-                className={`p-4 sm:p-5 rounded-2xl border flex flex-col justify-between transition-all ${
-                  isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
-                }`}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#FF6B00]/15 text-[#FF6B00]">
-                      {ord.categoryLabel}
-                    </span>
-                    <span className="font-mono text-xs font-bold opacity-80">
-                      {ord.bookingCode}
-                    </span>
-                  </div>
-
-                  <h3 className="font-bold text-base leading-snug">{ord.title}</h3>
-
-                  <div className="text-xs opacity-75 space-y-1 pt-1">
-                    <p className="flex items-center gap-1.5">
-                      <MapPin size={12} className="text-[#FF6B00]" /> {ord.venueOrLocation}
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <Calendar size={12} className="text-[#06B6D4]" /> {ord.date} {ord.time ? `· ${ord.time}` : ''}
-                    </p>
-                  </div>
+      {isPersonalAccess && (
+        <>
+          <section className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
+                    <Wallet size={20} /> Order Wallet
+                  </h2>
+                  <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1 shadow-sm">
+                    <Lock size={10} /> Personal access only (closed for public)
+                  </span>
                 </div>
-
-                <div className="pt-4 border-t border-white/10 mt-3 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] opacity-60 block">Total Paid</span>
-                    <span className="text-sm font-bold text-[#FF6B00]">
-                      Rp {ord.totalPrice.toLocaleString('id-ID')}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => setSelectedQRModal(ord)}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all flex items-center gap-1.5 shadow-sm"
-                  >
-                    <QrCode size={14} /> E-Ticket QR
-                  </button>
-                </div>
+                <p className="text-xs opacity-70 mt-1">
+                  Draft + Active + History of purchasing activities & verified tickets
+                </p>
               </div>
-            ))}
-          </div>
-        )}
-      </section>
 
-      {/* Pink divider */}
-      <div className="border-t border-[#F90657]/30" />
+              {/* Tabs: Draft | Active | History */}
+              <div className={`p-1 rounded-2xl flex border ${
+                isSandstone ? 'bg-[#1a1815]/10 border-[#1a1815]/20' : 'bg-black/40 border-white/10'
+              }`}>
+                {(['draft', 'active', 'history'] as const).map((tab) => {
+                  const count = walletOrders.filter((o) => o.status === tab).length
+                  const labels = {
+                    draft: 'Draft',
+                    active: 'Active',
+                    history: 'History',
+                  }
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => setWalletTab(tab)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all capitalize ${
+                        walletTab === tab
+                          ? 'bg-[#FF6B00] text-white shadow-md'
+                          : 'opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      {labels[tab]} ({count})
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Orders List */}
+            {filteredOrders.length === 0 ? (
+              <div className={`p-8 text-center rounded-3xl border opacity-75 ${
+                isSandstone ? 'border-[#1a1815]/15' : 'border-white/10'
+              }`}>
+                <p className="text-sm">No {walletTab} purchasing activities in your wallet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredOrders.map((ord) => (
+                  <div
+                    key={ord.id}
+                    className={`p-4 sm:p-5 rounded-2xl border flex flex-col justify-between transition-all ${
+                      isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
+                    }`}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                          ord.status === 'draft'
+                            ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                            : ord.status === 'active'
+                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-white/10 text-white/70'
+                        }`}>
+                          {ord.categoryLabel}
+                        </span>
+
+                        <span className="font-mono text-xs font-bold opacity-80">
+                          {ord.bookingCode}
+                        </span>
+                      </div>
+
+                      <h3 className="font-bold text-base leading-snug">{ord.title}</h3>
+
+                      <div className="text-xs opacity-75 space-y-1 pt-1">
+                        <p className="flex items-center gap-1.5">
+                          <MapPin size={12} className="text-[#FF6B00]" /> {ord.venueOrLocation}
+                        </p>
+                        <p className="flex items-center gap-1.5">
+                          <Calendar size={12} className="text-[#06B6D4]" /> {ord.date} {ord.time ? `· ${ord.time}` : ''}
+                        </p>
+                        {ord.details?.step && (
+                          <p className="text-[11px] text-amber-400/90 font-medium pt-0.5">
+                            Status: {ord.details.step}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-white/10 mt-3 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] opacity-60 block">
+                          {ord.status === 'draft' ? 'Estimated Total' : 'Total Paid'}
+                        </span>
+                        <span className="text-sm font-bold text-[#FF6B00]">
+                          Rp {ord.totalPrice.toLocaleString('id-ID')}
+                        </span>
+                      </div>
+
+                      {/* CTA BUTTONS (CTA Button: Yes) */}
+                      {ord.status === 'draft' ? (
+                        <button
+                          onClick={() => setSelectedCheckoutModal(ord)}
+                          className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all flex items-center gap-1.5 shadow-sm"
+                        >
+                          <CreditCard size={14} /> Continue Checkout &rarr;
+                        </button>
+                      ) : ord.status === 'active' ? (
+                        <button
+                          onClick={() => setSelectedQRModal(ord)}
+                          className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all flex items-center gap-1.5 shadow-sm"
+                        >
+                          <QrCode size={14} /> E-Ticket QR
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setSelectedReceiptModal(ord)}
+                          className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white transition-all flex items-center gap-1.5 shadow-sm"
+                        >
+                          <Receipt size={14} /> View Receipt
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Pink divider */}
+          <div className="border-t border-[#F90657]/30" />
+        </>
+      )}
 
       {/* ============================================================ */}
-      {/* 4. GEAR SECTION (Ditempatkan sebelum Sent Card)              */}
+      {/* 4. GEAR SECTION (Personal & Public Collection Showcase)      */}
       {/* ============================================================ */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
@@ -449,16 +597,18 @@ function PersonalAccountContent() {
               <Layers size={20} /> My Gear Collection
             </h2>
             <p className="text-xs opacity-70">
-              Personal climbing gear & equipment collection
+              Climbing gear & equipment collection
             </p>
           </div>
 
-          <button
-            onClick={() => setShowAddGearModal(true)}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] flex items-center gap-1.5 transition-all shadow-md"
-          >
-            <Plus size={15} /> Add Gear
-          </button>
+          {isPersonalAccess && (
+            <button
+              onClick={() => setShowAddGearModal(true)}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] flex items-center gap-1.5 transition-all shadow-md"
+            >
+              <Plus size={15} /> Add Gear
+            </button>
+          )}
         </div>
 
         {/* Gear Thumbnails Grid */}
@@ -476,13 +626,15 @@ function PersonalAccountContent() {
                   alt={g.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <button
-                  onClick={() => deleteUserGear(g.id)}
-                  title="Remove gear"
-                  className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 text-white/70 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Trash2 size={13} />
-                </button>
+                {isPersonalAccess && (
+                  <button
+                    onClick={() => deleteUserGear(g.id)}
+                    title="Remove gear"
+                    className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 text-white/70 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                )}
               </div>
 
               <div className="p-2.5 flex-1 flex flex-col justify-between">
@@ -502,6 +654,7 @@ function PersonalAccountContent() {
 
       {/* ============================================================ */}
       {/* 5. SENT CARDS SECTION (View Modes: List, Thumbnail, Full)    */}
+      {/* (Public portfolio of verified ascents)                        */}
       {/* ============================================================ */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -603,9 +756,12 @@ function PersonalAccountContent() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div className="space-y-6">
             {ascents.map((asc) => (
-              <div key={asc.id} className="rounded-3xl overflow-hidden shadow-2xl">
+              <div
+                key={asc.id}
+                className="max-w-md mx-auto shadow-2xl rounded-3xl overflow-hidden"
+              >
                 <SendCard
                   data={{
                     problemName: asc.problemName,
@@ -637,171 +793,256 @@ function PersonalAccountContent() {
       <div className="border-t border-[#F90657]/30" />
 
       {/* ============================================================ */}
-      {/* 6. WISHLIST SECTION (Crags, Problems, Gyms)                 */}
+      {/* 6. WISHLIST [PERSONAL ACCESS ONLY · CLOSED FOR PUBLIC]        */}
+      {/* Scope: Crags / Problems / Gym / Trip / Event                 */}
+      {/* CTA Button: Yes                                              */}
       {/* ============================================================ */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
-              <Pictogram name="wishlisted" size={20} className="text-[#F90657]" /> Wishlist
-            </h2>
-            <p className="text-xs opacity-70">
-              Saved crags, boulder problems, and climbing gyms
-            </p>
+      {isPersonalAccess && (
+        <>
+          <section className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
+                    <Pictogram name="wishlisted" size={20} className="text-[#F90657]" /> Wishlist
+                  </h2>
+                  <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1 shadow-sm">
+                    <Lock size={10} /> Personal access only (closed for public)
+                  </span>
+                </div>
+                <p className="text-xs opacity-70 mt-1">
+                  List of saved interest such as plan to visit or climbing from: Crags / Problems / Gym / Trip / Event
+                </p>
+              </div>
+
+              {/* Filter Buttons: All | Crags | Problems | Gyms | Trips | Events */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                {(['all', 'crag', 'problem', 'gym', 'trip', 'event'] as const).map((filter) => {
+                  const filterLabels = {
+                    all: 'All',
+                    crag: 'Crags',
+                    problem: 'Problems',
+                    gym: 'Gyms',
+                    trip: 'Trips',
+                    event: 'Events',
+                  }
+                  return (
+                    <button
+                      key={filter}
+                      onClick={() => setWishlistFilter(filter)}
+                      className={`px-3 py-1 rounded-xl text-xs font-bold capitalize transition-all border whitespace-nowrap ${
+                        wishlistFilter === filter
+                          ? 'bg-[#FF6B00] border-[#FF6B00] text-white shadow-sm'
+                          : isSandstone
+                          ? 'border-[#1a1815]/20 text-[#1a1815]/70 hover:border-[#1a1815]/50'
+                          : 'border-white/10 text-slate-ash hover:text-white'
+                      }`}
+                    >
+                      {filterLabels[filter]}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {filteredWishlist.length === 0 ? (
+              <div className={`p-8 text-center rounded-3xl border opacity-75 ${
+                isSandstone ? 'border-[#1a1815]/15' : 'border-white/10'
+              }`}>
+                <p className="text-sm">No items in your wishlist for this category.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredWishlist.map((item) => {
+                  const linkHref =
+                    item.type === 'crag'
+                      ? `/crags/${item.id}`
+                      : item.type === 'gym'
+                      ? `/gyms/${item.id}`
+                      : item.type === 'trip'
+                      ? `/community`
+                      : item.type === 'event'
+                      ? `/community`
+                      : `/beta?problem=${item.id}`
+
+                  const ctaLabel =
+                    item.type === 'crag'
+                      ? 'Explore Crag'
+                      : item.type === 'gym'
+                      ? 'Book Gym Pass'
+                      : item.type === 'trip'
+                      ? 'View Trip Details'
+                      : item.type === 'event'
+                      ? 'Event & Registration'
+                      : 'View Beta Topo'
+
+                  const typePillColor =
+                    item.type === 'crag'
+                      ? 'text-[#FF6B00]'
+                      : item.type === 'problem'
+                      ? 'text-[#F90657]'
+                      : item.type === 'gym'
+                      ? 'text-[#06B6D4]'
+                      : item.type === 'trip'
+                      ? 'text-emerald-400'
+                      : 'text-amber-400'
+
+                  return (
+                    <div
+                      key={item.id}
+                      className={`rounded-2xl border overflow-hidden flex flex-col justify-between group transition-all ${
+                        isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
+                      }`}
+                    >
+                      <div className="h-32 relative overflow-hidden bg-black/20">
+                        <img
+                          src={item.image || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=600&q=80'}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[#FF6B00] flex items-center gap-1 border border-[#FF6B00]/30 shadow-sm">
+                          <Pictogram name="wishlisted" size={10} />
+                          <span className="text-[10px] font-bold uppercase tracking-wider">Mark</span>
+                        </div>
+                        <button
+                          onClick={() => removeFromWishlist(item.id)}
+                          title="Remove from wishlist"
+                          className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 text-white/80 hover:text-red-400 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                        {item.grade && (
+                          <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/80 font-mono text-xs font-bold text-[#FF6B00]">
+                            {item.grade}
+                          </span>
+                        )}
+                        {item.price && (
+                          <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/80 text-[11px] font-bold text-emerald-400">
+                            Rp {item.price.toLocaleString('id-ID')}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="p-3.5 space-y-2.5">
+                        <div>
+                          <span className={`text-[10px] font-bold uppercase tracking-wider ${typePillColor}`}>
+                            {item.type}
+                          </span>
+                          <h4 className="font-bold text-sm truncate">{item.title}</h4>
+                          <p className="text-xs opacity-70 truncate">{item.subtitle || item.location}</p>
+                          {item.date && (
+                            <p className="text-[11px] text-[#06B6D4] font-medium pt-0.5">
+                              📅 {item.date}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* CTA BUTTON (CTA Button: Yes) */}
+                        <Link
+                          href={linkHref}
+                          className="w-full py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white flex items-center justify-center gap-1 hover:bg-[#E5601F] transition-all shadow-sm"
+                        >
+                          <span>{ctaLabel}</span>
+                          <ChevronRight size={13} />
+                        </Link>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* Pink divider */}
+          <div className="border-t border-[#F90657]/30" />
+        </>
+      )}
+
+      {/* ============================================================ */}
+      {/* 7. ROUTE DRAFTS [PERSONAL ACCESS ONLY · CLOSED FOR PUBLIC]   */}
+      {/* Scope: Unfinished data submission for setting a route        */}
+      {/* CTA Button: Yes                                              */}
+      {/* ============================================================ */}
+      {isPersonalAccess && (
+        <section className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
+                  <FileText size={20} /> Route Draft
+                </h2>
+                <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1 shadow-sm">
+                  <Lock size={10} /> Personal access only (closed for public)
+                </span>
+              </div>
+              <p className="text-xs opacity-70 mt-1">
+                Unfinished data submission for setting a route. Complete technical specifications before publishing.
+              </p>
+            </div>
+
+            {/* CTA Button in Header (CTA Button: Yes) */}
+            <Link
+              href="/beta?action=submit"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all flex items-center gap-1.5 shadow-sm self-start sm:self-center"
+            >
+              <Plus size={14} /> New Route Draft
+            </Link>
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
-            {(['all', 'crag', 'problem', 'gym'] as const).map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setWishlistFilter(filter)}
-                className={`px-3 py-1 rounded-xl text-xs font-bold capitalize transition-all border ${
-                  wishlistFilter === filter
-                    ? 'bg-[#FF6B00] border-[#FF6B00] text-white'
-                    : isSandstone
-                    ? 'border-[#1a1815]/20 text-[#1a1815]/70 hover:border-[#1a1815]/50'
-                    : 'border-white/10 text-slate-ash hover:text-white'
-                }`}
-              >
-                {filter === 'all' ? 'All' : filter === 'crag' ? 'Crags' : filter === 'problem' ? 'Problems' : 'Gyms'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {filteredWishlist.length === 0 ? (
-          <div className={`p-8 text-center rounded-3xl border opacity-75 ${
-            isSandstone ? 'border-[#1a1815]/15' : 'border-white/10'
-          }`}>
-            <p className="text-sm">No items in your wishlist yet. Tap &apos;Save to Wishlist&apos; on any Crag, Problem, or Gym!</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredWishlist.map((item) => {
-              const linkHref =
-                item.type === 'crag'
-                  ? `/crags/${item.id}`
-                  : item.type === 'gym'
-                  ? `/gyms/${item.id}`
-                  : `/beta?problem=${item.id}`
-
-              return (
+          {drafts.length === 0 ? (
+            <div className={`p-8 text-center rounded-3xl border opacity-75 ${
+              isSandstone ? 'border-[#1a1815]/15' : 'border-white/10'
+            }`}>
+              <p className="text-sm">No route drafts saved. Routes can be saved as draft from &apos;+ Set New Route&apos;.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {drafts.map((d) => (
                 <div
-                  key={item.id}
-                  className={`rounded-2xl border overflow-hidden flex flex-col justify-between group transition-all ${
+                  key={d.id}
+                  className={`p-4 rounded-2xl border flex flex-col justify-between space-y-3 ${
                     isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
                   }`}
                 >
-                  <div className="h-32 relative overflow-hidden bg-black/20">
-                    <img
-                      src={item.image || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=600&q=80'}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[#FF6B00] flex items-center gap-1 border border-[#FF6B00]/30 shadow-sm">
-                      <Pictogram name="wishlisted" size={10} />
-                      <span className="text-[10px] font-bold uppercase tracking-wider">Mark</span>
-                    </div>
-                    <button
-                      onClick={() => removeFromWishlist(item.id)}
-                      title="Remove from wishlist"
-                      className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 text-white/80 hover:text-red-400"
-                    >
-                      <X size={14} />
-                    </button>
-                    {item.grade && (
-                      <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/80 font-mono text-xs font-bold text-[#FF6B00]">
-                        {item.grade}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-400 font-bold uppercase tracking-wider">
+                        Draft ({d.progressPercent}% Complete)
                       </span>
+                      <button
+                        onClick={() => deleteDraftProblem(d.id)}
+                        className="text-xs opacity-50 hover:text-red-400 transition-colors"
+                        title="Delete draft"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+
+                    <h4 className="font-bold text-base mt-1.5">{d.name}</h4>
+                    <p className="text-xs opacity-70">{d.cragName} · {d.sectorName}</p>
+                    {d.notes && (
+                      <p className="text-xs opacity-80 italic mt-1">&quot;{d.notes}&quot;</p>
                     )}
                   </div>
 
-                  <div className="p-3.5 space-y-2">
-                    <div>
-                      <span className="text-[10px] font-bold text-[#FF6B00] uppercase tracking-wider">
-                        {item.type}
-                      </span>
-                      <h4 className="font-bold text-sm truncate">{item.title}</h4>
-                      <p className="text-xs opacity-70 truncate">{item.subtitle || item.location}</p>
-                    </div>
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <span className="text-xs font-mono font-bold text-[#FF6B00]">{d.grade}</span>
 
+                    {/* CTA BUTTON (CTA Button: Yes) */}
                     <Link
-                      href={linkHref}
-                      className="w-full py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white flex items-center justify-center gap-1 hover:bg-[#E5601F] transition-all"
+                      href={`/beta?action=submit&draft=${d.id}`}
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all flex items-center gap-1 shadow-sm"
                     >
-                      <span>Explore</span>
+                      <span>Continue Editing</span>
                       <ChevronRight size={13} />
                     </Link>
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* Pink divider */}
-      <div className="border-t border-[#F90657]/30" />
-
-      {/* ============================================================ */}
-      {/* 7. SET PROBLEMS DRAFTS SECTION                                */}
-      {/* ============================================================ */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-[#F90657] flex items-center gap-2">
-            <FileText size={20} /> Route Drafts (Set Problems)
-          </h2>
-          <p className="text-xs opacity-70">
-            Unfinished problem routes saved as draft. Complete technical specifications before publishing to preserve route accuracy.
-          </p>
-        </div>
-
-        {drafts.length === 0 ? (
-          <div className={`p-8 text-center rounded-3xl border opacity-75 ${
-            isSandstone ? 'border-[#1a1815]/15' : 'border-white/10'
-          }`}>
-            <p className="text-sm">No route drafts saved. Routes can be saved as draft from &apos;+ Set New Route&apos;.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {drafts.map((d) => (
-              <div
-                key={d.id}
-                className={`p-4 rounded-2xl border flex flex-col justify-between space-y-3 ${
-                  isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-400 font-bold uppercase tracking-wider">
-                      Draft ({d.progressPercent}% Complete)
-                    </span>
-                    <button
-                      onClick={() => deleteDraftProblem(d.id)}
-                      className="text-xs opacity-50 hover:text-red-400"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                  <h4 className="font-bold text-base mt-1.5">{d.name}</h4>
-                  <p className="text-xs opacity-70">{d.cragName} · {d.sectorName}</p>
-                  <p className="text-xs opacity-80 italic mt-1">&quot;{d.notes}&quot;</p>
-                </div>
-
-                <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-[#FF6B00]">{d.grade}</span>
-                  <Link
-                    href={`/beta?action=submit&draft=${d.id}`}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all"
-                  >
-                    Continue Editing &rarr;
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ============================================================ */}
       {/* MODAL: ADD GEAR                                              */}
@@ -897,7 +1138,7 @@ function PersonalAccountContent() {
       </AnimatePresence>
 
       {/* ============================================================ */}
-      {/* MODAL: QR CODE E-TICKET VIEW                                 */}
+      {/* MODAL: QR CODE E-TICKET VIEW (For Active Orders)             */}
       {/* ============================================================ */}
       <AnimatePresence>
         {selectedQRModal && (
@@ -955,6 +1196,143 @@ function PersonalAccountContent() {
               >
                 Close Ticket
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ============================================================ */}
+      {/* MODAL: TRANSACTION RECEIPT / INVOICE (For History Orders)    */}
+      {/* ============================================================ */}
+      <AnimatePresence>
+        {selectedReceiptModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedReceiptModal(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative z-10 w-full max-w-sm popup-form-purple rounded-3xl p-6 border shadow-2xl space-y-4"
+            >
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-1.5">
+                  <Receipt size={16} className="text-[#06B6D4]" />
+                  <span className="text-xs uppercase tracking-wider font-bold text-[#06B6D4]">
+                    Official Receipt
+                  </span>
+                </div>
+                <button onClick={() => setSelectedReceiptModal(null)} className="text-white/60 hover:text-white">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="text-left space-y-2">
+                <div className="p-3 rounded-xl bg-black/30 border border-white/10 space-y-1">
+                  <span className="text-[10px] text-white/60 uppercase">Item Description</span>
+                  <h4 className="font-bold text-sm text-white">{selectedReceiptModal.title}</h4>
+                  <p className="text-xs text-white/70">{selectedReceiptModal.venueOrLocation}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
+                    <span className="text-[10px] text-white/60 block">Receipt Code</span>
+                    <span className="font-mono font-bold text-white">{selectedReceiptModal.bookingCode}</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
+                    <span className="text-[10px] text-white/60 block">Date</span>
+                    <span className="font-medium text-white">{selectedReceiptModal.date}</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-black/30 border border-white/10 flex items-center justify-between">
+                  <span className="text-xs text-white/80">Total Paid (Settled)</span>
+                  <span className="text-base font-bold text-[#FF6B00]">
+                    Rp {selectedReceiptModal.totalPrice.toLocaleString('id-ID')}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedReceiptModal(null)}
+                className="w-full py-2.5 rounded-xl font-bold text-xs bg-white/15 hover:bg-white/25 text-white transition-all"
+              >
+                Done
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ============================================================ */}
+      {/* MODAL: COMPLETE DRAFT CHECKOUT (For Draft Orders)            */}
+      {/* ============================================================ */}
+      <AnimatePresence>
+        {selectedCheckoutModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedCheckoutModal(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative z-10 w-full max-w-sm popup-form-purple rounded-3xl p-6 border shadow-2xl space-y-4"
+            >
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-1.5">
+                  <CreditCard size={16} className="text-[#FF6B00]" />
+                  <span className="text-xs uppercase tracking-wider font-bold text-[#FF6B00]">
+                    Complete Draft Order
+                  </span>
+                </div>
+                <button onClick={() => setSelectedCheckoutModal(null)} className="text-white/60 hover:text-white">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="text-left space-y-2">
+                <div className="p-3 rounded-xl bg-black/30 border border-white/10 space-y-1">
+                  <span className="text-[10px] text-amber-400 font-semibold uppercase">Pending Checkout</span>
+                  <h4 className="font-bold text-sm text-white">{selectedCheckoutModal.title}</h4>
+                  <p className="text-xs text-white/70">{selectedCheckoutModal.venueOrLocation} · {selectedCheckoutModal.date}</p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-black/30 border border-white/10 flex items-center justify-between">
+                  <span className="text-xs text-white/80">Total Due</span>
+                  <span className="text-base font-bold text-[#FF6B00]">
+                    Rp {selectedCheckoutModal.totalPrice.toLocaleString('id-ID')}
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-white/60">
+                  Select payment method (QRIS / Virtual Account) to confirm booking pass.
+                </p>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <button
+                  onClick={() => handleCompletePayment(selectedCheckoutModal.id)}
+                  className="w-full py-2.5 rounded-xl font-bold text-xs bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  <Check size={14} /> Confirm & Pay Now
+                </button>
+                <button
+                  onClick={() => setSelectedCheckoutModal(null)}
+                  className="w-full py-2 rounded-xl font-medium text-xs text-white/70 hover:text-white transition-all"
+                >
+                  Keep as Draft
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
