@@ -109,6 +109,14 @@ export function getCommunityPosts(): CommunityPost[] {
   }
 }
 
+export function addCommunityPost(post: CommunityPost): void {
+  if (typeof window === 'undefined') return
+  const current = getCommunityPosts()
+  const next = [post, ...current]
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  window.dispatchEvent(new CustomEvent('community-posts-updated', { detail: next }))
+}
+
 export function togglePostLike(postId: string): CommunityPost[] {
   if (typeof window === 'undefined') return DEFAULT_COMMUNITY_POSTS
   const current = getCommunityPosts()
