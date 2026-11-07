@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import HeroBanner from '@/components/home/HeroBanner'
 import LogAscentModal from '@/components/beta/LogAscentModal'
 import AscentShareModal from '@/components/beta/AscentShareModal'
@@ -17,6 +17,16 @@ import {
   UserPlus,
   Sparkles,
   ArrowRight,
+  Heart,
+  MessageSquare,
+  ShieldCheck,
+  Settings as SettingsIcon,
+  User,
+  Plus,
+  Radio,
+  Clock,
+  Award,
+  Lock,
 } from 'lucide-react'
 import Link from 'next/link'
 import { Problem, Community } from '@/lib/mock-data'
@@ -26,9 +36,11 @@ import { gradeColors } from '@/lib/tokens'
 import { useAuth } from '@/lib/auth-context'
 import { canLogAscent } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
+import { getCommunityPosts, togglePostLike, CommunityPost } from '@/lib/community-posts-store'
+import Pictogram from '@/components/common/Pictogram'
 
 export default function HomePage() {
-  const { role, openAuthModal } = useAuth()
+  const { role, openAuthModal, user } = useAuth()
   const { isSandstone } = useTheme()
   const [showLogModal, setShowLogModal] = useState(false)
   const [activeShareAscent, setActiveShareAscent] = useState<UserAscent | null>(null)
@@ -36,6 +48,26 @@ export default function HomePage() {
   const { gyms } = useGyms()
   const { cragRegions } = useCragRegions()
   const { communities } = useCommunities()
+
+  // Live Community Newsfeed Posts
+  const [newsfeedPosts, setNewsfeedPosts] = useState<CommunityPost[]>([])
+
+  useEffect(() => {
+    setNewsfeedPosts(getCommunityPosts())
+
+    const handleNewsfeedUpdate = () => {
+      setNewsfeedPosts(getCommunityPosts())
+    }
+    window.addEventListener('community-posts-updated', handleNewsfeedUpdate)
+    return () => {
+      window.removeEventListener('community-posts-updated', handleNewsfeedUpdate)
+    }
+  }, [])
+
+  const handleToggleLike = (id: string) => {
+    const updated = togglePostLike(id)
+    setNewsfeedPosts(updated)
+  }
 
   const handleFABPress = () => {
     if (!canLogAscent(role)) {
@@ -61,30 +93,177 @@ export default function HomePage() {
   )
 
   return (
-    <div className={`pb-16 md:pb-24 transition-colors duration-300 ${
+    <div className={`pb-20 md:pb-28 transition-colors duration-300 ${
       isSandstone ? 'bg-[#d2c5ae] text-[#1a1815]' : 'bg-[#23262C] text-chalk'
     }`}>
-      {/* 1. TOP HERO BANNER */}
+      {/* 1. TOP HERO BANNER (With Logo Title Home button in TopBar) */}
       <HeroBanner />
 
-      {/* MAIN VERTICAL FEED */}
+      {/* MAIN VERTICAL FEED (V1.0 ROADMAP SEQUENCE) */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 space-y-10 md:space-y-14 pt-6 md:pt-8">
 
         {/* ============================================================ */}
-        {/* SECTION 1: CRAGS                                             */}
+        {/* ITEM 2: NEWSFEED (V1.0 ACTIVE)                               */}
+        {/* Scope: Feed displaying updates, posts, and climbing activity */}
+        {/* CTA Button: Yes                                              */}
         {/* ============================================================ */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <Link href="/crags" className="group inline-block">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
-                Crags
-              </h2>
+            <Link href="/community" className="group inline-block">
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
+                  Newsfeed
+                </h2>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  V1.0 Live Feed
+                </span>
+              </div>
             </Link>
           </div>
           <p className={`text-xs md:text-sm font-light -mt-2 ${
             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
           }`}>
-            Natural crags, karst formations, and outdoor climbing destinations
+            A feed displaying updates, posts, and activity from the climbing community.
+          </p>
+
+          {/* Newsfeed Cards (Horizontal scrollable on mobile, 2-3 grid on desktop) */}
+          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4 md:mx-0 md:px-0 items-stretch">
+            {newsfeedPosts.slice(0, 3).map((post) => (
+              <div
+                key={post.id}
+                className={`w-80 md:w-auto flex-shrink-0 rounded-2xl border flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md transition-all ${
+                  isSandstone
+                    ? 'bg-[#f4efe6] border-[#1a1815]/15 text-[#1a1815]'
+                    : 'bg-[#181D22] border-white/10 text-chalk'
+                }`}
+              >
+                {/* Post Author Bar */}
+                <div className="p-3.5 flex items-center justify-between border-b border-black/5 dark:border-white/5">
+                  <Link
+                    href={`/account?user=${post.userId}`}
+                    className="flex items-center gap-2.5 min-w-0 group"
+                  >
+                    <div className="w-9 h-9 rounded-full overflow-hidden border border-[#FF6B00] flex-shrink-0 group-hover:scale-105 transition-transform">
+                      <img src={post.avatar} alt={post.userName} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-xs truncate group-hover:text-[#FF6B00] transition-colors">
+                        {post.userName}
+                      </h4>
+                      <p className="text-[10px] opacity-60 truncate">
+                        {post.hometown} · {post.timeAgo}
+                      </p>
+                    </div>
+                  </Link>
+
+                  {post.grade && (
+                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30 shrink-0">
+                      {post.grade}
+                    </span>
+                  )}
+                </div>
+
+                {/* Media Image */}
+                <div className="relative h-44 w-full overflow-hidden bg-black/40">
+                  <img
+                    src={post.image}
+                    alt="Activity"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] text-white flex items-center gap-1 border border-white/10">
+                    <MapPin size={10} className="text-[#FF6B00]" />
+                    <span className="truncate max-w-[200px]">{post.location}</span>
+                  </div>
+                </div>
+
+                {/* Content & Social Action */}
+                <div className="p-3.5 space-y-2.5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#FF6B00] block mb-1">
+                      {post.activity}
+                    </span>
+                    <p className="text-xs line-clamp-2 leading-relaxed opacity-90 font-light">
+                      {post.caption}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleLike(post.id)}
+                        className={`flex items-center gap-1 text-[11px] font-semibold transition-colors ${
+                          post.hasLiked ? 'text-rose-500' : 'opacity-70 hover:text-rose-400'
+                        }`}
+                      >
+                        <Heart size={13} className={post.hasLiked ? 'fill-rose-500' : ''} />
+                        <span>{post.likes}</span>
+                      </button>
+
+                      <span className="flex items-center gap-1 text-[11px] opacity-60">
+                        <MessageSquare size={13} />
+                        <span>{post.comments.length}</span>
+                      </span>
+                    </div>
+
+                    <Link
+                      href="/community"
+                      className="text-[11px] font-bold text-[#FF6B00] hover:underline flex items-center gap-0.5"
+                    >
+                      <span>Join Discussion</span>
+                      <ChevronRight size={12} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA Button: Yes */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <button
+              onClick={handleFABPress}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00]/10 transition-all"
+            >
+              <Plus size={14} />
+              <span>Share Activity Update</span>
+            </button>
+
+            <Link
+              href="/community"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all shadow-sm"
+            >
+              <span>Explore Full Community Feed</span>
+              <ChevronRight size={14} />
+            </Link>
+          </div>
+        </section>
+
+        {/* PINK DIVIDER LINE */}
+        <div className="border-t border-[#F90657]/30" />
+
+        {/* ============================================================ */}
+        {/* ITEM 3: CRAGS (V1.0 ACTIVE)                                  */}
+        {/* Scope: Outdoor climbing areas, routes, topos, access details */}
+        {/* CTA Button: Yes                                              */}
+        {/* ============================================================ */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Link href="/crags" className="group inline-block">
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
+                  Crags
+                </h2>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  V1.0
+                </span>
+              </div>
+            </Link>
+          </div>
+          <p className={`text-xs md:text-sm font-light -mt-2 ${
+            isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+          }`}>
+            Information and guides for outdoor climbing areas, including routes, topos, and access details.
           </p>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
@@ -157,7 +336,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Discover More Button */}
+          {/* CTA Button: Yes */}
           <div className="flex justify-end pt-2">
             <Link
               href="/crags"
@@ -173,25 +352,32 @@ export default function HomePage() {
         <div className="border-t border-[#F90657]/30" />
 
         {/* ============================================================ */}
-        {/* SECTION 2: PROBLEMS                                          */}
+        {/* ITEM 4: PROBLEMS (V1.0 ACTIVE)                               */}
+        {/* Scope: Specific problems, grades, descriptions, user logs    */}
+        {/* CTA Button: Yes                                              */}
         {/* ============================================================ */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/beta" className="group inline-block">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
-                Problems
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
+                  Problems
+                </h2>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  V1.0
+                </span>
+              </div>
             </Link>
           </div>
           <p className={`text-xs md:text-sm font-light -mt-2 ${
             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
           }`}>
-            Catalog of verified boulder problems & topo betas
+            Information and details on specific climbing and boulder problems, including grades, descriptions, and user logs.
           </p>
 
           {/* Mobile: Horizontal scrollable portrait cards / Desktop: 3-4 cols */}
           <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto no-scrollbar pb-3 -mx-4 px-4 md:mx-0 md:px-0 items-stretch">
-            {featuredProblems.slice(0, 8).map((problem, idx) => {
+            {featuredProblems.slice(0, 8).map((problem) => {
               const gradeColor = gradeColors[problem.grade] || '#CCFF00'
               const photoUrl = problem.imageUrl || problem.sectorImage || problem.cragImage || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=800&q=80'
               const rawMarkers = Array.isArray(problem.markers) ? problem.markers : []
@@ -231,14 +417,8 @@ export default function HomePage() {
                     <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/80 via-black/30 to-transparent pointer-events-none z-10" />
                     <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/95 via-black/65 to-transparent pointer-events-none z-10" />
 
-                    {/* Subtle Shimmer highlight on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
-                    </div>
-
                     {/* Animated SVG Topo Line */}
                     <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
-                      {/* Underlying soft glow line */}
                       <polyline
                         points={markers.map((m) => `${m.x}%,${m.y}%`).join(' ')}
                         fill="none"
@@ -249,7 +429,6 @@ export default function HomePage() {
                         strokeLinejoin="round"
                         className="transition-opacity duration-300 group-hover:opacity-60"
                       />
-                      {/* Marching dash topo route line */}
                       <polyline
                         points={markers.map((m) => `${m.x}%,${m.y}%`).join(' ')}
                         fill="none"
@@ -263,14 +442,13 @@ export default function HomePage() {
                       />
                     </svg>
 
-                    {/* Animated Marker Points with Radar Pulse */}
+                    {/* Marker Points */}
                     {markers.map((m, mIdx) => (
                       <div
                         key={mIdx}
                         style={{ left: `${m.x}%`, top: `${m.y}%`, transform: 'translate(-50%, -50%)' }}
                         className="absolute pointer-events-none z-10 flex items-center justify-center"
                       >
-                        {/* Radar Pulse ring for Start & Top Finish hold */}
                         {(m.type === 'T' || m.type === 'S') && (
                           <span
                             className={`absolute w-7 h-7 rounded-full animate-anchor-pulse ${
@@ -295,7 +473,7 @@ export default function HomePage() {
                     {/* Card Top: Discipline & Grade badges */}
                     <div className="relative z-20 p-3.5 flex items-center justify-between">
                       <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-black/65 backdrop-blur-md text-white/90 border border-white/20 flex items-center gap-1 shadow-sm">
-                        <Compass size={10} className="text-[#FF6B00] animate-spin-slow" /> {problem.discipline ? problem.discipline.toUpperCase() : 'BOULDER'}
+                        <Compass size={10} className="text-[#FF6B00]" /> {problem.discipline ? problem.discipline.toUpperCase() : 'BOULDER'}
                       </span>
 
                       <div
@@ -331,7 +509,7 @@ export default function HomePage() {
             })}
           </div>
 
-          {/* Discover More Button */}
+          {/* CTA Button: Yes */}
           <div className="flex justify-end pt-2">
             <Link
               href="/beta"
@@ -347,20 +525,151 @@ export default function HomePage() {
         <div className="border-t border-[#F90657]/30" />
 
         {/* ============================================================ */}
-        {/* SECTION 3: CLIMBING GYM                                      */}
+        {/* ITEM 5: CONNECT (V1.0: ADD FRIEND & SENT PROJECT)            */}
+        {/* Scope: Finding, messaging, connecting with other climbers    */}
+        {/* CTA Button: Yes (Add Friend, Sent Project)                   */}
+        {/* ============================================================ */}
+        <section className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657]">
+                  Connect
+                </h2>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  V1.0 Active
+                </span>
+              </div>
+              <p className={`text-xs md:text-sm font-light mt-0.5 ${
+                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+              }`}>
+                A feature for finding, messaging, and connecting with other climbers and potential partners.
+              </p>
+            </div>
+
+            {/* Staged Roadmap Pill */}
+            <div className="flex items-center gap-2 text-[10px] font-mono opacity-70">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                V1.0: Friends & Sends
+              </span>
+              <span className="opacity-50">·</span>
+              <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 opacity-75">
+                V2.0: Trip · V5.0: Rent Gear
+              </span>
+            </div>
+          </div>
+
+          {/* Connect Action Cards (CTA Button: Yes) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {/* Action 1: Add Friend */}
+            <Link
+              href="/climbers"
+              className={`p-5 rounded-2xl border flex flex-col justify-between group transition-all hover:-translate-y-0.5 ${
+                isSandstone
+                  ? 'bg-[#f4efe6] border-[#1a1815]/15 hover:border-[#FF6B00]'
+                  : 'bg-[#181D22] border-white/10 hover:border-[#FF6B00]/40'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-xl bg-[#FF6B00]/15 flex items-center justify-center text-[#FF6B00]">
+                  <UserPlus size={20} />
+                </div>
+                <h3 className="font-bold text-base group-hover:text-[#FF6B00] transition-colors">
+                  Add Friend & Partner
+                </h3>
+                <p className="text-xs opacity-70 leading-relaxed font-light">
+                  Browse climber profiles, connect with belay buddies, and grow your local squad network.
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-xs font-bold text-[#FF6B00]">
+                <span>Find Climbers</span>
+                <ChevronRight size={14} />
+              </div>
+            </Link>
+
+            {/* Action 2: Sent Project */}
+            <button
+              type="button"
+              onClick={handleFABPress}
+              className={`p-5 rounded-2xl border flex flex-col justify-between text-left group transition-all hover:-translate-y-0.5 ${
+                isSandstone
+                  ? 'bg-[#f4efe6] border-[#1a1815]/15 hover:border-[#F90657]'
+                  : 'bg-[#181D22] border-white/10 hover:border-[#F90657]/40'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-xl bg-[#F90657]/15 flex items-center justify-center text-[#F90657]">
+                  <Award size={20} />
+                </div>
+                <h3 className="font-bold text-base group-hover:text-[#F90657] transition-colors">
+                  Project Sent (Log Ascent)
+                </h3>
+                <p className="text-xs opacity-70 leading-relaxed font-light">
+                  Log your completed send, grade vote, and generate an official verified Send Card certificate.
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-xs font-bold text-[#F90657]">
+                <span>Log Send Card</span>
+                <ChevronRight size={14} />
+              </div>
+            </button>
+
+            {/* Action 3: Set Problems (Route Setter) */}
+            <Link
+              href="/beta?action=submit"
+              className={`p-5 rounded-2xl border flex flex-col justify-between group transition-all hover:-translate-y-0.5 sm:col-span-2 md:col-span-1 ${
+                isSandstone
+                  ? 'bg-[#f4efe6] border-[#1a1815]/15 hover:border-[#06B6D4]'
+                  : 'bg-[#181D22] border-white/10 hover:border-[#06B6D4]/40'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-xl bg-[#06B6D4]/15 flex items-center justify-center text-[#06B6D4]">
+                  <Compass size={20} />
+                </div>
+                <h3 className="font-bold text-base group-hover:text-[#06B6D4] transition-colors">
+                  Set Problems (Route Beta)
+                </h3>
+                <p className="text-xs opacity-70 leading-relaxed font-light">
+                  Map out boulder lines, crux markers, and contribute new route documentation.
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-xs font-bold text-[#06B6D4]">
+                <span>Set New Route</span>
+                <ChevronRight size={14} />
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        {/* PINK DIVIDER LINE */}
+        <div className="border-t border-[#F90657]/30" />
+
+        {/* ============================================================ */}
+        {/* ITEM 6: CLIMBING GYM (V1.0 ACTIVE)                           */}
+        {/* Scope: Locations, facilities, route setters, booking passes  */}
+        {/* CTA Button: Yes                                              */}
         {/* ============================================================ */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/gyms" className="group inline-block">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
-                Climbing Gym
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
+                  Climbing Gym
+                </h2>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  V1.0
+                </span>
+              </div>
             </Link>
           </div>
           <p className={`text-xs md:text-sm font-light -mt-2 ${
             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
           }`}>
-            Climbing gym directory, modern facilities, and live session slots
+            Locations, facilities, route setter and events from climbing gyms with detailed informations.
           </p>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3-4 cols */}
@@ -429,7 +738,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Discover More Button */}
+          {/* CTA Button: Yes */}
           <div className="flex justify-end pt-2">
             <Link
               href="/gyms"
@@ -445,20 +754,27 @@ export default function HomePage() {
         <div className="border-t border-[#F90657]/30" />
 
         {/* ============================================================ */}
-        {/* SECTION 4: COMMUNITY                                         */}
+        {/* ITEM 7: COMMUNITY (V1.0 ACTIVE)                              */}
+        {/* Scope: Find friends, clubs, squads, share activities         */}
+        {/* CTA Button: Yes                                              */}
         {/* ============================================================ */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/community" className="group inline-block">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
-                Community
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
+                  Community
+                </h2>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  V1.0
+                </span>
+              </div>
             </Link>
           </div>
           <p className={`text-xs md:text-sm font-light -mt-2 ${
             isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
           }`}>
-            Local bouldering squads, session buddies, and climber networks
+            Find friends, clubs or squads townhall of like minded people to get connected, share activities and updating latest projects.
           </p>
 
           {/* Mobile: Horizontal scrollable cards / Desktop: 3 cols */}
@@ -534,7 +850,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Discover More Button */}
+          {/* CTA Button: Yes */}
           <div className="flex justify-end pt-2">
             <Link
               href="/community"
@@ -543,6 +859,143 @@ export default function HomePage() {
               <span>Discover More Community</span>
               <ChevronRight size={14} />
             </Link>
+          </div>
+        </section>
+
+        {/* PINK DIVIDER LINE */}
+        <div className="border-t border-[#F90657]/30" />
+
+        {/* ============================================================ */}
+        {/* ITEM 8, 9, 10, 11: PLATFORM HUB & ROADMAP (V1.0 - V5.0)      */}
+        {/* 8. Personal Account (Yes) | 9. Settings (Yes)                */}
+        {/* 10. Shop (Not Yet - V4.0) | 11. Event (Not Yet - V3.0)       */}
+        {/* ============================================================ */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#F90657]">
+                Jalur Platform Hub
+              </h2>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30">
+                Staged V1.0 – V5.0
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {/* 8. Personal Account (CTA Button: Yes) */}
+            <Link
+              href="/account"
+              className={`p-5 rounded-2xl border flex flex-col justify-between group transition-all hover:-translate-y-0.5 ${
+                isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#FF6B00]/15 flex items-center justify-center text-[#FF6B00]">
+                    <User size={16} />
+                  </div>
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">
+                    V1.0 Live
+                  </span>
+                </div>
+                <h4 className="font-bold text-sm group-hover:text-[#FF6B00] transition-colors">
+                  Personal Account
+                </h4>
+                <p className="text-[11px] opacity-70 mt-1 font-light">
+                  Personal page with records of experience, transaction wallet, gear collection.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-xs font-bold text-[#FF6B00]">
+                <span>Open Account</span>
+                <ChevronRight size={13} />
+              </div>
+            </Link>
+
+            {/* 9. Settings (CTA Button: Yes) */}
+            <Link
+              href="/settings"
+              className={`p-5 rounded-2xl border flex flex-col justify-between group transition-all hover:-translate-y-0.5 ${
+                isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#F90657]/15 flex items-center justify-center text-[#F90657]">
+                    <SettingsIcon size={16} />
+                  </div>
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">
+                    V1.0 Live
+                  </span>
+                </div>
+                <h4 className="font-bold text-sm group-hover:text-[#F90657] transition-colors">
+                  Settings & Policies
+                </h4>
+                <p className="text-[11px] opacity-70 mt-1 font-light">
+                  Page of general personalization (Theme, Grades) and platform regulations.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-xs font-bold text-[#F90657]">
+                <span>Manage Settings</span>
+                <ChevronRight size={13} />
+              </div>
+            </Link>
+
+            {/* 11. Event (CTA Button: Not Yet - V3.0) */}
+            <div className={`p-5 rounded-2xl border flex flex-col justify-between opacity-75 relative overflow-hidden ${
+              isSandstone ? 'bg-[#f4efe6]/60 border-[#1a1815]/10' : 'bg-[#181D22]/60 border-white/5'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400">
+                    <Clock size={16} />
+                  </div>
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                    V3.0 Roadmap
+                  </span>
+                </div>
+                <h4 className="font-bold text-sm text-chalk">
+                  Events & Comp
+                </h4>
+                <p className="text-[11px] opacity-70 mt-1 font-light">
+                  Competitions, workshops, exhibitions & bouldering conferences.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-[11px] font-medium opacity-60">
+                <span>Coming in V3.0</span>
+                <Lock size={12} />
+              </div>
+            </div>
+
+            {/* 10. Shop (CTA Button: Not Yet - V4.0) */}
+            <div className={`p-5 rounded-2xl border flex flex-col justify-between opacity-75 relative overflow-hidden ${
+              isSandstone ? 'bg-[#f4efe6]/60 border-[#1a1815]/10' : 'bg-[#181D22]/60 border-white/5'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center text-purple-400">
+                    <Layers size={16} />
+                  </div>
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                    V4.0 Roadmap
+                  </span>
+                </div>
+                <h4 className="font-bold text-sm text-chalk">
+                  Jalur Collab Shop
+                </h4>
+                <p className="text-[11px] opacity-70 mt-1 font-light">
+                  Special collection from Jalur in collaborations with curated brands.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-[11px] font-medium opacity-60">
+                <span>Coming in V4.0</span>
+                <Lock size={12} />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -560,7 +1013,7 @@ export default function HomePage() {
           onClose={() => setShowLogModal(false)}
           onSubmit={data => {
             const saved = saveUserAscent({
-              userId: 'user-1',
+              userId: user?.id || 'user-1',
               problemId: 'quick-send',
               problemName: 'Quick Send',
               grade: data.gradeVote || '5.12 B',
@@ -575,7 +1028,7 @@ export default function HomePage() {
               videoUrl: data.videoUrl,
               markers: [],
               discipline: 'lead',
-              climberName: data.climberName || 'Arief Lala Hakiem',
+              climberName: data.climberName || user?.name || 'Ahmad Rizki',
               attempts: data.attempts,
               duration: data.duration,
               belayer: data.belayer,

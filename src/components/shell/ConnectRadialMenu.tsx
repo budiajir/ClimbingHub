@@ -29,32 +29,21 @@ export default function ConnectRadialMenu({
 
   const desktopActions = [
     {
-      id: "rent-gear",
-      title: "Rent Gear",
-      subtitle: "Sewa crashpad, tali, helm & gear panjat",
-      tag: "Gear Rental",
-      icon: "/pictograms/connect-rent-gear.png",
+      id: "add-friend",
+      title: "Add Friend",
+      subtitle: "Cari sesama climber & partner panjat",
+      tag: "V1.0 · Climbers",
+      icon: "/pictograms/connect-add-friend.png",
       onClick: () => {
         onClose();
-        onRentGear();
-      },
-    },
-    {
-      id: "set-problems",
-      title: "Set Problems",
-      subtitle: "Petakan rute boulder & rute baru",
-      tag: "Route Setter",
-      icon: "/pictograms/connect-set-problems.png",
-      onClick: () => {
-        onClose();
-        onSetProblems();
+        onAddFriend();
       },
     },
     {
       id: "project-sent",
       title: "Project Sent",
       subtitle: "Catat verified ascent & buat Sent Card",
-      tag: "Ascent Card",
+      tag: "V1.0 · Ascent Card",
       icon: "/pictograms/connect-project-sent.png",
       onClick: () => {
         onClose();
@@ -62,10 +51,21 @@ export default function ConnectRadialMenu({
       },
     },
     {
+      id: "set-problems",
+      title: "Set Problems",
+      subtitle: "Petakan rute boulder & rute baru",
+      tag: "V1.0 · Route Setter",
+      icon: "/pictograms/connect-set-problems.png",
+      onClick: () => {
+        onClose();
+        onSetProblems();
+      },
+    },
+    {
       id: "open-trip",
       title: "Open Trip",
       subtitle: "Gabung open trip atau booking guide lokal",
-      tag: "Trip Plan",
+      tag: "V2.0 Roadmap · Trip",
       icon: "/pictograms/connect-open-trip.png",
       onClick: () => {
         onClose();
@@ -73,14 +73,14 @@ export default function ConnectRadialMenu({
       },
     },
     {
-      id: "add-friend",
-      title: "Add Friend",
-      subtitle: "Cari sesama climber & komunitas panjat",
-      tag: "Climbers",
-      icon: "/pictograms/connect-add-friend.png",
+      id: "rent-gear",
+      title: "Rent Gear",
+      subtitle: "Sewa crashpad, tali, helm & gear panjat",
+      tag: "V5.0 Roadmap · Rental",
+      icon: "/pictograms/connect-rent-gear.png",
       onClick: () => {
         onClose();
-        onAddFriend();
+        onRentGear();
       },
     },
   ];

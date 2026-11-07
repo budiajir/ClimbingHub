@@ -24,6 +24,8 @@ import {
   UserCheck,
   Check,
   Award,
+  Settings as SettingsIcon,
+  ChevronRight,
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuth } from '@/lib/auth-context'
@@ -284,6 +286,32 @@ export default function TopBar({
                     />
                   </div>
                 </form>
+
+                {/* 2.5 QUICK LINK: SETTINGS & POLICIES (V1.0 FEATURE) */}
+                <div className="pt-1">
+                  <Link
+                    href="/settings"
+                    onClick={() => setShowDrawer(false)}
+                    className={`w-full flex items-center justify-between p-3 rounded-2xl border transition-all ${
+                      isSandstone
+                        ? 'bg-[#1a1815]/5 hover:bg-[#1a1815]/10 border-[#1a1815]/15 text-[#1a1815]'
+                        : 'bg-white/5 hover:bg-white/10 border-white/10 text-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#F90657]/15 flex items-center justify-center text-[#F90657]">
+                        <SettingsIcon size={16} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs">Settings & Policies</h4>
+                        <p className="text-[10px] opacity-60">Personalization & Regulations</p>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30">
+                      V1.0 Live
+                    </span>
+                  </Link>
+                </div>
 
                 {/* 3. EDITORIAL ACCORDION DROPDOWN NAVIGATION LINKS */}
                 <nav className="pt-2 sm:pt-4 space-y-3 sm:space-y-4 max-h-[58vh] overflow-y-auto no-scrollbar pr-1">
