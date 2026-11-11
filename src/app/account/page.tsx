@@ -171,7 +171,7 @@ function PersonalAccountContent() {
   const [lastName, setLastName] = useState(isViewingOther ? 'Herdiana' : 'Rizki Nugraha')
   const [username, setUsername] = useState(isViewingOther ? '@nana.climbs' : '@ahmad.rizki')
   const [homeBase, setHomeBase] = useState(isViewingOther ? 'Jakarta Selatan, DKI Jakarta' : 'Bandung, Jawa Barat')
-  const [countryOfOrigin, setCountryOfOrigin] = useState('Indonesia 🇮🇩')
+  const [countryOfOrigin, setCountryOfOrigin] = useState('Indonesia')
   const [userAccountStatus, setUserAccountStatus] = useState<'Climber' | 'Route Setter' | 'Trip Guide' | 'Gym Manager'>('Route Setter')
   const [bioDescription, setBioDescription] = useState(
     isViewingOther
@@ -1515,7 +1515,7 @@ function PersonalAccountContent() {
                           <p className="text-xs opacity-70 truncate">{item.subtitle || item.location}</p>
                           {item.date && (
                             <p className="text-[11px] text-[#06B6D4] font-medium pt-0.5">
-                              📅 {item.date}
+                              {item.date}
                             </p>
                           )}
                         </div>

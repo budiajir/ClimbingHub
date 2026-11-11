@@ -38,7 +38,7 @@ export const DEFAULT_COMMUNITY_POSTS: CommunityPost[] = [
     image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=900&q=80',
     likes: 38,
     comments: [
-      { user: 'Dimas Anggara', text: 'Gokil mantap brother!! Beta undercling nya dapet akhirnya 🔥' },
+      { user: 'Dimas Anggara', text: 'Gokil mantap brother!! Beta undercling nya dapet akhirnya' },
       { user: 'Sarah Amalia', text: 'Keren banget mas Budi!' },
     ],
   },
@@ -92,7 +92,7 @@ export const DEFAULT_COMMUNITY_POSTS: CommunityPost[] = [
     image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=900&q=80',
     likes: 51,
     comments: [
-      { user: 'Guntur Putra', text: 'Solid heel hook tekniknya Rani! 🔥' },
+      { user: 'Guntur Putra', text: 'Solid heel hook tekniknya Rani!' },
     ],
   },
 ]

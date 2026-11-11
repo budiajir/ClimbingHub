@@ -174,8 +174,8 @@ export default function CashierView() {
                     result.status === 'success' ? 'text-lime' :
                     result.status === 'used' ? 'text-project' : 'text-redpoint'
                   }`}>
-                    {result.status === 'success' ? '✅ VALID TICKET — Welcome In!' :
-                     result.status === 'used' ? '⚠️ WARNING: Ticket Already Used' : '❌ TICKET CODE NOT FOUND'}
+                    {result.status === 'success' ? 'VALID TICKET — Welcome In!' :
+                     result.status === 'used' ? 'WARNING: Ticket Already Used' : 'TICKET CODE NOT FOUND'}
                   </p>
                   {result.status !== 'invalid' && (
                     <div className="space-y-0.5">

@@ -1048,7 +1048,7 @@ export default function ProblemSheet({ problem, region, onLogAscent, onSetNewRou
                 : 'bg-lime text-granite hover:bg-lime-dim shadow-lime-glow'
             }`}
           >
-            <span>Submit Sent 🎉</span>
+            <span>Submit Sent</span>
             <span className="text-[11px] opacity-80 font-normal hidden xs:inline">(Log Ascent)</span>
           </button>
 

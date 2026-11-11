@@ -388,7 +388,7 @@ export default function AscentShareModal({
               <div>
                 <h3 className="text-chalk font-bold text-base leading-tight">Official Send Card</h3>
                 <p className="text-slate-ash text-[11px] font-light">
-                  Celebration card for your verified send 🎉
+                  Celebration card for your verified send
                 </p>
               </div>
             </div>
@@ -416,7 +416,7 @@ export default function AscentShareModal({
                 />
                 <div className="absolute bottom-2 left-0 right-0 text-center pointer-events-none">
                   <span className="bg-black/75 backdrop-blur-sm text-[10px] text-white/90 px-2.5 py-1 rounded-full border border-white/10">
-                    💡 Tip: Press & hold image to Save to Photos on iPhone
+                    Tip: Press & hold image to Save to Photos on iPhone
                   </span>
                 </div>
               </div>

@@ -461,7 +461,7 @@ export default function GymDetailPage() {
                       ? 'text-[#1a1815] bg-[#1a1815]/10 border-[#1a1815]/20'
                       : 'text-cyan-climb bg-cyan-climb/10 border-cyan-climb/20'
                   }`}>
-                    🧗‍♂️ {setter}
+                    {setter}
                   </span>
                 ))}
               </div>

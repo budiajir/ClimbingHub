@@ -90,7 +90,7 @@ export default function RoadmapContributeModal({ onClose }: RoadmapContributeMod
             className="w-full py-2.5 bg-granite border border-white/10 hover:border-lime/40 text-chalk text-xs rounded-xl flex items-center justify-center gap-2 transition-all group font-light"
           >
             <ShieldCheck size={14} className="text-lime group-hover:scale-110 transition-transform" />
-            <span>Switch to <b>Website Owner (Super Admin)</b> Mode ⚡</span>
+            <span>Switch to <b>Website Owner (Super Admin)</b> Mode</span>
           </button>
         </div>
       </motion.div>

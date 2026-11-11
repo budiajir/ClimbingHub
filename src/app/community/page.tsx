@@ -166,7 +166,7 @@ const INITIAL_FRIEND_POSTS: FriendPost[] = [
     image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=900&q=80',
     likes: 38,
     comments: [
-      { user: 'Dimas Anggara', text: 'Gokil mantap brother!! Beta undercling nya dapet akhirnya 🔥' },
+      { user: 'Dimas Anggara', text: 'Gokil mantap brother!! Beta undercling nya dapet akhirnya' },
       { user: 'Sarah Amalia', text: 'Keren banget mas Budi!' },
     ],
   },

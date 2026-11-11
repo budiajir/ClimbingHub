@@ -482,11 +482,18 @@ export default function CragsDirectoryPage() {
                           exit={{ opacity: 0, height: 0 }}
                           className="pl-6 pt-3 pb-2 space-y-3"
                         >
-                          <div className="flex flex-wrap items-center gap-3 text-xs opacity-75">
-                            <span>📍 {crag.province}</span>
-                            <span>🪨 {crag.rockType?.type || "Limestone / Karst"}</span>
-                            <span>⛰️ {crag.sectorCount} Sectors</span>
-                            {crag.weatherForecast && <span>☀️ {crag.weatherForecast.tempAvg}</span>}
+                          <div className="flex flex-wrap items-center gap-2 text-xs opacity-75">
+                            <span>{crag.province}</span>
+                            <span>•</span>
+                            <span>{crag.rockType?.type || "Limestone / Karst"}</span>
+                            <span>•</span>
+                            <span>{crag.sectorCount} Sectors</span>
+                            {crag.weatherForecast && (
+                              <>
+                                <span>•</span>
+                                <span>{crag.weatherForecast.tempAvg}</span>
+                              </>
+                            )}
                             <span className="text-emerald-400 font-semibold flex items-center gap-1">
                               <UserCheck size={12} /> {getCragCheckInCount(crag.id)} Active Today
                             </span>

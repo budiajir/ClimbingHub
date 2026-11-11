@@ -118,21 +118,21 @@ const POLICY_DETAILS: Record<
         </p>
 
         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-          <h5 className="font-bold mb-1 text-sm">🌿 Leave No Trace (LNT) Principles</h5>
+          <h5 className="font-bold mb-1 text-sm">Leave No Trace (LNT) Principles</h5>
           <p className="opacity-80">
             Pack out all trash without exception, including tape scraps, cigarette butts, and fruit peels. Never alter natural rock formations or disturb flora surrounding the boulder zones.
           </p>
         </div>
 
         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-          <h5 className="font-bold mb-1 text-sm">🧹 Clean Chalk & Tick Marks</h5>
+          <h5 className="font-bold mb-1 text-sm">Clean Chalk & Tick Marks</h5>
           <p className="opacity-80">
             Always brush off heavy chalk buildup and line tick marks after finishing your session using a soft nylon or boar-hair brush so the rock stays clean and natural for the next climber.
           </p>
         </div>
 
         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-          <h5 className="font-bold mb-1 text-sm">🤝 Gym & Crag Etiquette</h5>
+          <h5 className="font-bold mb-1 text-sm">Gym & Crag Etiquette</h5>
           <p className="opacity-80">
             Give space to active climbers on the wall, never walk underneath another climber&apos;s fall zone, and spread positive psyche to your fellow climbers.
           </p>
@@ -148,21 +148,21 @@ const POLICY_DETAILS: Record<
     content: (
       <div className="space-y-3.5 text-xs leading-relaxed">
         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-          <h5 className="font-bold mb-1 text-sm">⏱ Cancellation Deadline (24 Hours Prior)</h5>
+          <h5 className="font-bold mb-1 text-sm">Cancellation Deadline (24 Hours Prior)</h5>
           <p className="opacity-80">
             Cancellations or reschedule requests can be made up to 24 hours before your reserved session start time.
           </p>
         </div>
 
         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-          <h5 className="font-bold mb-1 text-sm">🔄 Free Reschedule</h5>
+          <h5 className="font-bold mb-1 text-sm">Free Reschedule</h5>
           <p className="opacity-80">
             Every gym pass includes 1 free schedule change to another available slot within 30 days of the purchase date.
           </p>
         </div>
 
         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-          <h5 className="font-bold mb-1 text-sm">⚠️ No-Show Policy</h5>
+          <h5 className="font-bold mb-1 text-sm">No-Show Policy</h5>
           <p className="opacity-80">
             If a ticket holder fails to show up without prior notice before the session ends, the ticket is forfeited and cannot be transferred or refunded.
           </p>
@@ -178,21 +178,21 @@ const POLICY_DETAILS: Record<
     content: (
       <div className="space-y-3.5 text-xs leading-relaxed">
         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-          <h5 className="font-bold mb-1 text-sm">💯 Full Refund (100%)</h5>
+          <h5 className="font-bold mb-1 text-sm">Full Refund (100%)</h5>
           <p className="opacity-80">
             A full refund is provided if facility closure occurs due to gym management decisions (e.g. emergency wall maintenance, safety turnover, or private competition closures).
           </p>
         </div>
 
         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-          <h5 className="font-bold mb-1 text-sm">⚡ Processing Method & Timelines</h5>
+          <h5 className="font-bold mb-1 text-sm">Processing Method & Timelines</h5>
           <p className="opacity-80">
             Approved refunds will be credited back to your original payment method (Bank Transfer, E-Wallet, or QRIS) within 3 to 5 business days.
           </p>
         </div>
 
         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-          <h5 className="font-bold mb-1 text-sm">🎟 Instant Credit Voucher</h5>
+          <h5 className="font-bold mb-1 text-sm">Instant Credit Voucher</h5>
           <p className="opacity-80">
             As a fast alternative, you can choose a balance credit voucher for future climbing sessions with no expiration date.
           </p>
@@ -280,14 +280,14 @@ const POLICY_DETAILS: Record<
 
         <div className="space-y-2.5">
           <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-            <h5 className="font-bold mb-1">🎯 Our Vision</h5>
+            <h5 className="font-bold mb-1">Our Vision</h5>
             <p className="opacity-80">
               To be the premier digital platform connecting climbers, route setters, gym partners, and outdoor conservationists in an inclusive and sustainable ecosystem.
             </p>
           </div>
 
           <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
-            <h5 className="font-bold mb-1">🏔 Core Features</h5>
+            <h5 className="font-bold mb-1">Core Features</h5>
             <p className="opacity-80">
               Interactive outdoor crag topographies, GPS coordinates, verified Send Cards with action media, Strava-style ascent logging, and real-time gym booking directories.
             </p>

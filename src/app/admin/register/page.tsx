@@ -205,7 +205,7 @@ export default function AdminRegisterPage() {
               type="submit"
               className="w-full py-3.5 bg-lime text-granite font-bold tracking-wide rounded-xl shadow-lime-glow hover:bg-lime-dim transition-all text-xs mt-2"
             >
-              Activate Gym Dashboard Now 🎉
+              Activate Gym Dashboard Now
             </button>
           </form>
         )}

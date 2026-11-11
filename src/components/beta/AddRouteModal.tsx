@@ -1466,7 +1466,7 @@ export default function AddRouteModal({
                     className="flex-1 py-3 bg-[#FF6B00] hover:bg-[#E56000] text-white font-bold tracking-wide rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-2 active:scale-95"
                   >
                     <CheckCircle2 size={16} />
-                    <span>Publish Route & Topo 🚀</span>
+                    <span>Publish Route & Topo</span>
                   </button>
                 </div>
               </div>

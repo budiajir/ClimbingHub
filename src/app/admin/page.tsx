@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
               onClick={() => loginAsGymAdmin()}
               className="w-full py-2.5 bg-lime/10 border border-lime/30 text-lime rounded-xl text-xs font-bold hover:bg-lime/20 transition-all text-center"
             >
-              ⚡ Quick Launch (Gym Admin Demo Mode)
+              Quick Launch (Gym Admin Demo Mode)
             </button>
           </div>
         </div>

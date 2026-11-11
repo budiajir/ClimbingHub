@@ -26,7 +26,7 @@ const DEFAULT_COMMUNITY_PHOTOS: Record<string, CommunityPhoto[]> = {
       id: "photo-1-1",
       communityId: "comm-1",
       url: "https://images.unsplash.com/photo-1522163182402-834f871fd851?w=900&q=80",
-      caption: "Saturday morning bouldering session with the crew at Vertigo! Finally sent the dyno crux 🎉",
+      caption: "Saturday morning bouldering session with the crew at Vertigo! Finally sent the dyno crux",
       uploaderName: "Ahmad Rizki",
       uploaderAvatar: "https://i.pravatar.cc/60?img=1",
       createdAt: "10 Sept 2026",

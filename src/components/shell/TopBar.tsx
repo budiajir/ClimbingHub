@@ -495,7 +495,7 @@ export default function TopBar({
                           : 'border-white/20 bg-white/5 text-chalk'
                       }`}
                     >
-                      {role === 'super_admin' ? '👑' : role === 'gym_admin' ? '🏢' : role === 'registered' ? '🧗' : '👁'}
+                      {role === 'super_admin' ? 'SA' : role === 'gym_admin' ? 'GA' : role === 'registered' ? 'CL' : 'G'}
                     </div>
                     <span className="text-xs font-medium">
                       {role === 'guest' ? 'Guest' : user?.name || 'Climber'}

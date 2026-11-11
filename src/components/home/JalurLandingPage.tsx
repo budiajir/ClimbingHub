@@ -238,7 +238,7 @@ export default function JalurLandingPage() {
                       className="absolute left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-red-600/90 text-white text-[10px] font-medium shadow-xl z-20 flex items-center gap-1.5 max-w-[85%] text-center backdrop-blur-sm pointer-events-none font-['BDO_Grotesk','BDOGrotesk','Space_Grotesk',sans-serif]"
                       style={{ top: '85.4%' }}
                     >
-                      <span>⚠️ {message}</span>
+                      <span>{message}</span>
                     </div>
                   )}
 

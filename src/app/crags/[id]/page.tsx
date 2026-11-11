@@ -1371,7 +1371,7 @@ export default function CragDetailPage() {
                 <p><strong>Texture Profile:</strong> {stoneTypology.texture}</p>
                 <p><strong>Macro Characteristics:</strong> {stoneTypology.macroDescription || "Natural rock grain showing micro-crystals, friction edges, and finger holds."}</p>
                 <p className="text-[11px] text-[#06B6D4] pt-1">
-                  💡 <em>Preservation Note:</em> {stoneTypology.ethics || "Brush off chalk tick marks with soft boar-hair bristles before leaving."}
+                  <em>Preservation Note:</em> {stoneTypology.ethics || "Brush off chalk tick marks with soft boar-hair bristles before leaving."}
                 </p>
               </div>
             </motion.div>

@@ -1051,7 +1051,7 @@ export default function TopoCanvas({
               onClick={onLogAscent}
               className="w-full py-3 px-4 rounded-xl bg-lime hover:bg-lime-dim text-granite font-bold text-sm flex items-center justify-center gap-2 shadow-lime-glow-sm transition-all touch-ripple"
             >
-              <span>🎉 Log Ascent / Completed Route</span>
+              <span>Log Ascent / Completed Route</span>
             </button>
           </div>
         )}
@@ -1652,7 +1652,7 @@ export default function TopoCanvas({
                 : 'bg-lime text-granite hover:bg-lime-dim shadow-lime-glow'
             }`}
           >
-            <span>🎉 Submit Sent (Log Ascent)</span>
+            <span>Submit Sent (Log Ascent)</span>
           </button>
         )}
 

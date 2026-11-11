@@ -305,7 +305,7 @@ export default function LogAscentModal({
                   : 'bg-transparent border-transparent text-slate-ash hover:text-white'
               }`}
             >
-              <span>📝 Ascent Details</span>
+              <span>Ascent Details</span>
             </button>
             <button
               type="button"
@@ -317,7 +317,7 @@ export default function LogAscentModal({
               }`}
             >
               <Award size={14} />
-              <span>🎴 Live Send Card Preview</span>
+              <span>Live Send Card Preview</span>
             </button>
           </div>
 
@@ -465,7 +465,7 @@ export default function LogAscentModal({
                     {/* Badges / Delete */}
                     <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
                       <span className="text-[10px] text-white/90 bg-black/75 px-2 py-0.5 rounded-md backdrop-blur-xs">
-                        {isVideo ? '🎬 Video Clip' : hasCustomPhoto ? 'Your Gallery Photo' : 'Route Photo'}
+                        {isVideo ? 'Video Clip' : hasCustomPhoto ? 'Your Gallery Photo' : 'Route Photo'}
                       </span>
                       {hasCustomPhoto && (
                         <button
@@ -791,7 +791,7 @@ export default function LogAscentModal({
                 onClick={handleSubmit}
                 className="w-full h-12 bg-[#E6392D] hover:bg-[#D32F2F] text-white font-bold tracking-wide rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 touch-ripple"
               >
-                <span>Submit Ascent & Generate Send Card</span> 🎉
+                <span>Submit Ascent & Generate Send Card</span>
               </button>
             ) : (
               <motion.div

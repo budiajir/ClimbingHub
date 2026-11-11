@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, Users, Plus, Minus, ShoppingBag, CheckCircle, Sparkles } from 'lucide-react'
+import { Calendar, Users, Plus, Minus, ShoppingBag, CheckCircle, Sparkles, Sun, Moon, Package, UserCheck } from 'lucide-react'
 import { Gym } from '@/lib/mock-data'
 import { addWalletOrder } from '@/lib/wallet-store'
 
@@ -24,9 +24,9 @@ export interface BookingData {
 }
 
 const addonItems = [
-  { key: 'shoes', label: 'Climbing Shoes', price: 25000, icon: '👟' },
-  { key: 'chalk', label: 'Chalk Bag', price: 10000, icon: '🤍' },
-  { key: 'trainer', label: 'Private Trainer', price: 75000, icon: '🧗‍♂️' },
+  { key: 'shoes', label: 'Climbing Shoes', price: 25000, icon: 'shoes' },
+  { key: 'chalk', label: 'Chalk Bag', price: 10000, icon: 'chalk' },
+  { key: 'trainer', label: 'Private Trainer', price: 75000, icon: 'trainer' },
 ]
 
 export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
@@ -80,7 +80,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
       time: '09:00 – 15:00',
       price: sessionPricing.day,
       desc: isWeekend ? 'Weekend Daytime Rate' : 'Weekday Daytime Rate',
-      icon: '☀️',
+      icon: 'sun',
     },
     {
       key: 'night' as const,
@@ -88,7 +88,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
       time: '15:00 – 22:00',
       price: sessionPricing.night,
       desc: isWeekend ? 'Weekend Evening / Peak Rate' : 'Weekday Evening Rate',
-      icon: '🌙',
+      icon: 'moon',
     },
   ]
 
@@ -197,7 +197,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
               >
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xl">{s.icon}</span>
+                    <span className="inline-flex items-center justify-center">{s.icon === 'sun' ? <Sun size={18} className="text-ember-orange" /> : <Moon size={18} className="text-cyan-climb" />}</span>
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         isSelected ? 'bg-[#FF6B00] text-white' : 'bg-white/10 text-white/70'
@@ -262,7 +262,7 @@ export default function SlotPicker({ gym, onBook }: SlotPickerProps) {
                 className="flex items-center justify-between bg-[#1a1f24] border border-white/10 rounded-2xl p-3"
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-xl">{item.icon}</span>
+                  <span className="inline-flex items-center justify-center">{item.icon === 'shoes' ? <ShoppingBag size={18} className="text-ember-orange" /> : item.icon === 'chalk' ? <Package size={18} className="text-cyan-climb" /> : <UserCheck size={18} className="text-emerald-400" />}</span>
                   <div>
                     <div className="text-chalk text-sm font-bold">{item.label}</div>
                     <div className="text-slate-ash text-[11px] font-mono">
