@@ -14,7 +14,17 @@ import {
   Award,
 } from 'lucide-react'
 import { UserAscent } from '@/lib/user-ascents'
-import SendCard, { SendCardData } from './SendCard'
+import {
+  SendCardData,
+  SEND_CARD_RED,
+  DEFAULT_SEND_CARD_PHOTO,
+  orderRouteMarkers,
+  trimmedLineSegment,
+  formatSendCardSpecs,
+  formatSendCardNameLines,
+  formatSendCardAscentType,
+  formatSendCardAttempts,
+} from './SendCard'
 
 interface AscentShareModalProps {
   ascent: UserAscent
@@ -59,7 +69,7 @@ export default function AscentShareModal({
     photographer: ascent.photographer || 'Meizan Nataadiningrat',
   }
 
-  // Draw the high-res Send Card onto 1080x1920 Canvas
+  // Draw the high-res Send Card onto 1080x1920 Canvas matching SendCard design
   const renderBadge = useCallback(async () => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -73,262 +83,188 @@ export default function AscentShareModal({
     canvas.width = W
     canvas.height = H
 
-    // 1. Overall Base
-    ctx.fillStyle = '#1C1917'
+    ctx.fillStyle = '#181A1F'
     ctx.fillRect(0, 0, W, H)
 
-    // 2. Subtle Left Margin Vertical Ruler Ticks
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)'
-    ctx.lineWidth = 2.5
-    for (let y = 35; y <= 1885; y += 38) {
-      ctx.beginPath()
-      ctx.moveTo(22, y)
-      ctx.lineTo(44, y)
-      ctx.stroke()
+    const loadImage = (src: string): Promise<HTMLImageElement | null> =>
+      new Promise((resolve) => {
+        const img = new Image()
+        if (!src.startsWith('data:')) {
+          img.crossOrigin = 'anonymous'
+        }
+        img.onload = () => resolve(img.width > 0 ? img : null)
+        img.onerror = () => resolve(null)
+        img.src = src
+      })
+
+    // 1. Full-Bleed Action Photo (cover fit 1080x1920)
+    const bgImageSrc = photoUrl || ascent.photoUrl || DEFAULT_SEND_CARD_PHOTO
+    const [bgImg, logoImg] = await Promise.all([
+      loadImage(bgImageSrc),
+      loadImage('/jalur-logo-white.png'),
+    ])
+
+    if (bgImg) {
+      const imgRatio = bgImg.width / bgImg.height
+      const slotRatio = W / H
+      let sWidth = bgImg.width
+      let sHeight = bgImg.height
+      let sx = 0
+      let sy = 0
+
+      if (imgRatio > slotRatio) {
+        sWidth = bgImg.height * slotRatio
+        sx = (bgImg.width - sWidth) / 2
+      } else {
+        sHeight = bgImg.width / slotRatio
+        sy = (bgImg.height - sHeight) / 2
+      }
+      ctx.drawImage(bgImg, sx, sy, sWidth, sHeight, 0, 0, W, H)
     }
 
-    // 3. TOP ZONE: Sandstone Beige Header (y = 0 to 360)
-    ctx.fillStyle = '#CBBBA4'
-    ctx.fillRect(0, 0, W, 360)
+    // 2. Subtle Top Gradient Scrim for legibility over outdoor rock
+    const topGrad = ctx.createLinearGradient(0, 0, 0, 840)
+    topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.64)')
+    topGrad.addColorStop(0.55, 'rgba(0, 0, 0, 0.28)')
+    topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
+    ctx.fillStyle = topGrad
+    ctx.fillRect(0, 0, W, 840)
 
-    // Logo: "jalur.WORLD"
+    // 3. Red Route Direction Overlay (Arah Jalur)
+    if (showTopoLine) {
+      const ordered = orderRouteMarkers(cardData.markers)
+      const pts = ordered.map((m) => ({
+        ...m,
+        px: (Number(m.x) / 100) * W,
+        py: (Number(m.y) / 100) * H,
+      }))
+      const markerR = 16.5
+      const anchorGap = 19.5
+
+      ctx.save()
+      ctx.strokeStyle = SEND_CARD_RED
+      ctx.fillStyle = SEND_CARD_RED
+      ctx.lineWidth = 6.5
+      ctx.lineCap = 'round'
+      ctx.lineJoin = 'round'
+
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p1 = pts[i]
+        const p2 = pts[i + 1]
+        const seg = trimmedLineSegment(p1.px, p1.py, p2.px, p2.py, markerR, markerR)
+        if (seg) {
+          ctx.beginPath()
+          ctx.moveTo(seg.x1, seg.y1)
+          ctx.lineTo(seg.x2, seg.y2)
+          ctx.stroke()
+        }
+      }
+
+      pts.forEach((pt) => {
+        if (pt.type === 'S') {
+          ctx.beginPath()
+          ctx.arc(pt.px, pt.py, markerR, 0, Math.PI * 2)
+          ctx.stroke()
+
+          ctx.beginPath()
+          ctx.arc(pt.px, pt.py, markerR, 0, Math.PI, false)
+          ctx.closePath()
+          ctx.fill()
+        } else if (pt.type === 'T') {
+          ctx.beginPath()
+          ctx.arc(pt.px - anchorGap, pt.py, markerR, 0, Math.PI * 2)
+          ctx.stroke()
+
+          ctx.beginPath()
+          ctx.arc(pt.px + anchorGap, pt.py, markerR, 0, Math.PI * 2)
+          ctx.stroke()
+        } else {
+          ctx.beginPath()
+          ctx.arc(pt.px, pt.py, markerR, 0, Math.PI * 2)
+          ctx.stroke()
+        }
+      })
+      ctx.restore()
+    }
+
+    // 4. Top Editorial Header Overlay
+    const marginX = 68
+    const rightX = W - marginX
+
+    // 4a. Logo "jalur." (top left)
+    ctx.save()
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.75)'
+    ctx.shadowBlur = 12
+    if (logoImg) {
+      const targetH = 56
+      const targetW = (logoImg.width / logoImg.height) * targetH
+      ctx.drawImage(logoImg, marginX, 68, targetW, targetH)
+    } else {
+      ctx.fillStyle = '#FFFFFF'
+      ctx.font = '900 54px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+      ctx.textAlign = 'left'
+      ctx.fillText('jalur.', marginX, 114)
+    }
+
+    // 4b. Problem Title (below logo)
     ctx.fillStyle = '#FFFFFF'
-    ctx.font = '900 42px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'alphabetic'
-    ctx.fillText('jalur.', 76, 85)
-    const logoW = ctx.measureText('jalur.').width
-    ctx.font = 'italic 300 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
-    ctx.fillText('WORLD', 76 + logoW + 8, 83)
+    ctx.font = '700 42px "BDO Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    ctx.fillText(cardData.problemName || 'Gugusan Bintang', marginX, 178, 560)
 
-    // Location (Crag & Province) - Top Right
-    const locationCrag = cardData.location.split('·')[0].trim() || 'Pabeasan 90 (A)'
-    const locationProvince = cardData.provinceCountry || 'Jawa Barat, ID'
+    // 4c. Large Grade (top right)
     ctx.textAlign = 'right'
-    ctx.fillStyle = '#FFFFFF'
-    ctx.font = '600 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.fillText(locationCrag, 1004, 76)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)'
-    ctx.font = '400 19px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.fillText(locationProvince, 1004, 106)
+    ctx.font = '900 122px "DIN Condensed", "Roboto Condensed", "Arial Narrow", "BDO Grotesk", sans-serif'
+    ctx.fillText((cardData.grade || '5.12 B').toUpperCase(), rightX, 168)
+    ctx.restore()
 
-    // Route Name & Grade
-    ctx.fillStyle = '#E6392D'
-    ctx.font = 'bold 52px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.textAlign = 'left'
-    let drawnName = cardData.problemName
-    if (ctx.measureText(drawnName).width > 540) {
-      ctx.font = 'bold 44px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }
-    ctx.fillText(drawnName, 76, 215)
+    // 4d. 4 Outlined Spec Pills across full width
+    const specs = formatSendCardSpecs(cardData)
+    const pillGap = 18
+    const pillW = (W - marginX * 2 - pillGap * 3) / 4
+    const pillH = 52
+    const pillY = 216
 
-    // Massive Grade in Red
-    ctx.fillStyle = '#E6392D'
-    ctx.font = '900 100px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.textAlign = 'right'
-    ctx.fillText(cardData.grade, 1004, 215)
-
-    // 4 Spec Pills
-    const wallAngle = cardData.wallAngle || '110°'
-    const wallHeight = cardData.wallHeight || '12 m'
-    const bolts = cardData.boltsCount || '6 Bolts'
-    const disciplineLabel =
-      cardData.discipline?.toLowerCase().includes('boulder')
-        ? 'Boulder'
-        : cardData.discipline?.toLowerCase().includes('multi')
-        ? 'Multi-Pitch'
-        : 'Lead'
-
-    const specs = [wallAngle, wallHeight, bolts, disciplineLabel]
-    const pillW = 215
-    const pillH = 54
-    const pillGap = (W - 76 - 76 - pillW * 4) / 3
     specs.forEach((spec, i) => {
-      const px = 76 + i * (pillW + pillGap)
-      const py = 265
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)'
-      ctx.lineWidth = 2
+      const px = marginX + i * (pillW + pillGap)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)'
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.14)'
+      ctx.lineWidth = 2.5
       ctx.beginPath()
-      ctx.roundRect(px, py, pillW, pillH, 27)
+      ctx.roundRect(px, pillY, pillW, pillH, 26)
       ctx.fill()
       ctx.stroke()
 
       ctx.fillStyle = '#FFFFFF'
-      ctx.font = '600 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      ctx.font = '700 24px "BDO Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText(spec, px + pillW / 2, py + 36)
+      ctx.textBaseline = 'middle'
+      ctx.fillText(spec, px + pillW / 2, pillY + pillH / 2 + 1, pillW - 20)
     })
 
-    // 4. MIDDLE ZONE: Action Photo (y = 360 to 1520, height = 1160)
-    const midY = 360
-    const midH = 1160
-    const bgImageSrc =
-      photoUrl ||
-      ascent.photoUrl ||
-      'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=85'
-
-    try {
-      const bgImg = new Image()
-      bgImg.crossOrigin = 'anonymous'
-      await new Promise<void>(resolve => {
-        bgImg.onload = () => resolve()
-        bgImg.onerror = () => resolve()
-        bgImg.src = bgImageSrc
-      })
-
-      if (bgImg.width > 0 && bgImg.height > 0) {
-        const imgRatio = bgImg.width / bgImg.height
-        const slotRatio = W / midH
-        let sWidth = bgImg.width
-        let sHeight = bgImg.height
-        let sx = 0
-        let sy = 0
-
-        if (imgRatio > slotRatio) {
-          sWidth = bgImg.height * slotRatio
-          sx = (bgImg.width - sWidth) / 2
-        } else {
-          sHeight = bgImg.width / slotRatio
-          sy = (bgImg.height - sHeight) / 2
-        }
-
-        ctx.drawImage(bgImg, sx, sy, sWidth, sHeight, 0, midY, W, midH)
-      }
-    } catch {
-      ctx.fillStyle = '#23262C'
-      ctx.fillRect(0, midY, W, midH)
-    }
-
-    // Top & Bottom vignette inside photo area
-    const photoGradTop = ctx.createLinearGradient(0, midY, 0, midY + 250)
-    photoGradTop.addColorStop(0, 'rgba(0, 0, 0, 0.45)')
-    photoGradTop.addColorStop(1, 'rgba(0, 0, 0, 0)')
-    ctx.fillStyle = photoGradTop
-    ctx.fillRect(0, midY, W, 250)
-
-    const photoGradBottom = ctx.createLinearGradient(0, midY + midH - 250, 0, midY + midH)
-    photoGradBottom.addColorStop(0, 'rgba(0, 0, 0, 0)')
-    photoGradBottom.addColorStop(1, 'rgba(0, 0, 0, 0.55)')
-    ctx.fillStyle = photoGradBottom
-    ctx.fillRect(0, midY + midH - 250, W, 250)
-
-    // Top-Left Bold Typography:
-    // "Red Point/"
-    // "13 Attempts/"
-    // "24 Weeks/"
-    const ascentStyle =
-      ascent.ascentType === 'redpoint'
-        ? 'Red Point'
-        : ascent.ascentType === 'flash'
-        ? 'Flash'
-        : ascent.ascentType === 'onsight'
-        ? 'Onsight'
-        : ascent.ascentType === 'repeat'
-        ? 'Repeat'
-        : 'Send'
-
-    const attempts =
-      ascent.ascentType === 'flash' || ascent.ascentType === 'onsight'
-        ? '1st Attempt'
-        : cardData.attempts
-        ? cardData.attempts.toString().toLowerCase().includes('attempt')
-          ? cardData.attempts.toString()
-          : `${cardData.attempts} Attempts`
-        : '13 Attempts'
-
-    const duration = cardData.duration || '24 Weeks'
+    // 4e. Climber Name (left) & Ascent Style + Attempts (right)
+    const [nameLine1, nameLine2] = formatSendCardNameLines(cardData.climberName)
+    const ascentLabel = formatSendCardAscentType(cardData.ascentType)
+    const attemptsLabel = formatSendCardAttempts(cardData.attempts, cardData.ascentType)
 
     ctx.save()
     ctx.fillStyle = '#FFFFFF'
-    ctx.font = '900 92px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.textAlign = 'left'
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.85)'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
     ctx.shadowBlur = 14
-    ctx.fillText(`${ascentStyle}/`, 76, midY + 120)
-    ctx.fillText(`${attempts}/`, 76, midY + 225)
-    ctx.fillText(`${duration}/`, 76, midY + 330)
-    ctx.restore()
+    ctx.textBaseline = 'alphabetic'
+    ctx.font = '900 62px "DIN Condensed", "Roboto Condensed", "Arial Narrow", "BDO Grotesk", sans-serif'
 
-    // Right-Side Topo Route Line (Vector)
-    if (showTopoLine) {
-      ctx.save()
-      ctx.strokeStyle = '#FFFFFF'
-      ctx.lineWidth = 4
-      ctx.lineCap = 'round'
-      ctx.lineJoin = 'round'
-
-      const topoPts = [
-        { x: 910, y: midY + 880 },
-        { x: 925, y: midY + 760 },
-        { x: 945, y: midY + 630 },
-        { x: 930, y: midY + 480 },
-        { x: 890, y: midY + 370 },
-        { x: 910, y: midY + 280 },
-        { x: 920, y: midY + 240 },
-      ]
-
-      ctx.beginPath()
-      ctx.moveTo(topoPts[0].x, topoPts[0].y)
-      for (let i = 1; i < topoPts.length; i++) {
-        ctx.lineTo(topoPts[i].x, topoPts[i].y)
-      }
-      ctx.stroke()
-
-      // Circular markers
-      topoPts.forEach(p => {
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, 8, 0, Math.PI * 2)
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'
-        ctx.fill()
-        ctx.strokeStyle = '#FFFFFF'
-        ctx.lineWidth = 3.5
-        ctx.stroke()
-      })
-
-      // Double-ring anchor chain station at top (8-shape)
-      const topPt = topoPts[topoPts.length - 1]
-      ctx.beginPath()
-      ctx.arc(topPt.x - 10, topPt.y, 8, 0, Math.PI * 2)
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.arc(topPt.x + 10, topPt.y, 8, 0, Math.PI * 2)
-      ctx.stroke()
-      ctx.restore()
+    ctx.textAlign = 'left'
+    ctx.fillText(nameLine1, marginX, 344, 540)
+    if (nameLine2) {
+      ctx.fillText(nameLine2, marginX, 404, 540)
     }
 
-    // 5. BOTTOM ZONE: Solid Red (y = 1520 to 1920, height = 400)
-    const botY = 1520
-    ctx.fillStyle = '#E6392D'
-    ctx.fillRect(0, botY, W, 400)
-
-    // Climber Name
-    const climberName = cardData.climberName || 'Arief Lala Hakiem'
-    const nameParts = climberName.split(' ')
-    const firstName = nameParts.length > 2 ? nameParts.slice(0, 2).join(' ') : nameParts[0] || 'Arief Lala'
-    const lastName = nameParts.length > 2 ? nameParts.slice(2).join(' ') : nameParts.slice(1).join(' ') || 'Hakiem'
-
-    ctx.fillStyle = '#FFFFFF'
-    ctx.font = '300 68px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     ctx.textAlign = 'right'
-    ctx.fillText(firstName, 1004, botY + 125)
-    ctx.fillText(lastName, 1004, botY + 205)
-
-    // 2-Column Metadata Grid
-    const formattedTime = cardData.time || '16:20'
-    const formattedDate = cardData.date || '26/04/26'
-    const belayerName = cardData.belayer || 'Nana Herdiana'
-    const photoCredit = cardData.photographer || 'Meizan Nataadiningrat'
-
-    ctx.font = '300 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    ctx.textAlign = 'left'
-    // Column 1 (x = 440)
-    ctx.fillText(`(T) ${formattedTime}`, 440, botY + 285)
-    ctx.fillText(`(B) ${belayerName}`, 440, botY + 345)
-    // Column 2 (x = 730)
-    ctx.fillText(`(D) ${formattedDate}`, 730, botY + 285)
-    ctx.fillText(`(P) ${photoCredit}`, 730, botY + 345)
+    ctx.fillText(ascentLabel, rightX, 344, 420)
+    ctx.fillText(attemptsLabel, rightX, 404, 420)
+    ctx.restore()
 
     // Export to Data URL
     const url = canvas.toDataURL('image/png', 0.95)

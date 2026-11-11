@@ -32,20 +32,18 @@ import {
   deleteUserAscent,
   UserAscent,
 } from '@/lib/user-ascents'
-import SendCard, { SendCardData } from '@/components/beta/SendCard'
+import SendCard, {
+  SendCardData,
+  DEFAULT_SEND_CARD_MARKERS,
+  DEFAULT_SEND_CARD_PHOTO,
+  SEND_CARD_RED,
+  orderRouteMarkers,
+} from '@/components/beta/SendCard'
 import AscentShareModal from '@/components/beta/AscentShareModal'
 import ShareLinkModal from '@/components/common/ShareLinkModal'
 
-const DEFAULT_TOPO_MARKERS: TopoMarker[] = [
-  { id: 'm-start', type: 'S', x: 50, y: 84, label: 'Start' },
-  { id: 'm-b1', type: 'B', x: 46, y: 65, label: 'Bolt 1' },
-  { id: 'm-crux', type: 'Z', x: 54, y: 46, label: 'Crux' },
-  { id: 'm-b2', type: 'B', x: 49, y: 29, label: 'Bolt 2' },
-  { id: 'm-top', type: 'T', x: 52, y: 14, label: 'Anchor' },
-]
-
-const DEFAULT_PHOTO_URL =
-  'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=900&q=80'
+const DEFAULT_TOPO_MARKERS = DEFAULT_SEND_CARD_MARKERS
+const DEFAULT_PHOTO_URL = DEFAULT_SEND_CARD_PHOTO
 
 const ASCENT_STYLES: { id: AscentType; label: string; hint: string }[] = [
   { id: 'redpoint', label: 'Redpoint', hint: 'Completed after rehearsal' },
@@ -117,7 +115,7 @@ export default function ProjectSentPage() {
   const [activeMarkerTool, setActiveMarkerTool] = useState<'S' | 'Z' | 'B' | 'T' | null>(null)
   const [topoPhotoUrl, setTopoPhotoUrl] = useState(DEFAULT_PHOTO_URL)
   const [routeSetter, setRouteSetter] = useState('Ade Ahmad')
-  const [attemptsCount, setAttemptsCount] = useState<number>(3)
+  const [attemptsCount, setAttemptsCount] = useState<number>(5)
   const [sentDate, setSentDate] = useState<string>(formatTodayInput)
   const [partner, setPartner] = useState('Nana Herdiana')
   const [location, setLocation] = useState('Citatah 90 (A)')
@@ -504,12 +502,17 @@ export default function ProjectSentPage() {
             </div>
           </div>
 
-          {/* Row 3: Interactive Topo Builder & Photo */}
+          {/* Row 3: Interactive Topo Builder & Photo (Red Route Line) */}
           <div className="space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <label className="text-[11px] font-bold uppercase tracking-wider opacity-75">
-                Topo &amp; Route Line Markers
-              </label>
+              <div>
+                <label className="text-[11px] font-bold uppercase tracking-wider opacity-75 block">
+                  Foto &amp; Arah Jalur Merah (Topo Line)
+                </label>
+                <p className="text-[11px] opacity-60 font-light">
+                  Garis merah menunjukkan arah jalur pemanjatan di Send Card. Foto saat ini hanya contoh — unggah foto Anda sendiri di kanan.
+                </p>
+              </div>
               <div className="flex flex-wrap items-center gap-1.5">
                 {(['S', 'Z', 'B', 'T'] as const).map((tool) => (
                   <button
@@ -520,7 +523,7 @@ export default function ProjectSentPage() {
                     }
                     className={`px-2 py-1 rounded-lg border text-[10px] font-bold transition-all cursor-pointer ${
                       activeMarkerTool === tool
-                        ? 'bg-[#FF6B00] border-[#FF6B00] text-white'
+                        ? 'bg-[#EE2B2B] border-[#EE2B2B] text-white'
                         : isSandstone
                           ? 'bg-white border-[#1a1815]/15'
                           : 'bg-black/30 border-white/15'
@@ -541,12 +544,33 @@ export default function ProjectSentPage() {
                   onClick={() => fileInputRef.current?.click()}
                   className={`px-2.5 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 cursor-pointer ${
                     isSandstone
-                      ? 'bg-white border-[#1a1815]/15 hover:border-[#FF6B00]'
-                      : 'bg-black/30 border-white/15 hover:border-[#FF6B00]'
+                      ? 'bg-white border-[#1a1815]/15 hover:border-[#EE2B2B]'
+                      : 'bg-black/30 border-white/15 hover:border-[#EE2B2B]'
                   }`}
                 >
                   <Upload size={11} />
-                  <span>Photo</span>
+                  <span>Upload Foto</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTopoMarkers((prev) => prev.slice(0, -1))}
+                  disabled={topoMarkers.length === 0}
+                  className={`px-2 py-1 rounded-lg border text-[10px] font-bold cursor-pointer disabled:opacity-40 ${
+                    isSandstone ? 'border-[#1a1815]/15' : 'border-white/15'
+                  }`}
+                  title="Undo last point"
+                >
+                  Undo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTopoMarkers([])}
+                  className={`px-2 py-1 rounded-lg border text-[10px] font-bold cursor-pointer ${
+                    isSandstone ? 'border-[#1a1815]/15' : 'border-white/15'
+                  }`}
+                  title="Clear all route points"
+                >
+                  Clear
                 </button>
                 <button
                   type="button"
@@ -563,8 +587,8 @@ export default function ProjectSentPage() {
 
             <div
               onClick={handleTopoImageClick}
-              className={`relative h-56 w-full rounded-2xl overflow-hidden border border-black/15 dark:border-white/15 ${
-                activeMarkerTool ? 'cursor-crosshair ring-2 ring-[#FF6B00]' : ''
+              className={`relative h-72 w-full rounded-2xl overflow-hidden border border-black/15 dark:border-white/15 ${
+                activeMarkerTool ? 'cursor-crosshair ring-2 ring-[#EE2B2B]' : ''
               }`}
             >
               <img
@@ -580,11 +604,9 @@ export default function ProjectSentPage() {
                 {topoMarkers.length > 1 && (
                   <polyline
                     fill="none"
-                    stroke="#FF6B00"
-                    strokeWidth="0.9"
-                    strokeDasharray="2 1.2"
-                    points={[...topoMarkers]
-                      .sort((a, b) => b.y - a.y)
+                    stroke={SEND_CARD_RED}
+                    strokeWidth="0.85"
+                    points={orderRouteMarkers(topoMarkers)
                       .map((m) => `${m.x},${m.y}`)
                       .join(' ')}
                   />
@@ -594,23 +616,17 @@ export default function ProjectSentPage() {
                 <div
                   key={m.id}
                   style={{ left: `${m.x}%`, top: `${m.y}%` }}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-extrabold text-white shadow border border-white/70 pointer-events-none ${
-                    m.type === 'S'
-                      ? 'bg-emerald-500'
-                      : m.type === 'T'
-                        ? 'bg-[#F90657]'
-                        : m.type === 'Z'
-                          ? 'bg-amber-500'
-                          : 'bg-[#FF6B00]'
-                  }`}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-extrabold text-white shadow bg-[#EE2B2B] border border-white/80 pointer-events-none"
                 >
                   {m.type}
                 </div>
               ))}
-              <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-black/65 backdrop-blur-sm text-[10px] text-white/90">
+              <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-[10px] text-white/95">
                 {activeMarkerTool
-                  ? `Tap image to place "${activeMarkerTool}" marker`
-                  : `${topoMarkers.length} Topo markers active · Select "+ Mark S/Z/B/T" above to edit`}
+                  ? `Tap foto untuk menempatkan titik "${activeMarkerTool}" arah jalur merah`
+                  : topoMarkers.length > 0
+                    ? `${topoMarkers.length} titik arah jalur merah · Pilih "+ Mark S/Z/B/T" di atas untuk edit`
+                    : 'Pilih "+ Mark S/B/T" di atas lalu tap foto untuk menggambar arah jalur merah'}
               </div>
             </div>
           </div>
