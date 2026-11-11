@@ -307,9 +307,6 @@ export default function TopBar({
                         <p className="text-[10px] opacity-60">Personalization & Regulations</p>
                       </div>
                     </div>
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30">
-                      V1.0 Live
-                    </span>
                   </Link>
                 </div>
 

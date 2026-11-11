@@ -147,10 +147,7 @@ export default function SettingsPage() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs uppercase tracking-widest font-semibold text-[#FF6B00]">
-                Jalur V1.0
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">
-                Live & Active
+                Jalur
               </span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1 flex items-center gap-2.5">

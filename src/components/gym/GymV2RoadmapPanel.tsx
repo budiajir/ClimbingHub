@@ -77,7 +77,7 @@ export default function GymV2RoadmapPanel({ gym, onBook }: GymV2RoadmapPanelProp
             Booking, Gear & Gym Challenge
           </h3>
           <p className={`text-xs ${isSandstone ? 'text-[#524e48]' : 'text-white/60'}`}>
-            In V1.0 you can explore gym details, location, photos, wishlists, and ratings. Interactive booking, gear rental, challenges, and memberships launch in V2.0.
+            You can currently explore gym details, location, photos, wishlists, and ratings. Interactive booking, gear rental, challenges, and memberships launch in V2.0.
           </p>
         </div>
       </div>

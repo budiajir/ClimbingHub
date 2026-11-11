@@ -59,14 +59,9 @@ export default function HomePage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/crags" className="group inline-block">
-              <div className="flex items-center gap-2">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
-                  Crags
-                </h2>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  V1.0
-                </span>
-              </div>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
+                Crags
+              </h2>
             </Link>
           </div>
           <p className={`text-xs md:text-sm font-light -mt-2 ${
@@ -168,14 +163,9 @@ export default function HomePage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/beta" className="group inline-block">
-              <div className="flex items-center gap-2">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
-                  Problems
-                </h2>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  V1.0
-                </span>
-              </div>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
+                Problems
+              </h2>
             </Link>
           </div>
           <p className={`text-xs md:text-sm font-light -mt-2 ${
@@ -341,14 +331,9 @@ export default function HomePage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/gyms" className="group inline-block">
-              <div className="flex items-center gap-2">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
-                  Climbing Gym
-                </h2>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  V1.0
-                </span>
-              </div>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
+                Climbing Gym
+              </h2>
             </Link>
           </div>
           <p className={`text-xs md:text-sm font-light -mt-2 ${
@@ -446,14 +431,9 @@ export default function HomePage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Link href="/community" className="group inline-block">
-              <div className="flex items-center gap-2">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
-                  Community
-                </h2>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  V1.0
-                </span>
-              </div>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F90657] transition-opacity group-hover:opacity-80">
+                Community
+              </h2>
             </Link>
           </div>
           <p className={`text-xs md:text-sm font-light -mt-2 ${

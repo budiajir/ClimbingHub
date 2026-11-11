@@ -27,12 +27,18 @@ export default function ConnectRadialMenu({
   const { isSandstone } = useTheme();
   const [showTripDialog, setShowTripDialog] = useState(false);
 
-  const desktopActions = [
+  const desktopActions: {
+    id: string;
+    title: string;
+    subtitle: string;
+    tag?: string;
+    icon: string;
+    onClick: () => void;
+  }[] = [
     {
       id: "add-friend",
       title: "Add Friend",
       subtitle: "Connect with climbers, club and squad",
-      tag: "V1.0 · Live",
       icon: "/pictograms/connect-add-friend.png",
       onClick: () => {
         onClose();
@@ -43,7 +49,6 @@ export default function ConnectRadialMenu({
       id: "project-sent",
       title: "Project Sent",
       subtitle: "Primary feature — verified send & Sent Card",
-      tag: "V1.0 · Primary",
       icon: "/pictograms/connect-project-sent.png",
       onClick: () => {
         onClose();
@@ -457,9 +462,11 @@ export default function ConnectRadialMenu({
                         <span className="font-bold text-sm tracking-tight group-hover:text-[#FF6B00] transition-colors truncate">
                           {action.title}
                         </span>
-                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-medium bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/25 shrink-0">
-                          {action.tag}
-                        </span>
+                        {action.tag && (
+                          <span className="text-[9px] px-1.5 py-0.2 rounded-full font-medium bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/25 shrink-0">
+                            {action.tag}
+                          </span>
+                        )}
                       </div>
                       <p className="text-[11px] opacity-70 font-light truncate mt-0.5">
                         {action.subtitle}

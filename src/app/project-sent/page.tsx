@@ -345,7 +345,7 @@ export default function ProjectSentPage() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F90657]/15 text-[#F90657] text-[10px] font-bold uppercase tracking-wider mb-1.5">
             <Award size={11} />
-            <span>Primary Feature · V1.0</span>
+            <span>Primary Feature</span>
           </div>
           <h1
             className={`font-extrabold text-3xl sm:text-4xl md:text-5xl tracking-tight ${
