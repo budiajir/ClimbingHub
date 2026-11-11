@@ -109,11 +109,7 @@ export default function MobileNav() {
 
   const handleProjectSent = () => {
     setShowConnect(false);
-    if (role === "guest") {
-      openAuthModal("Please sign in to log your ascents.");
-    } else {
-      router.push("/beta?action=log");
-    }
+    router.push("/project-sent");
   };
 
   const handleOpenTripSelect = (type: "open" | "book") => {
@@ -128,7 +124,7 @@ export default function MobileNav() {
 
   const handleAddFriend = () => {
     setShowConnect(false);
-    router.push("/climbers");
+    router.push("/friends");
   };
 
   return (

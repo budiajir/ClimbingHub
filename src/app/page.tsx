@@ -563,7 +563,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {/* Action 1: Add Friend */}
             <Link
-              href="/climbers"
+              href="/friends"
               className={`p-5 rounded-2xl border flex flex-col justify-between group transition-all hover:-translate-y-0.5 ${
                 isSandstone
                   ? 'bg-[#f4efe6] border-[#1a1815]/15 hover:border-[#FF6B00]'
@@ -575,23 +575,22 @@ export default function HomePage() {
                   <UserPlus size={20} />
                 </div>
                 <h3 className="font-bold text-base group-hover:text-[#FF6B00] transition-colors">
-                  Add Friend & Partner
+                  Add Friend &amp; Friends
                 </h3>
                 <p className="text-xs opacity-70 leading-relaxed font-light">
-                  Browse climber profiles, connect with belay buddies, and grow your local squad network.
+                  Personalize your profile photo, preview climbing experience, and connect with belay buddies.
                 </p>
               </div>
 
               <div className="pt-4 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-xs font-bold text-[#FF6B00]">
-                <span>Find Climbers</span>
+                <span>Open Friends</span>
                 <ChevronRight size={14} />
               </div>
             </Link>
 
-            {/* Action 2: Sent Project */}
-            <button
-              type="button"
-              onClick={handleFABPress}
+            {/* Action 2: Project Sent */}
+            <Link
+              href="/project-sent"
               className={`p-5 rounded-2xl border flex flex-col justify-between text-left group transition-all hover:-translate-y-0.5 ${
                 isSandstone
                   ? 'bg-[#f4efe6] border-[#1a1815]/15 hover:border-[#F90657]'
@@ -606,15 +605,15 @@ export default function HomePage() {
                   Project Sent (Log Ascent)
                 </h3>
                 <p className="text-xs opacity-70 leading-relaxed font-light">
-                  Log your completed send, grade vote, and generate an official verified Send Card certificate.
+                  Log your completed send, topo &amp; partner, and generate an official Send Card certificate.
                 </p>
               </div>
 
               <div className="pt-4 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-xs font-bold text-[#F90657]">
-                <span>Log Send Card</span>
+                <span>Open Project Sent</span>
                 <ChevronRight size={14} />
               </div>
-            </button>
+            </Link>
 
             {/* Action 3: Set Problems / Set Route (Route Setters Only) */}
             <Link

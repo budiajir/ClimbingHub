@@ -327,3 +327,33 @@ export function saveToPersonalFeed(post: PersonalFeedPost): void {
   }
 }
 
+const USER_AVATAR_KEY = 'jalur_user_avatar_v1'
+
+export const DEFAULT_USER_AVATAR =
+  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=240&q=80'
+
+export function getUserCustomAvatar(): string | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const val = localStorage.getItem(USER_AVATAR_KEY)
+    return val && val.trim() ? val.trim() : null
+  } catch {
+    return null
+  }
+}
+
+export function saveUserCustomAvatar(url: string): void {
+  if (typeof window === 'undefined') return
+  try {
+    const cleaned = url.trim()
+    if (cleaned) {
+      localStorage.setItem(USER_AVATAR_KEY, cleaned)
+    } else {
+      localStorage.removeItem(USER_AVATAR_KEY)
+    }
+    window.dispatchEvent(new CustomEvent('user-avatar-updated'))
+  } catch {
+    // ignore storage errors
+  }
+}
+

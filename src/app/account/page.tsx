@@ -61,7 +61,12 @@ import {
   UserProjectItem,
 } from '@/lib/user-projects-store'
 import { addCommunityPost } from '@/lib/community-posts-store'
-import { getPersonalFeedPosts, type PersonalFeedPost } from '@/lib/social-store'
+import {
+  getPersonalFeedPosts,
+  getUserCustomAvatar,
+  DEFAULT_USER_AVATAR,
+  type PersonalFeedPost,
+} from '@/lib/social-store'
 import { QRCodeSVG } from 'qrcode.react'
 import Pictogram from '@/components/common/Pictogram'
 
@@ -175,10 +180,11 @@ function PersonalAccountContent() {
   )
   const [showEditProfileModal, setShowEditProfileModal] = useState(false)
 
+  const [customAvatar, setCustomAvatar] = useState<string | null>(null)
   const climberName = isViewingOther ? `${firstName} ${lastName}` : (user?.name || `${firstName} ${lastName}`)
   const avatarUrl = isViewingOther
     ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&q=80'
-    : (user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=240&q=80')
+    : (customAvatar || user?.avatar || DEFAULT_USER_AVATAR)
   const hasNotifications = isPersonalAccess
 
   // Share Profile Link Modal state (Row 16)
@@ -270,6 +276,7 @@ function PersonalAccountContent() {
     setWishlist(getWishlist())
     setDrafts(getDraftProblems())
     setPersonalFeedPosts(getPersonalFeedPosts())
+    setCustomAvatar(getUserCustomAvatar())
 
     const handleAscents = () => {
       const reloaded = getUserAscents()
@@ -281,6 +288,7 @@ function PersonalAccountContent() {
     const handleWish = () => setWishlist(getWishlist())
     const handleDraft = () => setDrafts(getDraftProblems())
     const handlePersonalFeed = () => setPersonalFeedPosts(getPersonalFeedPosts())
+    const handleAvatar = () => setCustomAvatar(getUserCustomAvatar())
 
     window.addEventListener('user-ascents-updated', handleAscents)
     window.addEventListener('user-projects-updated', handleProjects)
@@ -289,6 +297,7 @@ function PersonalAccountContent() {
     window.addEventListener('wishlist-updated', handleWish)
     window.addEventListener('draft-problems-updated', handleDraft)
     window.addEventListener('personal-feed-updated', handlePersonalFeed)
+    window.addEventListener('user-avatar-updated', handleAvatar)
 
     return () => {
       window.removeEventListener('user-ascents-updated', handleAscents)
@@ -298,6 +307,7 @@ function PersonalAccountContent() {
       window.removeEventListener('wishlist-updated', handleWish)
       window.removeEventListener('draft-problems-updated', handleDraft)
       window.removeEventListener('personal-feed-updated', handlePersonalFeed)
+      window.removeEventListener('user-avatar-updated', handleAvatar)
     }
   }, [])
 
