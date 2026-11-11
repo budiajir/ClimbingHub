@@ -19,6 +19,21 @@ import { useGyms, useCragRegions, useCommunities } from '@/lib/use-data'
 import { gradeColors } from '@/lib/tokens'
 import { useTheme } from '@/lib/theme-context'
 
+/** Centered orange CTA button linking to a section's full discovery page. */
+function DiscoverMoreCta({ href, label }: { href: string; label: string }) {
+  return (
+    <div className="flex justify-center pt-2">
+      <Link
+        href={href}
+        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all shadow-sm"
+      >
+        <span>{label}</span>
+        <ChevronRight size={14} />
+      </Link>
+    </div>
+  )
+}
+
 export default function HomePage() {
   const { isSandstone } = useTheme()
   const [selectedJoinCommunity, setSelectedJoinCommunity] = useState<Community | null>(null)
@@ -139,6 +154,8 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+
+          <DiscoverMoreCta href="/crags" label="Discover More Crags" />
         </section>
 
         {/* PINK DIVIDER LINE */}
@@ -296,6 +313,8 @@ export default function HomePage() {
               )
             })}
           </div>
+
+          <DiscoverMoreCta href="/beta" label="Discover More Problems" />
         </section>
 
         {/* PINK DIVIDER LINE */}
@@ -385,6 +404,8 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+
+          <DiscoverMoreCta href="/gyms" label="Discover More Gyms" />
         </section>
 
         {/* PINK DIVIDER LINE */}
@@ -481,6 +502,8 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+
+          <DiscoverMoreCta href="/community" label="Discover More Community" />
         </section>
 
       </div>
