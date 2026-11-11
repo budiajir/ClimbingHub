@@ -1440,6 +1440,7 @@ export default function CragDetailPage() {
       {selectedProblem && (
         <ProblemSheet
           problem={selectedProblem}
+          region={crag}
           onLogAscent={() => {
             if (!canLogAscent(role)) {
               openAuthModal("Please sign in to log your ascent.");

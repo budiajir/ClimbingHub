@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Problem, TopoMarker } from '@/lib/mock-data'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Problem, TopoMarker, CragRegion } from '@/lib/mock-data'
 import {
   ZoomIn,
   ZoomOut,
@@ -17,17 +17,54 @@ import {
   AlertCircle,
   Plus,
   ExternalLink,
-  Heart,
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
+  Share2,
+  CheckCircle2,
+  MapPin,
+  Wrench,
+  Calendar,
+  UserCheck,
+  Youtube,
+  Eye,
+  EyeOff,
+  Copy,
+  Check,
+  X,
+  Navigation,
+  ArrowDownToLine,
+  Backpack,
+  MessageCircle,
+  Send,
+  ShieldCheck,
+  Sparkles,
 } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
+import { useAuth } from '@/lib/auth-context'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
+import {
+  isUserCheckedInAtCrag,
+  checkInUserAtCrag,
+  checkOutUserFromCrag,
+  getCragCheckInCount,
+} from '@/lib/crag-checkin-store'
+import {
+  getGradeEquivalence,
+  getProblemPhotos,
+  getDefaultRequiredEquipment,
+  getDefaultDescendingDetails,
+  getDefaultApproachingDetails,
+  getDefaultBoltUpdateInfo,
+} from '@/lib/problem-helpers'
+import { QRCodeSVG } from 'qrcode.react'
 import Pictogram from '@/components/common/Pictogram'
 
 interface TopoCanvasProps {
   problem: Problem
   imageUrl: string
+  region?: CragRegion
+  sectorName?: string
+  onFilterBySetter?: (setterName: string) => void
   onLogAscent?: () => void
   onSetNewRoute?: () => void
 }
@@ -131,17 +168,47 @@ function TopoMarkerPin({
   )
 }
 
-export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRoute }: TopoCanvasProps) {
+export default function TopoCanvas({
+  problem,
+  imageUrl,
+  region,
+  sectorName,
+  onFilterBySetter,
+  onLogAscent,
+  onSetNewRoute,
+}: TopoCanvasProps) {
   const { theme } = useTheme()
+  const { user } = useAuth()
   const isSandstone = theme === 'sandstone'
   const [scale, setScale] = useState(1)
   const [activePitch, setActivePitch] = useState<number | null>(null)
+  const [showTopo, setShowTopo] = useState(true)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [showSetterModal, setShowSetterModal] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const additionalImages = (problem as any).images || []
-  const allImages = Array.from(new Set([problem.imageUrl || imageUrl, ...additionalImages].filter(Boolean)))
+  const categorizedPhotos = getProblemPhotos(problem, imageUrl)
+  const allImages = categorizedPhotos.map((p) => p.url)
   const [photoIndex, setPhotoIndex] = useState(0)
-  const activeImage = allImages[photoIndex] || problem.imageUrl || imageUrl
+  const activePhotoObj = categorizedPhotos[photoIndex] || categorizedPhotos[0]
+  const activeImage = activePhotoObj?.url || problem.imageUrl || imageUrl
+
+  const selectPhotoIndex = (idx: number) => {
+    setPhotoIndex(idx)
+    if (idx === 0) {
+      setShowTopo(true)
+    } else {
+      setShowTopo(false)
+    }
+  }
+
+  useEffect(() => {
+    setPhotoIndex(0)
+    setActivePitch(null)
+    setScale(1)
+    setShowTopo(true)
+  }, [problem.id])
 
   const [wishlisted, setWishlisted] = useState(false)
   useEffect(() => {
@@ -151,6 +218,37 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
     return () => window.removeEventListener('wishlist-updated', handleUpdate)
   }, [problem.id])
 
+  const cragId = region?.id || `crag-${problem.id}`
+  const cragDisplayName = region?.name || sectorName || 'Climbing Crag'
+  const [isCheckedIn, setIsCheckedIn] = useState(false)
+  const [checkInCount, setCheckInCount] = useState(0)
+  const [checkInToast, setCheckInToast] = useState<string | null>(null)
+
+  useEffect(() => {
+    setIsCheckedIn(isUserCheckedInAtCrag(cragId, user?.id || 'user-1'))
+    setCheckInCount(getCragCheckInCount(cragId))
+  }, [cragId, user?.id])
+
+  const handleToggleCheckIn = () => {
+    if (isCheckedIn) {
+      checkOutUserFromCrag(cragId, user?.id || 'user-1')
+      setIsCheckedIn(false)
+      setCheckInCount((prev) => Math.max(0, prev - 1))
+      setCheckInToast(`Checked out from ${cragDisplayName}. Stay safe on your descent!`)
+    } else {
+      checkInUserAtCrag(
+        cragId,
+        cragDisplayName,
+        user?.id || 'user-1',
+        user?.name || 'Ahmad Rizki Nugraha'
+      )
+      setIsCheckedIn(true)
+      setCheckInCount((prev) => prev + 1)
+      setCheckInToast(`Checked in at ${cragDisplayName}! Have an epic & safe session on ${problem.name}.`)
+    }
+    setTimeout(() => setCheckInToast(null), 3500)
+  }
+
   const handleToggleWishlist = () => {
     const updated = toggleWishlist({
       id: problem.id,
@@ -158,7 +256,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       title: problem.name,
       subtitle: `${problem.grade} · ${problem.discipline || 'Bouldering'}`,
       image: activeImage,
-      location: (problem as any).sectorName || 'Crag',
+      location: sectorName || region?.name || (problem as any).sectorName || 'Crag',
       grade: problem.grade,
       discipline: problem.discipline,
     })
@@ -181,6 +279,49 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       : problem.discipline === 'multipitch' || problem.discipline === 'trad'
       ? 'trad'
       : 'boulder')
+
+  const normalizedCategory: 'boulder' | 'lead' | 'trad' =
+    category === 'lead' || category === 'trad' ? category : 'boulder'
+
+  const gradeEq = getGradeEquivalence(problem.grade, problem.fontGrade)
+  const boltInfo = getDefaultBoltUpdateInfo(normalizedCategory, problem)
+  const descendingInfo = getDefaultDescendingDetails(normalizedCategory, problem)
+  const approachInfo = getDefaultApproachingDetails(problem, region)
+  const requiredEquipment = getDefaultRequiredEquipment(normalizedCategory, problem)
+  const yearSetDisplay = problem.yearSet || problem.faDate?.match(/\d{4}/)?.[0] || '2021'
+
+  const etiquette = problem.climbingEtiquette || region?.climbingEtiquette || {
+    governmentRegulations: [
+      'Register at the local forestry / tourism counter and pay official crag retribution.',
+      'Obtain necessary climbing permits for multi-pitch walls or conservation zones.',
+    ],
+    localNorms: [
+      'Greet local residents & village caretakers politely; respect nearby prayer hours and village access paths.',
+      'Park only at official community parking spots and support local basecamp stalls.',
+    ],
+    environmentalRules: [
+      'Strict Leave No Trace: carry out all trash, food wrappers, tape, and micro-litter.',
+      'Brush off excessive white chalk tick marks after sending and keep music at low volume.',
+    ],
+  }
+
+  const shareUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/beta?problem=${encodeURIComponent(problem.id)}`
+      : `https://jalur.world/beta?problem=${encodeURIComponent(problem.id)}`
+  const shareText = `Check out "${problem.name}" (${problem.grade}${
+    gradeEq.font ? ` / ${gradeEq.font}` : ''
+  }) at ${cragDisplayName} on Jalur!`
+
+  const handleCopyShareLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopiedLink(true)
+      setTimeout(() => setCopiedLink(false), 2500)
+    } catch {
+      // Fallback ignored
+    }
+  }
 
   const heightDisplay = problem.height || problem.pitchLength || problem.totalHeight || (category === 'boulder' ? '4.2m' : '22m')
   const holdsCountDisplay = problem.holdsCount || (problem.markers && problem.markers.length > 0 ? problem.markers.length * 3 : 14)
@@ -269,7 +410,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           />
 
           {/* CONNECTED TOPO VECTOR PATH (SVG) — PURE SOLID WHITE LINE (NO DASH) */}
-          {svgPathD && (
+          {showTopo && svgPathD && (
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none"
               viewBox="0 0 100 100"
@@ -312,7 +453,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           )}
 
           {/* MULTI PITCH: Visual Pitch Labels along the route segments */}
-          {isMultiPitch && problem.markers.length >= 2 && (
+          {showTopo && isMultiPitch && problem.markers.length >= 2 && (
             <div className="absolute inset-0 w-full h-full pointer-events-none">
               {problem.markers.slice(0, -1).map((m, idx) => {
                 const nextM = problem.markers[idx + 1]
@@ -367,19 +508,28 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           )}
 
           {/* Vector Markers / Pins (Start, Belay Stations P1-P3, Top, Bolt Hangers) */}
-          <div className="absolute inset-0 w-full h-full">
-            {problem.markers.map((marker, idx) => (
-              <TopoMarkerPin
-                key={marker.id}
-                marker={marker}
-                index={idx}
-                isMultiPitch={isMultiPitch}
-                totalMarkers={problem.markers.length}
-                isLeadRoute={isLeadOrTrad}
-              />
-            ))}
-          </div>
+          {showTopo && (
+            <div className="absolute inset-0 w-full h-full">
+              {problem.markers.map((marker, idx) => (
+                <TopoMarkerPin
+                  key={marker.id}
+                  marker={marker}
+                  index={idx}
+                  isMultiPitch={isMultiPitch}
+                  totalMarkers={problem.markers.length}
+                  isLeadRoute={isLeadOrTrad}
+                />
+              ))}
+            </div>
+          )}
         </motion.div>
+
+        {/* Active Categorized Photo Pill Overlay */}
+        {activePhotoObj && (
+          <div className="absolute bottom-3 left-3 z-20 max-w-[65%] sm:max-w-xs px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-[11px] font-bold text-white truncate shadow-md pointer-events-none">
+            {activePhotoObj.label}
+          </div>
+        )}
 
         {/* SLIDESHOW NAVIGATION ARROWS & INDICATOR */}
         {allImages.length > 1 && (
@@ -388,7 +538,8 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
               type="button"
               onClick={(e) => {
                 e.stopPropagation()
-                setPhotoIndex((idx) => (idx > 0 ? idx - 1 : allImages.length - 1))
+                const nextIdx = photoIndex > 0 ? photoIndex - 1 : allImages.length - 1
+                selectPhotoIndex(nextIdx)
               }}
               className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center justify-center z-30 transition-all border border-white/20 shadow-lg cursor-pointer"
               title="Previous photo"
@@ -399,14 +550,15 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
               type="button"
               onClick={(e) => {
                 e.stopPropagation()
-                setPhotoIndex((idx) => (idx < allImages.length - 1 ? idx + 1 : 0))
+                const nextIdx = photoIndex < allImages.length - 1 ? photoIndex + 1 : 0
+                selectPhotoIndex(nextIdx)
               }}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/70 hover:bg-black/90 text-white flex items-center justify-center z-30 transition-all border border-white/20 shadow-lg cursor-pointer"
               title="Next photo"
             >
               <ChevronRightIcon size={18} />
             </button>
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md z-30 border border-white/20 text-[11px] text-white font-mono shadow-md">
+            <div className="absolute bottom-3 right-3 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md z-30 border border-white/20 text-[11px] text-white font-mono shadow-md">
               <span>{photoIndex + 1} / {allImages.length}</span>
             </div>
           </>
@@ -453,33 +605,50 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       </div>
 
       {/* ============================================================ */}
-      {/* PHOTO CONTROLS TOOLBAR (OUTSIDE / BELOW PHOTO BOX)          */}
+      {/* CATEGORIZED DYNAMIC PHOTOS SWITCHER (4 ROUTE DOCUMENTATION VIEWS) */}
+      {/* ============================================================ */}
+      <div className="mx-4 md:mx-0 space-y-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+          {categorizedPhotos.map((photo, idx) => {
+            const active = photoIndex === idx
+            return (
+              <button
+                key={photo.label}
+                type="button"
+                onClick={() => selectPhotoIndex(idx)}
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all border flex-shrink-0 ${
+                  active
+                    ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-sm'
+                    : isSandstone
+                    ? 'bg-black/5 border-[#1a1815]/15 text-[#1a1815]/80 hover:border-[#FF6B00]/50'
+                    : 'bg-white/5 border-white/10 text-chalk/80 hover:border-[#FF6B00]/50'
+                }`}
+              >
+                {photo.label}
+              </button>
+            )
+          })}
+        </div>
+        {activePhotoObj?.caption && (
+          <p
+            className={`text-[11px] px-3 py-1.5 rounded-xl border leading-relaxed ${
+              isSandstone
+                ? 'bg-[#1a1815]/5 border-[#1a1815]/10 text-[#1a1815]/80'
+                : 'bg-white/[0.03] border-white/10 text-slate-ash'
+            }`}
+          >
+            <span className="font-bold text-[#FF6B00] mr-1">{activePhotoObj.label}:</span>
+            {activePhotoObj.caption}
+          </p>
+        )}
+      </div>
+
+      {/* ============================================================ */}
+      {/* PHOTO CONTROLS TOOLBAR (TOPO CTA, ZOOM, CHECK IN, WISHLIST, SHARE) */}
       {/* ============================================================ */}
       <div className="flex items-center justify-between px-4 md:px-0 py-1 gap-2 flex-wrap">
-        {/* Slideshow image switcher indicators */}
-        <div className="flex items-center gap-2">
-          {allImages.length > 1 ? (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-bold opacity-75">Photo {photoIndex + 1} of {allImages.length}</span>
-              <div className="flex items-center gap-1">
-                {allImages.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPhotoIndex(i)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all ${
-                      photoIndex === i ? 'bg-[#FF6B00] scale-125' : 'bg-white/20 hover:bg-white/40'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <span className="text-[11px] opacity-60 font-medium">Topo View</span>
-          )}
-        </div>
-
-        {/* Zoom Controls Outside Photo + Wishlist Button */}
-        <div className="flex items-center gap-2">
+        {/* Zoom Controls Outside Photo + Topo Toggle CTA */}
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-1 bg-black/30 dark:bg-white/5 p-1 rounded-xl border border-white/10 shadow-sm">
             <button
               onClick={handleZoomOut}
@@ -517,8 +686,55 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
             )}
           </div>
 
+          {/* Topo Overlay Toggle CTA Button */}
+          <button
+            type="button"
+            onClick={() => setShowTopo((prev) => !prev)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+              showTopo
+                ? isSandstone
+                  ? 'bg-[#1a1815] text-white border-[#1a1815]'
+                  : 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50'
+                : isSandstone
+                ? 'bg-black/5 text-[#1a1815]/75 border-[#1a1815]/20 hover:bg-black/10'
+                : 'bg-white/5 text-slate-ash border-white/15 hover:text-chalk'
+            }`}
+            title="Toggle Topo Markings (Start, Pitch/Hanger, Top)"
+          >
+            {showTopo ? <Eye size={14} /> : <EyeOff size={14} />}
+            <span>{showTopo ? 'Topo: ON' : 'Topo: OFF'}</span>
+            <span className="text-[10px] font-mono opacity-75">
+              ({isMultiPitch ? 'S·P·T' : isSport ? 'S·H·T' : 'S·Z·T'})
+            </span>
+          </button>
+        </div>
+
+        {/* Action CTAs: Check In Crags, Save to Wishlist, Share Link */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Check In Crags CTA Button */}
+          <button
+            type="button"
+            onClick={handleToggleCheckIn}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+              isCheckedIn
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                : isSandstone
+                ? 'bg-[#059669]/10 text-[#047857] border-[#059669]/30 hover:bg-[#059669]/20'
+                : 'bg-emerald-500/10 text-emerald-300 border-emerald-400/30 hover:bg-emerald-500/20'
+            }`}
+          >
+            {isCheckedIn ? <CheckCircle2 size={14} /> : <MapPin size={14} />}
+            <span>{isCheckedIn ? 'Checked In' : 'Check In Crag'}</span>
+            {checkInCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-black/25 text-[10px] font-mono">
+                {checkInCount}
+              </span>
+            )}
+          </button>
+
           {/* Save to Wishlist Button */}
           <button
+            type="button"
             onClick={handleToggleWishlist}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
               wishlisted
@@ -527,14 +743,36 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
             }`}
           >
             <Pictogram
-              name={wishlisted ? "wishlisted" : "wishlist"}
+              name={wishlisted ? 'wishlisted' : 'wishlist'}
               size={14}
-              className={wishlisted ? "text-rose-400" : "text-[#FF6B00]"}
+              className={wishlisted ? 'text-rose-400' : 'text-[#FF6B00]'}
             />
-            <span>{wishlisted ? 'Wishlisted' : 'Save to Wishlist'}</span>
+            <span>{wishlisted ? 'Wishlisted' : 'Wishlist'}</span>
+          </button>
+
+          {/* Share Link CTA Button */}
+          <button
+            type="button"
+            onClick={() => setShowShareModal(true)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+              isSandstone
+                ? 'border-[#1a1815]/25 text-[#1a1815] hover:bg-[#1a1815]/10'
+                : 'border-white/20 text-chalk hover:bg-white/10'
+            }`}
+          >
+            <Share2 size={14} />
+            <span>Share</span>
           </button>
         </div>
       </div>
+
+      {/* Check-In Confirmation Toast */}
+      {checkInToast && (
+        <div className="mx-4 md:mx-0 px-3.5 py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-medium flex items-center gap-2">
+          <CheckCircle2 size={15} className="flex-shrink-0" />
+          <span>{checkInToast}</span>
+        </div>
+      )}
 
       {/* ============================================================ */}
       {/* 2. ROUTE DETAILS & TOPO LEGEND (OUTSIDE / BELOW PHOTO BOX)    */}
@@ -585,23 +823,53 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
                   {problem.startType}
                 </span>
               )}
+
+              {/* Static Year of Route Setted Badge */}
+              <span
+                className={`inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                  isSandstone
+                    ? 'border-[#1a1815]/20 text-[#1a1815]/80'
+                    : 'border-white/15 text-chalk/80'
+                }`}
+              >
+                <Calendar size={10} />
+                <span>Set {yearSetDisplay}</span>
+              </span>
             </div>
 
             <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-tight">
               {problem.name}
             </h1>
-            <p
-              className={`text-xs font-light mt-0.5 ${
-                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-              }`}
-            >
-              FA: {problem.fa} · {problem.faDate}
-            </p>
+
+            {/* Route Setters CTA Button + Static Year Set */}
+            <div className="flex items-center gap-2 flex-wrap mt-1.5">
+              <button
+                type="button"
+                onClick={() => setShowSetterModal(true)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all border ${
+                  isSandstone
+                    ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815] hover:border-[#FF6B00] hover:text-[#FF6B00]'
+                    : 'bg-white/5 border-white/15 text-chalk hover:border-[#FF6B00] hover:text-[#FF6B00]'
+                }`}
+                title="View Route Setter Info & Filter Routes"
+              >
+                <UserCheck size={13} className="text-[#FF6B00]" />
+                <span>Route Setter: {problem.fa}</span>
+                <ChevronRightIcon size={12} className="opacity-60" />
+              </button>
+              <span
+                className={`text-[11px] font-mono ${
+                  isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                }`}
+              >
+                Year Set: <strong className="font-bold">{yearSetDisplay}</strong> ({problem.faDate})
+              </span>
+            </div>
           </div>
 
           {/* Grade Badge */}
           <div
-            className={`flex flex-col items-end px-3 py-1.5 rounded-xl border ${
+            className={`flex flex-col items-end px-3 py-1.5 rounded-xl border flex-shrink-0 ${
               isSandstone
                 ? 'border-[#1a1815]/30 text-[#1a1815]'
                 : 'border-lime/40 text-lime'
@@ -615,8 +883,48 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
                 isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
               }`}
             >
-              {problem.fontGrade}
+              {gradeEq.font || problem.fontGrade}
             </span>
+          </div>
+        </div>
+
+        {/* Grade Equivalence Conversion Table (Static V-Scale / Font / YDS / French) */}
+        <div
+          className={`p-3 rounded-xl border ${
+            isSandstone
+              ? 'bg-[#1a1815]/5 border-[#1a1815]/10'
+              : 'bg-granite/60 border-white/10'
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+            <span
+              className={`text-[10px] font-bold uppercase tracking-widest ${
+                isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+              }`}
+            >
+              Grade Equivalence Chart
+            </span>
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30">
+              {gradeEq.levelLabel}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+            <div className={`p-2 rounded-lg border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/70 border-white/5'}`}>
+              <div className="text-[9px] uppercase font-bold opacity-60">Boulder (V-Scale)</div>
+              <div className="text-xs sm:text-sm font-mono font-bold mt-0.5">{gradeEq.vScale}</div>
+            </div>
+            <div className={`p-2 rounded-lg border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/70 border-white/5'}`}>
+              <div className="text-[9px] uppercase font-bold opacity-60">Fontainebleau</div>
+              <div className="text-xs sm:text-sm font-mono font-bold mt-0.5">{gradeEq.font}</div>
+            </div>
+            <div className={`p-2 rounded-lg border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/70 border-white/5'}`}>
+              <div className="text-[9px] uppercase font-bold opacity-60">YDS (Rope)</div>
+              <div className="text-xs sm:text-sm font-mono font-bold mt-0.5">{gradeEq.yds}</div>
+            </div>
+            <div className={`p-2 rounded-lg border ${isSandstone ? 'bg-white/60 border-[#1a1815]/10' : 'bg-crag/70 border-white/5'}`}>
+              <div className="text-[9px] uppercase font-bold opacity-60">French Sport</div>
+              <div className="text-xs sm:text-sm font-mono font-bold mt-0.5">{gradeEq.french}</div>
+            </div>
           </div>
         </div>
 
@@ -631,7 +939,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
               isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
             }`}
           >
-            Topo Legend:
+            Topo Legend ({isMultiPitch ? 'Multipitch' : isSport ? 'Lead' : 'Boulder'}):
           </span>
 
           <div className="flex items-center gap-3 flex-wrap">
@@ -648,17 +956,17 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
               </span>
             </div>
 
-            {isSport && (
+            {(isSport || isMultiPitch) && (
               <div className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded-full bg-cyan-climb text-granite flex items-center justify-center font-bold text-[9px]">
-                  B
+                <span className="w-5 h-5 rounded-full bg-[#94A3B8] text-[#0F172A] flex items-center justify-center font-bold">
+                  <HangerSymbol />
                 </span>
                 <span
                   className={`text-[11px] ${
                     isSandstone ? 'text-[#1a1815]' : 'text-chalk'
                   }`}
                 >
-                  Bolt
+                  Hanger / Bolt
                 </span>
               </div>
             )}
@@ -688,7 +996,7 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
                     isSandstone ? 'text-[#1a1815]' : 'text-chalk'
                   }`}
                 >
-                  Anchor
+                  Pitch / Belay
                 </span>
               </div>
             )}
@@ -943,6 +1251,201 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
       </div>
 
       {/* ============================================================ */}
+      {/* SECTION: ROUTE SET HISTORY & UPDATED BOLTS RECORD            */}
+      {/* ============================================================ */}
+      <div
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3 transition-colors ${
+          isSandstone
+            ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+            : 'bg-transparent border-white/10 text-chalk'
+        }`}
+      >
+        <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
+          <Wrench size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-[#FF6B00]'} />
+          <h3 className="font-bold text-sm uppercase tracking-wider">
+            Route Set History &amp; Updated Bolts
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div
+            className={`p-3 rounded-xl border ${
+              isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+            }`}
+          >
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1">
+              <Calendar size={12} />
+              <span>Year of Route Setted</span>
+            </div>
+            <div className="text-lg font-black font-mono">{yearSetDisplay}</div>
+            <p className="text-[11px] opacity-75 mt-0.5">
+              First Ascent by <span className="font-bold">{problem.fa}</span> ({problem.faDate})
+            </p>
+          </div>
+
+          <div
+            className={`p-3 rounded-xl border ${
+              isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+            }`}
+          >
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1">
+              <Wrench size={12} />
+              <span>Year of Updated Bolts</span>
+            </div>
+            <div className={`text-lg font-black font-mono ${boltInfo.isBolted ? 'text-emerald-400' : 'opacity-80'}`}>
+              {boltInfo.year}
+            </div>
+            <p className="text-[11px] opacity-80 mt-0.5 leading-relaxed">{boltInfo.notes}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* SECTION: DESCENDING DETAILS (RAPPELLING / TOP OUT / TREK)   */}
+      {/* ============================================================ */}
+      <div
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3 transition-colors ${
+          isSandstone
+            ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+            : 'bg-transparent border-white/10 text-chalk'
+        }`}
+      >
+        <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-current/10 flex-wrap">
+          <div className="flex items-center gap-2">
+            <ArrowDownToLine size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-cyan-400'} />
+            <h3 className="font-bold text-sm uppercase tracking-wider">
+              Descending Details
+            </h3>
+          </div>
+          <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+            {descendingInfo.method}
+          </span>
+        </div>
+
+        <p
+          className={`text-xs md:text-sm leading-relaxed p-3 rounded-xl border ${
+            isSandstone
+              ? 'bg-[#1a1815]/5 border-[#1a1815]/10 text-[#1a1815]/85'
+              : 'bg-granite/70 border-white/5 text-chalk/90'
+          }`}
+        >
+          {descendingInfo.description}
+        </p>
+      </div>
+
+      {/* ============================================================ */}
+      {/* SECTION: REQUIRED EQUIPMENT (TYPES & SIZES)                  */}
+      {/* ============================================================ */}
+      <div
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3 transition-colors ${
+          isSandstone
+            ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+            : 'bg-transparent border-white/10 text-chalk'
+        }`}
+      >
+        <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-current/10 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Backpack size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-[#FF6B00]'} />
+            <h3 className="font-bold text-sm uppercase tracking-wider">
+              Required Safety Equipment
+            </h3>
+          </div>
+          <span className="text-[10px] uppercase tracking-wider font-mono opacity-70">
+            {isMultiPitch ? 'Multipitch Kit' : isSport ? 'Lead / Sport Kit' : 'Boulder Kit'}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {requiredEquipment.map((eq, i) => (
+            <div
+              key={`${eq.item}-${i}`}
+              className={`p-3 rounded-xl border flex flex-col gap-0.5 ${
+                isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+              }`}
+            >
+              <div className="text-xs font-bold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B00]" />
+                <span>{eq.item}</span>
+              </div>
+              <p className={`text-[11px] font-mono pl-3 ${isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'}`}>
+                {eq.spec}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* SECTION: APPROACHING PROBLEMS (MEETING POINT / PARKING / TRAIL) */}
+      {/* ============================================================ */}
+      <div
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3.5 transition-colors ${
+          isSandstone
+            ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+            : 'bg-transparent border-white/10 text-chalk'
+        }`}
+      >
+        <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-current/10 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Navigation size={16} className={isSandstone ? 'text-[#1a1815]' : 'text-lime'} />
+            <h3 className="font-bold text-sm uppercase tracking-wider">
+              Approaching Problems
+            </h3>
+          </div>
+          {approachInfo.gmapsUrl && (
+            <a
+              href={approachInfo.gmapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-bold bg-[#FF6B00] text-white hover:opacity-90 transition-opacity"
+            >
+              <MapPin size={12} />
+              <span>Google Maps Approach</span>
+              <ExternalLink size={11} />
+            </a>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className={`p-3 rounded-xl border text-xs space-y-1 ${
+            isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+          }`}>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#FF6B00] block">
+              From Meeting Point
+            </span>
+            <p className="leading-relaxed opacity-90">{approachInfo.fromMeetingPoint}</p>
+          </div>
+          <div className={`p-3 rounded-xl border text-xs space-y-1 ${
+            isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+          }`}>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block">
+              From Parking Spot
+            </span>
+            <p className="leading-relaxed opacity-90">{approachInfo.fromParkingSpot}</p>
+          </div>
+        </div>
+
+        {/* Point-to-Point Route Steps */}
+        <div className={`p-3 rounded-xl border space-y-2 ${
+          isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+        }`}>
+          <span className="text-[10px] font-bold uppercase tracking-wider opacity-70 block">
+            Point-to-Point Approach Trail
+          </span>
+          <ol className="space-y-1.5">
+            {approachInfo.pointToPointSteps.map((step, sIdx) => (
+              <li key={sIdx} className="flex items-start gap-2 text-xs leading-relaxed">
+                <span className="w-5 h-5 rounded-full bg-[#FF6B00]/20 text-[#FF6B00] font-mono font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  {sIdx + 1}
+                </span>
+                <span className="opacity-90">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
       {/* SECTION: BETA & CRUX SEQUENCE                                */}
       {/* ============================================================ */}
       <div
@@ -976,12 +1479,32 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           </p>
         </div>
 
-        {/* Beta Video Documentation */}
+        {/* Beta Video Documentation (Jalur Official YouTube Channel) */}
         <div>
-          <div className={`text-[11px] font-bold uppercase tracking-wider mb-2 ${
-            isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
-          }`}>
-            Beta Video Documentation
+          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Youtube size={16} className="text-red-500" />
+              <span
+                className={`text-[11px] font-bold uppercase tracking-wider ${
+                  isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
+                }`}
+              >
+                Beta Video · Jalur Official YouTube
+              </span>
+            </div>
+            <a
+              href={
+                problem.betaVideoUrl
+                  ? problem.betaVideoUrl.replace('/embed/', '/watch?v=')
+                  : 'https://www.youtube.com/@JalurClimbing'
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-red-500 hover:underline"
+            >
+              <span>@JalurClimbing</span>
+              <ExternalLink size={11} />
+            </a>
           </div>
           {problem.betaVideoUrl ? (
             <div className="rounded-2xl overflow-hidden aspect-video border border-current/15 shadow-lg bg-black">
@@ -989,54 +1512,128 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
                 src={problem.betaVideoUrl}
                 className="w-full h-full"
                 allowFullScreen
-                title={`Beta Video - ${problem.name}`}
+                title={`Jalur Official YouTube Beta - ${problem.name}`}
               />
             </div>
           ) : (
-            <div className={`aspect-video rounded-2xl border flex flex-col items-center justify-center gap-2.5 p-4 text-center ${
-              isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
-            }`}>
-              <Video size={32} className={isSandstone ? 'text-[#1a1815]/40' : 'text-slate-ash'} />
-              <p className={`text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
-                No official beta video recorded for this route yet.
-              </p>
-              {onLogAscent && (
-                <button
-                  onClick={onLogAscent}
-                  className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
-                    isSandstone ? 'bg-[#1a1815] text-white hover:bg-black' : 'bg-lime text-granite hover:bg-lime-dim'
-                  }`}
+            <div
+              className={`aspect-video rounded-2xl border flex flex-col items-center justify-center gap-3 p-5 text-center ${
+                isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+              }`}
+            >
+              <div className="w-12 h-12 rounded-2xl bg-red-500/15 text-red-500 flex items-center justify-center">
+                <Youtube size={26} />
+              </div>
+              <div className="space-y-1 max-w-sm">
+                <p className="text-xs font-bold">Jalur YouTube Send Archive (@JalurClimbing)</p>
+                <p className={`text-xs ${isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'}`}>
+                  Official beta reference video for &ldquo;{problem.name}&rdquo; is being queued on Jalur&apos;s YouTube channel.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap justify-center">
+                <a
+                  href={`https://www.youtube.com/results?search_query=Jalur+Climbing+${encodeURIComponent(problem.name)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-colors"
                 >
-                  <ExternalLink size={12} /> Log Ascent & Upload Beta
-                </button>
-              )}
+                  <Youtube size={14} />
+                  <span>Watch on Jalur YouTube</span>
+                </a>
+                {onLogAscent && (
+                  <button
+                    onClick={onLogAscent}
+                    className={`inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl transition-colors ${
+                      isSandstone ? 'bg-[#1a1815] text-white hover:bg-black' : 'bg-lime text-granite hover:bg-lime-dim'
+                    }`}
+                  >
+                    <ExternalLink size={12} /> Log Ascent &amp; Link Beta
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
       </div>
 
       {/* ============================================================ */}
-      {/* SECTION: CRAG ACCESS & ETHICS                                */}
+      {/* SECTION: CLIMBING ETIQUETTE & CRAG ACCESS                    */}
       {/* ============================================================ */}
       <div
-        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-3 transition-colors ${
+        className={`mx-4 md:mx-0 p-4 rounded-2xl border space-y-4 transition-colors ${
           isSandstone
             ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
             : 'bg-transparent border-white/10 text-chalk'
         }`}
       >
         <div className="flex items-center gap-2 pb-2.5 border-b border-current/10">
-          <AlertCircle size={16} className="text-project" />
+          <ShieldCheck size={16} className="text-project" />
           <h3 className="font-bold text-sm uppercase tracking-wider text-project">
-            Crag Access & Ethics
+            Climbing Etiquette &amp; Crag Access
           </h3>
         </div>
+
         <p className="text-xs leading-relaxed opacity-90">
-          {problem.accessInfo || 'Check in with the local ranger station / basecamp coordinator upon arrival. Pack out all trash, brush off excess chalk, and use a landing ground tarp where appropriate.'}
+          {problem.accessInfo ||
+            'Check in with the local ranger station / basecamp coordinator upon arrival. Pack out all trash, brush off excess chalk, and use a landing ground tarp where appropriate.'}
         </p>
-        <div className={`p-3 rounded-xl border text-xs ${
-          isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
-        }`}>
+
+        {/* 3-Pillar Climbing Etiquette Breakdown */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div
+            className={`p-3 rounded-xl border space-y-1.5 ${
+              isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+            }`}
+          >
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#FF6B00]">
+              <AlertCircle size={12} />
+              <span>Government &amp; Permits</span>
+            </div>
+            <ul className="space-y-1 text-[11px] opacity-85 list-disc pl-3.5">
+              {etiquette.governmentRegulations.map((rule, idx) => (
+                <li key={idx} className="leading-relaxed">{rule}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div
+            className={`p-3 rounded-xl border space-y-1.5 ${
+              isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+            }`}
+          >
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+              <UserCheck size={12} />
+              <span>Local Community Norms</span>
+            </div>
+            <ul className="space-y-1 text-[11px] opacity-85 list-disc pl-3.5">
+              {etiquette.localNorms.map((norm, idx) => (
+                <li key={idx} className="leading-relaxed">{norm}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div
+            className={`p-3 rounded-xl border space-y-1.5 ${
+              isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+            }`}
+          >
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+              <Sparkles size={12} />
+              <span>Environmental &amp; LNT</span>
+            </div>
+            <ul className="space-y-1 text-[11px] opacity-85 list-disc pl-3.5">
+              {etiquette.environmentalRules.map((env, idx) => (
+                <li key={idx} className="leading-relaxed">{env}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div
+          className={`p-3 rounded-xl border text-xs ${
+            isSandstone ? 'bg-[#1a1815]/5 border-[#1a1815]/10' : 'bg-granite/70 border-white/5'
+          }`}
+        >
           <span className="font-bold block mb-0.5 opacity-70">Local Contact / Basecamp Coordinator:</span>
           <span className="font-medium">{problem.localContact || 'Crag Management & Local Climbing Community'}</span>
         </div>
@@ -1073,6 +1670,199 @@ export default function TopoCanvas({ problem, imageUrl, onLogAscent, onSetNewRou
           </button>
         )}
       </div>
+
+      {/* ============================================================ */}
+      {/* SHARE PROBLEM LINK MODAL (QR, COPY URL, WHATSAPP, TELEGRAM)  */}
+      {/* ============================================================ */}
+      <AnimatePresence>
+        {showShareModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowShareModal(false)}
+            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full max-w-md rounded-3xl border p-5 space-y-4 shadow-2xl ${
+                isSandstone
+                  ? 'bg-[#e8dcc8] border-[#1a1815]/20 text-[#1a1815]'
+                  : 'bg-[#1A1D22] border-white/15 text-chalk'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <h4 className="font-black text-base">Share Problem Topo</h4>
+                  <p className="text-xs opacity-70 truncate max-w-[260px]">
+                    {problem.name} · {problem.grade} ({cragDisplayName})
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowShareModal(false)}
+                  className="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center hover:opacity-75"
+                  aria-label="Close Share Modal"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* QR Code Preview */}
+              <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white text-[#1a1815] gap-2 shadow-inner">
+                <QRCodeSVG value={shareUrl} size={140} />
+                <span className="text-[11px] font-mono font-bold tracking-tight text-center">
+                  Scan QR for {problem.name} Topo
+                </span>
+              </div>
+
+              {/* Copy URL Box */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={shareUrl}
+                  className={`flex-1 px-3 py-2 rounded-xl text-xs font-mono border outline-none ${
+                    isSandstone
+                      ? 'bg-white/70 border-[#1a1815]/20 text-[#1a1815]'
+                      : 'bg-black/40 border-white/15 text-chalk'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={handleCopyShareLink}
+                  className="px-3.5 py-2 rounded-xl bg-[#FF6B00] text-white text-xs font-bold flex items-center gap-1.5 hover:opacity-90 flex-shrink-0"
+                >
+                  {copiedLink ? <Check size={14} /> : <Copy size={14} />}
+                  <span>{copiedLink ? 'Copied' : 'Copy'}</span>
+                </button>
+              </div>
+
+              {/* Direct Chat / Social Send Buttons */}
+              <div className="grid grid-cols-2 gap-2.5">
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors"
+                >
+                  <MessageCircle size={15} />
+                  <span>WhatsApp</span>
+                </a>
+                <a
+                  href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-colors"
+                >
+                  <Send size={15} />
+                  <span>Telegram</span>
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ============================================================ */}
+      {/* ROUTE SETTER PROFILE & FILTER MODAL                          */}
+      {/* ============================================================ */}
+      <AnimatePresence>
+        {showSetterModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowSetterModal(false)}
+            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full max-w-md rounded-3xl border p-5 space-y-4 shadow-2xl ${
+                isSandstone
+                  ? 'bg-[#e8dcc8] border-[#1a1815]/20 text-[#1a1815]'
+                  : 'bg-[#1A1D22] border-white/15 text-chalk'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-[#FF6B00]/15 text-[#FF6B00] flex items-center justify-center">
+                    <UserCheck size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-base">{problem.fa}</h4>
+                    <p className="text-[11px] font-mono opacity-70">Verified Jalur Route Setter / FA</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowSetterModal(false)}
+                  className="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center hover:opacity-75"
+                  aria-label="Close Setter Modal"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div
+                className={`p-3.5 rounded-2xl border space-y-2 text-xs ${
+                  isSandstone ? 'bg-white/50 border-[#1a1815]/10' : 'bg-white/5 border-white/10'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="opacity-70">First Ascent Route:</span>
+                  <span className="font-bold">{problem.name} ({problem.grade})</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="opacity-70">Year Route Setted:</span>
+                  <span className="font-mono font-bold">{yearSetDisplay} ({problem.faDate})</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="opacity-70">Latest Hardware Check:</span>
+                  <span className="font-mono font-bold text-emerald-400">{boltInfo.year}</span>
+                </div>
+              </div>
+
+              <p className="text-xs leading-relaxed opacity-85">
+                First Ascent &amp; route cleaning curated under Indonesian outdoor climbing conservation ethics.
+                Report loose holds or hardware wear via Jalur Route Draft feedback.
+              </p>
+
+              <div className="flex items-center gap-2">
+                {onFilterBySetter && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSetterModal(false)
+                      onFilterBySetter(problem.fa)
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-[#FF6B00] text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                  >
+                    Filter All Problems by {problem.fa}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowSetterModal(false)}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold border ${
+                    isSandstone
+                      ? 'border-[#1a1815]/20 hover:bg-black/5'
+                      : 'border-white/15 hover:bg-white/5'
+                  }`}
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

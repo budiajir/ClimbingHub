@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Mountain, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2, Search, Heart } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Mountain, Sparkles, Layers, Compass, Plus, ShieldCheck, Info, MapPin, Award, Trash2, Share2, Search, Heart, X, UserCheck } from 'lucide-react'
 import { Problem, CragRegion, RouteDiscipline } from '@/lib/mock-data'
 import { useCragRegions, insertRoute, insertCragRegion, insertSector } from '@/lib/use-data'
 import { gradeColors } from '@/lib/tokens'
@@ -17,6 +17,7 @@ import { useAuth } from '@/lib/auth-context'
 import { canLogAscent, canCreateCragRoute } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
 import { UserAscent, getUserAscents, saveUserAscent, deleteUserAscent } from '@/lib/user-ascents'
+import { getWishlist, toggleWishlist } from '@/lib/wishlist-store'
 import Pictogram from '@/components/common/Pictogram'
 import dynamic from 'next/dynamic'
 
@@ -216,6 +217,38 @@ function BetaPageContent() {
 
   const [selectedCity, setSelectedCity] = useState<string>('all')
   const [selectedGrade, setSelectedGrade] = useState<string>('all')
+  const [selectedSetter, setSelectedSetter] = useState<string>('all')
+  const [showMap, setShowMap] = useState<boolean>(true)
+  const [wishlistIds, setWishlistIds] = useState<string[]>([])
+
+  useEffect(() => {
+    const syncWishlist = () => {
+      setWishlistIds(getWishlist().map((w) => w.id))
+    }
+    syncWishlist()
+    window.addEventListener('wishlist-updated', syncWishlist)
+    return () => window.removeEventListener('wishlist-updated', syncWishlist)
+  }, [])
+
+  const handleCardToggleWishlist = (
+    e: React.MouseEvent,
+    p: Problem,
+    r: CragRegion,
+    sectorImage?: string
+  ) => {
+    e.stopPropagation()
+    toggleWishlist({
+      id: p.id,
+      type: 'problem',
+      title: p.name,
+      subtitle: `${p.grade} · ${p.discipline || 'Bouldering'}`,
+      image: p.imageUrl || sectorImage || r.image,
+      location: r.name,
+      grade: p.grade,
+      discipline: p.discipline,
+    })
+    setWishlistIds(getWishlist().map((w) => w.id))
+  }
 
   const [showLogModal, setShowLogModal] = useState(false)
   const [activeShareAscent, setActiveShareAscent] = useState<UserAscent | null>(null)
@@ -521,6 +554,7 @@ function BetaPageContent() {
           (p.name || '').toLowerCase().includes(q) ||
           (p.grade || '').toLowerCase().includes(q) ||
           (p.fontGrade && p.fontGrade.toLowerCase().includes(q)) ||
+          (p.fa && p.fa.toLowerCase().includes(q)) ||
           (r.name || '').toLowerCase().includes(q) ||
           (s.name || '').toLowerCase().includes(q)
 
@@ -539,6 +573,10 @@ function BetaPageContent() {
           (r.province || '').toLowerCase().includes(selectedCity.toLowerCase()) ||
           (s.name || '').toLowerCase().includes(selectedCity.toLowerCase())
 
+        const matchSetter =
+          selectedSetter === 'all' ||
+          (p.fa || '').toLowerCase() === selectedSetter.toLowerCase()
+
         const matchGrade =
           selectedGrade === 'all' ||
           (() => {
@@ -553,7 +591,7 @@ function BetaPageContent() {
             return g.includes(selectedGrade.toUpperCase())
           })()
 
-        return matchSearch && matchCategory && matchCity && matchGrade
+        return matchSearch && matchCategory && matchCity && matchGrade && matchSetter
       })
       .sort((a, b) => {
         if (selectedCategory === 'boulder') {
@@ -563,7 +601,11 @@ function BetaPageContent() {
         }
         return 0
       })
-  }, [allProblems, searchQuery, selectedCategory, selectedCity, selectedGrade])
+  }, [allProblems, searchQuery, selectedCategory, selectedCity, selectedGrade, selectedSetter])
+
+  useEffect(() => {
+    setActiveSlideIndex(0)
+  }, [searchQuery, selectedCategory, selectedCity, selectedGrade, selectedSetter])
 
   const filteredProblems = sector ? sector.problems : []
 
@@ -604,90 +646,108 @@ function BetaPageContent() {
                 </button>
               </div>
             ) : (
-              /* Headline Row: Clean "Problems" and View Mode Switcher Icons */
-              <div className="flex items-center justify-between gap-3 pt-1 pb-1">
-                <h1
-                  className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight ${
-                    isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                  }`}
-                >
-                  Problems
-                </h1>
+              /* Headline Row: "Problems" + Static Description + View Mode Switcher (Slideshow, Thumbnails, List) */
+              <div className="space-y-1.5 pt-1 pb-1">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <h1
+                    className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight ${
+                      isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                    }`}
+                  >
+                    Problems
+                  </h1>
 
-                <div className="flex items-center gap-2 sm:gap-3">
-                  {/* View Mode Switcher Icons: Slide, Grid, List */}
-                  <div className="flex items-center gap-1 sm:gap-1.5">
-                    {/* 1. Slide Mode */}
-                    <button
-                      onClick={() => setViewMode('slide')}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        viewMode === 'slide' ? 'scale-110' : 'opacity-40 hover:opacity-80'
+                  <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                    {/* View Mode Switcher CTAs: Slideshow, Thumbnails, List */}
+                    <div
+                      className={`flex items-center gap-1 p-1 rounded-xl border ${
+                        isSandstone ? 'bg-black/5 border-[#1a1815]/15' : 'bg-white/5 border-white/10'
                       }`}
-                      style={{
-                        color: viewMode === 'slide' ? themeTextColor : 'currentColor',
-                      }}
-                      title="Slide View (Portrait Card)"
-                      aria-label="Slide View"
                     >
-                      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2">
-                        <rect x="5" y="3" width="14" height="18" rx="2" />
-                      </svg>
-                    </button>
+                      {/* 1. Slideshow Mode */}
+                      <button
+                        onClick={() => setViewMode('slide')}
+                        className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1.5 text-[11px] font-bold ${
+                          viewMode === 'slide' ? 'bg-black/15 dark:bg-white/15 shadow-sm' : 'opacity-50 hover:opacity-85'
+                        }`}
+                        style={{
+                          color: viewMode === 'slide' ? themeTextColor : 'currentColor',
+                        }}
+                        title="Slideshow View (Portrait Card)"
+                        aria-label="Slideshow View"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2">
+                          <rect x="5" y="3" width="14" height="18" rx="2" />
+                        </svg>
+                        <span className="hidden md:inline">Slideshow</span>
+                      </button>
 
-                    {/* 2. Grid Mode */}
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        viewMode === 'grid' ? 'scale-110' : 'opacity-40 hover:opacity-80'
-                      }`}
-                      style={{
-                        color: viewMode === 'grid' ? themeTextColor : 'currentColor',
-                      }}
-                      title="Grid View"
-                      aria-label="Grid View"
-                    >
-                      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2">
-                        <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                        <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                        <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                        <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                      </svg>
-                    </button>
+                      {/* 2. Thumbnails Mode */}
+                      <button
+                        onClick={() => setViewMode('grid')}
+                        className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1.5 text-[11px] font-bold ${
+                          viewMode === 'grid' ? 'bg-black/15 dark:bg-white/15 shadow-sm' : 'opacity-50 hover:opacity-85'
+                        }`}
+                        style={{
+                          color: viewMode === 'grid' ? themeTextColor : 'currentColor',
+                        }}
+                        title="Thumbnails View"
+                        aria-label="Thumbnails View"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2">
+                          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                        </svg>
+                        <span className="hidden md:inline">Thumbnails</span>
+                      </button>
 
-                    {/* 3. List Mode */}
+                      {/* 3. List Mode */}
+                      <button
+                        onClick={() => setViewMode('list')}
+                        className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1.5 text-[11px] font-bold ${
+                          viewMode === 'list' ? 'bg-black/15 dark:bg-white/15 shadow-sm' : 'opacity-50 hover:opacity-85'
+                        }`}
+                        style={{
+                          color: viewMode === 'list' ? themeTextColor : 'currentColor',
+                        }}
+                        title="List View"
+                        aria-label="List View"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+                          <line x1="4" y1="6" x2="20" y2="6" />
+                          <line x1="4" y1="12" x2="20" y2="12" />
+                          <line x1="4" y1="18" x2="20" y2="18" />
+                        </svg>
+                        <span className="hidden md:inline">List</span>
+                      </button>
+                    </div>
+
+                    {/* Action button: Set New Route */}
                     <button
-                      onClick={() => setViewMode('list')}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        viewMode === 'list' ? 'scale-110' : 'opacity-40 hover:opacity-80'
-                      }`}
+                      onClick={handleAddRouteClick}
+                      className="p-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition-all border opacity-85 hover:opacity-100 flex items-center gap-1"
                       style={{
-                        color: viewMode === 'list' ? themeTextColor : 'currentColor',
+                        borderColor: currentTheme.primary + '60',
+                        color: themeTextColor,
                       }}
-                      title="List View"
-                      aria-label="List View"
+                      title="Set New Route"
                     >
-                      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round">
-                        <line x1="4" y1="6" x2="20" y2="6" />
-                        <line x1="4" y1="12" x2="20" y2="12" />
-                        <line x1="4" y1="18" x2="20" y2="18" />
-                      </svg>
+                      <Plus size={15} />
+                      <span className="hidden sm:inline">Add Route</span>
                     </button>
                   </div>
-
-                  {/* Action button: Set New Route */}
-                  <button
-                    onClick={handleAddRouteClick}
-                    className="p-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition-all border opacity-80 hover:opacity-100 flex items-center gap-1"
-                    style={{
-                      borderColor: currentTheme.primary + '60',
-                      color: themeTextColor,
-                    }}
-                    title="Set New Route"
-                  >
-                    <Plus size={15} />
-                    <span className="hidden sm:inline">Add Route</span>
-                  </button>
                 </div>
+
+                {/* Static Description */}
+                <p
+                  className={`text-xs sm:text-sm max-w-3xl leading-relaxed ${
+                    isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
+                  }`}
+                >
+                  Comprehensive guide to Indonesia&apos;s outdoor boulder, lead, and multipitch climbing problems—featuring interactive L/B/M topos, grade equivalences, hold close-ups, bolt maintenance records, safety kits, approach paths, and Jalur beta videos.
+                </p>
               </div>
             )}
           </div>
@@ -924,11 +984,40 @@ function BetaPageContent() {
                       <ChevronRight size={13} className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none opacity-60" />
                     </div>
 
-                    {(selectedCity !== 'all' || selectedGrade !== 'all') && (
+                    {/* Map Toggle CTA Button */}
+                    <button
+                      type="button"
+                      onClick={() => setShowMap((prev) => !prev)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 ${
+                        showMap
+                          ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
+                          : isSandstone
+                          ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815]'
+                          : 'bg-white/5 border-white/10 text-chalk hover:border-[#FF6B00]/40'
+                      }`}
+                    >
+                      <MapPin size={13} />
+                      <span>{showMap ? 'Hide Map' : 'Locate on Map'}</span>
+                    </button>
+
+                    {selectedSetter !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSetter('all')}
+                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#FF6B00]/20 text-[#FF6B00] border border-[#FF6B00]/40 flex items-center gap-1.5 hover:bg-[#FF6B00]/30 transition-colors"
+                      >
+                        <UserCheck size={12} />
+                        <span>Setter: {selectedSetter}</span>
+                        <X size={12} />
+                      </button>
+                    )}
+
+                    {(selectedCity !== 'all' || selectedGrade !== 'all' || selectedSetter !== 'all') && (
                       <button
                         onClick={() => {
                           setSelectedCity('all')
                           setSelectedGrade('all')
+                          setSelectedSetter('all')
                         }}
                         className="px-2.5 py-1 text-xs text-rose-400 hover:underline font-bold"
                       >
@@ -937,19 +1026,21 @@ function BetaPageContent() {
                     )}
                   </div>
 
-                  {/* 3. Interactive Indonesia Problems Map */}
-                  <div className="my-3">
-                    <InteractiveIndonesiaMap
-                      mode="problems"
-                      crags={regions}
-                      selectedProvince={selectedCity}
-                      onSelectProvince={(prov) => setSelectedCity(prov)}
-                      onSelectCrag={(crag) => {
-                        setSelectedRegion(crag.id)
-                        setLevel('sectors')
-                      }}
-                    />
-                  </div>
+                  {/* 3. Interactive Indonesia Problems Map (Toggled by Map CTA) */}
+                  {showMap && (
+                    <div className="my-3">
+                      <InteractiveIndonesiaMap
+                        mode="problems"
+                        crags={regions}
+                        selectedProvince={selectedCity}
+                        onSelectProvince={(prov) => setSelectedCity(prov)}
+                        onSelectCrag={(crag) => {
+                          setSelectedRegion(crag.id)
+                          setLevel('sectors')
+                        }}
+                      />
+                    </div>
+                  )}
 
                   {/* 4. Button filter kategori (boulder - lead - multipitch dituker ke bawah agar nyaman 1 tangan) */}
                   <div className="grid grid-cols-3 gap-2 sm:gap-3.5 pt-1">
@@ -1002,172 +1093,242 @@ function BetaPageContent() {
                           </p>
                         </div>
                       ) : (
-                        filteredProblemsList.map(({ problem: p, region: r, sector: s }) => (
-                          <button
-                            key={p.id}
-                            onClick={() => {
-                              setSelectedRegion(r.id)
-                              setSelectedSector(s.id)
-                              setSelectedProblem(p.id)
-                              setLevel('topo')
-                            }}
-                            className="w-full text-left py-3.5 sm:py-4 flex items-center justify-between gap-4 transition-opacity hover:opacity-75 group border-b"
-                            style={{ borderColor: currentTheme.primary + '35' }}
-                          >
-                            <div className="flex items-baseline gap-3 sm:gap-6 min-w-0 flex-1">
-                              <span
-                                className="text-2xl sm:text-3xl font-normal tracking-tight truncate"
-                                style={{ color: themeTextColor }}
-                              >
-                                {p.name}
-                              </span>
-                              <span
-                                className="text-xs sm:text-sm font-normal opacity-70 whitespace-nowrap"
-                                style={{ color: themeTextColor }}
-                              >
-                                {r.name}
-                              </span>
-                            </div>
-
-                            <span
-                              className="text-2xl sm:text-3xl font-bold font-mono flex-shrink-0"
-                              style={{ color: themeTextColor }}
+                        filteredProblemsList.map(({ problem: p, region: r, sector: s }) => {
+                          const isSaved = wishlistIds.includes(p.id)
+                          return (
+                            <div
+                              key={p.id}
+                              className="flex items-center justify-between gap-2 sm:gap-3 border-b"
+                              style={{ borderColor: currentTheme.primary + '35' }}
                             >
-                              {p.grade}
-                            </span>
-                          </button>
-                        ))
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedRegion(r.id)
+                                  setSelectedSector(s.id)
+                                  setSelectedProblem(p.id)
+                                  setLevel('topo')
+                                }}
+                                className="flex-1 text-left py-3.5 sm:py-4 flex items-center justify-between gap-4 transition-opacity hover:opacity-75 group min-w-0"
+                              >
+                                <div className="flex items-baseline gap-3 sm:gap-6 min-w-0 flex-1">
+                                  <span
+                                    className="text-2xl sm:text-3xl font-normal tracking-tight truncate"
+                                    style={{ color: themeTextColor }}
+                                  >
+                                    {p.name}
+                                  </span>
+                                  <span
+                                    className="text-xs sm:text-sm font-normal opacity-70 whitespace-nowrap truncate"
+                                    style={{ color: themeTextColor }}
+                                  >
+                                    {r.name}
+                                  </span>
+                                </div>
+
+                                <span
+                                  className="text-2xl sm:text-3xl font-bold font-mono flex-shrink-0"
+                                  style={{ color: themeTextColor }}
+                                >
+                                  {p.grade}
+                                </span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={(e) => handleCardToggleWishlist(e, p, r, s.image)}
+                                className={`p-2 rounded-xl border transition-all flex-shrink-0 ${
+                                  isSaved
+                                    ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
+                                    : isSandstone
+                                    ? 'border-[#1a1815]/15 text-[#1a1815]/50 hover:text-rose-500 hover:border-rose-400/50'
+                                    : 'border-white/10 text-white/40 hover:text-rose-400 hover:border-rose-400/50'
+                                }`}
+                                title={isSaved ? 'Remove from Wishlist' : 'Save to Wishlist'}
+                                aria-label="Toggle Wishlist"
+                              >
+                                <Heart size={16} className={isSaved ? 'fill-current' : ''} />
+                              </button>
+                            </div>
+                          )
+                        })
                       )}
                     </div>
                   )}
 
                   {/* View Mode B: PORTRAIT CARDS SLIDESHOW (With Topo) */}
-                  {viewMode === 'slide' && filteredProblemsList.length > 0 && (
-                    <div className="space-y-4 py-3">
-                      <div
-                        className="relative overflow-hidden rounded-3xl max-w-sm mx-auto aspect-[3/4] shadow-xl border transition-all"
-                        style={{ borderColor: currentTheme.primary + '50' }}
-                      >
-                        <img
-                          src={
-                            filteredProblemsList[activeSlideIndex]?.problem.imageUrl ||
-                            filteredProblemsList[activeSlideIndex]?.sector.image ||
-                            filteredProblemsList[activeSlideIndex]?.region.image
-                          }
-                          alt={filteredProblemsList[activeSlideIndex]?.problem.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40" />
+                  {viewMode === 'slide' && filteredProblemsList.length > 0 && (() => {
+                    const slideItem = filteredProblemsList[activeSlideIndex] || filteredProblemsList[0]
+                    if (!slideItem) return null
+                    const isSlideSaved = wishlistIds.includes(slideItem.problem.id)
+                    return (
+                      <div className="space-y-4 py-3">
+                        <div
+                          className="relative overflow-hidden rounded-3xl max-w-sm mx-auto aspect-[3/4] shadow-xl border transition-all"
+                          style={{ borderColor: currentTheme.primary + '50' }}
+                        >
+                          <img
+                            src={
+                              slideItem.problem.imageUrl ||
+                              slideItem.sector.image ||
+                              slideItem.region.image
+                            }
+                            alt={slideItem.problem.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40" />
 
-                        {/* Top Header Badge */}
-                        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                          <span
-                            className="px-3 py-1 rounded-full text-xs font-bold text-white shadow-md uppercase tracking-wider"
-                            style={{ backgroundColor: currentTheme.primary }}
-                          >
-                            {currentTheme.label}
-                          </span>
-                          <span className="text-xl font-bold font-mono text-white bg-black/60 px-3 py-1 rounded-xl backdrop-blur-md border border-white/20">
-                            {filteredProblemsList[activeSlideIndex]?.problem.grade}
-                          </span>
-                        </div>
-
-                        {/* Bottom Info & Action */}
-                        <div className="absolute bottom-5 left-5 right-5 text-white space-y-2">
-                          <div>
-                            <h3 className="text-3xl font-bold tracking-tight">
-                              {filteredProblemsList[activeSlideIndex]?.problem.name}
-                            </h3>
-                            <p className="text-xs opacity-80 mt-0.5">
-                              {filteredProblemsList[activeSlideIndex]?.region.name} · {filteredProblemsList[activeSlideIndex]?.sector.name.split('—')[0].trim()}
-                            </p>
+                          {/* Top Header Badge + Wishlist CTA */}
+                          <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2">
+                            <span
+                              className="px-3 py-1 rounded-full text-xs font-bold text-white shadow-md uppercase tracking-wider"
+                              style={{ backgroundColor: currentTheme.primary }}
+                            >
+                              {currentTheme.label}
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={(e) =>
+                                  handleCardToggleWishlist(
+                                    e,
+                                    slideItem.problem,
+                                    slideItem.region,
+                                    slideItem.sector.image
+                                  )
+                                }
+                                className={`w-9 h-9 rounded-xl backdrop-blur-md border flex items-center justify-center transition-all ${
+                                  isSlideSaved
+                                    ? 'bg-rose-500/80 text-white border-rose-400'
+                                    : 'bg-black/60 text-white/80 border-white/20 hover:bg-rose-500/50'
+                                }`}
+                                title={isSlideSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
+                                aria-label="Save to Wishlist"
+                              >
+                                <Heart size={16} className={isSlideSaved ? 'fill-current' : ''} />
+                              </button>
+                              <span className="text-xl font-bold font-mono text-white bg-black/60 px-3 py-1 rounded-xl backdrop-blur-md border border-white/20">
+                                {slideItem.problem.grade}
+                              </span>
+                            </div>
                           </div>
 
-                          <button
-                            onClick={() => {
-                              const item = filteredProblemsList[activeSlideIndex]
-                              if (item) {
-                                setSelectedRegion(item.region.id)
-                                setSelectedSector(item.sector.id)
-                                setSelectedProblem(item.problem.id)
+                          {/* Bottom Info & Action */}
+                          <div className="absolute bottom-5 left-5 right-5 text-white space-y-2">
+                            <div>
+                              <h3 className="text-3xl font-bold tracking-tight">
+                                {slideItem.problem.name}
+                              </h3>
+                              <p className="text-xs opacity-80 mt-0.5">
+                                {slideItem.region.name} · {slideItem.sector.name.split('—')[0].trim()}
+                              </p>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                setSelectedRegion(slideItem.region.id)
+                                setSelectedSector(slideItem.sector.id)
+                                setSelectedProblem(slideItem.problem.id)
                                 setLevel('topo')
-                              }
-                            }}
-                            className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-opacity hover:opacity-90"
-                            style={{ backgroundColor: currentTheme.primary, color: '#FFFFFF' }}
+                              }}
+                              className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-opacity hover:opacity-90"
+                              style={{ backgroundColor: currentTheme.primary, color: '#FFFFFF' }}
+                            >
+                              <span>View Topo &amp; Beta</span>
+                              <ChevronRight size={14} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Carousel controls */}
+                        <div className="flex items-center justify-center gap-4 pt-1">
+                          <button
+                            onClick={() => setActiveSlideIndex(prev => (prev > 0 ? prev - 1 : filteredProblemsList.length - 1))}
+                            className="p-2.5 rounded-full border transition-all hover:scale-105"
+                            style={{ borderColor: currentTheme.primary + '50', color: themeTextColor }}
+                            aria-label="Previous problem"
                           >
-                            <span>View Topo & Beta</span>
-                            <ChevronRight size={14} />
+                            <ChevronLeft size={18} />
+                          </button>
+                          <span className="text-xs font-mono font-medium" style={{ color: themeTextColor }}>
+                            {(activeSlideIndex < filteredProblemsList.length ? activeSlideIndex : 0) + 1} / {filteredProblemsList.length}
+                          </span>
+                          <button
+                            onClick={() => setActiveSlideIndex(prev => (prev < filteredProblemsList.length - 1 ? prev + 1 : 0))}
+                            className="p-2.5 rounded-full border transition-all hover:scale-105"
+                            style={{ borderColor: currentTheme.primary + '50', color: themeTextColor }}
+                            aria-label="Next problem"
+                          >
+                            <ChevronRight size={18} />
                           </button>
                         </div>
                       </div>
+                    )
+                  })()}
 
-                      {/* Carousel controls */}
-                      <div className="flex items-center justify-center gap-4 pt-1">
-                        <button
-                          onClick={() => setActiveSlideIndex(prev => (prev > 0 ? prev - 1 : filteredProblemsList.length - 1))}
-                          className="p-2.5 rounded-full border transition-all hover:scale-105"
-                          style={{ borderColor: currentTheme.primary + '50', color: themeTextColor }}
-                          aria-label="Previous problem"
-                        >
-                          <ChevronLeft size={18} />
-                        </button>
-                        <span className="text-xs font-mono font-medium" style={{ color: themeTextColor }}>
-                          {activeSlideIndex + 1} / {filteredProblemsList.length}
-                        </span>
-                        <button
-                          onClick={() => setActiveSlideIndex(prev => (prev < filteredProblemsList.length - 1 ? prev + 1 : 0))}
-                          className="p-2.5 rounded-full border transition-all hover:scale-105"
-                          style={{ borderColor: currentTheme.primary + '50', color: themeTextColor }}
-                          aria-label="Next problem"
-                        >
-                          <ChevronRight size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* View Mode C: CARDS GRID */}
+                  {/* View Mode C: THUMBNAILS GRID */}
                   {viewMode === 'grid' && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 py-3">
-                      {filteredProblemsList.map(({ problem: p, region: r, sector: s }) => (
-                        <button
-                          key={p.id}
-                          onClick={() => {
-                            setSelectedRegion(r.id)
-                            setSelectedSector(s.id)
-                            setSelectedProblem(p.id)
-                            setLevel('topo')
-                          }}
-                          className="text-left rounded-2xl overflow-hidden border transition-all hover:scale-[1.02] flex flex-col justify-between group shadow-sm"
-                          style={{
-                            borderColor: currentTheme.primary + '40',
-                            backgroundColor: isSandstone ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.03)',
-                          }}
-                        >
-                          <div className="aspect-[4/3] w-full relative bg-black/40 overflow-hidden">
-                            <img
-                              src={p.imageUrl || s.image || r.image}
-                              alt={p.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                            <div
-                              className="absolute top-2 right-2 px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono text-white shadow-sm"
-                              style={{ backgroundColor: currentTheme.primary }}
+                      {filteredProblemsList.map(({ problem: p, region: r, sector: s }) => {
+                        const isSaved = wishlistIds.includes(p.id)
+                        return (
+                          <div
+                            key={p.id}
+                            className="relative rounded-2xl overflow-hidden border transition-all hover:scale-[1.02] flex flex-col justify-between group shadow-sm"
+                            style={{
+                              borderColor: currentTheme.primary + '40',
+                              backgroundColor: isSandstone ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.03)',
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedRegion(r.id)
+                                setSelectedSector(s.id)
+                                setSelectedProblem(p.id)
+                                setLevel('topo')
+                              }}
+                              className="text-left w-full flex-1 flex flex-col justify-between"
                             >
-                              {p.grade}
-                            </div>
+                              <div className="aspect-[4/3] w-full relative bg-black/40 overflow-hidden">
+                                <img
+                                  src={p.imageUrl || s.image || r.image}
+                                  alt={p.name}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                                <div
+                                  className="absolute top-2 right-2 px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono text-white shadow-sm"
+                                  style={{ backgroundColor: currentTheme.primary }}
+                                >
+                                  {p.grade}
+                                </div>
+                              </div>
+                              <div className="p-3 space-y-0.5 w-full">
+                                <h4 className="font-bold text-sm truncate group-hover:underline" style={{ color: themeTextColor }}>
+                                  {p.name}
+                                </h4>
+                                <p className="text-[11px] opacity-70 truncate" style={{ color: themeTextColor }}>
+                                  {r.name}
+                                </p>
+                              </div>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => handleCardToggleWishlist(e, p, r, s.image)}
+                              className={`absolute top-2 left-2 w-7 h-7 rounded-lg backdrop-blur-md border flex items-center justify-center transition-all z-10 ${
+                                isSaved
+                                  ? 'bg-rose-500/85 text-white border-rose-400'
+                                  : 'bg-black/55 text-white/80 border-white/20 hover:bg-rose-500/60'
+                              }`}
+                              title={isSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
+                              aria-label="Toggle Wishlist"
+                            >
+                              <Heart size={13} className={isSaved ? 'fill-current' : ''} />
+                            </button>
                           </div>
-                          <div className="p-3 space-y-0.5">
-                            <h4 className="font-bold text-sm truncate group-hover:underline" style={{ color: themeTextColor }}>
-                              {p.name}
-                            </h4>
-                            <p className="text-[11px] opacity-70 truncate" style={{ color: themeTextColor }}>
-                              {r.name}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
+                        )
+                      })}
                     </div>
                   )}
                 </div>
@@ -1397,6 +1558,20 @@ function BetaPageContent() {
               <TopoCanvas
                 problem={problem}
                 imageUrl={problem.imageUrl || sector.image}
+                region={region || undefined}
+                sectorName={sector.name}
+                onFilterBySetter={(setterName) => {
+                  const targetCat: ProblemCategory =
+                    problem.discipline === 'multipitch' || problem.category === 'trad'
+                      ? 'multipitch'
+                      : problem.discipline === 'sport' || problem.category === 'lead'
+                      ? 'lead'
+                      : 'boulder'
+                  setSelectedCategory(targetCat)
+                  setSelectedSetter(setterName)
+                  setShowMyAscentsView(false)
+                  setLevel('regions')
+                }}
                 onLogAscent={triggerLogAscent}
                 onSetNewRoute={() => {
                   if (canCreateCragRoute(role)) {

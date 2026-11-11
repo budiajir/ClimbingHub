@@ -162,6 +162,27 @@ export interface Problem {
   padRecommendation?: string
   landingQuality?: string
   startType?: 'Sit Start (SS)' | 'Stand Start'
+  // V1.0 Extended Problem Matrix Attributes:
+  ydsGrade?: string
+  yearSet?: string
+  boltsUpdatedYear?: string
+  boltsUpdateNotes?: string
+  approachingDetails?: {
+    fromMeetingPoint?: string
+    fromParkingSpot?: string
+    pointToPointSteps?: string[]
+  }
+  requiredEquipment?: { item: string; spec: string }[]
+  descendingDetails?: {
+    method: 'Rappelling' | 'Topping Out' | 'Walk-off Trekking' | 'Lower Off Anchor'
+    description: string
+  }
+  problemPhotos?: {
+    label: string
+    url: string
+    caption?: string
+  }[]
+  climbingEtiquette?: ClimbingEtiquetteInfo
 }
 
 export interface TopoMarker {
