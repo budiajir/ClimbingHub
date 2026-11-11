@@ -139,17 +139,6 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-
-          {/* CTA Button: Yes */}
-          <div className="flex justify-end pt-2">
-            <Link
-              href="/crags"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all shadow-sm"
-            >
-              <span>Discover More Crags</span>
-              <ChevronRight size={14} />
-            </Link>
-          </div>
         </section>
 
         {/* PINK DIVIDER LINE */}
@@ -307,17 +296,6 @@ export default function HomePage() {
               )
             })}
           </div>
-
-          {/* CTA Button: Yes */}
-          <div className="flex justify-end pt-2">
-            <Link
-              href="/beta"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all shadow-sm"
-            >
-              <span>Discover More Problems</span>
-              <ChevronRight size={14} />
-            </Link>
-          </div>
         </section>
 
         {/* PINK DIVIDER LINE */}
@@ -406,17 +384,6 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* CTA Button: Yes */}
-          <div className="flex justify-end pt-2">
-            <Link
-              href="/gyms"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all shadow-sm"
-            >
-              <span>Discover More Gyms</span>
-              <ChevronRight size={14} />
-            </Link>
           </div>
         </section>
 
@@ -513,17 +480,6 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* CTA Button: Yes */}
-          <div className="flex justify-end pt-2">
-            <Link
-              href="/community"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#FF6B00] text-white hover:bg-[#E5601F] transition-all shadow-sm"
-            >
-              <span>Discover More Community</span>
-              <ChevronRight size={14} />
-            </Link>
           </div>
         </section>
 
