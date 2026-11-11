@@ -17,6 +17,8 @@ export interface Gym {
   description: string
   phone: string
   instagram: string
+  logo?: string
+  gmapsUrl?: string
 }
 
 export interface StoneTypology {
@@ -163,6 +165,7 @@ export interface Problem {
   landingQuality?: string
   startType?: 'Sit Start (SS)' | 'Stand Start'
   // V1.0 Extended Problem Matrix Attributes:
+  rockProfile?: string
   ydsGrade?: string
   yearSet?: string
   boltsUpdatedYear?: string

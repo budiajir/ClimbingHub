@@ -1,5 +1,7 @@
 'use client'
 
+export type CommunityAuthorType = 'climber' | 'squad' | 'gym' | 'member'
+
 export interface CommunityPost {
   id: string
   userId: string
@@ -15,6 +17,8 @@ export interface CommunityPost {
   image: string
   likes: number
   hasLiked?: boolean
+  authorType?: CommunityAuthorType
+  sharedUrl?: string
   comments: { user: string; text: string }[]
 }
 

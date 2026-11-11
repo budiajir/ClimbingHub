@@ -16,9 +16,14 @@ import {
   Lock,
   ExternalLink,
   Calendar,
+  Share2,
+  UserCheck,
 } from 'lucide-react'
 import { useCommunities } from '@/lib/use-data'
 import { useTheme } from '@/lib/theme-context'
+import InviteFriendModal from '@/components/community/InviteFriendModal'
+import ShareLinkModal from '@/components/common/ShareLinkModal'
+import { getConnectedFriends, toggleFriendConnection } from '@/lib/social-store'
 import {
   getCommunityPhotos,
   getCommunityJoinStatus,
@@ -46,6 +51,16 @@ export default function CommunityDetailPage() {
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [selectedLightboxPhoto, setSelectedLightboxPhoto] = useState<CommunityPhoto | null>(null)
   const [uploadWarning, setUploadWarning] = useState<string | null>(null)
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [connectedFriends, setConnectedFriends] = useState<string[]>([])
+
+  useEffect(() => {
+    const syncFriends = () => setConnectedFriends(getConnectedFriends())
+    syncFriends()
+    window.addEventListener('social-friends-updated', syncFriends)
+    return () => window.removeEventListener('social-friends-updated', syncFriends)
+  }, [])
 
   const loadData = () => {
     if (!community) return
@@ -162,7 +177,7 @@ export default function CommunityDetailPage() {
               </p>
             </div>
 
-            {/* Action buttons: Join Community & Upload Post */}
+            {/* Action buttons: Request to Join, Upload Post, Invite Friend, Share Link */}
             <div className="flex items-center gap-2.5 flex-wrap">
               {joinStatus === 'approved' ? (
                 <div className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold">
@@ -188,6 +203,23 @@ export default function CommunityDetailPage() {
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#FF6B00]/40 text-[#FF6B00] hover:bg-[#FF6B00]/10 text-xs font-bold transition-all cursor-pointer"
               >
                 <Camera size={16} /> Upload Post
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowInviteModal(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:border-[#FF6B00] text-chalk text-xs font-bold transition-all cursor-pointer"
+              >
+                <UserPlus size={15} className="text-[#FF6B00]" /> Invite Friend
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowShareModal(true)}
+                className="p-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-lime hover:text-lime text-chalk transition-all cursor-pointer"
+                title="Share Squad Link"
+              >
+                <Share2 size={18} />
               </button>
 
               <a
@@ -348,12 +380,26 @@ export default function CommunityDetailPage() {
                     </div>
                   </Link>
 
-                  <Link
-                    href={`/account?user=${userId}`}
-                    className="px-3 py-1.5 rounded-xl border border-white/10 text-chalk hover:border-[#FF6B00] hover:text-[#FF6B00] text-xs font-bold transition-all shrink-0"
-                  >
-                    Profile
-                  </Link>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => toggleFriendConnection(userId)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                        connectedFriends.includes(userId)
+                          ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-400'
+                          : 'bg-[#FF6B00] hover:bg-[#E5601F] text-white'
+                      }`}
+                    >
+                      {connectedFriends.includes(userId) ? <UserCheck size={12} /> : <UserPlus size={12} />}
+                      <span>{connectedFriends.includes(userId) ? 'Friend' : 'Add Friend'}</span>
+                    </button>
+                    <Link
+                      href={`/account?user=${userId}`}
+                      className="px-3 py-1.5 rounded-xl border border-white/10 text-chalk hover:border-[#FF6B00] hover:text-[#FF6B00] text-xs font-bold transition-all"
+                    >
+                      Profile
+                    </Link>
+                  </div>
                 </div>
               )
             })}
@@ -405,6 +451,24 @@ export default function CommunityDetailPage() {
           setShowUploadModal(false)
           loadData()
         }}
+      />
+
+      {/* Invite Friend Modal */}
+      <InviteFriendModal
+        open={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        squadId={community.id}
+        squadName={community.name}
+      />
+
+      {/* Share Link Modal */}
+      <ShareLinkModal
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        title={community.name}
+        subtitle={`${community.city} · ${community.memberCount} Members`}
+        shareUrl={`/community/${community.id}`}
+        categoryLabel="Share Squad"
       />
     </div>
   )

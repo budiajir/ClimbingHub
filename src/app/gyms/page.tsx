@@ -2,12 +2,31 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Star, MapPin, Compass, ExternalLink, X, Heart } from 'lucide-react'
+import {
+  Search,
+  MapPin,
+  Compass,
+  ExternalLink,
+  X,
+  Heart,
+  Map as MapIcon,
+  LayoutGrid,
+  List,
+  GalleryHorizontal,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useGyms } from '@/lib/use-data'
 import { useTheme } from '@/lib/theme-context'
 import { Gym } from '@/lib/mock-data'
 import dynamic from 'next/dynamic'
+import ShareLinkModal from '@/components/common/ShareLinkModal'
+import GymLogoBadge from '@/components/gym/GymLogoBadge'
+import GymStarRating from '@/components/gym/GymStarRating'
+import { toggleWishlist, getWishlist } from '@/lib/wishlist-store'
+import { getGymEffectiveRating, getGymGoogleMapsUrl } from '@/lib/gym-helpers'
 
 const InteractiveIndonesiaMap = dynamic(
   () => import('@/components/common/InteractiveIndonesiaMap'),
@@ -28,6 +47,25 @@ export default function GymsPage() {
   const [query, setQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState('all')
   const [selectedGymForMap, setSelectedGymForMap] = useState<Gym | null>(null)
+  const [showMap, setShowMap] = useState(true)
+  const [viewMode, setViewMode] = useState<'thumbnails' | 'list' | 'slideshow'>('thumbnails')
+  const [slideshowIndex, setSlideshowIndex] = useState(0)
+  const [shareTarget, setShareTarget] = useState<Gym | null>(null)
+  const [sharePageOpen, setSharePageOpen] = useState(false)
+  const [wishlistedIds, setWishlistedIds] = useState<string[]>([])
+
+  useEffect(() => {
+    const syncWishlist = () => {
+      setWishlistedIds(getWishlist().filter((w) => w.type === 'gym').map((w) => w.id))
+    }
+    syncWishlist()
+    window.addEventListener('wishlist-updated', syncWishlist)
+    window.addEventListener('gym-rating-updated', syncWishlist)
+    return () => {
+      window.removeEventListener('wishlist-updated', syncWishlist)
+      window.removeEventListener('gym-rating-updated', syncWishlist)
+    }
+  }, [])
 
   const cities = ['all', ...Array.from(new Set(gyms.map(g => g.city)))]
 
@@ -47,20 +85,50 @@ export default function GymsPage() {
           isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
         }`}
       >
-        <h1
-          className={`font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight ${
-            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-          }`}
-        >
-          Climbing Gym
-        </h1>
-        <p
-          className={`text-xs md:text-sm font-light mt-1 ${
-            isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
-          }`}
-        >
-          Indonesian Climbing & Bouldering Gym Directory & Session Booking
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div>
+            <h1
+              className={`font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight ${
+                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+              }`}
+            >
+              Climbing Gym
+            </h1>
+            <p
+              className={`text-xs md:text-sm font-light mt-1 max-w-2xl ${
+                isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+              }`}
+            >
+              Explore indoor climbing &amp; bouldering gyms across Indonesia — maps, locations, ratings, facility photos, wishlists, and route setters.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowMap(v => !v)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5 transition-all ${
+                showMap
+                  ? 'bg-[#FF6B00] border-[#FF6B00] text-white'
+                  : isSandstone
+                  ? 'bg-transparent border-[#1a1815]/25 text-[#1a1815] hover:border-[#FF6B00]'
+                  : 'bg-white/5 border-white/15 text-chalk hover:border-[#FF6B00]'
+              }`}
+            >
+              <MapIcon size={14} /> {showMap ? 'Hide Map' : 'Show Map'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSharePageOpen(true)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5 transition-all ${
+                isSandstone
+                  ? 'bg-transparent border-[#1a1815]/25 text-[#1a1815] hover:border-[#FF6B00]'
+                  : 'bg-white/5 border-white/15 text-chalk hover:border-lime'
+              }`}
+            >
+              <Share2 size={14} /> Share
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* 2. Search Box — Disamakan dengan bentuk pill di "Problems" */}
@@ -78,213 +146,559 @@ export default function GymsPage() {
         />
       </div>
 
-      {/* 3. Interactive Indonesia Gyms Map */}
-      <div className="my-4">
-        <InteractiveIndonesiaMap
-          mode="gyms"
-          selectedProvince={selectedCity}
-          onSelectProvince={(city) => setSelectedCity(city)}
-        />
-      </div>
+      {/* 3. Interactive Indonesia Gyms Map (Toggleable CTA) */}
+      {showMap && (
+        <div className="my-4">
+          <InteractiveIndonesiaMap
+            mode="gyms"
+            selectedProvince={selectedCity}
+            onSelectProvince={(city) => setSelectedCity(city)}
+          />
+        </div>
+      )}
 
-      {/* 4. City Filter Pills */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-        {cities.map(city => (
-          <button
-            key={city}
-            onClick={() => setSelectedCity(city)}
-            className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs transition-all border ${
-              selectedCity === city
-                ? isSandstone
-                  ? 'bg-[#1a1815] border-[#1a1815] text-[#E2DACB] font-bold shadow-sm'
-                  : 'bg-lime border-lime text-granite font-bold shadow-sm'
-                : isSandstone
-                  ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]/70 hover:border-[#1a1815]/40 font-normal'
-                  : 'bg-transparent border-white/10 text-slate-ash hover:text-chalk hover:border-white/20 font-light'
-            }`}
-          >
-            {city === 'all' ? 'All Cities' : city}
-          </button>
-        ))}
-      </div>
+      {/* 4. City Filter Pills & View Mode Switcher (Thumbnail / List / Slideshow) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {cities.map(city => (
+            <button
+              key={city}
+              onClick={() => {
+                setSelectedCity(city)
+                setSlideshowIndex(0)
+              }}
+              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs transition-all border ${
+                selectedCity === city
+                  ? isSandstone
+                    ? 'bg-[#1a1815] border-[#1a1815] text-[#E2DACB] font-bold shadow-sm'
+                    : 'bg-lime border-lime text-granite font-bold shadow-sm'
+                  : isSandstone
+                    ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]/70 hover:border-[#1a1815]/40 font-normal'
+                    : 'bg-transparent border-white/10 text-slate-ash hover:text-chalk hover:border-white/20 font-light'
+              }`}
+            >
+              {city === 'all' ? 'All Cities' : city}
+            </button>
+          ))}
+        </div>
 
-      {/* 5. Gym Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pt-1">
-        {filtered.map((gym, i) => (
-          <motion.div
-            key={gym.id}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.07 }}
-          >
-            <Link href={`/gyms/${gym.id}`}>
-              <div
-                className={`rounded-2xl overflow-hidden touch-ripple transition-all group flex flex-col h-full border ${
-                  isSandstone
-                    ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50'
-                    : 'bg-transparent border-white/10 hover:border-lime/30'
+        {/* View Mode CTA */}
+        <div
+          className={`inline-flex items-center p-1 rounded-xl border self-start sm:self-auto ${
+            isSandstone ? 'bg-[#FAF6EF] border-[#1a1815]/20' : 'bg-[#1B1E23] border-white/10'
+          }`}
+        >
+          {(
+            [
+              { id: 'thumbnails', label: 'Thumbnails', icon: LayoutGrid },
+              { id: 'list', label: 'List', icon: List },
+              { id: 'slideshow', label: 'Slideshow', icon: GalleryHorizontal },
+            ] as const
+          ).map((mode) => {
+            const Icon = mode.icon
+            const active = viewMode === mode.id
+            return (
+              <button
+                key={mode.id}
+                type="button"
+                onClick={() => setViewMode(mode.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+                  active
+                    ? isSandstone
+                      ? 'bg-[#1a1815] text-white'
+                      : 'bg-lime text-granite'
+                    : isSandstone
+                    ? 'text-[#524e48] hover:text-[#1a1815]'
+                    : 'text-white/60 hover:text-white'
                 }`}
               >
-                {/* Gym Card Image */}
-                <div className="relative h-48 md:h-52 overflow-hidden">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${gym.image})` }}
-                  />
+                <Icon size={13} />
+                <span>{mode.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* 5. Gym List / Thumbnails / Slideshow Views */}
+      {filtered.length === 0 ? (
+        <div
+          className={`rounded-2xl p-10 text-center border ${
+            isSandstone ? 'border-[#1a1815]/20 text-[#524e48]' : 'border-white/10 text-slate-ash'
+          }`}
+        >
+          No climbing gyms match your current search or city filter.
+        </div>
+      ) : viewMode === 'slideshow' ? (
+        (() => {
+          const currentGym = filtered[slideshowIndex % filtered.length]
+          const eff = getGymEffectiveRating(currentGym)
+          const saved = wishlistedIds.includes(currentGym.id)
+          return (
+            <div
+              className={`rounded-3xl overflow-hidden border shadow-card grid grid-cols-1 lg:grid-cols-12 ${
+                isSandstone
+                  ? 'bg-[#FFFDF9] border-[#1a1815]/20'
+                  : 'bg-[#23262C] border-white/10'
+              }`}
+            >
+              <div className="lg:col-span-7 relative h-72 sm:h-96 overflow-hidden">
+                <img
+                  src={currentGym.image}
+                  alt={currentGym.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+
+                <div className="absolute top-3 right-3 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleWishlist({
+                        id: currentGym.id,
+                        type: 'gym',
+                        title: currentGym.name,
+                        subtitle: `${currentGym.city} · Indoor Climbing`,
+                        image: currentGym.image,
+                        location: currentGym.address || currentGym.city,
+                      })
+                    }
+                    className={`w-9 h-9 rounded-full flex items-center justify-center border backdrop-blur-md transition-all ${
+                      saved
+                        ? 'bg-rose-500 text-white border-rose-400'
+                        : 'bg-black/60 text-white border-white/20 hover:bg-black/80'
+                    }`}
+                    title="Save to Wishlist"
+                  >
+                    <Heart size={15} className={saved ? 'fill-current' : ''} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShareTarget(currentGym)}
+                    className="w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center border border-white/20 backdrop-blur-md transition-all"
+                    title="Share Gym"
+                  >
+                    <Share2 size={15} />
+                  </button>
                 </div>
 
-                {/* Gym Card Body */}
-                <div className="p-4 flex flex-col flex-1 justify-between">
-                  <div>
-                    {/* Gym Title */}
-                    <h3
-                      className={`font-bold text-base md:text-lg transition-colors ${
-                        isSandstone
-                          ? 'text-[#1a1815] group-hover:opacity-80'
-                          : 'text-chalk group-hover:text-lime'
-                      }`}
+                {filtered.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSlideshowIndex(i => (i > 0 ? i - 1 : filtered.length - 1))
+                      }
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/70 text-white flex items-center justify-center border border-white/20 hover:bg-black"
                     >
-                      {gym.name}
-                    </h3>
-
-                    {/* 2 & 3. Location di bawah judul gym (tappable for maps option) & Rate sejajar dengan location */}
-                    <div className="flex items-center gap-2.5 mt-1.5 mb-2.5 flex-wrap">
-                      {/* Location button with open in maps option */}
-                      <button
-                        type="button"
-                        onClick={e => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          setSelectedGymForMap(gym)
-                        }}
-                        className={`inline-flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-75 ${
-                          isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'
-                        }`}
-                        title="Tap to open in Google Maps or Apple Maps"
-                      >
-                        <MapPin
-                          size={12}
-                          className={isSandstone ? 'text-[#1a1815]' : 'text-lime'}
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSlideshowIndex(i => (i < filtered.length - 1 ? i + 1 : 0))
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/70 text-white flex items-center justify-center border border-white/20 hover:bg-black"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/70 border border-white/15">
+                      {filtered.map((g, idx) => (
+                        <button
+                          key={g.id}
+                          type="button"
+                          onClick={() => setSlideshowIndex(idx)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            idx === slideshowIndex % filtered.length
+                              ? 'bg-[#FF6B00] scale-125'
+                              : 'bg-white/40'
+                          }`}
                         />
-                        <span className="underline decoration-dotted underline-offset-2">
-                          {gym.city}
-                        </span>
-                      </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
 
-                      {/* Separator dot */}
-                      <span
-                        className={`text-[10px] ${
-                          isSandstone ? 'text-[#1a1815]/30' : 'text-white/20'
+              <div className="lg:col-span-5 p-6 flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <GymLogoBadge gym={currentGym} size="md" />
+                    <div className="min-w-0">
+                      <Link
+                        href={`/gyms/${currentGym.id}`}
+                        className={`font-bold text-xl hover:underline block ${
+                          isSandstone ? 'text-[#1a1815]' : 'text-chalk'
                         }`}
                       >
-                        •
-                      </span>
-
-                      {/* Rate sejajar dengan location */}
-                      <div className="flex items-center gap-1 text-xs">
-                        <Star size={11} className="text-lime fill-lime" />
-                        <span
-                          className={`font-bold ${
-                            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
-                          }`}
-                        >
-                          {gym.rating}
-                        </span>
-                        <span
-                          className={`text-[10px] font-light ${
-                            isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
-                          }`}
-                        >
-                          ({gym.reviewCount})
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Description */}
-                    <p
-                      className={`text-xs font-normal line-clamp-2 mb-3 ${
-                        isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
-                      }`}
-                    >
-                      {gym.description}
-                    </p>
-
-                    {/* Facilities Badges */}
-                    <div className="flex gap-1.5 flex-wrap mb-4">
-                      {gym.facilities.slice(0, 4).map(f => (
-                        <span
-                          key={f}
-                          className={`text-[10px] font-light px-2 py-0.5 rounded-md border ${
-                            isSandstone
-                              ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
-                              : 'bg-transparent border-white/10 text-slate-ash'
-                          }`}
-                        >
-                          {f}
-                        </span>
-                      ))}
-                      {gym.facilities.length > 4 && (
-                        <span
-                          className={`text-[10px] font-light px-2 py-0.5 rounded-md border ${
-                            isSandstone
-                              ? 'bg-transparent border-[#1a1815]/40 text-[#1a1815]'
-                              : 'bg-transparent border-lime/30 text-lime'
-                          }`}
-                        >
-                          +{gym.facilities.length - 4}
-                        </span>
-                      )}
+                        {currentGym.name}
+                      </Link>
+                      <GymStarRating rating={eff.rating} reviewCount={eff.reviewCount} />
                     </div>
                   </div>
 
-                  {/* Harga 'Start From' & Book Session outline button */}
-                  <div
-                    className={`flex items-center justify-between pt-3 border-t ${
-                      isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+                  <button
+                    type="button"
+                    onClick={() => setSelectedGymForMap(currentGym)}
+                    className={`flex items-start gap-1.5 text-xs text-left hover:underline ${
+                      isSandstone ? 'text-[#524e48]' : 'text-white/75'
                     }`}
                   >
-                    <div>
+                    <MapPin size={14} className="text-[#FF6B00] shrink-0 mt-0.5" />
+                    <span>{currentGym.address || `${currentGym.city}, ${currentGym.province}`}</span>
+                  </button>
+
+                  <p className={`text-xs leading-relaxed ${isSandstone ? 'text-[#524e48]' : 'text-slate-ash'}`}>
+                    {currentGym.description}
+                  </p>
+
+                  <div className="flex gap-1.5 flex-wrap">
+                    {currentGym.facilities.map(f => (
                       <span
-                        className={`text-[10px] block font-light leading-tight ${
-                          isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                        key={f}
+                        className={`text-[10px] px-2 py-0.5 rounded-md border ${
+                          isSandstone
+                            ? 'border-[#1a1815]/20 text-[#1a1815]'
+                            : 'border-white/10 text-slate-ash'
                         }`}
                       >
-                        Start From
+                        {f}
                       </span>
-                      <div className="flex items-baseline gap-1">
-                        <span
-                          className={`text-sm md:text-base font-bold ${
-                            isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/10">
+                  <a
+                    href={getGymGoogleMapsUrl(currentGym)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 rounded-xl text-xs font-bold border border-[#FF6B00]/40 text-[#FF6B00] hover:bg-[#FF6B00]/10 flex items-center gap-1.5"
+                  >
+                    <ExternalLink size={12} /> Google Maps
+                  </a>
+                  <Link
+                    href={`/gyms/${currentGym.id}`}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold ${
+                      isSandstone ? 'bg-[#1a1815] text-white' : 'bg-lime text-granite'
+                    }`}
+                  >
+                    Open Gym →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )
+        })()
+      ) : viewMode === 'list' ? (
+        <div className="space-y-3 pt-1">
+          {filtered.map((gym) => {
+            const eff = getGymEffectiveRating(gym)
+            const saved = wishlistedIds.includes(gym.id)
+            return (
+              <div
+                key={gym.id}
+                className={`rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+                  isSandstone
+                    ? 'bg-[#FFFDF9] border-[#1a1815]/20 hover:border-[#1a1815]/45'
+                    : 'bg-[#23262C] border-white/10 hover:border-lime/40'
+                }`}
+              >
+                <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                  <GymLogoBadge gym={gym} size="md" />
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link
+                        href={`/gyms/${gym.id}`}
+                        className={`font-bold text-base hover:underline ${
+                          isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                        }`}
+                      >
+                        {gym.name}
+                      </Link>
+                      <GymStarRating rating={eff.rating} reviewCount={eff.reviewCount} size={12} />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedGymForMap(gym)}
+                      className={`inline-flex items-center gap-1 text-xs hover:underline text-left ${
+                        isSandstone ? 'text-[#524e48]' : 'text-slate-ash'
+                      }`}
+                    >
+                      <MapPin size={12} className="text-[#FF6B00] shrink-0" />
+                      <span>{gym.address || `${gym.city}, ${gym.province}`}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleWishlist({
+                        id: gym.id,
+                        type: 'gym',
+                        title: gym.name,
+                        subtitle: `${gym.city} · Indoor Climbing`,
+                        image: gym.image,
+                        location: gym.address || gym.city,
+                      })
+                    }
+                    className={`p-2 rounded-xl border transition-colors ${
+                      saved
+                        ? 'bg-rose-500/15 border-rose-500/40 text-rose-500'
+                        : isSandstone
+                        ? 'border-[#1a1815]/20 text-[#524e48] hover:text-rose-500'
+                        : 'border-white/10 text-white/60 hover:text-rose-400'
+                    }`}
+                    title="Save to Wishlist"
+                  >
+                    <Heart size={14} className={saved ? 'fill-current' : ''} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShareTarget(gym)}
+                    className={`p-2 rounded-xl border transition-colors ${
+                      isSandstone
+                        ? 'border-[#1a1815]/20 text-[#524e48] hover:text-[#FF6B00]'
+                        : 'border-white/10 text-white/60 hover:text-lime'
+                    }`}
+                    title="Share Gym"
+                  >
+                    <Share2 size={14} />
+                  </button>
+                  <Link
+                    href={`/gyms/${gym.id}`}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold ${
+                      isSandstone ? 'bg-[#1a1815] text-white' : 'bg-lime text-granite'
+                    }`}
+                  >
+                    Open →
+                  </Link>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pt-1">
+          {filtered.map((gym, i) => {
+            const eff = getGymEffectiveRating(gym)
+            const saved = wishlistedIds.includes(gym.id)
+            return (
+              <motion.div
+                key={gym.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <Link href={`/gyms/${gym.id}`}>
+                  <div
+                    className={`rounded-2xl overflow-hidden touch-ripple transition-all group flex flex-col h-full border ${
+                      isSandstone
+                        ? 'bg-transparent border-[#1a1815]/20 hover:border-[#1a1815]/50'
+                        : 'bg-transparent border-white/10 hover:border-lime/30'
+                    }`}
+                  >
+                    {/* Gym Card Image + Quick Wishlist/Share */}
+                    <div className="relative h-48 md:h-52 overflow-hidden">
+                      <div
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                        style={{ backgroundImage: `url(${gym.image})` }}
+                      />
+                      <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                        <button
+                          type="button"
+                          onClick={e => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            toggleWishlist({
+                              id: gym.id,
+                              type: 'gym',
+                              title: gym.name,
+                              subtitle: `${gym.city} · Indoor Climbing`,
+                              image: gym.image,
+                              location: gym.address || gym.city,
+                            })
+                          }}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center border backdrop-blur-md transition-all ${
+                            saved
+                              ? 'bg-rose-500 text-white border-rose-400'
+                              : 'bg-black/55 text-white border-white/20 hover:bg-black/80'
                           }`}
+                          title="Save to Wishlist"
                         >
-                          Rp {(gym.pricePerSession / 1000).toFixed(0)}k
-                        </span>
-                        <span
-                          className={`text-[11px] font-light ${
-                            isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
-                          }`}
+                          <Heart size={13} className={saved ? 'fill-current' : ''} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={e => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setShareTarget(gym)
+                          }}
+                          className="w-8 h-8 rounded-full bg-black/55 hover:bg-black/80 text-white flex items-center justify-center border border-white/20 backdrop-blur-md transition-all"
+                          title="Share Gym"
                         >
-                          /session
-                        </span>
+                          <Share2 size={13} />
+                        </button>
                       </div>
                     </div>
 
-                    <span
-                      className={`px-4 py-1.5 rounded-full border text-xs font-semibold tracking-wide transition-all ${
-                        isSandstone
-                          ? 'border-[#1a1815]/30 text-[#1a1815] group-hover:border-[#1a1815] group-hover:bg-[#1a1815] group-hover:text-[#E2DACB]'
-                          : 'border-lime/40 text-lime group-hover:border-lime group-hover:bg-lime group-hover:text-granite'
-                      }`}
-                    >
-                      Book Session →
-                    </span>
+                    {/* Gym Card Body */}
+                    <div className="p-4 flex flex-col flex-1 justify-between">
+                      <div>
+                        {/* Gym Logo & Judul Gym */}
+                        <div className="flex items-center gap-2.5">
+                          <GymLogoBadge gym={gym} size="sm" />
+                          <h3
+                            className={`font-bold text-base md:text-lg transition-colors line-clamp-1 ${
+                              isSandstone
+                                ? 'text-[#1a1815] group-hover:opacity-80'
+                                : 'text-chalk group-hover:text-lime'
+                            }`}
+                          >
+                            {gym.name}
+                          </h3>
+                        </div>
+
+                        {/* Location & 5-Star Rating */}
+                        <div className="flex flex-col gap-1.5 mt-2 mb-2.5">
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              setSelectedGymForMap(gym)
+                            }}
+                            className={`inline-flex items-start gap-1 text-xs font-medium text-left transition-opacity hover:opacity-75 ${
+                              isSandstone ? 'text-[#1a1815]/80' : 'text-slate-ash'
+                            }`}
+                            title="Tap to open in Google Maps or Apple Maps"
+                          >
+                            <MapPin
+                              size={12}
+                              className={`${isSandstone ? 'text-[#1a1815]' : 'text-lime'} shrink-0 mt-0.5`}
+                            />
+                            <span className="underline decoration-dotted underline-offset-2 line-clamp-1">
+                              {gym.address || gym.city}
+                            </span>
+                          </button>
+
+                          <GymStarRating
+                            rating={eff.rating}
+                            reviewCount={eff.reviewCount}
+                            size={12}
+                          />
+                        </div>
+
+                        {/* Description */}
+                        <p
+                          className={`text-xs font-normal line-clamp-2 mb-3 ${
+                            isSandstone ? 'text-[#1a1815]/75' : 'text-slate-ash'
+                          }`}
+                        >
+                          {gym.description}
+                        </p>
+
+                        {/* Facilities Badges */}
+                        <div className="flex gap-1.5 flex-wrap mb-4">
+                          {gym.facilities.slice(0, 4).map(f => (
+                            <span
+                              key={f}
+                              className={`text-[10px] font-light px-2 py-0.5 rounded-md border ${
+                                isSandstone
+                                  ? 'bg-transparent border-[#1a1815]/20 text-[#1a1815]'
+                                  : 'bg-transparent border-white/10 text-slate-ash'
+                              }`}
+                            >
+                              {f}
+                            </span>
+                          ))}
+                          {gym.facilities.length > 4 && (
+                            <span
+                              className={`text-[10px] font-light px-2 py-0.5 rounded-md border ${
+                                isSandstone
+                                  ? 'bg-transparent border-[#1a1815]/40 text-[#1a1815]'
+                                  : 'bg-transparent border-lime/30 text-lime'
+                              }`}
+                            >
+                              +{gym.facilities.length - 4}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Harga V2.0 preview & Open Gym CTA */}
+                      <div
+                        className={`flex items-center justify-between pt-3 border-t ${
+                          isSandstone ? 'border-[#1a1815]/15' : 'border-white/5'
+                        }`}
+                      >
+                        <div>
+                          <span
+                            className={`text-[10px] block font-light leading-tight ${
+                              isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                            }`}
+                          >
+                            Day Pass Est.
+                          </span>
+                          <div className="flex items-baseline gap-1">
+                            <span
+                              className={`text-sm md:text-base font-bold ${
+                                isSandstone ? 'text-[#1a1815]' : 'text-chalk'
+                              }`}
+                            >
+                              Rp {(gym.pricePerSession / 1000).toFixed(0)}k
+                            </span>
+                            <span
+                              className={`text-[11px] font-light ${
+                                isSandstone ? 'text-[#1a1815]/60' : 'text-slate-ash'
+                              }`}
+                            >
+                              /session
+                            </span>
+                          </div>
+                        </div>
+
+                        <span
+                          className={`px-4 py-1.5 rounded-full border text-xs font-semibold tracking-wide transition-all ${
+                            isSandstone
+                              ? 'border-[#1a1815]/30 text-[#1a1815] group-hover:border-[#1a1815] group-hover:bg-[#1a1815] group-hover:text-[#E2DACB]'
+                              : 'border-lime/40 text-lime group-hover:border-lime group-hover:bg-lime group-hover:text-granite'
+                          }`}
+                        >
+                          View Gym →
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </Link>
-          </motion.div>
-        ))}
-      </div>
+                </Link>
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Share Link Modals (Page & Individual Gym) */}
+      <ShareLinkModal
+        open={sharePageOpen}
+        onClose={() => setSharePageOpen(false)}
+        title="Climbing Gym Directory — Jalur"
+        subtitle="Indonesian Climbing & Bouldering Gyms"
+        shareUrl="/gyms"
+        categoryLabel="Share Gyms"
+      />
+      {shareTarget && (
+        <ShareLinkModal
+          open={!!shareTarget}
+          onClose={() => setShareTarget(null)}
+          title={shareTarget.name}
+          subtitle={`${shareTarget.city} · ${shareTarget.address}`}
+          shareUrl={`/gyms/${shareTarget.id}`}
+          categoryLabel="Share Gym"
+        />
+      )}
 
       {/* MODAL PILIHAN GOOGLE MAPS / APPLE MAPS (Requirement 2) */}
       <AnimatePresence>

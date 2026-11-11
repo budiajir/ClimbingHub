@@ -31,8 +31,8 @@ export default function ConnectRadialMenu({
     {
       id: "add-friend",
       title: "Add Friend",
-      subtitle: "Cari sesama climber & partner panjat",
-      tag: "V1.0 · Climbers",
+      subtitle: "Connect with climbers, club and squad",
+      tag: "V1.0 · Live",
       icon: "/pictograms/connect-add-friend.png",
       onClick: () => {
         onClose();
@@ -42,8 +42,8 @@ export default function ConnectRadialMenu({
     {
       id: "project-sent",
       title: "Project Sent",
-      subtitle: "Catat verified ascent & buat Sent Card",
-      tag: "V1.0 · Ascent Card",
+      subtitle: "Primary feature — verified send & Sent Card",
+      tag: "V1.0 · Primary",
       icon: "/pictograms/connect-project-sent.png",
       onClick: () => {
         onClose();
@@ -53,8 +53,8 @@ export default function ConnectRadialMenu({
     {
       id: "set-problems",
       title: "Set Problems",
-      subtitle: "Petakan rute boulder & rute baru",
-      tag: "V1.0 · Route Setter",
+      subtitle: "Limited access for granted Route Setters only",
+      tag: "Route Setters · Granted",
       icon: "/pictograms/connect-set-problems.png",
       onClick: () => {
         onClose();
@@ -63,9 +63,9 @@ export default function ConnectRadialMenu({
     },
     {
       id: "open-trip",
-      title: "Open Trip",
-      subtitle: "Gabung open trip atau booking guide lokal",
-      tag: "V2.0 Roadmap · Trip",
+      title: "Trip Plan",
+      subtitle: "Planning, inviting and join a trip with friends",
+      tag: "Coming in V2.0",
       icon: "/pictograms/connect-open-trip.png",
       onClick: () => {
         onClose();
@@ -75,8 +75,8 @@ export default function ConnectRadialMenu({
     {
       id: "rent-gear",
       title: "Rent Gear",
-      subtitle: "Sewa crashpad, tali, helm & gear panjat",
-      tag: "V5.0 Roadmap · Rental",
+      subtitle: "Borrow climbing gear from trusted climber",
+      tag: "Coming in V5.0",
       icon: "/pictograms/connect-rent-gear.png",
       onClick: () => {
         onClose();
@@ -503,9 +503,12 @@ export default function ConnectRadialMenu({
           >
             <div className="flex items-center justify-between pb-2 border-b border-current/10">
               <div>
-                <h4 className="font-bold text-base">Crag Trips & Expeditions</h4>
+                <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30 mb-1">
+                  V2.0 Roadmap · Preview Prototype
+                </span>
+                <h4 className="font-bold text-base">Trip Plan</h4>
                 <p className="text-xs opacity-75 font-light">
-                  Select your preferred climbing trip activity:
+                  Planning, inviting and joining a climbing trip with friends launches in V2.0. Preview early prototype below:
                 </p>
               </div>
               <button

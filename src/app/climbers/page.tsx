@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
@@ -17,8 +17,13 @@ import {
   ChevronRight,
   ExternalLink,
   ChevronLeft,
+  Share2,
+  MessageSquare,
 } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
+import InviteFriendModal from '@/components/community/InviteFriendModal'
+import ShareLinkModal from '@/components/common/ShareLinkModal'
+import { getConnectedFriends, toggleFriendConnection } from '@/lib/social-store'
 
 interface ClimberProfile {
   id: string
@@ -128,17 +133,28 @@ export default function ClimbersPage() {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'thumbnail' | 'list'>('thumbnail')
-  const [connectedFriends, setConnectedFriends] = useState<Record<string, boolean>>({
-    'climber-1': true,
-  })
+  const [connectedIds, setConnectedIds] = useState<string[]>([])
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareClimberTarget, setShareClimberTarget] = useState<{
+    title: string
+    subtitle: string
+    url: string
+  } | null>(null)
+
+  useEffect(() => {
+    const syncFriends = () => setConnectedIds(getConnectedFriends())
+    syncFriends()
+    window.addEventListener('social-friends-updated', syncFriends)
+    return () => window.removeEventListener('social-friends-updated', syncFriends)
+  }, [])
+
+  const connectedFriends = Object.fromEntries(connectedIds.map(id => [id, true]))
 
   const toggleConnect = (id: string, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setConnectedFriends(prev => ({
-      ...prev,
-      [id]: !prev[id],
-    }))
+    toggleFriendConnection(id)
   }
 
   const filteredClimbers = CLIMBERS_DATA.filter(c => {
@@ -180,32 +196,55 @@ export default function ClimbersPage() {
           </p>
         </div>
 
-        {/* View Mode Switcher: Thumbnail vs List */}
-        <div className="flex items-center gap-1 bg-black/30 dark:bg-white/5 p-1 rounded-xl border border-white/10 shrink-0">
+        {/* Header Actions + View Mode Switcher */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Link
+            href="/community?tab=clubs"
+            className="px-3.5 py-2 rounded-xl border border-white/15 bg-white/5 hover:border-[#FF6B00] text-xs font-bold text-chalk flex items-center gap-1.5 transition-all"
+          >
+            <Compass size={14} className="text-[#FF6B00]" />
+            <span>Clubs &amp; Squads</span>
+          </Link>
           <button
             type="button"
-            onClick={() => setViewMode('thumbnail')}
-            className={`p-2 rounded-lg transition-all ${
-              viewMode === 'thumbnail'
-                ? 'bg-[#FF6B00] text-white shadow-sm'
-                : 'opacity-60 hover:opacity-100 text-chalk'
-            }`}
-            title="Thumbnail View"
+            onClick={() => setShowInviteModal(true)}
+            className="px-3.5 py-2 rounded-xl bg-[#FF6B00] hover:bg-[#E5601F] text-xs font-bold text-white flex items-center gap-1.5 transition-all"
           >
-            <LayoutGrid size={16} />
+            <UserPlus size={14} /> Invite Friend
           </button>
           <button
             type="button"
-            onClick={() => setViewMode('list')}
-            className={`p-2 rounded-lg transition-all ${
-              viewMode === 'list'
-                ? 'bg-[#FF6B00] text-white shadow-sm'
-                : 'opacity-60 hover:opacity-100 text-chalk'
-            }`}
-            title="List View"
+            onClick={() => setShowShareModal(true)}
+            className="px-3 py-2 rounded-xl border border-white/15 bg-white/5 hover:border-lime text-xs font-bold text-chalk flex items-center gap-1.5 transition-all"
           >
-            <ListIcon size={16} />
+            <Share2 size={14} /> Share
           </button>
+          <div className="flex items-center gap-1 bg-black/30 dark:bg-white/5 p-1 rounded-xl border border-white/10">
+            <button
+              type="button"
+              onClick={() => setViewMode('thumbnail')}
+              className={`p-2 rounded-lg transition-all ${
+                viewMode === 'thumbnail'
+                  ? 'bg-[#FF6B00] text-white shadow-sm'
+                  : 'opacity-60 hover:opacity-100 text-chalk'
+              }`}
+              title="Thumbnail View"
+            >
+              <LayoutGrid size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded-lg transition-all ${
+                viewMode === 'list'
+                  ? 'bg-[#FF6B00] text-white shadow-sm'
+                  : 'opacity-60 hover:opacity-100 text-chalk'
+              }`}
+              title="List View"
+            >
+              <ListIcon size={16} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -285,19 +324,42 @@ export default function ClimbersPage() {
                   </div>
                 </div>
 
-                {/* Bottom Actions: View Profile & Connect Friend Button */}
+                {/* Bottom Actions: View Profile, Chat, Share & Connect Friend */}
                 <div className="pt-4 mt-3 border-t border-white/10 flex items-center gap-2">
                   <Link
                     href={`/account?user=${c.id}`}
-                    className="flex-1 py-2 px-3 rounded-xl border border-white/10 hover:border-white/30 text-xs text-chalk font-bold text-center transition-all"
+                    className="flex-1 py-2 px-2.5 rounded-xl border border-white/10 hover:border-white/30 text-xs text-chalk font-bold text-center transition-all"
                   >
-                    View Account
+                    Account
+                  </Link>
+
+                  <Link
+                    href={`/community?chat=${c.id}`}
+                    className="p-2 rounded-xl border border-white/10 hover:border-[#FF6B00] text-chalk hover:text-[#FF6B00] transition-all"
+                    title={`Chat with ${c.name}`}
+                  >
+                    <MessageSquare size={14} />
                   </Link>
 
                   <button
                     type="button"
+                    onClick={() =>
+                      setShareClimberTarget({
+                        title: c.name,
+                        subtitle: `${c.handle} · ${c.hometown} · ${c.preferredGrade}`,
+                        url: `/account?user=${c.id}`,
+                      })
+                    }
+                    className="p-2 rounded-xl border border-white/10 hover:border-lime text-chalk hover:text-lime transition-all"
+                    title={`Share ${c.name}`}
+                  >
+                    <Share2 size={14} />
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={(e) => toggleConnect(c.id, e)}
-                    className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer ${
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer ${
                       isConnected
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                         : 'bg-[#FF6B00] hover:bg-[#FF6B00]/90 text-white shadow-md'
@@ -311,7 +373,7 @@ export default function ClimbersPage() {
                     ) : (
                       <>
                         <UserPlus size={14} />
-                        <span>Connect Friend</span>
+                        <span>Add Friend</span>
                       </>
                     )}
                   </button>
@@ -388,6 +450,19 @@ export default function ClimbersPage() {
           })}
         </div>
       )}
+      {/* Invite & Share Modals */}
+      <InviteFriendModal open={showInviteModal} onClose={() => setShowInviteModal(false)} />
+      <ShareLinkModal
+        open={showShareModal || !!shareClimberTarget}
+        onClose={() => {
+          setShowShareModal(false)
+          setShareClimberTarget(null)
+        }}
+        title={shareClimberTarget?.title || 'Jalur Climbers Directory'}
+        subtitle={shareClimberTarget?.subtitle || 'Connect with climbers, clubs, and squads across Indonesia'}
+        shareUrl={shareClimberTarget?.url || '/climbers'}
+        categoryLabel="Share Climber"
+      />
     </div>
   )
 }

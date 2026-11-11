@@ -11,10 +11,14 @@ import {
   CheckCircle2,
   Clock,
   ChevronRight,
+  Share2,
+  Send,
 } from "lucide-react";
 import { Community } from "@/lib/mock-data";
 import { useCommunities } from "@/lib/use-data";
 import { useTheme } from "@/lib/theme-context";
+import InviteFriendModal from "@/components/community/InviteFriendModal";
+import ShareLinkModal from "@/components/common/ShareLinkModal";
 import {
   getCommunityJoinRequests,
   getCommunityPhotos,
@@ -33,6 +37,8 @@ export default function CommunityDirectory() {
   const [selectedDetail, setSelectedDetail] = useState<Community | null>(null);
   const [selectedJoin, setSelectedJoin] = useState<Community | null>(null);
   const [selectedUpload, setSelectedUpload] = useState<Community | null>(null);
+  const [inviteClub, setInviteClub] = useState<Community | null>(null);
+  const [shareClub, setShareClub] = useState<Community | null>(null);
 
   const [joinStatuses, setJoinStatuses] = useState<Record<string, "none" | "pending" | "approved">>({});
   const [photoCounts, setPhotoCounts] = useState<Record<string, number>>({});
@@ -191,52 +197,82 @@ export default function CommunityDirectory() {
                   </div>
                 </div>
 
-                {/* Actions: In-App Request to Join + Instagram Only */}
-                <div className="p-4 pt-0 flex gap-2">
-                  {/* Request to Join Button */}
-                  {status === "pending" ? (
-                    <button
-                      onClick={() => setSelectedDetail(comm)}
-                      className={`flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-semibold touch-ripple transition-colors ${
-                        isSandstone
-                          ? "bg-amber-100/70 border-amber-300 text-amber-900"
-                          : "bg-amber-500/15 border-amber-500/30 text-amber-300"
-                      }`}
-                    >
-                      <Clock size={14} /> Pending
-                    </button>
-                  ) : status === "approved" ? (
-                    <button
-                      onClick={() => router.push(`/community/${comm.id}`)}
-                      className={`flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-semibold touch-ripple transition-colors ${
-                        isSandstone
-                          ? "bg-emerald-100/70 border-emerald-300 text-emerald-900"
-                          : "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
-                      }`}
-                    >
-                      <CheckCircle2 size={14} /> Member
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setSelectedJoin(comm)}
-                      className="flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-bold touch-ripple transition-all bg-[#FF6B00] text-white border-[#FF6B00] hover:bg-[#FF6B00]/90 shadow-md cursor-pointer"
-                    >
-                      <UserPlus size={14} /> Request to Join
-                    </button>
-                  )}
+                {/* Actions: Request to Join, Invite Friend, Share Link, Instagram */}
+                <div className="p-4 pt-0 space-y-2">
+                  <div className="flex gap-2">
+                    {/* Request to Join Button */}
+                    {status === "pending" ? (
+                      <button
+                        onClick={() => setSelectedDetail(comm)}
+                        className={`flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-semibold touch-ripple transition-colors ${
+                          isSandstone
+                            ? "bg-amber-100/70 border-amber-300 text-amber-900"
+                            : "bg-amber-500/15 border-amber-500/30 text-amber-300"
+                        }`}
+                      >
+                        <Clock size={14} /> Pending
+                      </button>
+                    ) : status === "approved" ? (
+                      <button
+                        onClick={() => router.push(`/community/${comm.id}`)}
+                        className={`flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-semibold touch-ripple transition-colors ${
+                          isSandstone
+                            ? "bg-emerald-100/70 border-emerald-300 text-emerald-900"
+                            : "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
+                        }`}
+                      >
+                        <CheckCircle2 size={14} /> Member
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setSelectedJoin(comm)}
+                        className="flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-bold touch-ripple transition-all bg-[#FF6B00] text-white border-[#FF6B00] hover:bg-[#FF6B00]/90 shadow-md cursor-pointer"
+                      >
+                        <UserPlus size={14} /> Request to Join
+                      </button>
+                    )}
 
-                  {/* Instagram Button ONLY (No WhatsApp) */}
+                    {/* Invite Friend CTA */}
+                    <button
+                      type="button"
+                      onClick={() => setInviteClub(comm)}
+                      className={`px-3 flex items-center justify-center gap-1 h-10 bg-transparent border rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                        isSandstone
+                          ? "border-[#1a1815]/20 hover:border-[#FF6B00] text-[#1a1815]"
+                          : "border-white/10 hover:border-[#FF6B00] text-chalk"
+                      }`}
+                      title="Invite Friend to Join Squad"
+                    >
+                      <Send size={13} className="text-[#FF6B00]" /> Invite
+                    </button>
+
+                    {/* Share Link CTA */}
+                    <button
+                      type="button"
+                      onClick={() => setShareClub(comm)}
+                      className={`px-3 flex items-center justify-center h-10 bg-transparent border rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                        isSandstone
+                          ? "border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]"
+                          : "border-white/10 hover:border-lime text-chalk"
+                      }`}
+                      title="Share Squad Link"
+                    >
+                      <Share2 size={14} />
+                    </button>
+                  </div>
+
+                  {/* Instagram Link */}
                   <a
                     href={comm.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex-1 flex items-center justify-center gap-1.5 h-10 bg-transparent border rounded-xl text-xs font-medium tracking-wide touch-ripple transition-colors ${
+                    className={`w-full flex items-center justify-center gap-1.5 h-9 bg-transparent border rounded-xl text-xs font-medium tracking-wide touch-ripple transition-colors ${
                       isSandstone
-                        ? "border-[#1a1815]/20 hover:border-[#1a1815]/60 text-[#1a1815]"
+                        ? "border-[#1a1815]/15 hover:border-[#1a1815]/50 text-[#1a1815]"
                         : "border-white/10 hover:border-white/30 text-chalk"
                     }`}
                   >
-                    <Instagram size={15} className="text-[#E1306C]" /> Instagram
+                    <Instagram size={14} className="text-[#E1306C]" /> Instagram
                   </a>
                 </div>
               </motion.div>
@@ -274,6 +310,24 @@ export default function CommunityDirectory() {
           refreshCommunityState();
         }}
       />
+
+      <InviteFriendModal
+        open={!!inviteClub}
+        onClose={() => setInviteClub(null)}
+        squadId={inviteClub?.id}
+        squadName={inviteClub?.name}
+      />
+
+      {shareClub && (
+        <ShareLinkModal
+          open={!!shareClub}
+          onClose={() => setShareClub(null)}
+          title={shareClub.name}
+          subtitle={`${shareClub.city} · ${shareClub.memberCount} Members`}
+          shareUrl={`/community/${shareClub.id}`}
+          categoryLabel="Share Squad"
+        />
+      )}
     </div>
   );
 }

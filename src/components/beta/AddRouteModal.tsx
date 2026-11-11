@@ -27,6 +27,9 @@ import {
 } from 'lucide-react'
 import { RouteDiscipline, Problem, PitchDetail, TopoMarker, CragRegion, cragRegions } from '@/lib/mock-data'
 import { normalizeCragName } from '@/lib/use-data'
+import { addCommunityPost } from '@/lib/community-posts-store'
+import { isGrantedRouteSetter } from '@/lib/permissions'
+import ShareLinkModal from '@/components/common/ShareLinkModal'
 import { useAuth } from '@/lib/auth-context'
 import { saveDraftProblem } from '@/lib/draft-problems-store'
 
@@ -65,7 +68,7 @@ export default function AddRouteModal({
   regionsList,
 }: AddRouteModalProps) {
   const { role, user } = useAuth()
-  const isCuratorOrSetter = role === 'super_admin' || role === 'gym_admin' || user?.handle?.includes('setter') || user?.id === 'owner-1'
+  const isCuratorOrSetter = isGrantedRouteSetter(role, user)
   const [isDraftSaved, setIsDraftSaved] = useState(false)
 
   const availableRegions = regionsList && regionsList.length > 0 ? regionsList : cragRegions
@@ -119,6 +122,9 @@ export default function AddRouteModal({
   const [description, setDescription] = useState('')
   const [accessInfo, setAccessInfo] = useState('')
   const [localContact, setLocalContact] = useState('')
+  const [rockProfile, setRockProfile] = useState('Karst Limestone')
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [announcedToWall, setAnnouncedToWall] = useState(false)
 
   // Sport specific
   const [pitchLength, setPitchLength] = useState('22m')
@@ -418,13 +424,11 @@ export default function AddRouteModal({
         landingQuality,
         startType,
       }),
+      rockProfile,
     }
 
     onAddRoute(newProblem, finalRegionId, finalSectorId, newRegionData, newSectorData)
     setIsSuccess(true)
-    setTimeout(() => {
-      onClose()
-    }, 1200)
   }
 
   // Compute SVG line path from markers
@@ -464,17 +468,83 @@ export default function AddRouteModal({
             </p>
           </div>
         ) : isSuccess ? (
-          <div className="py-12 text-center space-y-3">
+          <div className="py-10 text-center space-y-4">
             <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-3xl font-bold">
               <CheckCircle2 size={36} />
             </div>
-            <h2 className="text-white font-bold text-2xl">Route & Topo Published!</h2>
-            <p className="text-purple-200 text-xs font-light">
-              Route <b>{name}</b> ({discipline.toUpperCase()}) at{' '}
-              <b>{isCreatingNewRegion ? newRegionName : currentRegion?.name}</b> ·{' '}
-              <b>{isCreatingNewSector || isCreatingNewRegion ? newSectorName : currentSector?.name}</b>{' '}
-              along with photo & topo line are now live in the crag guide.
-            </p>
+            <div className="space-y-1.5">
+              <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                Publish Route Announcement
+              </span>
+              <h2 className="text-white font-bold text-2xl">New Route Has Been Created!</h2>
+              <p className="text-purple-200 text-xs font-light max-w-md mx-auto">
+                Route <b>{name}</b> ({discipline.toUpperCase()} · {rockProfile}) at{' '}
+                <b>{isCreatingNewRegion ? newRegionName : currentRegion?.name}</b> ·{' '}
+                <b>{isCreatingNewSector || isCreatingNewRegion ? newSectorName : currentSector?.name}</b>{' '}
+                along with photo &amp; topo line has been published live.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  addCommunityPost({
+                    id: `post-route-${Date.now()}`,
+                    userId: user?.id || 'setter-1',
+                    userName: user?.name || user?.email?.split('@')[0] || 'Jalur Route Setter',
+                    userHandle: user?.handle || '@jalur.setter',
+                    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80',
+                    hometown: isCreatingNewRegion ? newRegionName : currentRegion?.name || 'Indonesia',
+                    timeAgo: 'Just now',
+                    activity: `New Route Published · ${name}`,
+                    location: `${isCreatingNewRegion ? newRegionName : currentRegion?.name || 'Crag'} — ${isCreatingNewSector || isCreatingNewRegion ? newSectorName : currentSector?.name || 'Sector'}`,
+                    grade: discipline === 'bouldering' ? vGrade : grade,
+                    caption: `New ${discipline} route "${name}" (${rockProfile}) is now open and published on Jalur! Check the topo and beta before your next send.`,
+                    image: activePhoto,
+                    likes: 1,
+                    hasLiked: true,
+                    authorType: 'climber',
+                    comments: [],
+                  })
+                  setAnnouncedToWall(true)
+                }}
+                disabled={announcedToWall}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  announcedToWall
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                    : 'bg-[#FF6B00] hover:bg-[#E5601F] text-white shadow-md'
+                }`}
+              >
+                {announcedToWall ? 'Announced to Community Wall ✓' : 'Announce on Community Wall'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowShareModal(true)}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold border border-lime/50 text-lime hover:bg-lime/10 transition-all"
+              >
+                Share Route Link
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white transition-all"
+              >
+                Done
+              </button>
+            </div>
+
+            <ShareLinkModal
+              open={showShareModal}
+              onClose={() => setShowShareModal(false)}
+              title={`${name} (${discipline === 'bouldering' ? vGrade : grade})`}
+              subtitle={`${isCreatingNewRegion ? newRegionName : currentRegion?.name} · ${rockProfile}`}
+              shareUrl="/beta"
+              shareText={`New route published on Jalur: ${name} (${discipline === 'bouldering' ? vGrade : grade}) at ${isCreatingNewRegion ? newRegionName : currentRegion?.name}!`}
+              categoryLabel="Share New Route"
+            />
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -782,6 +852,24 @@ export default function AddRouteModal({
                         className="w-full bg-granite border border-white/5 rounded-xl px-3 py-2 text-chalk text-xs font-normal focus:outline-none focus:border-lime/40"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
+                      Rock Profile
+                    </label>
+                    <select
+                      value={rockProfile}
+                      onChange={e => setRockProfile(e.target.value)}
+                      className="w-full bg-granite border border-white/5 rounded-xl px-3 py-2 text-chalk text-xs font-normal focus:outline-none focus:border-lime/40"
+                    >
+                      <option value="Karst Limestone">Karst Limestone (Sharp pockets, tufas &amp; crimps)</option>
+                      <option value="Granite">Granite (Slabs, cracks &amp; friction crystals)</option>
+                      <option value="Volcanic Andesite">Volcanic Andesite (Vertical edges &amp; juggy roofs)</option>
+                      <option value="Basalt">Basalt (Columnar joints &amp; technical stems)</option>
+                      <option value="Sandstone">Sandstone (Slopers &amp; sandstone features)</option>
+                      <option value="Conglomerate">Conglomerate (Rounded cobbles &amp; endurance faces)</option>
+                    </select>
                   </div>
                 </div>
 

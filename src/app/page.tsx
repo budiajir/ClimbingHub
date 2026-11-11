@@ -616,9 +616,9 @@ export default function HomePage() {
               </div>
             </button>
 
-            {/* Action 3: Set Problems (Route Setter) */}
+            {/* Action 3: Set Problems / Set Route (Route Setters Only) */}
             <Link
-              href="/beta?action=submit"
+              href="/set-route"
               className={`p-5 rounded-2xl border flex flex-col justify-between group transition-all hover:-translate-y-0.5 sm:col-span-2 md:col-span-1 ${
                 isSandstone
                   ? 'bg-[#f4efe6] border-[#1a1815]/15 hover:border-[#06B6D4]'
@@ -626,19 +626,24 @@ export default function HomePage() {
               }`}
             >
               <div className="space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-[#06B6D4]/15 flex items-center justify-center text-[#06B6D4]">
-                  <Compass size={20} />
+                <div className="flex items-center justify-between gap-2">
+                  <div className="w-10 h-10 rounded-xl bg-[#06B6D4]/15 flex items-center justify-center text-[#06B6D4]">
+                    <Compass size={20} />
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                    Route Setters Only
+                  </span>
                 </div>
                 <h3 className="font-bold text-base group-hover:text-[#06B6D4] transition-colors">
-                  Set Problems (Route Beta)
+                  Set Problems / Set Route
                 </h3>
                 <p className="text-xs opacity-70 leading-relaxed font-light">
-                  Map out boulder lines, crux markers, and contribute new route documentation.
+                  Limited access for granted Route Setters (Topo, Photo, Route Data, Rock Profile &amp; Grade).
                 </p>
               </div>
 
               <div className="pt-4 border-t border-black/5 dark:border-white/10 mt-3 flex items-center justify-between text-xs font-bold text-[#06B6D4]">
-                <span>Set New Route</span>
+                <span>Open Set Route</span>
                 <ChevronRight size={14} />
               </div>
             </Link>

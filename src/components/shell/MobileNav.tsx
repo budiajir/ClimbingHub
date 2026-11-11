@@ -104,11 +104,7 @@ export default function MobileNav() {
 
   const handleSetProblems = () => {
     setShowConnect(false);
-    if (role === "guest") {
-      openAuthModal("Please sign in or create an account to submit boulder problems or set routes.");
-    } else {
-      router.push("/beta?action=submit");
-    }
+    router.push("/set-route");
   };
 
   const handleProjectSent = () => {

@@ -45,3 +45,15 @@ export const canPostCommunity = (role: UserRole): boolean => {
 export const canCreateCragRoute = (role: UserRole): boolean => {
   return role === 'super_admin'
 }
+
+export const isGrantedRouteSetter = (
+  role: UserRole,
+  user?: { id?: string; handle?: string } | null
+): boolean => {
+  return (
+    role === 'super_admin' ||
+    role === 'gym_admin' ||
+    Boolean(user?.handle?.toLowerCase().includes('setter')) ||
+    user?.id === 'owner-1'
+  )
+}

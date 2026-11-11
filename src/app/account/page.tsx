@@ -61,6 +61,7 @@ import {
   UserProjectItem,
 } from '@/lib/user-projects-store'
 import { addCommunityPost } from '@/lib/community-posts-store'
+import { getPersonalFeedPosts, type PersonalFeedPost } from '@/lib/social-store'
 import { QRCodeSVG } from 'qrcode.react'
 import Pictogram from '@/components/common/Pictogram'
 
@@ -256,6 +257,7 @@ function PersonalAccountContent() {
 
   // Route Drafts state (Row 7 - Personal access only)
   const [drafts, setDrafts] = useState<DraftProblemItem[]>([])
+  const [personalFeedPosts, setPersonalFeedPosts] = useState<PersonalFeedPost[]>([])
 
   // Refresh data on mount & listeners
   useEffect(() => {
@@ -267,6 +269,7 @@ function PersonalAccountContent() {
     setGears(getUserGears())
     setWishlist(getWishlist())
     setDrafts(getDraftProblems())
+    setPersonalFeedPosts(getPersonalFeedPosts())
 
     const handleAscents = () => {
       const reloaded = getUserAscents()
@@ -277,6 +280,7 @@ function PersonalAccountContent() {
     const handleGear = () => setGears(getUserGears())
     const handleWish = () => setWishlist(getWishlist())
     const handleDraft = () => setDrafts(getDraftProblems())
+    const handlePersonalFeed = () => setPersonalFeedPosts(getPersonalFeedPosts())
 
     window.addEventListener('user-ascents-updated', handleAscents)
     window.addEventListener('user-projects-updated', handleProjects)
@@ -284,6 +288,7 @@ function PersonalAccountContent() {
     window.addEventListener('user-gear-updated', handleGear)
     window.addEventListener('wishlist-updated', handleWish)
     window.addEventListener('draft-problems-updated', handleDraft)
+    window.addEventListener('personal-feed-updated', handlePersonalFeed)
 
     return () => {
       window.removeEventListener('user-ascents-updated', handleAscents)
@@ -292,6 +297,7 @@ function PersonalAccountContent() {
       window.removeEventListener('user-gear-updated', handleGear)
       window.removeEventListener('wishlist-updated', handleWish)
       window.removeEventListener('draft-problems-updated', handleDraft)
+      window.removeEventListener('personal-feed-updated', handlePersonalFeed)
     }
   }, [])
 
@@ -1644,20 +1650,34 @@ function PersonalAccountContent() {
             </p>
           </div>
 
-          {/* Row 15: Personal Feed (V3.0) */}
-          <div className={`p-4 rounded-2xl border opacity-75 relative overflow-hidden ${
-            isSandstone ? 'bg-[#f4efe6]/60 border-[#1a1815]/10' : 'bg-[#181D22]/60 border-white/5'
+          {/* Row 15: Personal Feed (Synced from Community Create Post + V3.0 Standalone Feed) */}
+          <div className={`p-4 rounded-2xl border relative overflow-hidden space-y-2 ${
+            isSandstone ? 'bg-[#f4efe6]/80 border-[#1a1815]/15' : 'bg-[#181D22]/80 border-white/10'
           }`}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30">
-                V3.0 Roadmap
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                {personalFeedPosts.length > 0 ? `${personalFeedPosts.length} Synced Post` : 'V3.0 Roadmap'}
               </span>
-              <Lock size={12} className="opacity-50" />
+              {personalFeedPosts.length === 0 && <Lock size={12} className="opacity-50" />}
             </div>
             <h4 className="font-bold text-xs text-chalk">Personal Posts Feed</h4>
-            <p className="text-[10px] opacity-70 mt-1 font-light">
-              Personal timeline posts with automatic publishing to the Community Wall.
-            </p>
+            {personalFeedPosts.length > 0 ? (
+              <div className="space-y-1.5">
+                {personalFeedPosts.slice(0, 2).map((fp) => (
+                  <div key={fp.id} className="p-2 rounded-xl bg-black/25 border border-white/10 text-[11px]">
+                    <p className="font-bold text-[#FF6B00] truncate">{fp.activity} · {fp.location}</p>
+                    <p className="opacity-80 line-clamp-2">{fp.caption}</p>
+                  </div>
+                ))}
+                <Link href="/community" className="inline-block text-[11px] font-bold text-[#FF6B00] hover:underline">
+                  Create another post in Community →
+                </Link>
+              </div>
+            ) : (
+              <p className="text-[10px] opacity-70 mt-1 font-light">
+                Posts created via Community auto-publish here. Standalone Personal Feed launches in V3.0.
+              </p>
+            )}
           </div>
 
           {/* Row 14: Competition Achievement (V5.0) */}
