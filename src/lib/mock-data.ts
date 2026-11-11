@@ -19,6 +19,44 @@ export interface Gym {
   instagram: string
 }
 
+export interface StoneTypology {
+  type: string
+  texture: string
+  features: string
+  ethics?: string
+  texturePhotoUrl?: string
+  macroDescription?: string
+}
+
+export interface ParkingSpotInfo {
+  motorcycleFee: string
+  carFee: string
+  retributionFee: string
+  locationDetails: string
+  isGuarded: boolean
+}
+
+export interface MeetingPointInfo {
+  name: string
+  address: string
+  landmark: string
+  notes: string
+  gmapsUrl?: string
+}
+
+export interface AccomodationInfo {
+  lodging: string
+  toilets: string
+  mushola: string
+  eateries: string
+}
+
+export interface ClimbingEtiquetteInfo {
+  governmentRegulations: string[]
+  localNorms: string[]
+  environmentalRules: string[]
+}
+
 export interface CragRegion {
   id: string
   name: string
@@ -48,13 +86,9 @@ export interface CragRegion {
     basecampName: string
     basecampAddress?: string
   }
-  // 4. Jenis Batuan
-  rockType?: {
-    type: string
-    texture: string
-    features: string
-    ethics?: string
-  }
+  // 4. Jenis Batuan / Stone Typology
+  rockType?: StoneTypology
+  stoneTypology?: StoneTypology
   // 5. Perkiraan Cuaca
   weatherForecast?: {
     condition: string
@@ -63,6 +97,14 @@ export interface CragRegion {
     humidity?: string
     rainNotes?: string
   }
+  // 6. Parking Spot
+  parkingSpot?: ParkingSpotInfo
+  // 7. Meeting Point
+  meetingPoint?: MeetingPointInfo
+  // 8. Accomodation
+  accomodation?: AccomodationInfo
+  // 9. Climbing Etiquette
+  climbingEtiquette?: ClimbingEtiquetteInfo
 }
 
 export interface Sector {
@@ -265,7 +307,54 @@ export const cragRegions: CragRegion[] = [
       type: "Dense Karst Limestone",
       texture: "Sharp, compact limestone with deep pockets, massive natural tufas, steep overhang crimps, and solid roof features.",
       features: "Dominated by steep bouldering caves in Gua Pawon and vertical pocket faces at Cliff 90 & 125.",
-      ethics: "Use magnesium chalk sparingly and brush off tick marks with a soft brush (nylon/boar hair). Rock chipping is strictly forbidden."
+      ethics: "Use magnesium chalk sparingly and brush off tick marks with a soft brush (nylon/boar hair). Rock chipping is strictly forbidden.",
+      texturePhotoUrl: "https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=800&q=80",
+      macroDescription: "Close-up macro of weathered prehistoric tropical karst limestone showing microscopic edge incuts, porous water-sculpted friction pockets, and sharp calcite crystallization."
+    },
+    stoneTypology: {
+      type: "Dense Karst Limestone",
+      texture: "Sharp, compact limestone with deep pockets, massive natural tufas, steep overhang crimps, and solid roof features.",
+      features: "Dominated by steep bouldering caves in Gua Pawon and vertical pocket faces at Cliff 90 & 125.",
+      ethics: "Use magnesium chalk sparingly and brush off tick marks with a soft brush (nylon/boar hair). Rock chipping is strictly forbidden.",
+      texturePhotoUrl: "https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=800&q=80",
+      macroDescription: "Close-up macro of weathered prehistoric tropical karst limestone showing microscopic edge incuts, porous water-sculpted friction pockets, and sharp calcite crystallization."
+    },
+    parkingSpot: {
+      motorcycleFee: "Rp 5.000",
+      carFee: "Rp 15.000",
+      retributionFee: "Rp 10.000 / orang (Retribusi resmi Kawasan Karst Gua Pawon / Citatah)",
+      locationDetails: "Area parkir luas beraspal dan paving block di Saung Panjat Citatah 90 dan pelataran depan Gua Pawon, dijaga oleh pemuda warga lokal.",
+      isGuarded: true
+    },
+    meetingPoint: {
+      name: "Saung Panjat Citatah 90 & Warung Bu Titin",
+      address: "Jl. Raya Cipatat No. 90, Gunung Masigit, Kec. Cipatat, Kab. Bandung Barat",
+      landmark: "Tepat di samping tugu gapura masuk Tebing 90, 200 meter sebelum pintu masuk Gua Pawon",
+      notes: "Titik kumpul utama pemanjat sebelum briefing, sewa crash pad, dan registrasi buku tamu.",
+      gmapsUrl: "https://maps.google.com/?q=-6.8375,107.4589"
+    },
+    accomodation: {
+      lodging: "Homestay Saung Panjat (Rp 50.000/malam/orang) & area camping ground terbuka di kaki Tebing 90.",
+      toilets: "3 unit toilet air bersih dan kamar bilas di Basecamp Saung Panjat.",
+      mushola: "Mushola warga Al-Ikhlas berada 50 meter dari titik kumpul saung panjat.",
+      eateries: "Warung Bu Titin & Warung Mang Udin (Nasi timbel, kopi tubruk, mie instan rebus, gorengan hangat, dan air galon isi ulang)."
+    },
+    climbingEtiquette: {
+      governmentRegulations: [
+        "Wajib mengisi buku registrasi simaksi / kunjungan di basecamp pengelola sebelum memulai pemanjatan.",
+        "Dilarang melakukan chipping (memahat batu) atau merusak formasi karst alami yang dilindungi cagar budaya Gua Pawon.",
+        "Wajib mengenakan helm panjat dan menggunakan peralatan standar UIAA/CE yang laik pakai."
+      ],
+      localNorms: [
+        "Menghormati norma kesopanan warga kampung lokal: mengenakan pakaian pantas saat melintasi pemukiman.",
+        "Menjaga ketenangan dan tidak menyalakan musik speaker terlalu keras saat malam hari di area camping.",
+        "Menghindari aktivitas pemanjatan di sektor yang dekat dengan situs pemakaman / petilasan leluhur."
+      ],
+      environmentalRules: [
+        "Leave No Trace (LNT): Bawa turun seluruh sampah, puntung rokok, dan sisa tape panjat.",
+        "Hanya gunakan sikat berbulu lembut (nylon atau bulu babi alami) untuk membersihkan chalk; dilarang keras menggunakan sikat kawat.",
+        "Tidak membuat api unggun langsung di atas batuan karst agar tidak merusak struktur batuan."
+      ]
     },
     weatherForecast: {
       condition: "Partly Sunny",
@@ -481,7 +570,54 @@ export const cragRegions: CragRegion[] = [
       type: "Granite Breccia & Vertical Andesite",
       texture: "Massive andesite and granite with high friction, micro-crystal crimps, natural splitter cracks, and sheer 90-degree vertical walls.",
       features: "Towering cliffs ideal for multi-pitch, trad crack lines, and giant boulder fields scattered across the valley floor.",
-      ethics: "Respect local Minangkabau customs and landowners. Keep the valley clean and pack out all tape and food wrappers."
+      ethics: "Respect local Minangkabau customs and landowners. Keep the valley clean and pack out all tape and food wrappers.",
+      texturePhotoUrl: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80",
+      macroDescription: "Close-up macro of coarse crystalline granite breccia displaying dense quartz grains, feldspar inclusions, and high-friction mineral patina."
+    },
+    stoneTypology: {
+      type: "Granite Breccia & Vertical Andesite",
+      texture: "Massive andesite and granite with high friction, micro-crystal crimps, natural splitter cracks, and sheer 90-degree vertical walls.",
+      features: "Towering cliffs ideal for multi-pitch, trad crack lines, and giant boulder fields scattered across the valley floor.",
+      ethics: "Respect local Minangkabau customs and landowners. Keep the valley clean and pack out all tape and food wrappers.",
+      texturePhotoUrl: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80",
+      macroDescription: "Close-up macro of coarse crystalline granite breccia displaying dense quartz grains, feldspar inclusions, and high-friction mineral patina."
+    },
+    parkingSpot: {
+      motorcycleFee: "Rp 5.000",
+      carFee: "Rp 10.000",
+      retributionFee: "Rp 15.000 / orang (Tiket resmi gerbang retribusi Wisata Alam Lembah Harau)",
+      locationDetails: "Halaman parkir beraspal luas di depan Homestay Abdi, Echo Valley Camp, dan gerbang utama Sarasah Bonta.",
+      isGuarded: true
+    },
+    meetingPoint: {
+      name: "Echo Valley Homestay & Climber Camp Harau",
+      address: "Nagari Tarantang, Kec. Harau, Kab. Lima Puluh Kota, Sumatera Barat",
+      landmark: "Tepat di depan tebing merah Echo Wall, 100 meter setelah air terjun Sarasah Bonta",
+      notes: "Basecamp pusat pertemuan pemanjat lokal & mancanegara, penyewaan pad, guide topo, dan carpool.",
+      gmapsUrl: "https://maps.google.com/?q=-0.1011,100.6722"
+    },
+    accomodation: {
+      lodging: "Echo Valley Homestay & Abdi Homestay Harau (Bungalow kayu khas Minang mulai Rp 150.000/malam) + camping lawn.",
+      toilets: "Toilet bersih dan kamar mandi air pegunungan alami di area homestay.",
+      mushola: "Mushola Nagari Tarantang (berjarak 100 meter, kumandang adzan terdengar syahdu di lembah).",
+      eateries: "Warung Kopi Mak Etek (Nasi Padang lauk rendang & dendeng batokok, kopi Bukittinggi, teh talua, dan pisang kapik panggang)."
+    },
+    climbingEtiquette: {
+      governmentRegulations: [
+        "Membayar retribusi resmi di pos gerbang masuk kawasan Cagar Alam Lembah Harau (BKSDA Sumbar).",
+        "Dilarang memasang bolt permanen baru tanpa persetujuan komunitas tetua lokal dan FPTI Sumbar.",
+        "Wajib membawa perlengkapan keselamatan standar (helmet, harness, auto-locking belay device, dan radio komunikasi untuk multi-pitch)."
+      ],
+      localNorms: [
+        "Menjunjung tinggi falsafah adat Minangkabau: 'Adat Basandi Syarak, Syarak Basandi Kitabullah'.",
+        "Berpakaian sopan saat melintasi pemukiman sawah dan menyapa warga tetua dengan ramah.",
+        "Menghentikan aktivitas pemanjatan sesaat saat terdengar kumandang adzan salat fardhu."
+      ],
+      environmentalRules: [
+        "Haram meninggalkan sampah (nol sampah plastik dan nol puntung rokok di area persawahan).",
+        "Menjaga kelestarian habitat satwa endemik seperti siamang dan burung enggang yang bersarang di celah tebing.",
+        "Dilarang menebang dahan pohon untuk perkemahan tanpa izin pengelola homestay."
+      ]
     },
     weatherForecast: {
       condition: "Tropical Mild",

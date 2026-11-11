@@ -17,6 +17,8 @@ import {
   Package,
   ChevronRight,
   Heart,
+  Map as MapIcon,
+  UserCheck,
 } from "lucide-react";
 import { useCragRegions } from "@/lib/use-data";
 import { useTheme } from "@/lib/theme-context";
@@ -26,6 +28,8 @@ import BookTripModal from "@/components/crag/BookTripModal";
 import RentEquipmentModal from "@/components/crag/RentEquipmentModal";
 import dynamic from "next/dynamic";
 import Pictogram from "@/components/common/Pictogram";
+import { getWishlist, toggleWishlist } from "@/lib/wishlist-store";
+import { getCragCheckInCount } from "@/lib/crag-checkin-store";
 
 const InteractiveIndonesiaMap = dynamic(
   () => import("@/components/common/InteractiveIndonesiaMap"),
@@ -47,12 +51,39 @@ export default function CragsDirectoryPage() {
   // View Mode: 'list' (default matching user UI) | 'thumbnail' | 'slide'
   const [viewMode, setViewMode] = useState<"list" | "thumbnail" | "slide">("list");
   const [expandedCragId, setExpandedCragId] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(true);
   const cardSliderRef = useRef<HTMLDivElement>(null);
 
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProvince, setSelectedProvince] = useState<string>("all");
   const [selectedRockType, setSelectedRockType] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<"all" | "boulder" | "lead" | "multipitch">("all");
+
+  // Wishlist state synced with localStorage
+  const [wishlistedIds, setWishlistedIds] = useState<string[]>([]);
+  useEffect(() => {
+    const syncWishlist = () => {
+      setWishlistedIds(getWishlist().map((i) => i.id.toLowerCase()));
+    };
+    syncWishlist();
+    window.addEventListener("wishlist-updated", syncWishlist);
+    return () => window.removeEventListener("wishlist-updated", syncWishlist);
+  }, []);
+
+  const handleToggleWishlist = (e: React.MouseEvent, crag: CragRegion) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist({
+      id: crag.id,
+      type: "crag",
+      title: crag.name,
+      subtitle: `${crag.province} · ${crag.rockType?.type || "Outdoor Crag"}`,
+      image: crag.image,
+      location: crag.province,
+      savedAt: new Date().toISOString().split("T")[0],
+    });
+  };
 
   // Modal states for CTAs
   const [activeModalCrag, setActiveModalCrag] = useState<CragRegion | null>(null);
@@ -90,9 +121,19 @@ export default function CragsDirectoryPage() {
             .toLowerCase()
             .includes(selectedRockType.toLowerCase()));
 
-      return matchSearch && matchProvince && matchRockType;
+      const allProbs = (crag.sectors || []).flatMap((s) => s.problems || []);
+      const matchCategory =
+        selectedCategory === "all" ||
+        (selectedCategory === "boulder" &&
+          allProbs.some((p) => p.category === "boulder" || p.discipline === "bouldering")) ||
+        (selectedCategory === "lead" &&
+          allProbs.some((p) => p.category === "lead" || p.discipline === "sport")) ||
+        (selectedCategory === "multipitch" &&
+          allProbs.some((p) => p.category === "trad" || p.discipline === "multipitch"));
+
+      return matchSearch && matchProvince && matchRockType && matchCategory;
     });
-  }, [cragRegions, searchQuery, selectedProvince, selectedRockType]);
+  }, [cragRegions, searchQuery, selectedProvince, selectedRockType, selectedCategory]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-28 pt-4">
@@ -192,40 +233,79 @@ export default function CragsDirectoryPage() {
           />
         </div>
 
-        {/* Interactive Indonesia Crags Map */}
-        <div className="my-4">
-          <InteractiveIndonesiaMap
-            crags={cragRegions}
-            selectedProvince={selectedProvince}
-            onSelectProvince={(prov) => setSelectedProvince(prov)}
-            onSelectCrag={(crag) => setExpandedCragId(crag.id)}
-            mode="crags"
-          />
+        {/* Interactive Indonesia Crags Map Header & Collapsible Toggle */}
+        <div className="space-y-2 my-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#FF6B00] flex items-center gap-1.5">
+              <MapIcon size={14} /> Interactive Crags Locator Map
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowMap(!showMap)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 ${
+                showMap
+                  ? "bg-[#FF6B00] text-white border-[#FF6B00]"
+                  : isSandstone
+                  ? "bg-white/60 border-[#1a1815]/20 text-[#1a1815]"
+                  : "bg-crag border-white/15 text-chalk hover:border-[#FF6B00]"
+              }`}
+            >
+              <MapIcon size={12} />
+              <span>{showMap ? "Hide Interactive Map" : "Locate on Interactive Map"}</span>
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showMap && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <InteractiveIndonesiaMap
+                  crags={cragRegions}
+                  selectedProvince={selectedProvince}
+                  onSelectProvince={(prov) => setSelectedProvince(prov)}
+                  onSelectCrag={(crag) => setExpandedCragId(crag.id)}
+                  mode="crags"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Filters: Province & Rock Type */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-          {/* Province Filter */}
-          <button
-            onClick={() => setSelectedProvince("all")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
-              selectedProvince === "all"
-                ? isSandstone
-                  ? "bg-[#1a1815] text-white border-[#1a1815] font-bold"
-                  : "bg-lime text-granite border-lime font-bold"
-                : isSandstone
-                ? "bg-white/60 border-[#1a1815]/15 text-[#1a1815]/70 hover:text-[#1a1815]"
-                : "bg-crag border-white/10 text-slate-ash hover:text-chalk"
-            }`}
-          >
-            All Provinces
-          </button>
-          {provinces.map((prov) => (
+        {/* Filters: Climbing Categories, Province & Rock Type */}
+        <div className="space-y-2">
+          {/* Climbing Categories Filter Pills (Row 10: Boulder, Lead, Multipitch) */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider opacity-60 shrink-0">
+              Discipline:
+            </span>
+            {(["all", "boulder", "lead", "multipitch"] as const).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold capitalize whitespace-nowrap transition-all border ${
+                  selectedCategory === cat
+                    ? "bg-[#FF6B00] text-white border-[#FF6B00] shadow-sm"
+                    : isSandstone
+                    ? "bg-white/60 border-[#1a1815]/15 text-[#1a1815]/70 hover:text-[#1a1815]"
+                    : "bg-crag border-white/10 text-slate-ash hover:text-chalk"
+                }`}
+              >
+                {cat === "all" ? "All Categories" : cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Province & Rock Type Filter */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            {/* Province Filter */}
             <button
-              key={prov}
-              onClick={() => setSelectedProvince(prov)}
+              onClick={() => setSelectedProvince("all")}
               className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
-                selectedProvince === prov
+                selectedProvince === "all"
                   ? isSandstone
                     ? "bg-[#1a1815] text-white border-[#1a1815] font-bold"
                     : "bg-lime text-granite border-lime font-bold"
@@ -234,34 +314,51 @@ export default function CragsDirectoryPage() {
                   : "bg-crag border-white/10 text-slate-ash hover:text-chalk"
               }`}
             >
-              {prov}
+              All Provinces
             </button>
-          ))}
+            {provinces.map((prov) => (
+              <button
+                key={prov}
+                onClick={() => setSelectedProvince(prov)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
+                  selectedProvince === prov
+                    ? isSandstone
+                      ? "bg-[#1a1815] text-white border-[#1a1815] font-bold"
+                      : "bg-lime text-granite border-lime font-bold"
+                    : isSandstone
+                    ? "bg-white/60 border-[#1a1815]/15 text-[#1a1815]/70 hover:text-[#1a1815]"
+                    : "bg-crag border-white/10 text-slate-ash hover:text-chalk"
+                }`}
+              >
+                {prov}
+              </button>
+            ))}
 
-          <span
-            className={`h-4 w-px mx-1 ${
-              isSandstone ? "bg-[#1a1815]/20" : "bg-white/20"
-            }`}
-          />
-
-          {/* Rock Type Filter */}
-          {["all", "limestone", "granit", "andesit"].map((rock) => (
-            <button
-              key={rock}
-              onClick={() => setSelectedRockType(rock)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap capitalize transition-all border ${
-                selectedRockType === rock
-                  ? isSandstone
-                    ? "bg-[#1a1815] text-white border-[#1a1815] font-bold"
-                    : "bg-cyan-500 text-white border-cyan-500 font-bold"
-                  : isSandstone
-                  ? "bg-white/60 border-[#1a1815]/15 text-[#1a1815]/70 hover:text-[#1a1815]"
-                  : "bg-crag border-white/10 text-slate-ash hover:text-chalk"
+            <span
+              className={`h-4 w-px mx-1 ${
+                isSandstone ? "bg-[#1a1815]/20" : "bg-white/20"
               }`}
-            >
-              {rock === "all" ? "All Rock Types" : rock}
-            </button>
-          ))}
+            />
+
+            {/* Rock Type Filter */}
+            {["all", "limestone", "granit", "andesit"].map((rock) => (
+              <button
+                key={rock}
+                onClick={() => setSelectedRockType(rock)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap capitalize transition-all border ${
+                  selectedRockType === rock
+                    ? isSandstone
+                      ? "bg-[#1a1815] text-white border-[#1a1815] font-bold"
+                      : "bg-cyan-500 text-white border-cyan-500 font-bold"
+                    : isSandstone
+                    ? "bg-white/60 border-[#1a1815]/15 text-[#1a1815]/70 hover:text-[#1a1815]"
+                    : "bg-crag border-white/10 text-slate-ash hover:text-chalk"
+                }`}
+              >
+                {rock === "all" ? "All Rock Types" : rock}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -287,6 +384,7 @@ export default function CragsDirectoryPage() {
               setSearchQuery("");
               setSelectedProvince("all");
               setSelectedRockType("all");
+              setSelectedCategory("all");
             }}
             className={`text-xs px-4 py-2 rounded-xl font-bold transition-colors ${
               isSandstone ? "bg-[#1a1815] text-white" : "bg-lime text-granite"
@@ -340,19 +438,39 @@ export default function CragsDirectoryPage() {
                         </span>
                       </button>
 
-                      {/* Right: Problems count badge linking to Crag detail */}
-                      <Link
-                        href={`/crags/${crag.id}`}
-                        className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono border transition-all ${
-                          isSandstone
-                            ? "border-[#1a1815]/30 text-[#1a1815] hover:bg-[#1a1815]/10"
-                            : "border-white/20 text-slate-ash hover:text-chalk hover:border-lime"
-                        }`}
-                      >
-                        <span className="text-[11px] opacity-80">Problems</span>
-                        <span className="font-bold">{totalProblems}</span>
-                        <ChevronRight size={13} className="opacity-70" />
-                      </Link>
+                      {/* Right: Wishlist Quick Toggle & Problems count badge linking to Crag detail */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleWishlist(e, crag)}
+                          title={wishlistedIds.includes(crag.id.toLowerCase()) ? "Remove from Wishlist" : "Save to Wishlist"}
+                          className={`p-2 rounded-full border transition-all ${
+                            wishlistedIds.includes(crag.id.toLowerCase())
+                              ? "bg-[#F90657]/15 border-[#F90657] text-[#F90657]"
+                              : isSandstone
+                              ? "border-[#1a1815]/20 text-[#1a1815]/60 hover:text-[#F90657]"
+                              : "border-white/15 text-white/60 hover:text-[#F90657]"
+                          }`}
+                        >
+                          <Heart
+                            size={14}
+                            className={wishlistedIds.includes(crag.id.toLowerCase()) ? "fill-[#F90657]" : ""}
+                          />
+                        </button>
+
+                        <Link
+                          href={`/crags/${crag.id}`}
+                          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono border transition-all ${
+                            isSandstone
+                              ? "border-[#1a1815]/30 text-[#1a1815] hover:bg-[#1a1815]/10"
+                              : "border-white/20 text-slate-ash hover:text-chalk hover:border-lime"
+                          }`}
+                        >
+                          <span className="text-[11px] opacity-80">Problems</span>
+                          <span className="font-bold">{totalProblems}</span>
+                          <ChevronRight size={13} className="opacity-70" />
+                        </Link>
+                      </div>
                     </div>
 
                     {/* Expanded Section: Quick preview of sectors & actions */}
@@ -369,6 +487,9 @@ export default function CragsDirectoryPage() {
                             <span>🪨 {crag.rockType?.type || "Limestone / Karst"}</span>
                             <span>⛰️ {crag.sectorCount} Sectors</span>
                             {crag.weatherForecast && <span>☀️ {crag.weatherForecast.tempAvg}</span>}
+                            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                              <UserCheck size={12} /> {getCragCheckInCount(crag.id)} Active Today
+                            </span>
                           </div>
 
                           <p
@@ -380,13 +501,13 @@ export default function CragsDirectoryPage() {
                               `${crag.name} is a natural outdoor crag in ${crag.province} featuring ${crag.sectorCount} climbing sectors.`}
                           </p>
 
-                          <div className="pt-2 flex items-center gap-2">
+                          <div className="pt-2 flex flex-wrap items-center gap-2">
                             <Link
                               href={`/crags/${crag.id}`}
                               className={`text-xs font-bold px-3.5 py-2 rounded-xl border flex items-center gap-1.5 transition-colors ${
                                 isSandstone
                                   ? "bg-[#1a1815] text-white border-[#1a1815] hover:bg-black"
-                                  : "bg-lime text-granite border-lime hover:bg-lime-dim"
+                                  : "bg-[#FF6B00] text-white border-[#FF6B00] hover:bg-[#E5601F]"
                               }`}
                             >
                               <span>Open Crag Details</span>
@@ -400,8 +521,8 @@ export default function CragsDirectoryPage() {
                               }}
                               className={`text-xs font-bold px-3.5 py-2 rounded-xl border flex items-center justify-center transition-colors ${
                                 isSandstone
-                                  ? "bg-[#1a1815] text-white border-[#1a1815] hover:bg-black"
-                                  : "bg-lime text-granite border-lime hover:bg-lime-dim"
+                                  ? "bg-white text-[#1a1815] border-[#1a1815]/20 hover:border-[#1a1815]"
+                                  : "bg-transparent text-chalk border-white/20 hover:border-lime"
                               }`}
                             >
                               Book Trip
@@ -445,8 +566,19 @@ export default function CragsDirectoryPage() {
                         <span>{crag.province}</span>
                       </div>
 
-                      {/* Sector & Problem Count */}
+                      {/* Sector & Problem Count + Wishlist Toggle */}
                       <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleWishlist(e, crag)}
+                          title="Save to Wishlist"
+                          className="p-1.5 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-white hover:text-[#F90657] transition-all"
+                        >
+                          <Heart
+                            size={12}
+                            className={wishlistedIds.includes(crag.id.toLowerCase()) ? "fill-[#F90657] text-[#F90657]" : ""}
+                          />
+                        </button>
                         <span className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono text-white font-bold border border-white/15">
                           {crag.sectorCount} Sectors
                         </span>
@@ -616,6 +748,17 @@ export default function CragsDirectoryPage() {
                         </div>
 
                         <div className="absolute top-4 right-4 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleWishlist(e, crag)}
+                            title="Save to Wishlist"
+                            className="p-2 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-white hover:text-[#F90657] transition-all"
+                          >
+                            <Heart
+                              size={14}
+                              className={wishlistedIds.includes(crag.id.toLowerCase()) ? "fill-[#F90657] text-[#F90657]" : ""}
+                            />
+                          </button>
                           <span className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-mono text-white font-bold border border-white/15">
                             {crag.sectorCount} Sectors
                           </span>
