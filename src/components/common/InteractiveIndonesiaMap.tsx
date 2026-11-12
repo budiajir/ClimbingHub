@@ -182,10 +182,12 @@ export default function InteractiveIndonesiaMap({
   const [activePopupData, setActivePopupData] = useState<CragLocation | null>(null)
   const [mapStyle, setMapStyle] = useState<'terrain' | 'street'>('terrain')
   const [currentZoom, setCurrentZoom] = useState<number>(5)
+  const [showTwoFingerHint, setShowTwoFingerHint] = useState<boolean>(false)
 
   // Map initialization
   useEffect(() => {
     let isMounted = true
+    let cleanupListeners: (() => void) | null = null
 
     if (typeof window === 'undefined' || !mapContainerRef.current) return
 
@@ -204,14 +206,20 @@ export default function InteractiveIndonesiaMap({
       const isMobile = window.innerWidth < 768
       const initialCenter: [number, number] = isMobile ? [-2.8, 117.5] : [-2.5, 118.0]
       const initialZoom = isMobile ? 4.5 : 5
+      const isTouchDevice =
+        typeof window !== 'undefined' &&
+        ('ontouchstart' in window || navigator.maxTouchPoints > 0)
 
       const map = L.map(mapContainerRef.current, {
         center: initialCenter,
         zoom: initialZoom,
         minZoom: 4,
         maxZoom: 16,
+        zoomSnap: 0.25,
         zoomControl: false, // Custom buttons below
         attributionControl: false,
+        dragging: !isTouchDevice,
+        touchZoom: false, // Managed custom for two-finger gestures
         maxBounds: [
           [-14.0, 92.0],
           [9.0, 143.0],
@@ -328,10 +336,149 @@ export default function InteractiveIndonesiaMap({
         if (map) map.invalidateSize()
       }
       window.addEventListener('resize', handleWindowResize)
+
+      // Attach touch gestures for cooperative two-finger mobile handling
+      const container = mapContainerRef.current
+      let touchStartX = 0
+      let touchStartY = 0
+      let isTwoFingerGesture = false
+      let lastMidX = 0
+      let lastMidY = 0
+      let lastDist = 0
+      let hintTimeout: NodeJS.Timeout | null = null
+
+      const handleTouchStart = (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX
+          touchStartY = e.touches[0].clientY
+          isTwoFingerGesture = false
+          // Disable single-finger drag on mobile so the user can freely scroll the page
+          if (map.dragging && map.dragging.enabled()) {
+            map.dragging.disable()
+          }
+        } else if (e.touches.length >= 2) {
+          // Two fingers: prevent browser scroll / pull-to-refresh
+          e.preventDefault()
+          isTwoFingerGesture = true
+          setShowTwoFingerHint(false)
+          if (hintTimeout) {
+            clearTimeout(hintTimeout)
+            hintTimeout = null
+          }
+
+          const t1 = e.touches[0]
+          const t2 = e.touches[1]
+          lastMidX = (t1.clientX + t2.clientX) / 2
+          lastMidY = (t1.clientY + t2.clientY) / 2
+          lastDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
+        }
+      }
+
+      const handleTouchMove = (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+          const currentX = e.touches[0].clientX
+          const currentY = e.touches[0].clientY
+          const moveDist = Math.hypot(currentX - touchStartX, currentY - touchStartY)
+
+          // If single finger moves noticeably (> 12px), show hint to use 2 fingers
+          if (moveDist > 12) {
+            setShowTwoFingerHint(true)
+            if (hintTimeout) clearTimeout(hintTimeout)
+            hintTimeout = setTimeout(() => {
+              setShowTwoFingerHint(false)
+            }, 1200)
+          }
+        } else if (e.touches.length >= 2) {
+          // Two fingers: prevent browser scrolling & handle smooth map pan/zoom
+          e.preventDefault()
+          setShowTwoFingerHint(false)
+
+          const t1 = e.touches[0]
+          const t2 = e.touches[1]
+          const midX = (t1.clientX + t2.clientX) / 2
+          const midY = (t1.clientY + t2.clientY) / 2
+          const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
+
+          if (!isTwoFingerGesture) {
+            isTwoFingerGesture = true
+            lastMidX = midX
+            lastMidY = midY
+            lastDist = dist
+            return
+          }
+
+          const dx = midX - lastMidX
+          const dy = midY - lastMidY
+
+          // Smooth 2-finger pan
+          if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+            map.panBy([-dx, -dy], { animate: false })
+          }
+
+          // Smooth 2-finger pinch zoom
+          if (lastDist > 0 && Math.abs(dist - lastDist) > 2) {
+            const scale = dist / lastDist
+            const zoomDelta = Math.log2(scale)
+            const currentZoom = map.getZoom()
+            const newZoom = Math.min(16, Math.max(4, currentZoom + zoomDelta * 0.75))
+
+            if (container) {
+              const rect = container.getBoundingClientRect()
+              const centerPoint = L.point(midX - rect.left, midY - rect.top)
+              const latlng = map.containerPointToLatLng(centerPoint)
+              map.setZoomAround(latlng, newZoom, { animate: false })
+            }
+          }
+
+          lastMidX = midX
+          lastMidY = midY
+          lastDist = dist
+        }
+      }
+
+      const handleTouchEnd = (e: TouchEvent) => {
+        if (e.touches.length < 2) {
+          isTwoFingerGesture = false
+        }
+        if (e.touches.length === 0) {
+          if (hintTimeout) clearTimeout(hintTimeout)
+          hintTimeout = setTimeout(() => {
+            setShowTwoFingerHint(false)
+          }, 600)
+        }
+      }
+
+      const handleMouseDown = () => {
+        // Desktop mouse support: enable dragging on click
+        if (map.dragging && !map.dragging.enabled()) {
+          map.dragging.enable()
+        }
+      }
+
+      if (container) {
+        container.addEventListener('touchstart', handleTouchStart, { passive: false })
+        container.addEventListener('touchmove', handleTouchMove, { passive: false })
+        container.addEventListener('touchend', handleTouchEnd, { passive: true })
+        container.addEventListener('touchcancel', handleTouchEnd, { passive: true })
+        container.addEventListener('mousedown', handleMouseDown)
+      }
+
+      cleanupListeners = () => {
+        window.removeEventListener('resize', handleWindowResize)
+        if (container) {
+          container.removeEventListener('touchstart', handleTouchStart)
+          container.removeEventListener('touchmove', handleTouchMove)
+          container.removeEventListener('touchend', handleTouchEnd)
+          container.removeEventListener('touchcancel', handleTouchEnd)
+          container.removeEventListener('mousedown', handleMouseDown)
+        }
+        if (hintTimeout) clearTimeout(hintTimeout)
+      }
     })
 
     return () => {
       isMounted = false
+      if (cleanupListeners) cleanupListeners()
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null
@@ -397,9 +544,26 @@ export default function InteractiveIndonesiaMap({
       {/* Map Canvas: Portrait on Mobile, Landscape on Tablet / Desktop */}
       <div
         ref={mapContainerRef}
-        className="w-full h-[460px] sm:h-[480px] md:h-[380px] lg:h-[440px] z-0 focus:outline-none select-none"
-        style={{ background: '#d4dadc' }}
+        className="w-full h-[460px] sm:h-[480px] md:h-[380px] lg:h-[440px] z-0 focus:outline-none select-none touch-pan-y"
+        style={{ background: '#d4dadc', touchAction: 'pan-y' }}
       />
+
+      {/* Two-finger Gesture Hint Overlay on Mobile */}
+      {showTwoFingerHint && (
+        <div className="absolute inset-0 z-[25] bg-black/45 backdrop-blur-[2px] flex items-center justify-center pointer-events-none transition-all duration-300 animate-fadeIn">
+          <div className="px-5 py-3 rounded-2xl bg-black/90 border border-white/20 text-white shadow-2xl flex items-center gap-3 max-w-[280px]">
+            <span className="text-2xl select-none">✌️</span>
+            <div className="text-left">
+              <p className="text-xs font-bold text-white leading-tight">
+                Gunakan 2 jari untuk menggeser peta
+              </p>
+              <p className="text-[10px] text-white/70 leading-tight mt-0.5">
+                Use two fingers to move the map
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Top Floating Bar: Region Filter indicator & Layer pill */}
       <div className="absolute top-3.5 left-3.5 right-3.5 z-[10] flex items-center justify-between pointer-events-none gap-2">
