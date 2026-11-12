@@ -24,6 +24,7 @@ import {
   UserCheck,
   Check,
   Award,
+  Settings as SettingsIcon,
   ChevronRight,
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -285,6 +286,21 @@ export default function TopBar({
                     />
                   </div>
                 </form>
+
+                {/* QUICK LINK: SETTINGS & POLICIES (Tanpa kotak card, hanya icon & teks) */}
+                <div className="pt-2 px-1">
+                  <Link
+                    href="/settings"
+                    onClick={() => setShowDrawer(false)}
+                    className="flex items-center gap-3 py-1.5 transition-opacity hover:opacity-80 group text-left"
+                  >
+                    <SettingsIcon size={18} className="text-[#F90657] shrink-0" />
+                    <div>
+                      <h4 className="font-bold text-xs group-hover:underline">Settings & Policies</h4>
+                      <p className="text-[10px] opacity-60">Personalization & Regulations</p>
+                    </div>
+                  </Link>
+                </div>
 
                 {/* 3. EDITORIAL ACCORDION DROPDOWN NAVIGATION LINKS */}
                 <nav className="pt-2 sm:pt-4 space-y-3 sm:space-y-4 max-h-[58vh] overflow-y-auto no-scrollbar pr-1">
