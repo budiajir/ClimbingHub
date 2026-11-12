@@ -2,32 +2,99 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Lock, User, Mail, ShieldCheck, ArrowRight, Sparkles, Building2 } from 'lucide-react'
+import {
+  X,
+  Lock,
+  User,
+  Mail,
+  Sparkles,
+  Building2,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
+import { signIn, signUp } from '@/lib/auth-client'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+
+function getSafeNextPath(): string | null {
+  if (typeof window === 'undefined') return null
+  const next = new URLSearchParams(window.location.search).get('next')
+  if (next && next.startsWith('/') && !next.startsWith('//')) {
+    return next
+  }
+  return null
+}
 
 export default function AuthModal() {
-  const { isAuthModalOpen, authModalReason, closeAuthModal, loginAsRegistered } = useAuth()
+  const { isAuthModalOpen, authModalReason, closeAuthModal, loginAsRegistered, refreshSession } =
+    useAuth()
+  const router = useRouter()
   const [tab, setTab] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isAuthModalOpen) return null
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigateAfterAuth = () => {
+    const nextPath = getSafeNextPath()
+    if (nextPath) {
+      router.push(nextPath)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    loginAsRegistered({
-      name: name || 'Ahmad Rizki',
-      email: email || 'climber@climbhub.id',
-    })
+    setErrorMsg(null)
+    setIsSubmitting(true)
+
+    try {
+      const result =
+        tab === 'login'
+          ? await signIn.email({ email, password })
+          : await signUp.email({
+              name: name.trim() || 'Jalur Climber',
+              email,
+              password,
+            })
+
+      if (result?.error) {
+        setErrorMsg(
+          result.error.message ||
+            'Autentikasi gagal. Periksa email/password atau gunakan Demo Climber.'
+        )
+        return
+      }
+
+      await refreshSession()
+      closeAuthModal()
+      navigateAfterAuth()
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error
+          ? err.message
+          : 'Gagal terhubung ke server auth. Gunakan Demo Climber untuk akses instan.'
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleQuickDemo = () => {
+    setErrorMsg(null)
     loginAsRegistered({
       name: 'Ahmad Rizki',
       gradeMax: 'V7 Crusher',
     })
+    navigateAfterAuth()
+  }
+
+  const switchTab = (nextTab: 'login' | 'register') => {
+    setTab(nextTab)
+    setErrorMsg(null)
   }
 
   return (
@@ -42,6 +109,8 @@ export default function AuthModal() {
           {/* Close button */}
           <button
             onClick={closeAuthModal}
+            type="button"
+            aria-label="Close sign in dialog"
             className="absolute top-5 right-5 w-8 h-8 rounded-full bg-granite flex items-center justify-center text-slate-ash hover:text-chalk transition-colors"
           >
             <X size={16} />
@@ -56,14 +125,16 @@ export default function AuthModal() {
               {tab === 'login' ? 'Sign in to Jalur' : 'Create Climber Account'}
             </h3>
             <p className="text-slate-ash text-xs font-light mt-1">
-              {authModalReason || 'Unlock Ascent Logging, save wishlist crags, and join community sessions.'}
+              {authModalReason ||
+                'Unlock Ascent Logging, save wishlist crags, and join community sessions.'}
             </p>
           </div>
 
           {/* Tab Switcher */}
           <div className="grid grid-cols-2 bg-granite p-1 rounded-xl mb-4 border border-white/5">
             <button
-              onClick={() => setTab('login')}
+              type="button"
+              onClick={() => switchTab('login')}
               className={`py-2 text-xs rounded-lg transition-all ${
                 tab === 'login'
                   ? 'bg-lime text-granite font-bold shadow-lime-glow-sm'
@@ -73,7 +144,8 @@ export default function AuthModal() {
               Sign In
             </button>
             <button
-              onClick={() => setTab('register')}
+              type="button"
+              onClick={() => switchTab('register')}
               className={`py-2 text-xs rounded-lg transition-all ${
                 tab === 'register'
                   ? 'bg-lime text-granite font-bold shadow-lime-glow-sm'
@@ -83,6 +155,13 @@ export default function AuthModal() {
               Sign Up
             </button>
           </div>
+
+          {errorMsg && (
+            <div className="mb-3 rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2.5 flex items-start gap-2 text-xs text-red-300">
+              <AlertCircle size={15} className="shrink-0 mt-0.5 text-red-400" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -97,7 +176,7 @@ export default function AuthModal() {
                     required
                     placeholder="e.g. Alex Honnold"
                     value={name}
-                    onChange={e => setName(e.target.value)}
+                    onChange={(e) => setName(e.target.value)}
                     className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"
                   />
                 </div>
@@ -115,7 +194,7 @@ export default function AuthModal() {
                   type="email"
                   placeholder="climber@example.com"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"
                 />
               </div>
@@ -129,10 +208,11 @@ export default function AuthModal() {
                 <Lock size={15} className="text-slate-ash" />
                 <input
                   required
+                  minLength={6}
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="Minimum 6 characters"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"
                 />
               </div>
@@ -140,15 +220,26 @@ export default function AuthModal() {
 
             <button
               type="submit"
-              className="w-full py-3 bg-lime text-granite font-light tracking-wide rounded-xl shadow-lime-glow-sm hover:bg-lime-dim transition-all text-xs font-bold mt-2"
+              disabled={isSubmitting}
+              className="w-full py-3 bg-lime text-granite tracking-wide rounded-xl shadow-lime-glow-sm hover:bg-lime-dim transition-all text-xs font-bold mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              {tab === 'login' ? 'Sign In Now' : 'Create Account'}
+              {isSubmitting && <Loader2 size={14} className="animate-spin" />}
+              <span>
+                {isSubmitting
+                  ? tab === 'login'
+                    ? 'Signing In...'
+                    : 'Creating Account...'
+                  : tab === 'login'
+                    ? 'Sign In Now'
+                    : 'Create Account'}
+              </span>
             </button>
           </form>
 
           {/* Quick Demo Login Option */}
           <div className="pt-4 mt-4 border-t border-white/5">
             <button
+              type="button"
               onClick={handleQuickDemo}
               className="w-full py-2.5 bg-granite border border-white/10 hover:border-lime/30 text-chalk text-xs rounded-xl flex items-center justify-center gap-2 transition-all group"
             >
@@ -165,7 +256,9 @@ export default function AuthModal() {
               className="text-[11px] text-slate-ash hover:text-lime font-light transition-colors inline-flex items-center gap-1"
             >
               <Building2 size={12} />
-              <span>Gym Owner or Manager? <b>Register Gym Partner</b> →</span>
+              <span>
+                Gym Owner or Manager? <b>Register Gym Partner</b> →
+              </span>
             </Link>
           </div>
         </motion.div>

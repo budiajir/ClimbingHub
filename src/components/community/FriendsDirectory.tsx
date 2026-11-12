@@ -22,6 +22,8 @@ import {
   RotateCcw,
   Award,
   Sparkles,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
 import { useAuth } from '@/lib/auth-context'
@@ -35,6 +37,8 @@ import {
   DEFAULT_USER_AVATAR,
 } from '@/lib/social-store'
 import { getUserAscents } from '@/lib/user-ascents'
+import { uploadMediaToCloudinary } from '@/lib/upload-client'
+import { updateUserAvatarAction } from '@/lib/actions/media'
 
 export interface ClimberProfile {
   id: string
@@ -176,6 +180,8 @@ export default function FriendsDirectory({
   const [customAvatar, setCustomAvatar] = useState<string | null>(null)
   const [showAvatarModal, setShowAvatarModal] = useState(false)
   const [draftAvatarUrl, setDraftAvatarUrl] = useState('')
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [avatarUploadError, setAvatarUploadError] = useState<string | null>(null)
   const [avatarSavedToast, setAvatarSavedToast] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -225,30 +231,45 @@ export default function FriendsDirectory({
   }
 
   const openAvatarPersonalizer = () => {
+    setAvatarUploadError(null)
     setDraftAvatarUrl(activeAvatar)
     setShowAvatarModal(true)
   }
 
-  const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setDraftAvatarUrl(reader.result)
-      }
+    setAvatarUploadError(null)
+    setIsUploadingAvatar(true)
+    try {
+      const uploaded = await uploadMediaToCloudinary(file, 'jalur/avatars')
+      setDraftAvatarUrl(uploaded.secureUrl)
+    } catch (err) {
+      setAvatarUploadError(
+        err instanceof Error ? err.message : 'Gagal mengunggah foto profil ke Cloudinary.'
+      )
+    } finally {
+      setIsUploadingAvatar(false)
+      e.target.value = ''
     }
-    reader.readAsDataURL(file)
   }
 
-  const handleSaveAvatar = () => {
+  const handleSaveAvatar = async () => {
+    setAvatarUploadError(null)
+    const res = await updateUserAvatarAction(draftAvatarUrl)
+    if (!res.ok) {
+      setAvatarUploadError(res.error || 'Gagal menyimpan URL foto profil.')
+      return
+    }
     saveUserCustomAvatar(draftAvatarUrl)
     setShowAvatarModal(false)
     setAvatarSavedToast(true)
     setTimeout(() => setAvatarSavedToast(false), 2600)
   }
 
-  const handleResetAvatar = () => {
+  const handleResetAvatar = async () => {
+    setAvatarUploadError(null)
+    await updateUserAvatarAction('')
     saveUserCustomAvatar('')
     setDraftAvatarUrl(user?.avatar || DEFAULT_USER_AVATAR)
     setShowAvatarModal(false)
@@ -819,11 +840,18 @@ export default function FriendsDirectory({
                 />
                 <button
                   type="button"
+                  disabled={isUploadingAvatar}
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#FF6B00]/15 border border-[#FF6B00]/40 text-[#FF6B00] text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[#FF6B00]/20 transition-all cursor-pointer"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#FF6B00]/15 border border-[#FF6B00]/40 text-[#FF6B00] text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[#FF6B00]/20 transition-all cursor-pointer disabled:opacity-60"
                 >
-                  <Upload size={14} />
-                  <span>Upload Foto dari Perangkat</span>
+                  {isUploadingAvatar ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Upload size={14} />
+                  )}
+                  <span>
+                    {isUploadingAvatar ? 'Mengunggah ke Cloudinary...' : 'Upload Foto dari Perangkat'}
+                  </span>
                 </button>
                 <button
                   type="button"
@@ -839,6 +867,13 @@ export default function FriendsDirectory({
                 </button>
               </div>
             </div>
+
+            {avatarUploadError && (
+              <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2 flex items-start gap-2 text-xs text-red-400">
+                <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                <span>{avatarUploadError}</span>
+              </div>
+            )}
 
             {/* Preset gallery */}
             <div className="space-y-2">

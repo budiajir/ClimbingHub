@@ -23,6 +23,7 @@ import { useTheme } from '@/lib/theme-context'
 import { Gym } from '@/lib/mock-data'
 import dynamic from 'next/dynamic'
 import ShareLinkModal from '@/components/common/ShareLinkModal'
+import Pictogram from '@/components/common/Pictogram'
 import GymLogoBadge from '@/components/gym/GymLogoBadge'
 import GymStarRating from '@/components/gym/GymStarRating'
 import { toggleWishlist, getWishlist } from '@/lib/wishlist-store'
@@ -270,7 +271,11 @@ export default function GymsPage() {
                     }`}
                     title="Save to Wishlist"
                   >
-                    <Heart size={15} className={saved ? 'fill-current' : ''} />
+                    <Pictogram
+                      name={saved ? "wishlisted" : "wishlist"}
+                      size={15}
+                      className={saved ? "text-white" : "text-white"}
+                    />
                   </button>
                   <button
                     type="button"
@@ -453,7 +458,11 @@ export default function GymsPage() {
                     }`}
                     title="Save to Wishlist"
                   >
-                    <Heart size={14} className={saved ? 'fill-current' : ''} />
+                    <Pictogram
+                      name={saved ? "wishlisted" : "wishlist"}
+                      size={14}
+                      className={saved ? "text-[#F90657]" : "text-current"}
+                    />
                   </button>
                   <button
                     type="button"
@@ -528,7 +537,11 @@ export default function GymsPage() {
                           }`}
                           title="Save to Wishlist"
                         >
-                          <Heart size={13} className={saved ? 'fill-current' : ''} />
+                          <Pictogram
+                            name={saved ? "wishlisted" : "wishlist"}
+                            size={13}
+                            className={saved ? "text-white" : "text-white"}
+                          />
                         </button>
                         <button
                           type="button"

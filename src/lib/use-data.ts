@@ -1,8 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getSupabaseBrowserClient } from './supabase'
-import type { Gym, CragRegion, Community, Problem, TopoMarker, PitchDetail, RouteDiscipline, Sector } from './mock-data'
+import { getGyms } from './actions/gyms'
+import {
+  createRoute,
+  getCragRegions,
+  upsertCragRegion,
+  upsertSector,
+} from './actions/crags'
+import { getCommunities } from './actions/communities'
+import type {
+  Gym,
+  CragRegion,
+  Community,
+  Problem,
+  TopoMarker,
+  PitchDetail,
+  RouteDiscipline,
+  Sector,
+} from './mock-data'
 import {
   cragRegions as initialMockCrags,
   gyms as initialMockGyms,
@@ -10,58 +26,31 @@ import {
 } from './mock-data'
 
 /**
- * Client-side hook to fetch gyms from the database.
- * Falls back to mock data if the database is empty or unreachable.
+ * Client-side hook to fetch gyms via Next.js Server Action.
+ * Falls back to mock data if the database is empty or unconfigured.
  */
 export function useGyms() {
   const [gyms, setGyms] = useState<Gym[]>(initialMockGyms)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    let active = true
     async function load() {
       try {
-        const supabase = getSupabaseBrowserClient()
-        const { data, error } = await supabase
-          .from('gyms')
-          .select('*')
-          .order('rating', { ascending: false })
-
-        if (error) throw error
-        if (!data || data.length === 0) throw new Error('empty')
-
-        setGyms((data as any[]).map((g: any) => ({
-          id: String(g.id || ''),
-          name: g.name || 'Climbing Gym',
-          city: g.city || '',
-          province: g.province || '',
-          image: g.image || '',
-          rating: Number(g.rating || 0),
-          reviewCount: Number(g.review_count || 0),
-          slots: {
-            morning: Number(g.slots_morning || 0),
-            afternoon: Number(g.slots_afternoon || 0),
-            evening: Number(g.slots_evening || 0),
-          },
-          maxSlots: {
-            morning: Number(g.max_slots_morning || 0),
-            afternoon: Number(g.max_slots_afternoon || 0),
-            evening: Number(g.max_slots_evening || 0),
-          },
-          facilities: Array.isArray(g.facilities) ? g.facilities : [],
-          pricePerSession: Number(g.price_per_session || 0),
-          address: g.address || '',
-          routeSetters: Array.isArray(g.route_setters) ? g.route_setters : [],
-          description: g.description || '',
-          phone: g.phone || '',
-          instagram: g.instagram || '',
-        })))
+        const data = await getGyms()
+        if (active && data.length > 0) {
+          setGyms(data)
+        }
       } catch {
-        setGyms(initialMockGyms)
+        if (active) setGyms(initialMockGyms)
       } finally {
-        setLoading(false)
+        if (active) setLoading(false)
       }
     }
     load()
+    return () => {
+      active = false
+    }
   }, [])
 
   return { gyms, loading }
@@ -83,12 +72,6 @@ export function normalizeCragName(str?: string | null): string {
 
 /**
  * Deduplicates and merges crags from multiple sources (database + mock data).
- * If a crag exists in both places (e.g. mock Hanyawong and DB crag-1790860469553):
- * - Groups by canonical name/id.
- * - Merges their sectors (preserving existing sectors while adding newly created ones).
- * - Merges routes/problems within identical sectors.
- * - Preserves aliases for backward-compatible routing (/crags/hanyawong & /crags/crag-1790860469553).
- * - Aggregates accurate sector and problem counts.
  */
 export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
   const merged: CragRegion[] = []
@@ -100,13 +83,14 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
     const normName = normalizeCragName(crag.name)
     const normId = cragIdStr.toLowerCase().trim()
 
-    // Find existing match by ID, aliases, or normalized name
-    const existingIndex = merged.findIndex(existing => {
+    const existingIndex = merged.findIndex((existing) => {
       if (!existing) return false
       const exIdStr = String(existing.id || '')
       const exNormName = normalizeCragName(existing.name)
       const exNormId = exIdStr.toLowerCase().trim()
-      const exAliases = (existing.aliases || []).map(a => String(a || '').toLowerCase().trim())
+      const exAliases = (existing.aliases || []).map((a) =>
+        String(a || '').toLowerCase().trim()
+      )
 
       return (
         (normId && exNormId === normId) ||
@@ -117,24 +101,24 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
     })
 
     if (existingIndex === -1) {
-      // First time seeing this crag
       merged.push({
         ...crag,
         aliases: [crag.id],
       })
     } else {
-      // Merge with existing crag
       const existing = merged[existingIndex]
       const aliases = Array.from(
-        new Set([...(existing.aliases || [existing.id]), crag.id, ...((crag.aliases || []))].filter(Boolean))
+        new Set(
+          [...(existing.aliases || [existing.id]), crag.id, ...(crag.aliases || [])].filter(
+            Boolean
+          )
+        )
       )
 
-      // Canonical ID: prefer a human-friendly slug over auto-generated 'crag-179...'
       const isExistingTimestamp = String(existing.id || '').startsWith('crag-')
       const isIncomingTimestamp = String(crag.id || '').startsWith('crag-')
       const canonicalId = isExistingTimestamp && !isIncomingTimestamp ? crag.id : existing.id
 
-      // Prefer rich mock metadata if DB fields are empty
       const name = existing.name || crag.name
       const province = existing.province || crag.province
       const image =
@@ -146,7 +130,6 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
           ? existing.description
           : crag.description || existing.description
 
-      // Merge sectors without duplicates
       const mergedSectors: Sector[] = [...(existing.sectors || [])]
 
       for (const incSec of crag.sectors || []) {
@@ -155,15 +138,14 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
         const incSecId = String(incSec.id || '').toLowerCase().trim()
 
         const existingSecIndex = mergedSectors.findIndex(
-          s => (incSecId && String(s.id || '').toLowerCase().trim() === incSecId) ||
-               (incSecNorm && normalizeCragName(s.name) === incSecNorm)
+          (s) =>
+            (incSecId && String(s.id || '').toLowerCase().trim() === incSecId) ||
+            (incSecNorm && normalizeCragName(s.name) === incSecNorm)
         )
 
         if (existingSecIndex === -1) {
-          // Sector is new, add it
           mergedSectors.push(incSec)
         } else {
-          // Sector matches, merge its problems
           const exSec = mergedSectors[existingSecIndex]
           const mergedProblems: Problem[] = [...(exSec.problems || [])]
 
@@ -173,8 +155,9 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
             const incProbId = String(incProb.id || '').toLowerCase().trim()
 
             const hasProb = mergedProblems.some(
-              p => (incProbId && String(p.id || '').toLowerCase().trim() === incProbId) ||
-                   (incProbNorm && String(p.name || '').trim().toLowerCase() === incProbNorm)
+              (p) =>
+                (incProbId && String(p.id || '').toLowerCase().trim() === incProbId) ||
+                (incProbNorm && String(p.name || '').trim().toLowerCase() === incProbNorm)
             )
 
             if (!hasProb) {
@@ -191,7 +174,10 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
         }
       }
 
-      const totalActualProblems = mergedSectors.reduce((acc, s) => acc + (s.problems?.length || 0), 0)
+      const totalActualProblems = mergedSectors.reduce(
+        (acc, s) => acc + (s.problems?.length || 0),
+        0
+      )
       const maxProblemCount = Math.max(
         existing.problemCount || 0,
         crag.problemCount || 0,
@@ -225,117 +211,69 @@ export function mergeCragRegions(cragList: CragRegion[]): CragRegion[] {
 }
 
 /**
- * Client-side hook to fetch crag regions with nested sectors and routes.
+ * Client-side hook to fetch crag regions with nested sectors and routes via Server Action.
  */
 export function useCragRegions() {
-  const [cragRegions, setCragRegions] = useState<CragRegion[]>(() => mergeCragRegions(initialMockCrags))
+  const [cragRegions, setCragRegions] = useState<CragRegion[]>(() =>
+    mergeCragRegions(initialMockCrags)
+  )
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    let active = true
     async function load() {
       try {
-        const supabase = getSupabaseBrowserClient()
-
-        const [cragsRes, sectorsRes, routesRes] = await Promise.all([
-          supabase.from('crag_regions').select('*').order('name'),
-          supabase.from('sectors').select('*'),
-          supabase.from('routes').select('*').order('ascent_count', { ascending: false }),
-        ])
-
-        if (cragsRes.error) throw cragsRes.error
-        if (!cragsRes.data || cragsRes.data.length === 0) throw new Error('empty')
-
-        const sectors = (sectorsRes.data || []) as any[]
-        const routes = (routesRes.data || []) as any[]
-
-        const dbCrags: CragRegion[] = (cragsRes.data as any[]).map((crag: any) => {
-          const cragSectors = sectors.filter((s: any) => s.crag_id === crag.id)
-          const mappedSectors: Sector[] = cragSectors.map((sector: any) => {
-            const secRoutes = routes
-              .filter((r: any) => r.sector_id === sector.id)
-              .map(mapRouteRow)
-            return {
-              id: String(sector.id || ''),
-              name: sector.name || 'Sector',
-              image: sector.image || crag.image || '',
-              problems: secRoutes,
-            }
-          })
-
-          return {
-            id: String(crag.id || ''),
-            name: crag.name || '',
-            province: crag.province || '',
-            image: crag.image || '',
-            description: crag.description || '',
-            sectorCount: crag.sector_count ?? mappedSectors.length,
-            problemCount: crag.problem_count ?? mappedSectors.reduce((acc, s) => acc + (s.problems?.length || 0), 0),
-            sectors: mappedSectors,
-          }
-        })
-
-        // Merge initialMockCrags with dbCrags (mockCrags provides rich metadata base, dbCrags merges user added sectors/routes)
-        const combined = mergeCragRegions([...initialMockCrags, ...dbCrags])
-        setCragRegions(combined)
+        const dbCrags = await getCragRegions()
+        if (active && dbCrags.length > 0) {
+          setCragRegions(mergeCragRegions([...initialMockCrags, ...dbCrags]))
+        }
       } catch {
-        setCragRegions(mergeCragRegions(initialMockCrags))
+        if (active) setCragRegions(mergeCragRegions(initialMockCrags))
       } finally {
-        setLoading(false)
+        if (active) setLoading(false)
       }
     }
     load()
+    return () => {
+      active = false
+    }
   }, [])
 
   return { cragRegions, setCragRegions, loading }
 }
 
 /**
- * Client-side hook to fetch communities.
+ * Client-side hook to fetch communities via Server Action.
  */
 export function useCommunities() {
   const [communities, setCommunities] = useState<Community[]>(initialMockCommunities)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    let active = true
     async function load() {
       try {
-        const supabase = getSupabaseBrowserClient()
-        const { data, error } = await supabase
-          .from('communities')
-          .select('*')
-          .order('member_count', { ascending: false })
-
-        if (error) throw error
-        if (!data || data.length === 0) throw new Error('empty')
-
-        setCommunities((data as any[]).map((c: any) => ({
-          id: String(c.id || ''),
-          name: c.name || 'Community',
-          city: c.city || '',
-          province: c.province || '',
-          image: c.image || '',
-          memberCount: Number(c.member_count || 0),
-          homebase: c.homebase || '',
-          description: c.description || '',
-          whatsapp: c.whatsapp || '',
-          instagram: c.instagram || '',
-          tags: Array.isArray(c.tags) ? c.tags : [],
-          members: Array.isArray(c.members) ? c.members : [],
-        })))
+        const data = await getCommunities()
+        if (active && data.length > 0) {
+          setCommunities(data)
+        }
       } catch {
-        setCommunities(initialMockCommunities)
+        if (active) setCommunities(initialMockCommunities)
       } finally {
-        setLoading(false)
+        if (active) setLoading(false)
       }
     }
     load()
+    return () => {
+      active = false
+    }
   }, [])
 
   return { communities, loading }
 }
 
 /**
- * Insert a new route into the database.
+ * Insert a new route via Drizzle Server Action.
  */
 export async function insertRoute(data: {
   sectorId: string
@@ -362,57 +300,11 @@ export async function insertRoute(data: {
   landingQuality?: string
   startType?: string
 }): Promise<{ id: string } | { error: string }> {
-  try {
-    const supabase = getSupabaseBrowserClient()
-    const routeId = `route-${Date.now()}`
-
-    const rawDisc = String(data.discipline || '').toLowerCase().trim()
-    const validDiscipline: 'sport' | 'multipitch' | 'bouldering' =
-      rawDisc === 'sport' || rawDisc === 'lead'
-        ? 'sport'
-        : rawDisc === 'multipitch' || rawDisc === 'trad'
-        ? 'multipitch'
-        : 'bouldering'
-
-    const { error } = await supabase.from('routes').insert({
-      id: routeId,
-      sector_id: data.sectorId,
-      name: data.name,
-      discipline: validDiscipline,
-      grade: data.grade,
-      font_grade: data.fontGrade || '',
-      setter: data.setter || '',
-      fa: data.fa || '',
-      fa_date: data.faDate || null,
-      description: data.description || '',
-      image_url: data.imageUrl || null,
-      access_info: data.accessInfo || '',
-      local_contact: data.localContact || '',
-      ascent_count: 0,
-      grade_votes: [],
-      markers: (data.markers || []) as unknown as Record<string, unknown>[],
-      pitch_length: data.pitchLength || null,
-      bolt_count: data.boltCount || null,
-      anchor_type: data.anchorType || null,
-      total_pitches: data.totalPitches || null,
-      total_height: data.totalHeight || null,
-      pitch_breakdown: (data.pitchBreakdown || null) as unknown as Record<string, unknown>[] | null,
-      descent_info: data.descentInfo || null,
-      pad_recommendation: data.padRecommendation || null,
-      landing_quality: data.landingQuality || null,
-      start_type: data.startType || null,
-    })
-
-    if (error) throw error
-    return { id: routeId }
-  } catch (err) {
-    console.error('insertRoute error:', err)
-    return { error: 'Failed to save route. Please try again later.' }
-  }
+  return createRoute(data)
 }
 
 /**
- * Insert a new crag region into the database.
+ * Insert a new crag region via Drizzle Server Action.
  */
 export async function insertCragRegion(data: {
   id: string
@@ -420,26 +312,11 @@ export async function insertCragRegion(data: {
   province: string
   image?: string
 }): Promise<{ id: string } | { error: string }> {
-  try {
-    const supabase = getSupabaseBrowserClient()
-    const { error } = await supabase.from('crag_regions').upsert({
-      id: data.id,
-      name: data.name,
-      province: data.province,
-      image: data.image || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
-      sector_count: 1,
-      problem_count: 1,
-    }, { onConflict: 'id', ignoreDuplicates: true })
-    if (error) throw error
-    return { id: data.id }
-  } catch (err) {
-    console.error('insertCragRegion error:', err)
-    return { error: 'Failed to save new crag.' }
-  }
+  return upsertCragRegion(data)
 }
 
 /**
- * Insert a new sector into the database.
+ * Insert a new sector via Drizzle Server Action.
  */
 export async function insertSector(data: {
   id: string
@@ -447,100 +324,5 @@ export async function insertSector(data: {
   name: string
   image?: string
 }): Promise<{ id: string } | { error: string }> {
-  try {
-    const supabase = getSupabaseBrowserClient()
-    const { error } = await supabase.from('sectors').upsert({
-      id: data.id,
-      crag_id: data.cragId,
-      name: data.name,
-      image: data.image || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
-    }, { onConflict: 'id', ignoreDuplicates: true })
-    if (error) throw error
-    return { id: data.id }
-  } catch (err) {
-    console.error('insertSector error:', err)
-    return { error: 'Failed to save new sector.' }
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapRouteRow(row: any): Problem {
-  let parsedMarkers: TopoMarker[] = []
-  if (Array.isArray(row.markers)) {
-    parsedMarkers = row.markers.map((m: any, i: number) => ({
-      id: m?.id || `m-${i}`,
-      x: typeof m?.x === 'number' ? m.x : (Number(m?.x) || 50),
-      y: typeof m?.y === 'number' ? m.y : (Number(m?.y) || 50),
-      type: m?.type || 'B',
-      label: m?.label || '',
-    }))
-  } else if (typeof row.markers === 'string' && row.markers.trim()) {
-    try {
-      const parsed = JSON.parse(row.markers)
-      if (Array.isArray(parsed)) {
-        parsedMarkers = parsed.map((m: any, i: number) => ({
-          id: m?.id || `m-${i}`,
-          x: typeof m?.x === 'number' ? m.x : (Number(m?.x) || 50),
-          y: typeof m?.y === 'number' ? m.y : (Number(m?.y) || 50),
-          type: m?.type || 'B',
-          label: m?.label || '',
-        }))
-      }
-    } catch {
-      parsedMarkers = []
-    }
-  }
-
-  let parsedGradeVotes: { grade: string; votes: number }[] = []
-  if (Array.isArray(row.grade_votes)) {
-    parsedGradeVotes = row.grade_votes
-  } else if (typeof row.grade_votes === 'string' && row.grade_votes.trim()) {
-    try {
-      const parsed = JSON.parse(row.grade_votes)
-      if (Array.isArray(parsed)) parsedGradeVotes = parsed
-    } catch {
-      parsedGradeVotes = []
-    }
-  }
-
-  let parsedPitchBreakdown: PitchDetail[] | undefined = undefined
-  if (Array.isArray(row.pitch_breakdown)) {
-    parsedPitchBreakdown = row.pitch_breakdown
-  } else if (typeof row.pitch_breakdown === 'string' && row.pitch_breakdown.trim()) {
-    try {
-      const parsed = JSON.parse(row.pitch_breakdown)
-      if (Array.isArray(parsed)) parsedPitchBreakdown = parsed
-    } catch {
-      parsedPitchBreakdown = undefined
-    }
-  }
-
-  return {
-    id: row.id,
-    name: row.name || 'Unnamed Route',
-    discipline: (row.discipline as RouteDiscipline) || 'bouldering',
-    grade: row.grade || 'V0',
-    fontGrade: row.font_grade || '',
-    setter: row.setter || 'Community',
-    fa: row.fa || '',
-    faDate: row.fa_date || '',
-    description: row.description || '',
-    imageUrl: row.image_url || undefined,
-    betaVideoUrl: row.beta_video_url || undefined,
-    accessInfo: row.access_info || '',
-    localContact: row.local_contact || '',
-    ascentCount: Number(row.ascent_count || 0),
-    gradeVotes: parsedGradeVotes,
-    markers: parsedMarkers,
-    pitchLength: row.pitch_length || undefined,
-    boltCount: row.bolt_count ? Number(row.bolt_count) : undefined,
-    anchorType: row.anchor_type || undefined,
-    totalPitches: row.total_pitches ? Number(row.total_pitches) : undefined,
-    totalHeight: row.total_height || undefined,
-    pitchBreakdown: parsedPitchBreakdown,
-    descentInfo: row.descent_info || undefined,
-    padRecommendation: row.pad_recommendation || undefined,
-    landingQuality: row.landing_quality || undefined,
-    startType: row.start_type || undefined,
-  }
+  return upsertSector(data)
 }

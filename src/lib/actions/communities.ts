@@ -1,42 +1,47 @@
 'use server'
 
-import { getSupabaseServerClient } from '../supabase'
+import { desc } from 'drizzle-orm'
+import { communities, getDb, isDatabaseConfigured } from '../db'
 import type { Community } from '../mock-data'
 
 /**
  * Fetch all communities from the database.
- * Falls back to mock data if the database is empty.
+ * Falls back to mock data if DATABASE_URL is not configured or the table is empty.
  */
 export async function getCommunities(): Promise<Community[]> {
   try {
-    const supabase = getSupabaseServerClient()
-    const { data, error } = await supabase
-      .from('communities')
-      .select('*')
-      .order('member_count', { ascending: false })
-
-    if (error) throw error
-    if (!data || data.length === 0) {
-      const { communities } = await import('../mock-data')
-      return communities
+    if (!isDatabaseConfigured()) {
+      const { communities: mockCommunities } = await import('../mock-data')
+      return mockCommunities
     }
 
-    return (data as any[]).map((c: any) => ({
+    const db = getDb()
+    const rows = await db
+      .select()
+      .from(communities)
+      .orderBy(desc(communities.memberCount))
+
+    if (!rows || rows.length === 0) {
+      const { communities: mockCommunities } = await import('../mock-data')
+      return mockCommunities
+    }
+
+    return rows.map((c) => ({
       id: c.id,
       name: c.name,
       city: c.city,
       province: c.province,
-      image: c.image,
-      memberCount: c.member_count,
+      image: c.imageUrl,
+      memberCount: c.memberCount,
       homebase: c.homebase,
       description: c.description,
       whatsapp: c.whatsapp,
       instagram: c.instagram,
-      tags: c.tags,
-      members: (c.members || []) as { name: string; avatar: string; role: string }[],
+      tags: c.tags ?? [],
+      members: c.members ?? [],
     }))
   } catch {
-    const { communities } = await import('../mock-data')
-    return communities
+    const { communities: mockCommunities } = await import('../mock-data')
+    return mockCommunities
   }
 }

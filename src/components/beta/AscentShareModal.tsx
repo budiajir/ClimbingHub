@@ -12,8 +12,11 @@ import {
   Sparkles,
   RefreshCw,
   Award,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react'
 import { UserAscent } from '@/lib/user-ascents'
+import { uploadMediaToCloudinary } from '@/lib/upload-client'
 import {
   SendCardData,
   SEND_CARD_RED,
@@ -42,6 +45,8 @@ export default function AscentShareModal({
   const [showTopoLine, setShowTopoLine] = useState(true)
   const [generatedDataUrl, setGeneratedDataUrl] = useState<string>('')
   const [isGenerating, setIsGenerating] = useState(true)
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const [savingStatus, setSavingStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -277,17 +282,22 @@ export default function AscentShareModal({
     renderBadge()
   }, [renderBadge])
 
-  // Photo upload handler
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Photo upload handler (Cloudinary)
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = ev => {
-        if (ev.target?.result) {
-          setPhotoUrl(ev.target.result as string)
-        }
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+    setUploadError(null)
+    setIsUploadingPhoto(true)
+    try {
+      const uploaded = await uploadMediaToCloudinary(file, 'jalur/send-cards')
+      setPhotoUrl(uploaded.secureUrl)
+    } catch (err) {
+      setUploadError(
+        err instanceof Error ? err.message : 'Gagal mengunggah foto ke Cloudinary.'
+      )
+    } finally {
+      setIsUploadingPhoto(false)
+      e.target.value = ''
     }
   }
 
@@ -423,6 +433,13 @@ export default function AscentShareModal({
             )}
           </div>
 
+          {uploadError && (
+            <div className="mb-3 rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2 flex items-start gap-2 text-xs text-red-400">
+              <AlertCircle size={14} className="shrink-0 mt-0.5" />
+              <span>{uploadError}</span>
+            </div>
+          )}
+
           {/* Customization Options */}
           <div className="grid grid-cols-2 gap-2 mb-3">
             {/* 1. Change Photo */}
@@ -434,11 +451,19 @@ export default function AscentShareModal({
               onChange={handlePhotoUpload}
             />
             <button
+              type="button"
+              disabled={isUploadingPhoto}
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-chalk text-xs font-medium transition-all"
+              className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-chalk text-xs font-medium transition-all disabled:opacity-60"
             >
-              <Camera size={14} className="text-[#E6392D]" />
-              <span>{photoUrl ? 'Change Photo' : 'Upload Photo'}</span>
+              {isUploadingPhoto ? (
+                <Loader2 size={14} className="animate-spin text-[#E6392D]" />
+              ) : (
+                <Camera size={14} className="text-[#E6392D]" />
+              )}
+              <span>
+                {isUploadingPhoto ? 'Uploading...' : photoUrl ? 'Change Photo' : 'Upload Photo'}
+              </span>
             </button>
 
             {/* 2. Toggle Topo Line */}

@@ -38,6 +38,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  Heart,
 } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
 import { useAuth } from '@/lib/auth-context'
@@ -738,14 +739,17 @@ export default function TopoCanvas({
             onClick={handleToggleWishlist}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
               wishlisted
-                ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
-                : 'border-[#FF6B00]/50 hover:bg-[#FF6B00]/10 text-[#FF6B00]'
+                ? 'bg-[#F90657]/15 border-[#F90657] text-[#F90657]'
+                : isSandstone
+                ? 'border-[#1a1815]/20 text-[#1a1815] hover:border-[#F90657] hover:text-[#F90657]'
+                : 'border-white/15 text-white hover:border-[#F90657] hover:text-[#F90657]'
             }`}
+            title={wishlisted ? "Remove from Wishlist" : "Save to Wishlist"}
           >
             <Pictogram
-              name={wishlisted ? 'wishlisted' : 'wishlist'}
+              name={wishlisted ? "wishlisted" : "wishlist"}
               size={14}
-              className={wishlisted ? 'text-rose-400' : 'text-[#FF6B00]'}
+              className={wishlisted ? "text-[#F90657]" : "text-current"}
             />
             <span>{wishlisted ? 'Wishlisted' : 'Wishlist'}</span>
           </button>

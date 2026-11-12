@@ -22,10 +22,14 @@ import {
   ChevronRight,
   Sliders,
   Lock,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react'
 import { ascentColors, AscentType, gradeColors } from '@/lib/tokens'
 import { TopoMarker } from '@/lib/mock-data'
 import { useAuth } from '@/lib/auth-context'
+import { canvasToJpegFile, uploadMediaToCloudinary } from '@/lib/upload-client'
+import { saveAscentLogAction } from '@/lib/actions/media'
 import SendCard, { SendCardData } from './SendCard'
 
 export interface LogAscentSubmitData {
@@ -128,6 +132,8 @@ export default function LogAscentModal({
   const [isVideo, setIsVideo] = useState(false)
   const [hasCustomPhoto, setHasCustomPhoto] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false)
+  const [mediaUploadError, setMediaUploadError] = useState<string | null>(null)
   const [showAdvancedSpecs, setShowAdvancedSpecs] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -148,54 +154,70 @@ export default function LogAscentModal({
     }
   }
 
-  // File Upload Handler
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // File Upload Handler (Cloudinary media + video frame thumbnail)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.type.startsWith('video/')) {
-      setIsVideo(true)
-      const url = URL.createObjectURL(file)
-      setVideoUrl(url)
+    setMediaUploadError(null)
+    setIsUploadingMedia(true)
 
-      // Capture frame from video for send card
-      const video = document.createElement('video')
-      video.crossOrigin = 'anonymous'
-      video.src = url
-      video.muted = true
-      video.playsInline = true
-      video.currentTime = 0.5
+    try {
+      if (file.type.startsWith('video/')) {
+        setIsVideo(true)
+        const uploadedVideo = await uploadMediaToCloudinary(file, 'jalur/ascent-videos', {
+          allowVideo: true,
+        })
+        setVideoUrl(uploadedVideo.secureUrl)
 
-      video.onloadeddata = () => {
-        video.currentTime = Math.min(1.0, (video.duration || 2) / 2)
-      }
-
-      video.onseeked = () => {
+        const objectUrl = URL.createObjectURL(file)
         try {
-          const c = document.createElement('canvas')
-          c.width = video.videoWidth || 720
-          c.height = video.videoHeight || 1280
-          const ctx = c.getContext('2d')
-          if (ctx) {
-            ctx.drawImage(video, 0, 0, c.width, c.height)
-            const thumbUrl = c.toDataURL('image/jpeg', 0.85)
-            setPhotoUrl(thumbUrl)
-            setHasCustomPhoto(true)
-          }
-        } catch (err) {
-          console.warn('Could not extract video frame, keeping default photo:', err)
-        }
-      }
-    } else {
-      setIsVideo(false)
-      const reader = new FileReader()
-      reader.onload = ev => {
-        if (ev.target?.result) {
-          setPhotoUrl(ev.target.result as string)
+          const thumbFile = await new Promise<File>((resolve, reject) => {
+            const video = document.createElement('video')
+            video.src = objectUrl
+            video.muted = true
+            video.playsInline = true
+            video.onloadeddata = () => {
+              video.currentTime = Math.min(1.0, (video.duration || 2) / 2)
+            }
+            video.onseeked = async () => {
+              try {
+                const c = document.createElement('canvas')
+                c.width = video.videoWidth || 720
+                c.height = video.videoHeight || 1280
+                const ctx = c.getContext('2d')
+                if (!ctx) throw new Error('Canvas tidak tersedia')
+                ctx.drawImage(video, 0, 0, c.width, c.height)
+                const jpeg = await canvasToJpegFile(c, 'video-thumb.jpg')
+                resolve(jpeg)
+              } catch (err) {
+                reject(err)
+              }
+            }
+            video.onerror = () => reject(new Error('Gagal membaca frame video'))
+          })
+
+          const uploadedThumb = await uploadMediaToCloudinary(thumbFile, 'jalur/send-cards')
+          setPhotoUrl(uploadedThumb.secureUrl)
           setHasCustomPhoto(true)
+        } catch (thumbErr) {
+          console.warn('Could not upload video frame thumbnail:', thumbErr)
+        } finally {
+          URL.revokeObjectURL(objectUrl)
         }
+      } else {
+        setIsVideo(false)
+        const uploadedPhoto = await uploadMediaToCloudinary(file, 'jalur/send-cards')
+        setPhotoUrl(uploadedPhoto.secureUrl)
+        setHasCustomPhoto(true)
       }
-      reader.readAsDataURL(file)
+    } catch (err) {
+      setMediaUploadError(
+        err instanceof Error ? err.message : 'Gagal mengunggah media ke Cloudinary.'
+      )
+    } finally {
+      setIsUploadingMedia(false)
+      e.target.value = ''
     }
   }
 
@@ -221,14 +243,39 @@ export default function LogAscentModal({
     photographer,
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (isUploadingMedia) return
     setSubmitted(true)
+
+    const resolvedImageUrl = photoUrl || defaultImageUrl || undefined
+    if (problemId) {
+      await saveAscentLogAction({
+        routeId: problemId,
+        ascentType: selectedType,
+        gradeOpinion: gradeVote,
+        notes: note,
+        imageUrl: resolvedImageUrl,
+        videoUrl: videoUrl || undefined,
+        climberName,
+        attempts,
+        duration,
+        belayer,
+        photographer,
+        wallAngle,
+        wallHeight,
+        boltsCount,
+        locationLabel: location,
+        provinceCountry,
+        markers,
+      })
+    }
+
     setTimeout(() => {
       onSubmit({
         type: selectedType,
         gradeVote,
         note,
-        photoUrl: photoUrl || defaultImageUrl,
+        photoUrl: resolvedImageUrl,
         videoUrl: videoUrl || undefined,
         climberName,
         attempts,
@@ -402,12 +449,29 @@ export default function LogAscentModal({
                     />
                     <button
                       type="button"
+                      disabled={isUploadingMedia}
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-3 py-1.5 rounded-lg bg-[#E6392D]/15 hover:bg-[#E6392D]/25 text-[#E6392D] border border-[#E6392D]/30 text-xs font-bold transition-colors"
+                      className="px-3 py-1.5 rounded-lg bg-[#E6392D]/15 hover:bg-[#E6392D]/25 text-[#E6392D] border border-[#E6392D]/30 text-xs font-bold transition-colors flex items-center gap-1.5 disabled:opacity-60"
                     >
-                      {hasCustomPhoto ? (isVideo ? 'Change Video' : 'Change Photo') : '+ Upload Action Photo'}
+                      {isUploadingMedia && <Loader2 size={12} className="animate-spin" />}
+                      <span>
+                        {isUploadingMedia
+                          ? 'Uploading...'
+                          : hasCustomPhoto
+                            ? isVideo
+                              ? 'Change Video'
+                              : 'Change Photo'
+                            : '+ Upload Action Photo'}
+                      </span>
                     </button>
                   </div>
+
+                  {mediaUploadError && (
+                    <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2 flex items-start gap-2 text-[11px] text-red-400">
+                      <AlertCircle size={13} className="shrink-0 mt-0.5" />
+                      <span>{mediaUploadError}</span>
+                    </div>
+                  )}
 
                   {/* Photo with Overlay Preview */}
                   <div className="relative h-44 w-full rounded-xl overflow-hidden border border-white/10 group bg-stone-900">

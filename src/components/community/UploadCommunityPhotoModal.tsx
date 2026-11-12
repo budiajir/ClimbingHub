@@ -2,11 +2,13 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Camera, Upload, CheckCircle2, Image as ImageIcon } from "lucide-react";
+import { X, Camera, Upload, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { Community } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
 import { useTheme } from "@/lib/theme-context";
 import { saveCommunityPhoto } from "@/lib/community-store";
+import { uploadMediaToCloudinary } from "@/lib/upload-client";
+import { saveCommunityPhotoAction } from "@/lib/actions/media";
 
 interface UploadCommunityPhotoModalProps {
   isOpen: boolean;
@@ -26,51 +28,84 @@ export default function UploadCommunityPhotoModal({
   const isSandstone = theme === "sandstone";
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [photoDataUrl, setPhotoDataUrl] = useState<string>("");
+  const [photoUrl, setPhotoUrl] = useState<string>("");
   const [caption, setCaption] = useState("");
   const [uploaderName, setUploaderName] = useState(user?.name || "Climber");
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadedSuccess, setUploadedSuccess] = useState(false);
 
   if (!isOpen || !community) return null;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result as string;
-      setPhotoDataUrl(result);
-    };
-    reader.readAsDataURL(file);
+    setUploadError(null);
+    setIsUploadingFile(true);
+    try {
+      const uploaded = await uploadMediaToCloudinary(file, "jalur/community");
+      setPhotoUrl(uploaded.secureUrl);
+    } catch (err) {
+      setUploadError(
+        err instanceof Error ? err.message : "Gagal mengunggah foto ke Cloudinary."
+      );
+    } finally {
+      setIsUploadingFile(false);
+      e.target.value = "";
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!photoDataUrl) return;
+    if (!photoUrl || isUploadingFile) return;
 
-    setIsUploading(true);
+    setUploadError(null);
+    setIsSubmitting(true);
 
-    setTimeout(() => {
-      saveCommunityPhoto(community.id, {
-        url: photoDataUrl,
-        caption: caption.trim() || "Climbing session with " + community.name,
-        uploaderName: uploaderName.trim() || user?.name || "Climber",
-        uploaderAvatar: user?.avatar || "https://i.pravatar.cc/60?img=8",
+    try {
+      const resolvedCaption = caption.trim() || "Climbing session with " + community.name;
+      const resolvedUploader = uploaderName.trim() || user?.name || "Climber";
+      const resolvedAvatar = user?.avatar || "https://i.pravatar.cc/60?img=8";
+
+      const res = await saveCommunityPhotoAction({
+        communityId: community.id,
+        imageUrl: photoUrl,
+        caption: resolvedCaption,
+        uploaderName: resolvedUploader,
+        uploaderAvatarUrl: resolvedAvatar,
       });
 
-      setIsUploading(false);
+      if (!res.ok) {
+        setUploadError(res.error || "Gagal menyimpan foto komunitas.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      saveCommunityPhoto(community.id, {
+        url: photoUrl,
+        caption: resolvedCaption,
+        uploaderName: resolvedUploader,
+        uploaderAvatar: resolvedAvatar,
+      });
+
+      setIsSubmitting(false);
       setUploadedSuccess(true);
 
       setTimeout(() => {
         setUploadedSuccess(false);
-        setPhotoDataUrl("");
+        setPhotoUrl("");
         setCaption("");
         onPhotoUploaded();
         onClose();
-      }, 1200);
-    }, 400);
+      }, 1100);
+    } catch (err) {
+      setUploadError(
+        err instanceof Error ? err.message : "Gagal mempublikasikan postingan."
+      );
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -119,6 +154,7 @@ export default function UploadCommunityPhotoModal({
             </div>
 
             <button
+              type="button"
               onClick={onClose}
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
                 isSandstone ? "hover:bg-[#1a1815]/10 text-[#1a1815]" : "hover:bg-white/10 text-chalk"
@@ -139,11 +175,18 @@ export default function UploadCommunityPhotoModal({
               </motion.div>
               <h4 className="font-bold text-base">Post Uploaded Successfully!</h4>
               <p className="text-xs opacity-75 max-w-xs mx-auto">
-                Your climbing moment has been added to <b>{community.name}</b>'s gallery.
+                Your climbing moment has been added to <b>{community.name}</b>&apos;s gallery.
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4 pt-4 text-xs">
+              {uploadError && (
+                <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2.5 flex items-start gap-2 text-xs text-red-400">
+                  <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                  <span>{uploadError}</span>
+                </div>
+              )}
+
               {/* Photo Input / Picker Area */}
               <div>
                 <input
@@ -154,24 +197,26 @@ export default function UploadCommunityPhotoModal({
                   className="hidden"
                 />
 
-                {photoDataUrl ? (
+                {photoUrl ? (
                   <div className="relative rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 bg-black/40 group">
                     <img
-                      src={photoDataUrl}
+                      src={photoUrl}
                       alt="Preview"
                       className="w-full h-52 object-cover"
                     />
                     <button
                       type="button"
+                      disabled={isUploadingFile}
                       onClick={() => fileInputRef.current?.click()}
-                      className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/75 backdrop-blur-sm text-white text-[11px] font-bold border border-white/20 hover:bg-black transition-colors"
+                      className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/75 backdrop-blur-sm text-white text-[11px] font-bold border border-white/20 hover:bg-black transition-colors flex items-center gap-1.5 disabled:opacity-60"
                     >
-                      Change Photo
+                      {isUploadingFile && <Loader2 size={12} className="animate-spin" />}
+                      <span>{isUploadingFile ? "Uploading..." : "Change Photo"}</span>
                     </button>
                   </div>
                 ) : (
                   <div
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => !isUploadingFile && fileInputRef.current?.click()}
                     className={`w-full h-44 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
                       isSandstone
                         ? "border-[#1a1815]/30 hover:border-[#1a1815] bg-black/5"
@@ -185,11 +230,19 @@ export default function UploadCommunityPhotoModal({
                           : "border-white/15 bg-white/5 text-slate-ash"
                       }`}
                     >
-                      <Upload size={22} />
+                      {isUploadingFile ? (
+                        <Loader2 size={22} className="animate-spin text-lime" />
+                      ) : (
+                        <Upload size={22} />
+                      )}
                     </div>
                     <div className="text-center px-4">
-                      <span className="font-bold text-xs block">Choose Photo from Gallery</span>
-                      <span className="text-[10px] opacity-60 block mt-0.5">Supports JPG, PNG, WEBP formats</span>
+                      <span className="font-bold text-xs block">
+                        {isUploadingFile ? "Uploading to Cloudinary..." : "Choose Photo from Gallery"}
+                      </span>
+                      <span className="text-[10px] opacity-60 block mt-0.5">
+                        Auto-optimized JPG, PNG, WEBP via Cloudinary
+                      </span>
                     </div>
                   </div>
                 )}
@@ -236,17 +289,17 @@ export default function UploadCommunityPhotoModal({
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={!photoDataUrl || isUploading}
+                disabled={!photoUrl || isUploadingFile || isSubmitting}
                 className={`w-full py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all touch-ripple ${
-                  !photoDataUrl
+                  !photoUrl || isUploadingFile || isSubmitting
                     ? "opacity-50 cursor-not-allowed border border-black/10 dark:border-white/10"
                     : isSandstone
                     ? "bg-[#1a1815] text-[#ded3be] hover:opacity-90 border border-[#1a1815]"
                     : "bg-lime text-granite hover:bg-lime-dim shadow-lime-glow-sm"
                 }`}
               >
-                <Upload size={16} />
-                <span>{isUploading ? "Uploading Post..." : "Publish Post to Gallery"}</span>
+                {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                <span>{isSubmitting ? "Publishing Post..." : "Publish Post to Gallery"}</span>
               </button>
             </form>
           )}

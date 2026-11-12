@@ -1,15 +1,16 @@
+import { desc } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/lib/supabase'
+import { getDb, isDatabaseConfigured, waitlist } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 }
 
-function jsonResponse(data: any, init?: ResponseInit) {
+function jsonResponse(data: unknown, init?: ResponseInit) {
   return NextResponse.json(data, {
     ...init,
     headers: {
@@ -17,6 +18,11 @@ function jsonResponse(data: any, init?: ResponseInit) {
       ...(init?.headers || {}),
     },
   })
+}
+
+function isUniqueViolation(err: unknown): boolean {
+  const e = err as { code?: string; cause?: { code?: string } } | null
+  return e?.code === '23505' || e?.cause?.code === '23505'
 }
 
 export async function OPTIONS() {
@@ -47,79 +53,42 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = getSupabaseServerClient()
+    if (!isDatabaseConfigured()) {
+      return jsonResponse(
+        { success: false, message: 'Database connection is not configured yet.' },
+        { status: 503 }
+      )
+    }
 
-    // 1. Try to insert into dedicated 'waitlist' table first
-    const { data: waitlistData, error: waitlistError } = await supabase
-      .from('waitlist')
-      .insert({
+    const db = getDb()
+    try {
+      await db.insert(waitlist).values({
         name,
         email,
         source: 'jalur.world',
       })
-      .select()
 
-    if (!waitlistError && waitlistData) {
       return jsonResponse({
         success: true,
         message: 'Thank you! You have been successfully added to the Jalur beta testing waitlist.',
         destination: 'waitlist',
       })
+    } catch (insertErr) {
+      if (isUniqueViolation(insertErr)) {
+        return jsonResponse({
+          success: true,
+          isExisting: true,
+          message: 'Your email is already registered on the Jalur beta testing waitlist!',
+          destination: 'waitlist',
+        })
+      }
+      throw insertErr
     }
-
-    // If waitlist table exists and returned duplicate key error (code 23505)
-    if (waitlistError && waitlistError.code === '23505') {
-      return jsonResponse({
-        success: true,
-        isExisting: true,
-        message: 'Your email is already registered on the Jalur beta testing waitlist!',
-        destination: 'waitlist',
-      })
-    }
-
-    // 2. Fallback to existing 'users' table with role 'guest' & grade_max tag
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .insert({
-        name,
-        email,
-        role: 'guest',
-        grade_max: 'Beta Tester (jalur.world)',
-        ascents_count: 0,
-      })
-      .select()
-
-    if (!userError && userData) {
-      return jsonResponse({
-        success: true,
-        message: 'Thank you! You have been successfully added to the Jalur beta testing waitlist.',
-        destination: 'users',
-      })
-    }
-
-    // If users table returned unique email violation (code 23505)
-    if (userError && userError.code === '23505') {
-      return jsonResponse({
-        success: true,
-        isExisting: true,
-        message: 'Your email is already registered in our system!',
-        destination: 'users',
-      })
-    }
-
-    // If both failed with another error, report failure
-    console.error('Waitlist submission error:', { waitlistError, userError })
-    return jsonResponse(
-      {
-        success: false,
-        message: userError?.message || waitlistError?.message || 'Failed to save data to database.',
-      },
-      { status: 500 }
-    )
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'An error occurred on the server.'
     console.error('API Waitlist error:', err)
     return jsonResponse(
-      { success: false, message: err?.message || 'An error occurred on the server.' },
+      { success: false, message },
       { status: 500 }
     )
   }
@@ -127,54 +96,37 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const supabase = getSupabaseServerClient()
-
-    // Try fetching from waitlist table first
-    const { data: waitlistItems, error: waitlistErr } = await supabase
-      .from('waitlist')
-      .select('id, name, email, created_at, source')
-      .order('created_at', { ascending: false })
-
-    if (!waitlistErr && waitlistItems) {
+    if (!isDatabaseConfigured()) {
       return jsonResponse({
         success: true,
-        sourceTable: 'waitlist',
-        total: waitlistItems.length,
-        items: waitlistItems,
+        sourceTable: 'unconfigured',
+        total: 0,
+        items: [],
       })
     }
 
-    // Fallback: fetch from users table where role is 'guest' or grade_max contains 'Beta'
-    const { data: guestUsers, error: userErr } = await supabase
-      .from('users')
-      .select('id, name, email, created_at, grade_max')
-      .or('role.eq.guest,grade_max.ilike.%Beta%')
-      .order('created_at', { ascending: false })
-
-    if (!userErr && guestUsers) {
-      return jsonResponse({
-        success: true,
-        sourceTable: 'users',
-        total: guestUsers.length,
-        items: guestUsers.map((u: any) => ({
-          id: u.id,
-          name: u.name,
-          email: u.email,
-          created_at: u.created_at,
-          source: u.grade_max || 'jalur.world',
-        })),
+    const db = getDb()
+    const items = await db
+      .select({
+        id: waitlist.id,
+        name: waitlist.name,
+        email: waitlist.email,
+        created_at: waitlist.createdAt,
+        source: waitlist.source,
       })
-    }
+      .from(waitlist)
+      .orderBy(desc(waitlist.createdAt))
 
     return jsonResponse({
-      success: false,
-      message: 'No registered waitlist entries found.',
-      total: 0,
-      items: [],
+      success: true,
+      sourceTable: 'waitlist',
+      total: items.length,
+      items,
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to fetch waitlist entries.'
     return jsonResponse(
-      { success: false, message: err?.message || 'Failed to fetch waitlist entries.' },
+      { success: false, message },
       { status: 500 }
     )
   }

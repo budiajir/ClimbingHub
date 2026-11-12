@@ -24,6 +24,7 @@ import {
   Lock,
   Bookmark,
   Save,
+  Loader2,
 } from 'lucide-react'
 import { RouteDiscipline, Problem, PitchDetail, TopoMarker, CragRegion, cragRegions } from '@/lib/mock-data'
 import { normalizeCragName } from '@/lib/use-data'
@@ -32,6 +33,7 @@ import { isGrantedRouteSetter } from '@/lib/permissions'
 import ShareLinkModal from '@/components/common/ShareLinkModal'
 import { useAuth } from '@/lib/auth-context'
 import { saveDraftProblem } from '@/lib/draft-problems-store'
+import { uploadMediaToCloudinary } from '@/lib/upload-client'
 
 export interface NewRegionData {
   id: string
@@ -151,6 +153,8 @@ export default function AddRouteModal({
   // PHOTO & TOPO DRAWING STATE
   const [photoSource, setPhotoSource] = useState<'sector' | 'upload' | 'url'>('sector')
   const [uploadedImage, setUploadedImage] = useState<string>('')
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+  const [photoUploadError, setPhotoUploadError] = useState<string | null>(null)
   const [imageUrlInput, setImageUrlInput] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -204,18 +208,25 @@ export default function AddRouteModal({
     }, 1600)
   }
 
-  // File upload handler (reads image to base64 Data URL)
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // File upload handler (uploads photo to Cloudinary and stores secure_url)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = event => {
-        if (event.target?.result) {
-          setUploadedImage(event.target.result as string)
-          setPhotoSource('upload')
-        }
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+
+    setPhotoUploadError(null)
+    setIsUploadingPhoto(true)
+
+    try {
+      const uploaded = await uploadMediaToCloudinary(file, 'jalur/routes')
+      setUploadedImage(uploaded.secureUrl)
+      setPhotoSource('upload')
+    } catch (err) {
+      setPhotoUploadError(
+        err instanceof Error ? err.message : 'Gagal mengunggah foto jalur ke Cloudinary.'
+      )
+    } finally {
+      setIsUploadingPhoto(false)
+      e.target.value = ''
     }
   }
 
@@ -1181,18 +1192,27 @@ export default function AddRouteModal({
 
                     <button
                       type="button"
+                      disabled={isUploadingPhoto}
                       onClick={() => {
                         setPhotoSource('upload')
                         fileInputRef.current?.click()
                       }}
-                      className={`px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 border transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 border transition-all disabled:opacity-60 ${
                         photoSource === 'upload'
                           ? 'bg-lime/20 border-lime text-lime font-bold'
                           : 'bg-crag border-white/5 text-slate-ash hover:text-chalk'
                       }`}
                     >
-                      <Upload size={13} />
-                      <span>Upload File ({uploadedImage ? 'Uploaded' : 'Choose Photo'})</span>
+                      {isUploadingPhoto ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : (
+                        <Upload size={13} />
+                      )}
+                      <span>
+                        {isUploadingPhoto
+                          ? 'Uploading...'
+                          : `Upload File (${uploadedImage ? 'Uploaded' : 'Choose Photo'})`}
+                      </span>
                     </button>
 
                     <button
@@ -1207,6 +1227,13 @@ export default function AddRouteModal({
                       <span>Image URL</span>
                     </button>
                   </div>
+
+                  {photoUploadError && (
+                    <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2 flex items-start gap-2 text-[11px] text-red-400">
+                      <AlertCircle size={13} className="shrink-0 mt-0.5" />
+                      <span>{photoUploadError}</span>
+                    </div>
+                  )}
 
                   {/* Hidden File Input */}
                   <input

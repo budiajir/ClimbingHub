@@ -1,69 +1,113 @@
 'use server'
 
-import { getSupabaseServerClient } from '../supabase'
-import type { CragRegion, Problem, RouteDiscipline, TopoMarker, PitchDetail } from '../mock-data'
+import { asc, desc, eq, inArray } from 'drizzle-orm'
+import { cragRegions, getDb, isDatabaseConfigured, routes, sectors } from '../db'
+import { normalizeIsoDate, normalizeRouteDiscipline } from '../problem-helpers'
+import type { CragRegion, PitchDetail, Problem, RouteDiscipline, TopoMarker } from '../mock-data'
+
+function mapRouteRow(row: typeof routes.$inferSelect): Problem {
+  const parsedMarkers: TopoMarker[] = Array.isArray(row.markers)
+    ? row.markers.map((m, i) => ({
+        id: m?.id || `m-${i}`,
+        x: typeof m?.x === 'number' ? m.x : Number(m?.x) || 50,
+        y: typeof m?.y === 'number' ? m.y : Number(m?.y) || 50,
+        type: (m?.type === 'H' ? 'B' : m?.type) || 'B',
+        label: m?.label || '',
+      }))
+    : []
+
+  return {
+    id: row.id,
+    name: row.name || 'Unnamed Route',
+    discipline: (row.discipline as RouteDiscipline) || 'bouldering',
+    grade: row.grade || 'V0',
+    fontGrade: row.fontGrade || '',
+    setter: row.setter || 'Community',
+    fa: row.fa || '',
+    faDate: row.faDate || '',
+    description: row.description || '',
+    imageUrl: row.imageUrl || undefined,
+    betaVideoUrl: row.betaVideoUrl || undefined,
+    accessInfo: row.accessInfo || '',
+    localContact: row.localContact || '',
+    ascentCount: Number(row.ascentCount || 0),
+    gradeVotes: Array.isArray(row.gradeVotes) ? row.gradeVotes : [],
+    markers: parsedMarkers,
+    pitchLength: row.pitchLength || undefined,
+    boltCount: row.boltCount ?? undefined,
+    anchorType: row.anchorType || undefined,
+    totalPitches: row.totalPitches ?? undefined,
+    totalHeight: row.totalHeight || undefined,
+    pitchBreakdown: (row.pitchBreakdown || undefined) as PitchDetail[] | undefined,
+    descentInfo: row.descentInfo || undefined,
+    padRecommendation: row.padRecommendation || undefined,
+    landingQuality: row.landingQuality || undefined,
+    startType:
+      row.startType === 'Sit Start (SS)' || row.startType === 'Stand Start'
+        ? row.startType
+        : undefined,
+  }
+}
+
+function assembleCragRegion(
+  crag: typeof cragRegions.$inferSelect,
+  sectorRows: (typeof sectors.$inferSelect)[],
+  routeRows: (typeof routes.$inferSelect)[]
+): CragRegion {
+  const mappedSectors = sectorRows
+    .filter((s) => s.cragId === crag.id)
+    .map((sector) => ({
+      id: sector.id,
+      name: sector.name || 'Sector',
+      image: sector.imageUrl || crag.imageUrl || '',
+      description: sector.description || undefined,
+      problems: routeRows.filter((r) => r.sectorId === sector.id).map(mapRouteRow),
+    }))
+
+  return {
+    id: crag.id,
+    name: crag.name,
+    province: crag.province,
+    image: crag.imageUrl,
+    description: crag.description || undefined,
+    coordinates: crag.coordinates || undefined,
+    gmapsUrl: crag.gmapsUrl || undefined,
+    rockType: crag.rockType || undefined,
+    sectorCount: crag.sectorCount ?? mappedSectors.length,
+    problemCount:
+      crag.problemCount ??
+      mappedSectors.reduce((acc, s) => acc + (s.problems?.length || 0), 0),
+    sectors: mappedSectors,
+  }
+}
 
 /**
  * Fetch all crag regions with nested sectors and routes.
- * Falls back to mock data if the database is empty.
+ * Falls back to mock data if DATABASE_URL is missing or the DB has no crag rows yet.
  */
 export async function getCragRegions(): Promise<CragRegion[]> {
   try {
-    const supabase = getSupabaseServerClient()
-
-    // Fetch crag regions
-    const { data: crags, error: cragError } = await supabase
-      .from('crag_regions')
-      .select('*')
-      .order('name')
-
-    if (cragError) throw cragError
-    if (!crags || crags.length === 0) {
-      const { cragRegions } = await import('../mock-data')
-      return cragRegions
+    if (!isDatabaseConfigured()) {
+      const { cragRegions: mockCrags } = await import('../mock-data')
+      return mockCrags
     }
 
-    // Fetch all sectors
-    const { data: sectors, error: sectorError } = await supabase
-      .from('sectors')
-      .select('*')
+    const db = getDb()
+    const [cragRows, sectorRows, routeRows] = await Promise.all([
+      db.select().from(cragRegions).orderBy(asc(cragRegions.name)),
+      db.select().from(sectors),
+      db.select().from(routes).orderBy(desc(routes.ascentCount)),
+    ])
 
-    if (sectorError) throw sectorError
+    if (!cragRows || cragRows.length === 0) {
+      const { cragRegions: mockCrags } = await import('../mock-data')
+      return mockCrags
+    }
 
-    // Fetch all routes
-    const { data: routes, error: routeError } = await supabase
-      .from('routes')
-      .select('*')
-      .order('ascent_count', { ascending: false })
-
-    if (routeError) throw routeError
-
-    // Assemble nested structure
-    return (crags as any[]).map((crag: any) => {
-      const cragSectors = ((sectors || []) as any[])
-        .filter((s: any) => s.crag_id === crag.id)
-        .map((sector: any) => ({
-          id: sector.id,
-          name: sector.name,
-          image: sector.image,
-          problems: ((routes || []) as any[])
-            .filter((r: any) => r.sector_id === sector.id)
-            .map(mapRouteRow),
-        }))
-
-      return {
-        id: crag.id,
-        name: crag.name,
-        province: crag.province,
-        image: crag.image,
-        sectorCount: crag.sector_count,
-        problemCount: crag.problem_count,
-        sectors: cragSectors,
-      }
-    })
+    return cragRows.map((crag) => assembleCragRegion(crag, sectorRows, routeRows))
   } catch {
-    const { cragRegions } = await import('../mock-data')
-    return cragRegions
+    const { cragRegions: mockCrags } = await import('../mock-data')
+    return mockCrags
   }
 }
 
@@ -72,58 +116,36 @@ export async function getCragRegions(): Promise<CragRegion[]> {
  */
 export async function getCragWithSectors(id: string): Promise<CragRegion | null> {
   try {
-    const supabase = getSupabaseServerClient()
-
-    const { data: cragData, error: cragError } = await supabase
-      .from('crag_regions')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    if (cragError) throw cragError
-    if (!cragData) return null
-    const crag = cragData as any
-
-    const { data: sectors } = await supabase
-      .from('sectors')
-      .select('*')
-      .eq('crag_id', id)
-
-    const sectorList = (sectors || []) as any[]
-    const sectorIds = sectorList.map((s: any) => s.id)
-
-    const { data: routes } = await supabase
-      .from('routes')
-      .select('*')
-      .in('sector_id', sectorIds.length > 0 ? sectorIds : ['__none__'])
-      .order('ascent_count', { ascending: false })
-
-    const routeList = (routes || []) as any[]
-
-    return {
-      id: crag.id,
-      name: crag.name,
-      province: crag.province,
-      image: crag.image,
-      sectorCount: crag.sector_count,
-      problemCount: crag.problem_count,
-      sectors: sectorList.map((sector: any) => ({
-        id: sector.id,
-        name: sector.name,
-        image: sector.image,
-        problems: routeList
-          .filter((r: any) => r.sector_id === sector.id)
-          .map(mapRouteRow),
-      })),
+    if (!isDatabaseConfigured()) {
+      const { cragRegions: mockCrags } = await import('../mock-data')
+      return mockCrags.find((c) => c.id === id) ?? null
     }
+
+    const db = getDb()
+    const [crag] = await db.select().from(cragRegions).where(eq(cragRegions.id, id)).limit(1)
+    if (!crag) return null
+
+    const sectorRows = await db.select().from(sectors).where(eq(sectors.cragId, id))
+    const sectorIds = sectorRows.map((s) => s.id)
+
+    const routeRows =
+      sectorIds.length > 0
+        ? await db
+            .select()
+            .from(routes)
+            .where(inArray(routes.sectorId, sectorIds))
+            .orderBy(desc(routes.ascentCount))
+        : []
+
+    return assembleCragRegion(crag, sectorRows, routeRows)
   } catch {
-    const { cragRegions } = await import('../mock-data')
-    return cragRegions.find((c) => c.id === id) ?? null
+    const { cragRegions: mockCrags } = await import('../mock-data')
+    return mockCrags.find((c) => c.id === id) ?? null
   }
 }
 
 /**
- * Create a new route (super_admin only — enforce on caller).
+ * Create a new route in PostgreSQL via Drizzle ORM.
  */
 export async function createRoute(data: {
   sectorId: string
@@ -139,55 +161,50 @@ export async function createRoute(data: {
   accessInfo?: string
   localContact?: string
   markers?: TopoMarker[]
-  // Sport
   pitchLength?: string
   boltCount?: number
   anchorType?: string
-  // Multi pitch
   totalPitches?: number
   totalHeight?: string
   pitchBreakdown?: PitchDetail[]
   descentInfo?: string
-  // Bouldering
   padRecommendation?: string
   landingQuality?: string
   startType?: string
 }): Promise<{ id: string } | { error: string }> {
   try {
-    const supabase = getSupabaseServerClient()
-
+    const db = getDb()
     const routeId = `route-${Date.now()}`
 
-    const { error } = await supabase.from('routes').insert({
+    await db.insert(routes).values({
       id: routeId,
-      sector_id: data.sectorId,
+      sectorId: data.sectorId,
       name: data.name,
-      discipline: data.discipline,
+      discipline: normalizeRouteDiscipline(data.discipline),
       grade: data.grade,
-      font_grade: data.fontGrade || '',
+      fontGrade: data.fontGrade || '',
       setter: data.setter || '',
       fa: data.fa || '',
-      fa_date: data.faDate || null,
+      faDate: normalizeIsoDate(data.faDate),
       description: data.description || '',
-      image_url: data.imageUrl || null,
-      access_info: data.accessInfo || '',
-      local_contact: data.localContact || '',
-      ascent_count: 0,
-      grade_votes: [],
-      markers: (data.markers || []) as unknown as Record<string, unknown>[],
-      pitch_length: data.pitchLength || null,
-      bolt_count: data.boltCount || null,
-      anchor_type: data.anchorType || null,
-      total_pitches: data.totalPitches || null,
-      total_height: data.totalHeight || null,
-      pitch_breakdown: (data.pitchBreakdown || null) as unknown as Record<string, unknown>[] | null,
-      descent_info: data.descentInfo || null,
-      pad_recommendation: data.padRecommendation || null,
-      landing_quality: data.landingQuality || null,
-      start_type: data.startType || null,
+      imageUrl: data.imageUrl || null,
+      accessInfo: data.accessInfo || '',
+      localContact: data.localContact || '',
+      ascentCount: 0,
+      gradeVotes: [],
+      markers: data.markers || [],
+      pitchLength: data.pitchLength || null,
+      boltCount: data.boltCount ?? null,
+      anchorType: data.anchorType || null,
+      totalPitches: data.totalPitches ?? null,
+      totalHeight: data.totalHeight || null,
+      pitchBreakdown: data.pitchBreakdown || null,
+      descentInfo: data.descentInfo || null,
+      padRecommendation: data.padRecommendation || null,
+      landingQuality: data.landingQuality || null,
+      startType: data.startType || null,
     })
 
-    if (error) throw error
     return { id: routeId }
   } catch (err) {
     console.error('createRoute error:', err)
@@ -196,39 +213,63 @@ export async function createRoute(data: {
 }
 
 /**
- * Map a database route row to the client-side Problem interface.
+ * Insert a crag region if it does not already exist.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapRouteRow(row: any): Problem {
-  return {
-    id: row.id,
-    name: row.name,
-    discipline: row.discipline as RouteDiscipline,
-    grade: row.grade,
-    fontGrade: row.font_grade,
-    setter: row.setter,
-    fa: row.fa,
-    faDate: row.fa_date || '',
-    description: row.description,
-    imageUrl: row.image_url || undefined,
-    betaVideoUrl: row.beta_video_url || undefined,
-    accessInfo: row.access_info,
-    localContact: row.local_contact,
-    ascentCount: row.ascent_count,
-    gradeVotes: (row.grade_votes || []) as { grade: string; votes: number }[],
-    markers: (row.markers || []) as TopoMarker[],
-    // Sport
-    pitchLength: row.pitch_length || undefined,
-    boltCount: row.bolt_count || undefined,
-    anchorType: row.anchor_type || undefined,
-    // Multi pitch
-    totalPitches: row.total_pitches || undefined,
-    totalHeight: row.total_height || undefined,
-    pitchBreakdown: (row.pitch_breakdown || undefined) as PitchDetail[] | undefined,
-    descentInfo: row.descent_info || undefined,
-    // Bouldering
-    padRecommendation: row.pad_recommendation || undefined,
-    landingQuality: row.landing_quality || undefined,
-    startType: row.start_type || undefined,
+export async function upsertCragRegion(data: {
+  id: string
+  name: string
+  province: string
+  image?: string
+}): Promise<{ id: string } | { error: string }> {
+  try {
+    const db = getDb()
+    await db
+      .insert(cragRegions)
+      .values({
+        id: data.id,
+        name: data.name,
+        province: data.province,
+        imageUrl:
+          data.image ||
+          'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
+        sectorCount: 1,
+        problemCount: 1,
+      })
+      .onConflictDoNothing({ target: cragRegions.id })
+
+    return { id: data.id }
+  } catch (err) {
+    console.error('upsertCragRegion error:', err)
+    return { error: 'Failed to save new crag.' }
+  }
+}
+
+/**
+ * Insert a sector if it does not already exist.
+ */
+export async function upsertSector(data: {
+  id: string
+  cragId: string
+  name: string
+  image?: string
+}): Promise<{ id: string } | { error: string }> {
+  try {
+    const db = getDb()
+    await db
+      .insert(sectors)
+      .values({
+        id: data.id,
+        cragId: data.cragId,
+        name: data.name,
+        imageUrl:
+          data.image ||
+          'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
+      })
+      .onConflictDoNothing({ target: sectors.id })
+
+    return { id: data.id }
+  } catch (err) {
+    console.error('upsertSector error:', err)
+    return { error: 'Failed to save new sector.' }
   }
 }

@@ -24,7 +24,6 @@ import {
   UserCheck,
   Check,
   Award,
-  Settings as SettingsIcon,
   ChevronRight,
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -287,29 +286,6 @@ export default function TopBar({
                   </div>
                 </form>
 
-                {/* 2.5 QUICK LINK: SETTINGS & POLICIES (V1.0 FEATURE) */}
-                <div className="pt-1">
-                  <Link
-                    href="/settings"
-                    onClick={() => setShowDrawer(false)}
-                    className={`w-full flex items-center justify-between p-3 rounded-2xl border transition-all ${
-                      isSandstone
-                        ? 'bg-[#1a1815]/5 hover:bg-[#1a1815]/10 border-[#1a1815]/15 text-[#1a1815]'
-                        : 'bg-white/5 hover:bg-white/10 border-white/10 text-white'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-[#F90657]/15 flex items-center justify-center text-[#F90657]">
-                        <SettingsIcon size={16} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-xs">Settings & Policies</h4>
-                        <p className="text-[10px] opacity-60">Personalization & Regulations</p>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-
                 {/* 3. EDITORIAL ACCORDION DROPDOWN NAVIGATION LINKS */}
                 <nav className="pt-2 sm:pt-4 space-y-3 sm:space-y-4 max-h-[58vh] overflow-y-auto no-scrollbar pr-1">
                   {[
@@ -486,10 +462,10 @@ export default function TopBar({
 
               {/* 4. SUBTLE FOOTER: Role Switcher & User Account */}
               <div className="pt-6 border-t border-black/10 dark:border-white/10 space-y-2.5 mt-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-bold ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-bold shrink-0 ${
                         isSandstone
                           ? 'border-[#1a1815]/20 bg-black/5 text-[#1a1815]'
                           : 'border-white/20 bg-white/5 text-chalk'
@@ -497,20 +473,65 @@ export default function TopBar({
                     >
                       {role === 'super_admin' ? 'SA' : role === 'gym_admin' ? 'GA' : role === 'registered' ? 'CL' : 'G'}
                     </div>
-                    <span className="text-xs font-medium">
-                      {role === 'guest' ? 'Guest' : user?.name || 'Climber'}
+                    <span className="text-xs font-medium truncate">
+                      {role === 'guest' ? 'Guest' : user?.name || gymTenant?.name || 'Climber'}
                       <span className="opacity-50 text-[10px] ml-1.5 font-mono">({role})</span>
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => setShowRoleSelector(!showRoleSelector)}
-                    className={`text-[11px] font-medium underline transition-opacity ${
-                      isSandstone ? 'text-[#1a1815] hover:opacity-70' : 'text-lime hover:opacity-70'
-                    }`}
-                  >
-                    {showRoleSelector ? 'Close' : 'Switch Role'}
-                  </button>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setShowRoleSelector(!showRoleSelector)}
+                      className={`text-[11px] font-medium underline transition-opacity ${
+                        isSandstone ? 'text-[#1a1815] hover:opacity-70' : 'text-lime hover:opacity-70'
+                      }`}
+                    >
+                      {showRoleSelector ? 'Close' : 'Switch Role'}
+                    </button>
+
+                    {role === 'guest' ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowDrawer(false)
+                          openAuthModal('Sign in or create an account to save ascents and crags.')
+                        }}
+                        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-opacity hover:opacity-80 ${
+                          isSandstone
+                            ? 'border-[#1a1815]/25 text-[#1a1815]'
+                            : 'border-white/15 text-chalk'
+                        }`}
+                      >
+                        <LogIn size={12} />
+                        <span>Sign In</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setShowDrawer(false)
+                          setShowRoleSelector(false)
+                          await logout()
+                          if (
+                            pathname?.startsWith('/account') ||
+                            pathname?.startsWith('/admin') ||
+                            pathname?.startsWith('/set-route')
+                          ) {
+                            router.push('/')
+                          }
+                        }}
+                        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-opacity hover:opacity-80 ${
+                          isSandstone
+                            ? 'border-[#1a1815]/25 text-[#1a1815]'
+                            : 'border-red-400/30 text-red-300'
+                        }`}
+                      >
+                        <LogOut size={12} />
+                        <span>Sign Out</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {showRoleSelector && (

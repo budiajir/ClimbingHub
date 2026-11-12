@@ -1484,7 +1484,7 @@ function PersonalAccountContent() {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[#FF6B00] flex items-center gap-1 border border-[#FF6B00]/30 shadow-sm">
-                          <Pictogram name="wishlisted" size={10} />
+                          <Pictogram name="wishlisted" size={10} className="text-[#FF6B00]" />
                           <span className="text-[10px] font-bold uppercase tracking-wider">Mark</span>
                         </div>
                         <button

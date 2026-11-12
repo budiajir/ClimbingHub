@@ -32,6 +32,7 @@ import {
   X,
   Sparkles,
   UserCheck,
+  Heart,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useCragRegions, normalizeCragName, insertRoute, insertCragRegion, insertSector } from "@/lib/use-data";
@@ -459,7 +460,7 @@ export default function CragDetailPage() {
               }}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 shadow-sm ${
                 isCragWishlisted
-                  ? "bg-[#F90657] border-[#F90657] text-white"
+                  ? "bg-[#F90657]/15 border-[#F90657] text-[#F90657]"
                   : isSandstone
                   ? "border-[#1a1815]/20 text-[#1a1815] hover:border-[#F90657] hover:text-[#F90657]"
                   : "border-white/20 text-white hover:border-[#F90657] hover:text-[#F90657]"
@@ -468,7 +469,7 @@ export default function CragDetailPage() {
               <Pictogram
                 name={isCragWishlisted ? "wishlisted" : "wishlist"}
                 size={14}
-                className={isCragWishlisted ? "text-white" : "text-current"}
+                className={isCragWishlisted ? "text-[#F90657]" : "text-current"}
               />
               <span>{isCragWishlisted ? "Wishlisted" : "Save Wishlist"}</span>
             </button>

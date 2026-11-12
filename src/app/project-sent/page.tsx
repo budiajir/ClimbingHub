@@ -20,11 +20,15 @@ import {
   Eye,
   Compass,
   Plus,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
 import { useAuth } from '@/lib/auth-context'
 import { useCragRegions } from '@/lib/use-data'
 import { AscentType } from '@/lib/tokens'
+import { uploadMediaToCloudinary } from '@/lib/upload-client'
+import { saveAscentLogAction } from '@/lib/actions/media'
 import { TopoMarker } from '@/lib/mock-data'
 import {
   getUserAscents,
@@ -131,6 +135,8 @@ export default function ProjectSentPage() {
     url: string
   } | null>(null)
   const [justSubmittedId, setJustSubmittedId] = useState<string | null>(null)
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+  const [photoUploadError, setPhotoUploadError] = useState<string | null>(null)
 
   useEffect(() => {
     const sync = () => setSavedAscents(getUserAscents())
@@ -191,16 +197,22 @@ export default function ProjectSentPage() {
     })
   }
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setTopoPhotoUrl(reader.result)
-      }
+    setPhotoUploadError(null)
+    setIsUploadingPhoto(true)
+    try {
+      const uploaded = await uploadMediaToCloudinary(file, 'jalur/send-cards')
+      setTopoPhotoUrl(uploaded.secureUrl)
+    } catch (err) {
+      setPhotoUploadError(
+        err instanceof Error ? err.message : 'Gagal mengunggah foto ke Cloudinary.'
+      )
+    } finally {
+      setIsUploadingPhoto(false)
+      e.target.value = ''
     }
-    reader.readAsDataURL(file)
   }
 
   const attemptsDisplay =
@@ -255,25 +267,50 @@ export default function ProjectSentPage() {
     boltsCount: liveCardData.boltsCount,
   }
 
-  const handleSubmitSentForm = (e: React.FormEvent) => {
+  const handleSubmitSentForm = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!problemTitle.trim()) return
+    if (!problemTitle.trim() || isUploadingPhoto) return
+
+    const resolvedProblemId =
+      selectedProblemId === 'custom' ? `sent-${Date.now()}` : selectedProblemId
+    const resolvedGrade = grade.trim() || 'V5'
+    const resolvedLocation = location.trim() || 'Citatah'
+    const resolvedNote = `Partner: ${partner || '-'} · Route Setter: ${routeSetter || '-'}`
+    const resolvedBolts = `${topoMarkers.filter((m) => m.type === 'B' || m.type === 'H').length || 5} Bolts`
+
+    await saveAscentLogAction({
+      routeId: resolvedProblemId,
+      ascentType: attemptStyle,
+      gradeOpinion: resolvedGrade,
+      notes: resolvedNote,
+      imageUrl: topoPhotoUrl,
+      climberName: user?.name || 'Ahmad Rizki Nugraha',
+      attempts: attemptsDisplay,
+      duration: '1 Session',
+      belayer: partner.trim() || 'Solo',
+      photographer: routeSetter ? `Setter: ${routeSetter}` : 'Jalur Archive',
+      wallAngle: '105°',
+      wallHeight: '12 m',
+      boltsCount: resolvedBolts,
+      locationLabel: resolvedLocation,
+      provinceCountry: 'Indonesia, ID',
+      markers: topoMarkers,
+    })
 
     const saved = saveUserAscent({
       userId: user?.id || 'user-1',
-      problemId:
-        selectedProblemId === 'custom' ? `sent-${Date.now()}` : selectedProblemId,
+      problemId: resolvedProblemId,
       problemName: problemTitle.trim(),
-      grade: grade.trim() || 'V5',
+      grade: resolvedGrade,
       fontGrade: grade.trim() || '6C',
       setter: routeSetter.trim() || 'Jalur Route Setter',
-      location: location.trim() || 'Citatah',
+      location: resolvedLocation,
       provinceCountry: 'Indonesia, ID',
       date: formatCardDate(sentDate),
       time: new Date().toTimeString().slice(0, 5),
       ascentType: attemptStyle,
-      gradeVote: grade.trim() || 'V5',
-      note: `Partner: ${partner || '-'} · Route Setter: ${routeSetter || '-'}`,
+      gradeVote: resolvedGrade,
+      note: resolvedNote,
       photoUrl: topoPhotoUrl,
       markers: topoMarkers,
       discipline,
@@ -284,7 +321,7 @@ export default function ProjectSentPage() {
       photographer: routeSetter ? `Setter: ${routeSetter}` : 'Jalur Archive',
       wallAngle: '105°',
       wallHeight: '12 m',
-      boltsCount: `${topoMarkers.filter((m) => m.type === 'B' || m.type === 'H').length || 5} Bolts`,
+      boltsCount: resolvedBolts,
     })
 
     if (typeof window !== 'undefined') {
@@ -541,15 +578,20 @@ export default function ProjectSentPage() {
                 />
                 <button
                   type="button"
+                  disabled={isUploadingPhoto}
                   onClick={() => fileInputRef.current?.click()}
-                  className={`px-2.5 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 cursor-pointer disabled:opacity-60 ${
                     isSandstone
                       ? 'bg-white border-[#1a1815]/15 hover:border-[#EE2B2B]'
                       : 'bg-black/30 border-white/15 hover:border-[#EE2B2B]'
                   }`}
                 >
-                  <Upload size={11} />
-                  <span>Upload Foto</span>
+                  {isUploadingPhoto ? (
+                    <Loader2 size={11} className="animate-spin" />
+                  ) : (
+                    <Upload size={11} />
+                  )}
+                  <span>{isUploadingPhoto ? 'Uploading...' : 'Upload Foto'}</span>
                 </button>
                 <button
                   type="button"
@@ -583,6 +625,12 @@ export default function ProjectSentPage() {
                   <RotateCcw size={11} />
                 </button>
               </div>
+              {photoUploadError && (
+                <div className="w-full rounded-xl bg-red-500/10 border border-red-500/30 px-2.5 py-2 flex items-start gap-1.5 text-[11px] text-red-400">
+                  <AlertCircle size={13} className="shrink-0 mt-0.5" />
+                  <span>{photoUploadError}</span>
+                </div>
+              )}
             </div>
 
             <div

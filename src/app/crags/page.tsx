@@ -251,7 +251,7 @@ export default function CragsDirectoryPage() {
               }`}
             >
               <MapIcon size={12} />
-              <span>{showMap ? "Hide Interactive Map" : "Locate on Interactive Map"}</span>
+              <span>{showMap ? "Hide Map" : "Show Map"}</span>
             </button>
           </div>
 
@@ -452,9 +452,10 @@ export default function CragsDirectoryPage() {
                               : "border-white/15 text-white/60 hover:text-[#F90657]"
                           }`}
                         >
-                          <Heart
+                          <Pictogram
+                            name={wishlistedIds.includes(crag.id.toLowerCase()) ? "wishlisted" : "wishlist"}
                             size={14}
-                            className={wishlistedIds.includes(crag.id.toLowerCase()) ? "fill-[#F90657]" : ""}
+                            className={wishlistedIds.includes(crag.id.toLowerCase()) ? "text-[#F90657]" : "text-current"}
                           />
                         </button>
 
@@ -581,9 +582,10 @@ export default function CragsDirectoryPage() {
                           title="Save to Wishlist"
                           className="p-1.5 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-white hover:text-[#F90657] transition-all"
                         >
-                          <Heart
+                          <Pictogram
+                            name={wishlistedIds.includes(crag.id.toLowerCase()) ? "wishlisted" : "wishlist"}
                             size={12}
-                            className={wishlistedIds.includes(crag.id.toLowerCase()) ? "fill-[#F90657] text-[#F90657]" : ""}
+                            className={wishlistedIds.includes(crag.id.toLowerCase()) ? "text-[#F90657]" : "text-white"}
                           />
                         </button>
                         <span className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono text-white font-bold border border-white/15">
@@ -761,9 +763,10 @@ export default function CragsDirectoryPage() {
                             title="Save to Wishlist"
                             className="p-2 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-white hover:text-[#F90657] transition-all"
                           >
-                            <Heart
+                            <Pictogram
+                              name={wishlistedIds.includes(crag.id.toLowerCase()) ? "wishlisted" : "wishlist"}
                               size={14}
-                              className={wishlistedIds.includes(crag.id.toLowerCase()) ? "fill-[#F90657] text-[#F90657]" : ""}
+                              className={wishlistedIds.includes(crag.id.toLowerCase()) ? "text-[#F90657]" : "text-white"}
                             />
                           </button>
                           <span className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-mono text-white font-bold border border-white/15">

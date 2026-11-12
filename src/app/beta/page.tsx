@@ -915,115 +915,102 @@ function BetaPageContent() {
                     </p>
                   </div>
 
-                  {/* 2. Pill-shaped Search Bar ("Discover") */}
-                  <div className="relative pt-0.5">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                      placeholder="Discover"
-                      className={`w-full py-2.5 px-6 rounded-full text-xs sm:text-sm outline-none transition-all border ${
-                        isSandstone
-                          ? 'bg-black/[0.03] text-[#1a1815] placeholder:text-[#1a1815]/40'
-                          : 'bg-white/[0.05] text-chalk placeholder:text-white/40'
-                      }`}
-                      style={{
-                        borderColor: currentTheme.primary + '55',
-                      }}
-                    />
-                  </div>
+                  {/* Filter Controls: Daerah & Grade (sejajar di mode mobile), Hide Map di bawahnya */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-1">
+                    {/* Row 1: Filter Daerah & Filter Grade (sejajar di mode mobile & desktop) */}
+                    <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
+                      {/* Filter Daerah */}
+                      <div className="relative w-full">
+                        <select
+                          value={selectedCity}
+                          onChange={(e) => setSelectedCity(e.target.value)}
+                          className={`w-full px-3.5 py-1.5 rounded-xl text-xs font-bold appearance-none pr-7 cursor-pointer border transition-all truncate ${
+                            selectedCity !== 'all'
+                              ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
+                              : isSandstone
+                              ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815]'
+                              : 'bg-white/5 border-white/10 text-chalk hover:border-[#FF6B00]/40'
+                          }`}
+                        >
+                          <option value="all" className="bg-[#1a1f24] text-white">Filter Daerah: All</option>
+                          <option value="harau" className="bg-[#1a1f24] text-white">Harau Valley · Sumatera</option>
+                          <option value="citatah" className="bg-[#1a1f24] text-white">Citatah · Bandung</option>
+                          <option value="siung" className="bg-[#1a1f24] text-white">Siung · Yogyakarta</option>
+                          <option value="maros" className="bg-[#1a1f24] text-white">Maros · Sulawesi Selatan</option>
+                          <option value="kintamani" className="bg-[#1a1f24] text-white">Kintamani · Bali</option>
+                          <option value="parang" className="bg-[#1a1f24] text-white">Gunung Parang · Purwakarta</option>
+                        </select>
+                        <ChevronRight size={13} className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none opacity-60" />
+                      </div>
 
-                  {/* Filter Buttons: Kota/Daerah & Grade */}
-                  <div className="flex items-center gap-2 pt-1 flex-wrap">
-                    {/* Filter Kota/Daerah */}
-                    <div className="relative">
-                      <select
-                        value={selectedCity}
-                        onChange={(e) => setSelectedCity(e.target.value)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold appearance-none pr-7 cursor-pointer border transition-all ${
-                          selectedCity !== 'all'
-                            ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
-                            : isSandstone
-                            ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815]'
-                            : 'bg-white/5 border-white/10 text-chalk hover:border-[#FF6B00]/40'
-                        }`}
-                      >
-                        <option value="all" className="bg-[#1a1f24] text-white">Filter Kota / Daerah: All</option>
-                        <option value="harau" className="bg-[#1a1f24] text-white">Harau Valley · Sumatera</option>
-                        <option value="citatah" className="bg-[#1a1f24] text-white">Citatah · Bandung</option>
-                        <option value="siung" className="bg-[#1a1f24] text-white">Siung · Yogyakarta</option>
-                        <option value="maros" className="bg-[#1a1f24] text-white">Maros · Sulawesi Selatan</option>
-                        <option value="kintamani" className="bg-[#1a1f24] text-white">Kintamani · Bali</option>
-                        <option value="parang" className="bg-[#1a1f24] text-white">Gunung Parang · Purwakarta</option>
-                      </select>
-                      <ChevronRight size={13} className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none opacity-60" />
+                      {/* Filter Grade */}
+                      <div className="relative w-full">
+                        <select
+                          value={selectedGrade}
+                          onChange={(e) => setSelectedGrade(e.target.value)}
+                          className={`w-full px-3.5 py-1.5 rounded-xl text-xs font-bold appearance-none pr-7 cursor-pointer border transition-all truncate ${
+                            selectedGrade !== 'all'
+                              ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
+                              : isSandstone
+                              ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815]'
+                              : 'bg-white/5 border-white/10 text-chalk hover:border-[#FF6B00]/40'
+                          }`}
+                        >
+                          <option value="all" className="bg-[#1a1f24] text-white">Filter Grade: All</option>
+                          <option value="v0-v2" className="bg-[#1a1f24] text-white">V0 – V2 (Beginner)</option>
+                          <option value="v3-v5" className="bg-[#1a1f24] text-white">V3 – V5 (Intermediate)</option>
+                          <option value="v6-v8" className="bg-[#1a1f24] text-white">V6 – V8 (Advanced)</option>
+                          <option value="v9+" className="bg-[#1a1f24] text-white">V9+ (Expert / Pro)</option>
+                          <option value="5-6a" className="bg-[#1a1f24] text-white">5a – 6a (Sport)</option>
+                          <option value="6b-7a" className="bg-[#1a1f24] text-white">6b – 7a (Sport)</option>
+                          <option value="7b-8a" className="bg-[#1a1f24] text-white">7b – 8a (Sport)</option>
+                        </select>
+                        <ChevronRight size={13} className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none opacity-60" />
+                      </div>
                     </div>
 
-                    {/* Filter Grade */}
-                    <div className="relative">
-                      <select
-                        value={selectedGrade}
-                        onChange={(e) => setSelectedGrade(e.target.value)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold appearance-none pr-7 cursor-pointer border transition-all ${
-                          selectedGrade !== 'all'
-                            ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
-                            : isSandstone
-                            ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815]'
-                            : 'bg-white/5 border-white/10 text-chalk hover:border-[#FF6B00]/40'
-                        }`}
-                      >
-                        <option value="all" className="bg-[#1a1f24] text-white">Filter Grade: All</option>
-                        <option value="v0-v2" className="bg-[#1a1f24] text-white">V0 – V2 (Beginner)</option>
-                        <option value="v3-v5" className="bg-[#1a1f24] text-white">V3 – V5 (Intermediate)</option>
-                        <option value="v6-v8" className="bg-[#1a1f24] text-white">V6 – V8 (Advanced)</option>
-                        <option value="v9+" className="bg-[#1a1f24] text-white">V9+ (Expert / Pro)</option>
-                        <option value="5-6a" className="bg-[#1a1f24] text-white">5a – 6a (Sport)</option>
-                        <option value="6b-7a" className="bg-[#1a1f24] text-white">6b – 7a (Sport)</option>
-                        <option value="7b-8a" className="bg-[#1a1f24] text-white">7b – 8a (Sport)</option>
-                      </select>
-                      <ChevronRight size={13} className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none opacity-60" />
-                    </div>
-
-                    {/* Map Toggle CTA Button */}
-                    <button
-                      type="button"
-                      onClick={() => setShowMap((prev) => !prev)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 ${
-                        showMap
-                          ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
-                          : isSandstone
-                          ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815]'
-                          : 'bg-white/5 border-white/10 text-chalk hover:border-[#FF6B00]/40'
-                      }`}
-                    >
-                      <MapPin size={13} />
-                      <span>{showMap ? 'Hide Map' : 'Locate on Map'}</span>
-                    </button>
-
-                    {selectedSetter !== 'all' && (
+                    {/* Row 2 (di bawahnya pada mobile): Map Toggle CTA Button & Filter Actions */}
+                    <div className="flex items-center gap-2 flex-wrap">
                       <button
                         type="button"
-                        onClick={() => setSelectedSetter('all')}
-                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#FF6B00]/20 text-[#FF6B00] border border-[#FF6B00]/40 flex items-center gap-1.5 hover:bg-[#FF6B00]/30 transition-colors"
+                        onClick={() => setShowMap((prev) => !prev)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 ${
+                          showMap
+                            ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
+                            : isSandstone
+                            ? 'bg-black/5 border-[#1a1815]/20 text-[#1a1815]'
+                            : 'bg-white/5 border-white/10 text-chalk hover:border-[#FF6B00]/40'
+                        }`}
                       >
-                        <UserCheck size={12} />
-                        <span>Setter: {selectedSetter}</span>
-                        <X size={12} />
+                        <MapPin size={13} />
+                        <span>{showMap ? 'Hide Map' : 'Show Map'}</span>
                       </button>
-                    )}
 
-                    {(selectedCity !== 'all' || selectedGrade !== 'all' || selectedSetter !== 'all') && (
-                      <button
-                        onClick={() => {
-                          setSelectedCity('all')
-                          setSelectedGrade('all')
-                          setSelectedSetter('all')
-                        }}
-                        className="px-2.5 py-1 text-xs text-rose-400 hover:underline font-bold"
-                      >
-                        Reset Filter
-                      </button>
-                    )}
+                      {selectedSetter !== 'all' && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedSetter('all')}
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#FF6B00]/20 text-[#FF6B00] border border-[#FF6B00]/40 flex items-center gap-1.5 hover:bg-[#FF6B00]/30 transition-colors"
+                        >
+                          <UserCheck size={12} />
+                          <span>Setter: {selectedSetter}</span>
+                          <X size={12} />
+                        </button>
+                      )}
+
+                      {(selectedCity !== 'all' || selectedGrade !== 'all' || selectedSetter !== 'all') && (
+                        <button
+                          onClick={() => {
+                            setSelectedCity('all')
+                            setSelectedGrade('all')
+                            setSelectedSetter('all')
+                          }}
+                          className="px-2.5 py-1 text-xs text-rose-400 hover:underline font-bold"
+                        >
+                          Reset Filter
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* 3. Interactive Indonesia Problems Map (Toggled by Map CTA) */}
@@ -1147,7 +1134,11 @@ function BetaPageContent() {
                                 title={isSaved ? 'Remove from Wishlist' : 'Save to Wishlist'}
                                 aria-label="Toggle Wishlist"
                               >
-                                <Heart size={16} className={isSaved ? 'fill-current' : ''} />
+                                <Pictogram
+                                  name={isSaved ? "wishlisted" : "wishlist"}
+                                  size={16}
+                                  className={isSaved ? "text-[#F90657]" : "text-current"}
+                                />
                               </button>
                             </div>
                           )
@@ -1205,7 +1196,11 @@ function BetaPageContent() {
                                 title={isSlideSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
                                 aria-label="Save to Wishlist"
                               >
-                                <Heart size={16} className={isSlideSaved ? 'fill-current' : ''} />
+                                <Pictogram
+                                  name={isSlideSaved ? "wishlisted" : "wishlist"}
+                                  size={16}
+                                  className={isSlideSaved ? "text-[#F90657]" : "text-white"}
+                                />
                               </button>
                               <span className="text-xl font-bold font-mono text-white bg-black/60 px-3 py-1 rounded-xl backdrop-blur-md border border-white/20">
                                 {slideItem.problem.grade}
@@ -1324,7 +1319,11 @@ function BetaPageContent() {
                               title={isSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
                               aria-label="Toggle Wishlist"
                             >
-                              <Heart size={13} className={isSaved ? 'fill-current' : ''} />
+                              <Pictogram
+                                name={isSaved ? "wishlisted" : "wishlist"}
+                                size={13}
+                                className={isSaved ? "text-[#F90657]" : "text-white"}
+                              />
                             </button>
                           </div>
                         )

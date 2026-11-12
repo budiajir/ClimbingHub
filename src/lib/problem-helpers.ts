@@ -244,3 +244,22 @@ export function getDefaultBoltUpdateInfo(category: 'boulder' | 'lead' | 'trad', 
     isBolted: true,
   }
 }
+
+/**
+ * Normalizes route discipline aliases ('lead', 'trad', 'boulder') to the database enum values.
+ */
+export function normalizeRouteDiscipline(raw?: string): 'sport' | 'multipitch' | 'bouldering' {
+  const value = String(raw || '').toLowerCase().trim()
+  if (value === 'sport' || value === 'lead') return 'sport'
+  if (value === 'multipitch' || value === 'trad') return 'multipitch'
+  return 'bouldering'
+}
+
+/**
+ * Returns an ISO YYYY-MM-DD date string or null if empty/non-ISO so PostgreSQL DATE inserts stay safe.
+ */
+export function normalizeIsoDate(raw?: string | null): string | null {
+  if (!raw) return null
+  const trimmed = raw.trim()
+  return /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? trimmed : null
+}
