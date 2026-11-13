@@ -73,6 +73,9 @@ export const userRoleEnum = pgEnum('user_role', [
   'registered',
   'gym_admin',
   'super_admin',
+  'climber',
+  'route_setter',
+  'trip_guide',
 ])
 
 export const ascentStyleEnum = pgEnum('ascent_style', [
@@ -117,7 +120,7 @@ export const user = pgTable('user', {
     .$onUpdate(() => new Date()),
 
   // Jalur climber / partner profile extensions
-  role: userRoleEnum('role').notNull().default('registered'),
+  role: userRoleEnum('role').notNull().default('climber'),
   handle: text('handle').unique(),
   gradeMax: text('grade_max'),
   ascentsCount: integer('ascents_count').notNull().default(0),

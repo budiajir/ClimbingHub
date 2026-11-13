@@ -14,14 +14,12 @@ import {
   Plus,
   LogIn,
   LogOut,
-  Store,
-  Crown,
   User,
+  Crown,
+  Store,
   Compass,
   Moon,
   Sun,
-  Eye,
-  UserCheck,
   Check,
   Award,
   Settings as SettingsIcon,
@@ -29,7 +27,7 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuth } from '@/lib/auth-context'
-import { canLogAscent, canCreateCragRoute, UserRole } from '@/lib/permissions'
+import { canLogAscent, canCreateCragRoute, getRoleLabel } from '@/lib/permissions'
 import { useTheme } from '@/lib/theme-context'
 import PolicyModal, { PolicyKey } from './PolicyModal'
 import Pictogram from '@/components/common/Pictogram'
@@ -49,13 +47,12 @@ export default function TopBar({
 }: TopBarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { role, setRole, user, gymTenant, openAuthModal, logout } = useAuth()
+  const { role, user, gymTenant, openAuthModal, logout } = useAuth()
   const { isSandstone, toggleTheme } = useTheme()
   const [showDrawer, setShowDrawer] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [policyKey, setPolicyKey] = useState<PolicyKey | null>(null)
   const [activeDropdownKey, setActiveDropdownKey] = useState<string | null>(null)
-  const [showRoleSelector, setShowRoleSelector] = useState(false)
 
   const handleNavClick = (href: string) => {
     setShowDrawer(false)
@@ -89,13 +86,6 @@ export default function TopBar({
       router.push(`/?search=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
-
-  const rolesConfig: { key: UserRole; label: string; sub: string; icon: React.ElementType }[] = [
-    { key: 'guest', label: 'Public (Guest)', sub: 'Read-only access', icon: Eye },
-    { key: 'registered', label: 'Climber', sub: 'Active ascent logger', icon: UserCheck },
-    { key: 'super_admin', label: 'Super Admin', sub: 'Owner & curator', icon: Crown },
-    { key: 'gym_admin', label: 'Gym Admin', sub: 'POS & slot dashboard', icon: Store },
-  ]
 
   return (
     <>
@@ -476,50 +466,68 @@ export default function TopBar({
                 </nav>
               </div>
 
-              {/* 4. SUBTLE FOOTER: Role Switcher & User Account */}
+              {/* 4. SUBTLE FOOTER: Authenticated User Status & Sign In/Out */}
               <div className="pt-6 border-t border-black/10 dark:border-white/10 space-y-2.5 mt-8">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-bold shrink-0 ${
+                      className={`w-7 h-7 rounded-full border flex items-center justify-center text-[10px] font-bold shrink-0 ${
                         isSandstone
                           ? 'border-[#1a1815]/20 bg-black/5 text-[#1a1815]'
                           : 'border-white/20 bg-white/5 text-chalk'
                       }`}
                     >
-                      {role === 'super_admin' ? 'SA' : role === 'gym_admin' ? 'GA' : role === 'registered' ? 'CL' : 'G'}
+                      {role === 'super_admin'
+                        ? 'SA'
+                        : role === 'gym_admin'
+                        ? 'GA'
+                        : role === 'route_setter'
+                        ? 'RS'
+                        : role === 'trip_guide'
+                        ? 'TG'
+                        : role === 'guest'
+                        ? 'G'
+                        : 'CL'}
                     </div>
-                    <span className="text-xs font-medium truncate">
-                      {role === 'guest' ? 'Guest' : user?.name || gymTenant?.name || 'Climber'}
-                      <span className="opacity-50 text-[10px] ml-1.5 font-mono">({role})</span>
-                    </span>
+                    <div className="min-w-0 text-left">
+                      <p className="text-xs font-bold truncate leading-tight">
+                        {role === 'guest' ? 'Guest (Tamu)' : user?.name || gymTenant?.name || 'Climber'}
+                      </p>
+                      <span
+                        className={`inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full mt-0.5 ${
+                          role === 'super_admin'
+                            ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
+                            : role === 'gym_admin'
+                            ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                            : role === 'route_setter'
+                            ? 'bg-orange-500/15 text-orange-400 border border-orange-500/30'
+                            : role === 'trip_guide'
+                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                            : role === 'climber' || role === 'registered'
+                            ? 'bg-lime/15 text-lime border border-lime/30'
+                            : 'bg-white/10 text-white/50 border border-white/15'
+                        }`}
+                      >
+                        {getRoleLabel(role)}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setShowRoleSelector(!showRoleSelector)}
-                      className={`text-[11px] font-medium underline transition-opacity ${
-                        isSandstone ? 'text-[#1a1815] hover:opacity-70' : 'text-lime hover:opacity-70'
-                      }`}
-                    >
-                      {showRoleSelector ? 'Close' : 'Switch Role'}
-                    </button>
-
+                  <div className="flex items-center gap-2 shrink-0">
                     {role === 'guest' ? (
                       <button
                         type="button"
                         onClick={() => {
                           setShowDrawer(false)
-                          openAuthModal('Sign in or create an account to save ascents and crags.')
+                          openAuthModal('Masuk atau buat akun untuk menyimpan wishlist dan log pendakian.')
                         }}
-                        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-opacity hover:opacity-80 ${
+                        className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border transition-opacity hover:opacity-80 ${
                           isSandstone
-                            ? 'border-[#1a1815]/25 text-[#1a1815]'
-                            : 'border-white/15 text-chalk'
+                            ? 'bg-[#1a1815] text-[#ded3be] border-[#1a1815]'
+                            : 'bg-lime text-granite border-lime shadow-lime-glow-sm'
                         }`}
                       >
-                        <LogIn size={12} />
+                        <LogIn size={13} />
                         <span>Sign In</span>
                       </button>
                     ) : (
@@ -527,7 +535,6 @@ export default function TopBar({
                         type="button"
                         onClick={async () => {
                           setShowDrawer(false)
-                          setShowRoleSelector(false)
                           await logout()
                           if (
                             pathname?.startsWith('/account') ||
@@ -540,7 +547,7 @@ export default function TopBar({
                         className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-opacity hover:opacity-80 ${
                           isSandstone
                             ? 'border-[#1a1815]/25 text-[#1a1815]'
-                            : 'border-red-400/30 text-red-300'
+                            : 'border-red-400/30 text-red-300 hover:bg-red-500/10'
                         }`}
                       >
                         <LogOut size={12} />
@@ -549,39 +556,6 @@ export default function TopBar({
                     )}
                   </div>
                 </div>
-
-                {showRoleSelector && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="grid grid-cols-2 gap-1.5 pt-1.5"
-                  >
-                    {rolesConfig.map(r => {
-                      const isSelected = role === r.key
-                      return (
-                        <button
-                          key={r.key}
-                          onClick={() => {
-                            setRole(r.key)
-                            setShowRoleSelector(false)
-                          }}
-                          className={`px-3 py-2 rounded-xl text-left text-xs border transition-all ${
-                            isSelected
-                              ? isSandstone
-                                ? 'bg-[#1a1815] text-[#ded3be] border-[#1a1815] font-bold'
-                                : 'bg-lime text-granite border-lime font-bold'
-                              : isSandstone
-                                ? 'border-[#1a1815]/15 text-[#1a1815] hover:border-[#1a1815]/30'
-                                : 'border-white/10 text-slate-ash hover:text-chalk'
-                          }`}
-                        >
-                          <div className="font-bold truncate">{r.label}</div>
-                        </button>
-                      )
-                    })}
-                  </motion.div>
-                )}
               </div>
             </motion.div>
           </div>

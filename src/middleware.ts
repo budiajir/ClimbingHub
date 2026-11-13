@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSessionCookie } from 'better-auth/cookies'
 
 const PUBLIC_ADMIN_PATHS = ['/admin/login', '/admin/register']
-const VALID_DEMO_ROLES = new Set([
-  'registered',
-  'route_setter',
-  'gym_admin',
-  'super_admin',
-])
 
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
@@ -17,10 +11,9 @@ export function middleware(request: NextRequest) {
   }
 
   const sessionCookie = getSessionCookie(request)
-  const demoRole = request.cookies.get('jalur_demo_role')?.value
-  const hasDemoAccess = Boolean(demoRole && VALID_DEMO_ROLES.has(demoRole))
 
-  if (sessionCookie || hasDemoAccess) {
+  // Authenticated user with active Better Auth session
+  if (sessionCookie) {
     return NextResponse.next()
   }
 

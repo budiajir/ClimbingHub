@@ -172,7 +172,35 @@ function PersonalAccountContent() {
   const [username, setUsername] = useState(isViewingOther ? '@nana.climbs' : '@ahmad.rizki')
   const [homeBase, setHomeBase] = useState(isViewingOther ? 'Jakarta Selatan, DKI Jakarta' : 'Bandung, Jawa Barat')
   const [countryOfOrigin, setCountryOfOrigin] = useState('Indonesia')
-  const [userAccountStatus, setUserAccountStatus] = useState<'Climber' | 'Route Setter' | 'Trip Guide' | 'Gym Manager'>('Route Setter')
+  const [userAccountStatus, setUserAccountStatus] = useState<
+    'Climber' | 'Route Setter' | 'Trip Guide' | 'Admin Gym' | 'Super Admin'
+  >(
+    role === 'super_admin'
+      ? 'Super Admin'
+      : role === 'gym_admin'
+      ? 'Admin Gym'
+      : role === 'route_setter'
+      ? 'Route Setter'
+      : role === 'trip_guide'
+      ? 'Trip Guide'
+      : 'Climber'
+  )
+
+  useEffect(() => {
+    if (role && role !== 'guest') {
+      setUserAccountStatus(
+        role === 'super_admin'
+          ? 'Super Admin'
+          : role === 'gym_admin'
+          ? 'Admin Gym'
+          : role === 'route_setter'
+          ? 'Route Setter'
+          : role === 'trip_guide'
+          ? 'Trip Guide'
+          : 'Climber'
+      )
+    }
+  }, [role])
   const [bioDescription, setBioDescription] = useState(
     isViewingOther
       ? 'Passionate limestone boulderer and multi-pitch enthusiast exploring Citatah and Harau.'
@@ -1875,7 +1903,8 @@ function PersonalAccountContent() {
                     <option value="Climber">Climber</option>
                     <option value="Route Setter">Route Setter</option>
                     <option value="Trip Guide">Trip Guide</option>
-                    <option value="Gym Manager">Gym Manager</option>
+                    <option value="Admin Gym">Admin Gym</option>
+                    <option value="Super Admin">Super Admin</option>
                   </select>
                 </div>
 

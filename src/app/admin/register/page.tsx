@@ -59,7 +59,7 @@ export default function AdminRegisterPage() {
         if (signUpRes?.error) {
           setErrorMsg(
             signUpRes.error.message ||
-              'Gagal membuat akun partner. Periksa data atau gunakan Launch Demo Mode.'
+              'Gagal membuat akun partner. Periksa kembali data pendaftaran Anda.'
           )
           return
         }
@@ -98,7 +98,7 @@ export default function AdminRegisterPage() {
       setErrorMsg(
         err instanceof Error
           ? err.message
-          : 'Gagal terhubung ke server. Gunakan Launch Demo Mode untuk pratinjau.'
+          : 'Gagal terhubung ke server. Silakan periksa koneksi internet Anda.'
       )
     } finally {
       setIsSubmitting(false)
@@ -111,21 +111,6 @@ export default function AdminRegisterPage() {
     setAddress(`88 Main Avenue, ${citySample}`)
     setPicName('Bambang S. (Head Coach)')
     setPhone('+6281987654321')
-  }
-
-  const handleDemoLaunch = () => {
-    setErrorMsg(null)
-    registerGym({
-      name: gymName || 'BoulderZone Canggu',
-      city: city || 'Badung, Bali',
-      address: address || '88 Main Avenue, Canggu, Bali',
-      picName: picName || 'Bambang S. (Head Coach)',
-      phone: phone || '+6281987654321',
-    })
-    setRegisteredSuccess(true)
-    setTimeout(() => {
-      router.push('/admin')
-    }, 800)
   }
 
   return (
@@ -348,7 +333,7 @@ export default function AdminRegisterPage() {
               </div>
             </div>
 
-            <div className="space-y-2 pt-1">
+            <div className="pt-1">
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -356,15 +341,6 @@ export default function AdminRegisterPage() {
               >
                 {isSubmitting && <Loader2 size={14} className="animate-spin" />}
                 <span>{isSubmitting ? 'Registering Gym...' : 'Activate Gym Dashboard Now'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleDemoLaunch}
-                className="w-full py-2.5 bg-granite border border-white/10 hover:border-lime/30 text-chalk text-xs rounded-xl flex items-center justify-center gap-2 transition-all font-light"
-              >
-                <Sparkles size={14} className="text-lime" />
-                <span>Launch Demo Tenant (No Database Required)</span>
               </button>
             </div>
           </form>

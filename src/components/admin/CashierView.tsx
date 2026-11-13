@@ -106,7 +106,7 @@ export default function CashierView() {
 
           {/* Quick test codes */}
           <div className="bg-granite/70 rounded-xl p-3 mt-4 border border-white/5">
-            <p className="text-slate-ash text-[10px] uppercase tracking-wider mb-2 font-light">Demo Quick Test Codes</p>
+            <p className="text-slate-ash text-[10px] uppercase tracking-wider mb-2 font-light">Contoh Kode Tiket (Uji Kasir)</p>
             <div className="flex gap-2 flex-wrap">
               {['CLIMB001', 'CLIMB002', 'INVALID'].map(c => (
                 <button

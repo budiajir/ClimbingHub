@@ -14,7 +14,7 @@ import { useTheme } from '@/lib/theme-context'
 type AdminTab = 'cashier' | 'slots' | 'waitlist'
 
 export default function AdminDashboardPage() {
-  const { role, gymTenant, loginAsGymAdmin } = useAuth()
+  const { role, gymTenant } = useAuth()
   const { theme } = useTheme()
   const isSandstone = theme === 'sandstone'
   const [activeTab, setActiveTab] = useState<AdminTab>('cashier')
@@ -94,16 +94,6 @@ export default function AdminDashboardPage() {
             </div>
             <ArrowRight size={16} className="text-slate-ash group-hover:text-cyan-climb transition-colors" />
           </Link>
-
-          {/* Instant Demo Option */}
-          <div className="pt-2">
-            <button
-              onClick={() => loginAsGymAdmin()}
-              className="w-full py-2.5 bg-lime/10 border border-lime/30 text-lime rounded-xl text-xs font-bold hover:bg-lime/20 transition-all text-center"
-            >
-              Quick Launch (Gym Admin Demo Mode)
-            </button>
-          </div>
         </div>
 
         <Link

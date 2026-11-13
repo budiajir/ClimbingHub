@@ -1326,7 +1326,7 @@ export default function AddRouteModal({
                       onClick={handleSamplePath}
                       className="text-[10px] px-2 py-1 rounded-lg bg-lime/10 text-lime border border-lime/20 hover:bg-lime/20 flex items-center gap-1 font-bold"
                     >
-                      <Sparkles size={11} /> Auto Demo
+                      <Sparkles size={11} /> Contoh Jalur
                     </button>
                   </div>
                 </div>

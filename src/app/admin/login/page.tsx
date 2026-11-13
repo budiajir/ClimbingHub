@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Store, Lock, Mail, ChevronLeft, Sparkles, AlertCircle, Loader2 } from 'lucide-react'
+import { Store, Lock, Mail, ChevronLeft, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { signIn } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
@@ -18,7 +18,7 @@ function getSafeNextAdminPath(): string {
 }
 
 export default function AdminLoginPage() {
-  const { loginAsGymAdmin, refreshSession } = useAuth()
+  const { refreshSession } = useAuth()
   const { theme } = useTheme()
   const isSandstone = theme === 'sandstone'
   const router = useRouter()
@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
       if (result?.error) {
         setErrorMsg(
           result.error.message ||
-            'Login partner gagal. Periksa email & password atau gunakan Instant Demo Access.'
+            'Login partner gagal. Periksa kembali email & password akun gym Anda.'
         )
         return
       }
@@ -48,17 +48,11 @@ export default function AdminLoginPage() {
       setErrorMsg(
         err instanceof Error
           ? err.message
-          : 'Gagal terhubung ke server auth. Gunakan Instant Demo Access di bawah.'
+          : 'Gagal terhubung ke server auth. Silakan coba sesaat lagi.'
       )
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const handleDemo = () => {
-    setErrorMsg(null)
-    loginAsGymAdmin()
-    router.push('/admin')
   }
 
   return (
@@ -162,18 +156,7 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <div className="pt-3 border-t border-white/5">
-          <button
-            type="button"
-            onClick={handleDemo}
-            className="w-full py-2.5 bg-granite border border-white/10 hover:border-lime/30 text-chalk text-xs rounded-xl flex items-center justify-center gap-2 transition-all group"
-          >
-            <Sparkles size={14} className="text-lime group-hover:scale-110 transition-transform" />
-            <span className="font-light">Instant Demo Access (Vertigo Gym Admin)</span>
-          </button>
-        </div>
-
-        <div className="text-center pt-2">
+        <div className="text-center pt-2 border-t border-white/5">
           <p className="text-xs text-slate-ash font-light">
             Don&apos;t have a partner account?{' '}
             <Link href="/admin/register" className="text-lime hover:underline font-bold">

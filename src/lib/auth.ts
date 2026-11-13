@@ -35,8 +35,8 @@ function createAuth() {
         role: {
           type: 'string',
           required: false,
-          defaultValue: 'registered',
-          input: false,
+          defaultValue: 'climber',
+          input: true,
         },
         handle: {
           type: 'string',

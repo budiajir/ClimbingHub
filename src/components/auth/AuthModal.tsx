@@ -7,7 +7,6 @@ import {
   Lock,
   User,
   Mail,
-  Sparkles,
   Building2,
   AlertCircle,
   Loader2,
@@ -27,13 +26,14 @@ function getSafeNextPath(): string | null {
 }
 
 export default function AuthModal() {
-  const { isAuthModalOpen, authModalReason, closeAuthModal, loginAsRegistered, refreshSession } =
+  const { isAuthModalOpen, authModalReason, closeAuthModal, refreshSession } =
     useAuth()
   const router = useRouter()
   const [tab, setTab] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [selectedRole, setSelectedRole] = useState<'climber' | 'route_setter' | 'trip_guide'>('climber')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -59,12 +59,13 @@ export default function AuthModal() {
               name: name.trim() || 'Jalur Climber',
               email,
               password,
+              role: selectedRole,
             })
 
       if (result?.error) {
         setErrorMsg(
           result.error.message ||
-            'Autentikasi gagal. Periksa email/password atau gunakan Demo Climber.'
+            'Autentikasi gagal. Periksa kembali email dan password Anda.'
         )
         return
       }
@@ -76,20 +77,11 @@ export default function AuthModal() {
       setErrorMsg(
         err instanceof Error
           ? err.message
-          : 'Gagal terhubung ke server auth. Gunakan Demo Climber untuk akses instan.'
+          : 'Gagal terhubung ke server auth. Silakan coba sesaat lagi.'
       )
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const handleQuickDemo = () => {
-    setErrorMsg(null)
-    loginAsRegistered({
-      name: 'Ahmad Rizki',
-      gradeMax: 'V7 Crusher',
-    })
-    navigateAfterAuth()
   }
 
   const switchTab = (nextTab: 'login' | 'register') => {
@@ -218,6 +210,52 @@ export default function AuthModal() {
               </div>
             </div>
 
+            {tab === 'register' && (
+              <div>
+                <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1.5">
+                  Tipe Akun
+                </label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRole('climber')}
+                    className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
+                      selectedRole === 'climber'
+                        ? 'bg-lime text-granite font-bold border-lime shadow-lime-glow-sm'
+                        : 'bg-granite/60 border-white/5 text-slate-ash hover:text-chalk'
+                    }`}
+                  >
+                    <div className="text-xs">🧗 Climber</div>
+                    <div className="text-[9px] opacity-75 font-light">Pemanjat</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRole('route_setter')}
+                    className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
+                      selectedRole === 'route_setter'
+                        ? 'bg-lime text-granite font-bold border-lime shadow-lime-glow-sm'
+                        : 'bg-granite/60 border-white/5 text-slate-ash hover:text-chalk'
+                    }`}
+                  >
+                    <div className="text-xs">🔨 Setter</div>
+                    <div className="text-[9px] opacity-75 font-light">Bikin Jalur</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRole('trip_guide')}
+                    className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
+                      selectedRole === 'trip_guide'
+                        ? 'bg-lime text-granite font-bold border-lime shadow-lime-glow-sm'
+                        : 'bg-granite/60 border-white/5 text-slate-ash hover:text-chalk'
+                    }`}
+                  >
+                    <div className="text-xs">🧭 Guide</div>
+                    <div className="text-[9px] opacity-75 font-light">Pemandu Trip</div>
+                  </button>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={isSubmitting}
@@ -236,20 +274,8 @@ export default function AuthModal() {
             </button>
           </form>
 
-          {/* Quick Demo Login Option */}
-          <div className="pt-4 mt-4 border-t border-white/5">
-            <button
-              type="button"
-              onClick={handleQuickDemo}
-              className="w-full py-2.5 bg-granite border border-white/10 hover:border-lime/30 text-chalk text-xs rounded-xl flex items-center justify-center gap-2 transition-all group"
-            >
-              <Sparkles size={14} className="text-lime group-hover:scale-110 transition-transform" />
-              <span className="font-light">Instant Sign In (Demo Climber)</span>
-            </button>
-          </div>
-
           {/* Link to Gym Partner */}
-          <div className="mt-4 text-center">
+          <div className="mt-4 pt-4 border-t border-white/5 text-center">
             <Link
               href="/admin/register"
               onClick={closeAuthModal}
