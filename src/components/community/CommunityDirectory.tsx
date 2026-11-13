@@ -280,6 +280,41 @@ export default function CommunityDirectory() {
           })}
       </div>
 
+      {/* CTA: Daftarkan Komunitas Anda */}
+      <div
+        className={`mt-8 p-6 rounded-3xl border flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left ${
+          isSandstone
+            ? "bg-[#1a1815]/5 border-[#1a1815]/10"
+            : "bg-white/[0.03] border-white/10"
+        }`}
+      >
+        <div className="space-y-1">
+          <h4
+            className={`font-bold text-sm ${
+              isSandstone ? "text-[#1a1815]" : "text-white"
+            }`}
+          >
+            Punya Squad atau Komunitas Panjat Tebing?
+          </h4>
+          <p
+            className={`text-xs ${
+              isSandstone ? "text-[#1a1815]/60" : "text-white/60"
+            }`}
+          >
+            Daftarkan komunitas Anda agar tampil di direktori resmi Jalur dan terhubung dengan climber lokal.
+          </p>
+        </div>
+        <a
+          href="https://wa.me/628123456789?text=Halo%20Admin%20Jalur,%20saya%20ingin%20mendaftarkan%20komunitas%20panjat%20kami%20ke%20direktori%20Jalur."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-5 py-2.5 rounded-xl bg-lime text-granite font-bold text-xs shadow-lime-glow hover:bg-lime-dim transition-all shrink-0 inline-flex items-center gap-1.5"
+        >
+          <Send size={13} />
+          <span>Ajukan Komunitas &rarr;</span>
+        </a>
+      </div>
+
       {/* Modals */}
       <CommunityDetailModal
         isOpen={!!selectedDetail}

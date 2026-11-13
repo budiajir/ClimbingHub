@@ -3,6 +3,7 @@
 import { asc, desc, eq, ilike, or, sql } from 'drizzle-orm'
 import {
   ascentLogs,
+  communities,
   cragRegions,
   getDb,
   gyms,
@@ -23,6 +24,7 @@ export interface SuperAdminStats {
   totalCrags: number
   totalRoutes: number
   totalGyms: number
+  totalCommunities: number
   totalAscents: number
 }
 
@@ -92,6 +94,7 @@ export async function getSuperAdminStatsAction(): Promise<SuperAdminStats> {
       totalCrags: 5,
       totalRoutes: 25,
       totalGyms: 3,
+      totalCommunities: 3,
       totalAscents: 120,
     }
   }
@@ -137,6 +140,10 @@ export async function getSuperAdminStatsAction(): Promise<SuperAdminStats> {
       .select({ count: sql<number>`count(*)::int` })
       .from(gyms)
 
+    const [communityCountRes] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(communities)
+
     const [ascentCountRes] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(ascentLogs)
@@ -151,6 +158,7 @@ export async function getSuperAdminStatsAction(): Promise<SuperAdminStats> {
       totalCrags: Number(cragCountRes?.count) || 0,
       totalRoutes: Number(routeCountRes?.count) || 0,
       totalGyms: Number(gymCountRes?.count) || 0,
+      totalCommunities: Number(communityCountRes?.count) || 0,
       totalAscents: Number(ascentCountRes?.count) || 0,
     }
   } catch (error) {
@@ -165,6 +173,7 @@ export async function getSuperAdminStatsAction(): Promise<SuperAdminStats> {
       totalCrags: 5,
       totalRoutes: 25,
       totalGyms: 3,
+      totalCommunities: 3,
       totalAscents: 120,
     }
   }
@@ -558,5 +567,179 @@ export async function getSuperAdminGymsAction(): Promise<SuperAdminGymItem[]> {
   } catch (error) {
     console.error('[getSuperAdminGymsAction] Error:', error)
     return []
+  }
+}
+
+export interface SuperAdminCommunityItem {
+  id: string
+  name: string
+  city: string
+  province: string
+  imageUrl: string
+  memberCount: number
+  homebase: string
+  description: string
+  whatsapp: string
+  instagram: string
+  tags: string[]
+  createdAt: string
+}
+
+/**
+ * 10. Fetch Communities for Super Admin
+ */
+export async function getSuperAdminCommunitiesAction(): Promise<SuperAdminCommunityItem[]> {
+  if (!isDatabaseConfigured()) return []
+
+  const db = getDb()
+
+  try {
+    const rows = await db
+      .select()
+      .from(communities)
+      .orderBy(desc(communities.memberCount))
+
+    return rows.map((c) => ({
+      id: c.id,
+      name: c.name,
+      city: c.city,
+      province: c.province,
+      imageUrl: c.imageUrl || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=600&q=80',
+      memberCount: c.memberCount || 0,
+      homebase: c.homebase || '',
+      description: c.description || '',
+      whatsapp: c.whatsapp || '',
+      instagram: c.instagram || '',
+      tags: c.tags || [],
+      createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
+    }))
+  } catch (error) {
+    console.error('[getSuperAdminCommunitiesAction] Error:', error)
+    return []
+  }
+}
+
+/**
+ * 11. Create New Community
+ */
+export async function createCommunityAction(input: {
+  name: string
+  city: string
+  province: string
+  homebase: string
+  description: string
+  whatsapp: string
+  instagram: string
+  imageUrl?: string
+  tags?: string[]
+}): Promise<{ ok: boolean; error?: string; id?: string }> {
+  if (!isDatabaseConfigured()) {
+    return { ok: false, error: 'Database belum terhubung.' }
+  }
+
+  const db = getDb()
+
+  try {
+    const slug = input.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+    const id = `comm-${slug || Date.now().toString(36)}`
+
+    await db.insert(communities).values({
+      id,
+      name: input.name.trim(),
+      city: input.city.trim(),
+      province: input.province.trim(),
+      homebase: input.homebase.trim(),
+      description: input.description.trim(),
+      whatsapp: input.whatsapp.trim(),
+      instagram: input.instagram.trim(),
+      imageUrl: input.imageUrl?.trim() || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=800&q=80',
+      tags: input.tags && input.tags.length > 0 ? input.tags : ['Bouldering', 'Sport Climbing'],
+      memberCount: 1,
+      members: [],
+    })
+
+    return { ok: true, id }
+  } catch (error) {
+    console.error('[createCommunityAction] Error:', error)
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Gagal membuat komunitas baru.',
+    }
+  }
+}
+
+/**
+ * 12. Update Community
+ */
+export async function updateCommunityAction(
+  id: string,
+  input: {
+    name: string
+    city: string
+    province: string
+    homebase: string
+    description: string
+    whatsapp: string
+    instagram: string
+    imageUrl?: string
+    tags?: string[]
+  }
+): Promise<{ ok: boolean; error?: string }> {
+  if (!isDatabaseConfigured()) {
+    return { ok: false, error: 'Database belum terhubung.' }
+  }
+
+  const db = getDb()
+
+  try {
+    await db
+      .update(communities)
+      .set({
+        name: input.name.trim(),
+        city: input.city.trim(),
+        province: input.province.trim(),
+        homebase: input.homebase.trim(),
+        description: input.description.trim(),
+        whatsapp: input.whatsapp.trim(),
+        instagram: input.instagram.trim(),
+        imageUrl: input.imageUrl?.trim() || undefined,
+        tags: input.tags && input.tags.length > 0 ? input.tags : undefined,
+      })
+      .where(eq(communities.id, id))
+
+    return { ok: true }
+  } catch (error) {
+    console.error('[updateCommunityAction] Error:', error)
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Gagal memperbarui komunitas.',
+    }
+  }
+}
+
+/**
+ * 13. Delete Community
+ */
+export async function deleteCommunityAction(
+  id: string
+): Promise<{ ok: boolean; error?: string }> {
+  if (!isDatabaseConfigured()) {
+    return { ok: false, error: 'Database belum terhubung.' }
+  }
+
+  const db = getDb()
+
+  try {
+    await db.delete(communities).where(eq(communities.id, id))
+    return { ok: true }
+  } catch (error) {
+    console.error('[deleteCommunityAction] Error:', error)
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Gagal menghapus komunitas.',
+    }
   }
 }

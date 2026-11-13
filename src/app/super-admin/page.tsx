@@ -19,6 +19,8 @@ import {
   Crown,
   Activity,
   Layers,
+  Edit3,
+  MessageCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
@@ -33,15 +35,20 @@ import {
   createRouteAction,
   deleteRouteAction,
   getSuperAdminGymsAction,
+  getSuperAdminCommunitiesAction,
+  createCommunityAction,
+  updateCommunityAction,
+  deleteCommunityAction,
   type SuperAdminStats,
   type SuperAdminUserItem,
   type SuperAdminCragItem,
   type SuperAdminRouteItem,
   type SuperAdminGymItem,
+  type SuperAdminCommunityItem,
 } from '@/lib/actions/super-admin'
 import type { UserRole } from '@/lib/permissions'
 
-type DashboardTab = 'overview' | 'users' | 'crags' | 'gyms'
+type DashboardTab = 'overview' | 'users' | 'crags' | 'communities' | 'gyms'
 
 export default function SuperAdminPage() {
   const { role, user, isAuthenticated, isSessionPending } = useAuth()
@@ -56,10 +63,12 @@ export default function SuperAdminPage() {
   const [crags, setCrags] = useState<SuperAdminCragItem[]>([])
   const [routesList, setRoutesList] = useState<SuperAdminRouteItem[]>([])
   const [gymsList, setGymsList] = useState<SuperAdminGymItem[]>([])
+  const [communitiesList, setCommunitiesList] = useState<SuperAdminCommunityItem[]>([])
 
   // Search & filter
   const [userSearch, setUserSearch] = useState('')
   const [routeSearch, setRouteSearch] = useState('')
+  const [communitySearch, setCommunitySearch] = useState('')
 
   // Loading states
   const [isLoadingStats, setIsLoadingStats] = useState(true)
@@ -67,6 +76,7 @@ export default function SuperAdminPage() {
   const [isLoadingCrags, setIsLoadingCrags] = useState(false)
   const [isLoadingRoutes, setIsLoadingRoutes] = useState(false)
   const [isLoadingGyms, setIsLoadingGyms] = useState(false)
+  const [isLoadingCommunities, setIsLoadingCommunities] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   // Toast / feedback message
@@ -75,6 +85,21 @@ export default function SuperAdminPage() {
   // Modals
   const [showAddCragModal, setShowAddCragModal] = useState(false)
   const [showAddRouteModal, setShowAddRouteModal] = useState(false)
+  const [showCommunityModal, setShowCommunityModal] = useState(false)
+  const [editingCommunity, setEditingCommunity] = useState<SuperAdminCommunityItem | null>(null)
+
+  // Forms
+  const [communityForm, setCommunityForm] = useState({
+    name: '',
+    city: 'Bandung',
+    province: 'Jawa Barat',
+    homebase: '',
+    description: '',
+    whatsapp: '',
+    instagram: '',
+    imageUrl: '',
+    tags: 'Bouldering, Sport Climbing',
+  })
 
   // Forms
   const [newCrag, setNewCrag] = useState({
@@ -145,8 +170,103 @@ export default function SuperAdminPage() {
       getSuperAdminGymsAction()
         .then((data) => setGymsList(data))
         .finally(() => setIsLoadingGyms(false))
+    } else if (activeTab === 'communities') {
+      setIsLoadingCommunities(true)
+      getSuperAdminCommunitiesAction()
+        .then((data) => setCommunitiesList(data))
+        .finally(() => setIsLoadingCommunities(false))
     }
   }, [activeTab, role])
+
+  // Handle Community modal open
+  const handleOpenAddCommunity = () => {
+    setEditingCommunity(null)
+    setCommunityForm({
+      name: '',
+      city: 'Bandung',
+      province: 'Jawa Barat',
+      homebase: '',
+      description: '',
+      whatsapp: '',
+      instagram: '',
+      imageUrl: '',
+      tags: 'Bouldering, Sport Climbing',
+    })
+    setShowCommunityModal(true)
+  }
+
+  const handleOpenEditCommunity = (c: SuperAdminCommunityItem) => {
+    setEditingCommunity(c)
+    setCommunityForm({
+      name: c.name,
+      city: c.city,
+      province: c.province,
+      homebase: c.homebase,
+      description: c.description,
+      whatsapp: c.whatsapp,
+      instagram: c.instagram,
+      imageUrl: c.imageUrl,
+      tags: c.tags.join(', '),
+    })
+    setShowCommunityModal(true)
+  }
+
+  // Handle save community (create or update)
+  const handleSaveCommunity = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const tagsArray = communityForm.tags
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean)
+
+    startTransition(async () => {
+      if (editingCommunity) {
+        const res = await updateCommunityAction(editingCommunity.id, {
+          ...communityForm,
+          tags: tagsArray,
+        })
+        if (res.ok) {
+          showToast(`Komunitas "${communityForm.name}" berhasil diperbarui!`)
+          setShowCommunityModal(false)
+          const updated = await getSuperAdminCommunitiesAction()
+          setCommunitiesList(updated)
+        } else {
+          showToast(res.error || 'Gagal memperbarui komunitas.', 'error')
+        }
+      } else {
+        const res = await createCommunityAction({
+          ...communityForm,
+          tags: tagsArray,
+        })
+        if (res.ok) {
+          showToast(`Komunitas "${communityForm.name}" berhasil ditambahkan!`)
+          setShowCommunityModal(false)
+          const updated = await getSuperAdminCommunitiesAction()
+          setCommunitiesList(updated)
+          getSuperAdminStatsAction().then((s) => setStats(s))
+        } else {
+          showToast(res.error || 'Gagal membuat komunitas.', 'error')
+        }
+      }
+    })
+  }
+
+  // Handle delete community
+  const handleDeleteCommunity = async (id: string, name: string) => {
+    if (!window.confirm(`Yakin ingin menghapus komunitas "${name}" dari direktori?`)) {
+      return
+    }
+    startTransition(async () => {
+      const res = await deleteCommunityAction(id)
+      if (res.ok) {
+        showToast(`Komunitas "${name}" berhasil dihapus.`)
+        setCommunitiesList((prev) => prev.filter((c) => c.id !== id))
+        getSuperAdminStatsAction().then((s) => setStats(s))
+      } else {
+        showToast(res.error || 'Gagal menghapus komunitas.', 'error')
+      }
+    })
+  }
 
   // Handle user role update
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
@@ -332,6 +452,7 @@ export default function SuperAdminPage() {
             { key: 'overview', label: 'Ringkasan Platform', icon: Activity },
             { key: 'users', label: 'Manajemen Pengguna', icon: Users },
             { key: 'crags', label: 'Kelola Tebing & Jalur', icon: Mountain },
+            { key: 'communities', label: 'Komunitas & Klub', icon: Compass },
             { key: 'gyms', label: 'Mitra Gym', icon: Store },
           ].map((tab) => {
             const Icon = tab.icon
@@ -359,14 +480,14 @@ export default function SuperAdminPage() {
         {/* ==================================================================== */}
         {activeTab === 'overview' && (
           <div className="space-y-6 animate-fadeIn">
-            {/* Top 4 Metrics */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            {/* Top 5 Metrics */}
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
               <div className="p-4 md:p-5 rounded-3xl bg-[#161a1f] border border-white/10 space-y-2">
                 <div className="w-10 h-10 rounded-2xl bg-lime/10 text-lime border border-lime/20 flex items-center justify-center">
                   <Users size={20} />
                 </div>
                 <div>
-                  <p className="text-[11px] text-white/60 font-medium">Total Akun Terdaftar</p>
+                  <p className="text-[11px] text-white/60 font-medium">Total Akun</p>
                   <p className="text-2xl md:text-3xl font-extrabold text-white">
                     {stats?.totalUsers ?? '...'}
                   </p>
@@ -378,9 +499,21 @@ export default function SuperAdminPage() {
                   <Mountain size={20} />
                 </div>
                 <div>
-                  <p className="text-[11px] text-white/60 font-medium">Tebing & Jalur Alami</p>
+                  <p className="text-[11px] text-white/60 font-medium">Tebing &amp; Jalur</p>
                   <p className="text-2xl md:text-3xl font-extrabold text-white">
                     {stats ? `${stats.totalCrags} / ${stats.totalRoutes}` : '...'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 md:p-5 rounded-3xl bg-[#161a1f] border border-white/10 space-y-2">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+                  <Compass size={20} />
+                </div>
+                <div>
+                  <p className="text-[11px] text-white/60 font-medium">Komunitas &amp; Klub</p>
+                  <p className="text-2xl md:text-3xl font-extrabold text-white">
+                    {stats?.totalCommunities ?? '...'}
                   </p>
                 </div>
               </div>
@@ -390,19 +523,19 @@ export default function SuperAdminPage() {
                   <Store size={20} />
                 </div>
                 <div>
-                  <p className="text-[11px] text-white/60 font-medium">Mitra Climbing Gym</p>
+                  <p className="text-[11px] text-white/60 font-medium">Mitra Gym</p>
                   <p className="text-2xl md:text-3xl font-extrabold text-white">
                     {stats?.totalGyms ?? '...'}
                   </p>
                 </div>
               </div>
 
-              <div className="p-4 md:p-5 rounded-3xl bg-[#161a1f] border border-white/10 space-y-2">
+              <div className="p-4 md:p-5 rounded-3xl bg-[#161a1f] border border-white/10 space-y-2 col-span-2 sm:col-span-1">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
                   <Activity size={20} />
                 </div>
                 <div>
-                  <p className="text-[11px] text-white/60 font-medium">Total Log Pendakian</p>
+                  <p className="text-[11px] text-white/60 font-medium">Log Pendakian</p>
                   <p className="text-2xl md:text-3xl font-extrabold text-white">
                     {stats?.totalAscents ?? '...'}
                   </p>
@@ -901,6 +1034,181 @@ export default function SuperAdminPage() {
             </div>
           </div>
         )}
+
+        {/* ==================================================================== */}
+        {/* TAB 4: COMMUNITIES & SQUADS */}
+        {/* ==================================================================== */}
+        {activeTab === 'communities' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Header Action */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl bg-[#161a1f] border border-white/10">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-bold border border-indigo-500/20">
+                  <Compass size={13} /> Komunitas &amp; Klub Panjat
+                </div>
+                <h2 className="text-lg font-bold text-white">Direktori Resmi Komunitas Indonesia</h2>
+                <p className="text-xs text-white/50">
+                  Kelola klub/squad panjat tebing yang tampil di publik (/community). Tambah komunitas baru atau perbarui kontak PIC.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="relative flex-1 sm:w-60">
+                  <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                  <input
+                    type="text"
+                    placeholder="Cari nama, kota..."
+                    value={communitySearch}
+                    onChange={(e) => setCommunitySearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/40 outline-none focus:border-indigo-400"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleOpenAddCommunity}
+                  className="px-4 py-2 rounded-xl bg-indigo-500 text-white font-bold text-xs shadow-lg hover:bg-indigo-400 transition-all flex items-center gap-1.5 shrink-0"
+                >
+                  <Plus size={15} />
+                  <span>Tambah Komunitas</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Grid List of Communities */}
+            {isLoadingCommunities ? (
+              <div className="p-12 text-center text-white/40 flex items-center justify-center gap-2">
+                <Loader2 size={18} className="animate-spin text-indigo-400" />
+                <span>Memuat data komunitas...</span>
+              </div>
+            ) : communitiesList.length === 0 ? (
+              <div className="p-12 text-center text-white/40 rounded-3xl bg-[#161a1f] border border-white/10 space-y-2">
+                <Compass size={32} className="mx-auto text-white/20" />
+                <p className="text-sm font-medium">Belum ada komunitas terdaftar di database.</p>
+                <button
+                  onClick={handleOpenAddCommunity}
+                  className="px-4 py-2 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold hover:bg-indigo-500/30"
+                >
+                  + Tambah Komunitas Sekarang
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {communitiesList
+                  .filter((c) => {
+                    const q = communitySearch.toLowerCase()
+                    return (
+                      c.name.toLowerCase().includes(q) ||
+                      c.city.toLowerCase().includes(q) ||
+                      c.province.toLowerCase().includes(q)
+                    )
+                  })
+                  .map((c) => (
+                    <div
+                      key={c.id}
+                      className="p-5 rounded-3xl bg-[#161a1f] border border-white/10 space-y-4 flex flex-col justify-between hover:border-indigo-500/30 transition-all group"
+                    >
+                      <div className="space-y-3">
+                        {/* Image Header & Badges */}
+                        <div className="relative h-28 rounded-2xl overflow-hidden bg-black/60 border border-white/10">
+                          {c.imageUrl ? (
+                            <img
+                              src={c.imageUrl}
+                              alt={c.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white/20">
+                              <Compass size={32} />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                          <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/80 text-white backdrop-blur-md">
+                              {c.city}, {c.province}
+                            </span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/60 text-white/80 border border-white/20">
+                              {c.memberCount} Members
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Title & Homebase */}
+                        <div>
+                          <h4 className="font-bold text-white text-base leading-snug">{c.name}</h4>
+                          {c.homebase && (
+                            <p className="text-[11px] text-indigo-400 font-medium flex items-center gap-1 mt-0.5">
+                              <span>📍 {c.homebase}</span>
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Description */}
+                        {c.description && (
+                          <p className="text-xs text-white/60 line-clamp-2 font-light">
+                            {c.description}
+                          </p>
+                        )}
+
+                        {/* Contact & Socials */}
+                        <div className="pt-2 border-t border-white/5 flex flex-wrap items-center gap-2 text-xs">
+                          {c.whatsapp && (
+                            <a
+                              href={`https://wa.me/${c.whatsapp.replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-medium hover:bg-emerald-500/20 inline-flex items-center gap-1"
+                            >
+                              <MessageCircle size={11} />
+                              <span>WhatsApp</span>
+                            </a>
+                          )}
+                          {c.instagram && (
+                            <a
+                              href={`https://instagram.com/${c.instagram.replace('@', '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2.5 py-1 rounded-lg bg-pink-500/10 border border-pink-500/20 text-pink-400 text-[11px] font-medium hover:bg-pink-500/20 inline-flex items-center gap-1"
+                            >
+                              <span>IG: {c.instagram}</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Footer Actions */}
+                      <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                        <Link
+                          href="/community"
+                          className="text-[11px] text-white/50 hover:text-white inline-flex items-center gap-1 font-medium"
+                        >
+                          <span>Lihat di Publik</span>
+                          <ExternalLink size={11} />
+                        </Link>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditCommunity(c)}
+                            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors"
+                            title="Edit Komunitas"
+                          >
+                            <Edit3 size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCommunity(c.id, c.name)}
+                            className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
+                            title="Hapus Komunitas"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* ==================================================================== */}
@@ -1166,6 +1474,138 @@ export default function SuperAdminPage() {
               >
                 {isPending && <Loader2 size={14} className="animate-spin" />}
                 <span>Simpan Jalur Baru</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==================================================================== */}
+      {/* MODAL: TAMBAH / EDIT KOMUNITAS */}
+      {/* ==================================================================== */}
+      {showCommunityModal && (
+        <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-[#161a1f] border border-indigo-500/40 rounded-3xl p-6 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+            <button
+              onClick={() => setShowCommunityModal(false)}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-bold border border-indigo-500/20">
+                <Compass size={13} /> {editingCommunity ? 'Edit Komunitas' : 'Tambah Komunitas Baru'}
+              </div>
+              <h3 className="text-lg font-bold text-white">
+                {editingCommunity ? `Perbarui ${editingCommunity.name}` : 'Input Komunitas / Squad Panjat'}
+              </h3>
+            </div>
+
+            <form onSubmit={handleSaveCommunity} className="space-y-3.5 text-xs">
+              <div>
+                <label className="text-white/70 block mb-1 font-medium">Nama Komunitas / Squad *</label>
+                <input
+                  required
+                  placeholder="e.g. Surabaya Boulders Crew"
+                  value={communityForm.name}
+                  onChange={(e) => setCommunityForm({ ...communityForm, name: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-white/70 block mb-1 font-medium">Kota *</label>
+                  <input
+                    required
+                    placeholder="e.g. Surabaya"
+                    value={communityForm.city}
+                    onChange={(e) => setCommunityForm({ ...communityForm, city: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-white/70 block mb-1 font-medium">Provinsi *</label>
+                  <input
+                    required
+                    placeholder="e.g. Jawa Timur"
+                    value={communityForm.province}
+                    onChange={(e) => setCommunityForm({ ...communityForm, province: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-white/70 block mb-1 font-medium">Homebase (Gym / Tebing Tempat Kumpul)</label>
+                <input
+                  placeholder="e.g. Boulder House Surabaya / Tebing Citatah"
+                  value={communityForm.homebase}
+                  onChange={(e) => setCommunityForm({ ...communityForm, homebase: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-white/70 block mb-1 font-medium">No. WhatsApp Admin (PIC)</label>
+                  <input
+                    placeholder="e.g. 628123456789"
+                    value={communityForm.whatsapp}
+                    onChange={(e) => setCommunityForm({ ...communityForm, whatsapp: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-white/70 block mb-1 font-medium">Instagram Komunitas</label>
+                  <input
+                    placeholder="e.g. @surabaya.boulders"
+                    value={communityForm.instagram}
+                    onChange={(e) => setCommunityForm({ ...communityForm, instagram: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-white/70 block mb-1 font-medium">Foto Banner / Cover Komunitas (URL)</label>
+                <input
+                  placeholder="https://images.unsplash.com/..."
+                  value={communityForm.imageUrl}
+                  onChange={(e) => setCommunityForm({ ...communityForm, imageUrl: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-white/70 block mb-1 font-medium">Tags (pisahkan koma)</label>
+                <input
+                  placeholder="Bouldering, Sport, Outdoor Meetup"
+                  value={communityForm.tags}
+                  onChange={(e) => setCommunityForm({ ...communityForm, tags: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-white/70 block mb-1 font-medium">Deskripsi Singkat</label>
+                <textarea
+                  rows={2}
+                  placeholder="Komunitas bouldering &amp; sport climbing santai untuk pemula hingga advanced..."
+                  value={communityForm.description}
+                  onChange={(e) => setCommunityForm({ ...communityForm, description: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isPending}
+                className="w-full py-3 bg-indigo-500 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-600 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {isPending && <Loader2 size={14} className="animate-spin" />}
+                <span>{editingCommunity ? 'Simpan Perubahan' : 'Terbitkan Komunitas'}</span>
               </button>
             </form>
           </div>
