@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { signIn, signUp } from '@/lib/auth-client'
+import { activateWaitlistUserAction } from '@/lib/actions/auth-helper'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -63,6 +64,27 @@ export default function AuthModal() {
             })
 
       if (result?.error) {
+        if (
+          tab === 'register' &&
+          (result.error.status === 422 ||
+            result.error.message?.toLowerCase().includes('already exists') ||
+            result.error.code === 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL')
+        ) {
+          const activateRes = await activateWaitlistUserAction(email, password, name)
+          if (activateRes.success) {
+            const loginRes = await signIn.email({ email, password })
+            if (!loginRes?.error) {
+              await refreshSession()
+              closeAuthModal()
+              navigateAfterAuth()
+              return
+            }
+          } else if (activateRes.error) {
+            setErrorMsg(activateRes.error)
+            return
+          }
+        }
+
         setErrorMsg(
           result.error.message ||
             'Autentikasi gagal. Periksa kembali email dan password Anda.'
