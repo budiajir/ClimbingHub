@@ -23,7 +23,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (pathname.startsWith('/account') || pathname.startsWith('/set-route')) {
+  if (
+    pathname.startsWith('/account') ||
+    pathname.startsWith('/set-route') ||
+    pathname.startsWith('/super-admin')
+  ) {
     const homeUrl = new URL('/', request.url)
     homeUrl.searchParams.set('auth', 'required')
     homeUrl.searchParams.set('next', `${pathname}${search}`)
@@ -34,5 +38,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/account/:path*', '/admin/:path*', '/set-route/:path*'],
+  matcher: [
+    '/account/:path*',
+    '/admin/:path*',
+    '/set-route/:path*',
+    '/super-admin/:path*',
+  ],
 }

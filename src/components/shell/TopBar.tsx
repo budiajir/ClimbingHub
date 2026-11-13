@@ -278,7 +278,39 @@ export default function TopBar({
                 </form>
 
                 {/* QUICK LINK: SETTINGS & POLICIES (Tanpa kotak card, hanya icon & teks) */}
-                <div className="pt-2 px-1">
+                <div className="pt-2 px-1 space-y-2">
+                  {role === 'super_admin' && (
+                    <Link
+                      href="/super-admin"
+                      onClick={() => setShowDrawer(false)}
+                      className="flex items-center gap-3 py-1.5 transition-opacity hover:opacity-80 group text-left"
+                    >
+                      <Crown size={18} className="text-amber-400 shrink-0" />
+                      <div>
+                        <h4 className="font-bold text-xs text-amber-400 group-hover:underline">
+                          Super Admin Dashboard
+                        </h4>
+                        <p className="text-[10px] opacity-60">Pusat Kendali Pengelola &amp; Moderasi</p>
+                      </div>
+                    </Link>
+                  )}
+
+                  {role === 'gym_admin' && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setShowDrawer(false)}
+                      className="flex items-center gap-3 py-1.5 transition-opacity hover:opacity-80 group text-left"
+                    >
+                      <Store size={18} className="text-cyan-400 shrink-0" />
+                      <div>
+                        <h4 className="font-bold text-xs text-cyan-400 group-hover:underline">
+                          Gym Merchant Dashboard
+                        </h4>
+                        <p className="text-[10px] opacity-60">POS &amp; Manajemen Sesi Kuota</p>
+                      </div>
+                    </Link>
+                  )}
+
                   <Link
                     href="/settings"
                     onClick={() => setShowDrawer(false)}
