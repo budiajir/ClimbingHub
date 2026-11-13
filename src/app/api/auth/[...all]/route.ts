@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         message:
-          'Database belum dikonfigurasi (DATABASE_URL kosong). Isi .env.local atau gunakan Demo Access.',
+          'Database belum dikonfigurasi (DATABASE_URL kosong). Pastikan Environment Variable DATABASE_URL sudah diisi di Dashboard Vercel Settings -> Environment Variables.',
       },
       { status: 503 }
     )

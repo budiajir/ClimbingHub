@@ -5,17 +5,29 @@ import { headers } from 'next/headers'
 import { account, db, isDatabaseConfigured, session, user, verification } from '@/lib/db'
 
 function createAuth() {
-  const baseURL = process.env.BETTER_AUTH_URL || 'http://localhost:3000'
+  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : undefined
+
+  const baseURL = process.env.BETTER_AUTH_URL || vercelUrl || 'http://localhost:3000'
   const secret =
     process.env.BETTER_AUTH_SECRET ||
-    (process.env.NODE_ENV === 'production'
-      ? undefined
-      : 'jalur-local-dev-secret-minimum-32-characters')
+    'jalur-local-dev-secret-minimum-32-characters'
+
+  const trustedOrigins = Array.from(
+    new Set(
+      [baseURL, 'http://localhost:3000', 'http://localhost:3001', vercelUrl].filter(
+        (url): url is string => Boolean(url)
+      )
+    )
+  )
 
   return betterAuth({
     baseURL,
     secret,
-    trustedOrigins: [baseURL, 'http://localhost:3000', 'http://localhost:3001'],
+    trustedOrigins,
     database: drizzleAdapter(db, {
       provider: 'pg',
       schema: {
