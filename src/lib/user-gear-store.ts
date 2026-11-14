@@ -64,19 +64,18 @@ const DEFAULT_GEARS: UserGearItem[] = [
   },
 ]
 
-const STORAGE_KEY = 'jalur_user_gears'
+const STORAGE_KEY = 'jalur_user_gears_v3'
 
 export function getUserGears(): UserGearItem[] {
-  if (typeof window === 'undefined') return DEFAULT_GEARS
+  if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_GEARS))
-      return DEFAULT_GEARS
+      return []
     }
     return JSON.parse(raw)
   } catch {
-    return DEFAULT_GEARS
+    return []
   }
 }
 

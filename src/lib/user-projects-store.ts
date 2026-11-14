@@ -52,19 +52,18 @@ const DEFAULT_PROJECTS: UserProjectItem[] = [
   },
 ]
 
-const STORAGE_KEY = 'jalur_user_ongoing_projects_v1'
+const STORAGE_KEY = 'jalur_user_ongoing_projects_v3'
 
 export function getUserProjects(): UserProjectItem[] {
-  if (typeof window === 'undefined') return DEFAULT_PROJECTS
+  if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_PROJECTS))
-      return DEFAULT_PROJECTS
+      return []
     }
     return JSON.parse(raw)
   } catch {
-    return DEFAULT_PROJECTS
+    return []
   }
 }
 

@@ -102,19 +102,18 @@ const DEFAULT_WISHLIST: WishlistItem[] = [
   },
 ]
 
-const STORAGE_KEY = 'jalur_wishlist_items_v2'
+const STORAGE_KEY = 'jalur_wishlist_items_v3'
 
 export function getWishlist(): WishlistItem[] {
-  if (typeof window === 'undefined') return DEFAULT_WISHLIST
+  if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_WISHLIST))
-      return DEFAULT_WISHLIST
+      return []
     }
     return JSON.parse(raw)
   } catch {
-    return DEFAULT_WISHLIST
+    return []
   }
 }
 

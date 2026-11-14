@@ -43,19 +43,18 @@ const DEFAULT_DRAFTS: DraftProblemItem[] = [
   },
 ]
 
-const STORAGE_KEY = 'jalur_draft_problems'
+const STORAGE_KEY = 'jalur_draft_problems_v3'
 
 export function getDraftProblems(): DraftProblemItem[] {
-  if (typeof window === 'undefined') return DEFAULT_DRAFTS
+  if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DRAFTS))
-      return DEFAULT_DRAFTS
+      return []
     }
     return JSON.parse(raw)
   } catch {
-    return DEFAULT_DRAFTS
+    return []
   }
 }
 

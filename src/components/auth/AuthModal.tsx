@@ -10,6 +10,7 @@ import {
   Building2,
   AlertCircle,
   Loader2,
+  MapPin,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { signIn, signUp } from '@/lib/auth-client'
@@ -34,6 +35,7 @@ export default function AuthModal() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [hometown, setHometown] = useState('')
   const [selectedRole, setSelectedRole] = useState<'climber' | 'route_setter' | 'trip_guide'>('climber')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [unregisteredPrompt, setUnregisteredPrompt] = useState<string | null>(null)
@@ -101,6 +103,7 @@ export default function AuthModal() {
         email,
         password,
         role: selectedRole,
+        hometown: hometown.trim() || undefined,
       })
 
       if (result?.error) {
@@ -247,21 +250,38 @@ export default function AuthModal() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
             {tab === 'register' && (
-              <div>
-                <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
-                  Nama Lengkap (Full Name)
-                </label>
-                <div className="flex items-center gap-2 bg-granite border border-white/5 rounded-xl px-3 py-2.5 focus-within:border-lime/40">
-                  <User size={15} className="text-slate-ash" />
-                  <input
-                    required
-                    placeholder="Contoh: Budi Ajiramadan"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"
-                  />
+              <>
+                <div>
+                  <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
+                    Nama Lengkap (Full Name)
+                  </label>
+                  <div className="flex items-center gap-2 bg-granite border border-white/5 rounded-xl px-3 py-2.5 focus-within:border-lime/40">
+                    <User size={15} className="text-slate-ash" />
+                    <input
+                      required
+                      placeholder="Contoh: Budi Ajiramadan"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div>
+                  <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
+                    Kota Domisili / Asal (Home-base)
+                  </label>
+                  <div className="flex items-center gap-2 bg-granite border border-white/5 rounded-xl px-3 py-2.5 focus-within:border-lime/40">
+                    <MapPin size={15} className="text-slate-ash" />
+                    <input
+                      placeholder="Contoh: Bandung / Jakarta / Yogyakarta"
+                      value={hometown}
+                      onChange={(e) => setHometown(e.target.value)}
+                      className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
             <div>

@@ -164,19 +164,18 @@ const DEFAULT_ORDERS: OrderWalletItem[] = [
   },
 ]
 
-const STORAGE_KEY = 'jalur_wallet_orders_v2'
+const STORAGE_KEY = 'jalur_wallet_orders_v3'
 
 export function getWalletOrders(): OrderWalletItem[] {
-  if (typeof window === 'undefined') return DEFAULT_ORDERS
+  if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_ORDERS))
-      return DEFAULT_ORDERS
+      return []
     }
     return JSON.parse(raw)
   } catch {
-    return DEFAULT_ORDERS
+    return []
   }
 }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -180,15 +180,15 @@ function PersonalAccountContent() {
 
   // Profile data states (Row 1, 2, 3, 4)
   const [fullName, setFullName] = useState(
-    isViewingOther ? 'Nana Herdiana' : (user?.name || 'Ahmad Rizki Nugraha')
+    isViewingOther ? 'Nana Herdiana' : (user?.name || 'Climber')
   )
   const [username, setUsername] = useState(
     isViewingOther
       ? '@nana.climbs'
-      : (user?.handle || (user?.email ? `@${user.email.split('@')[0]}` : '@ahmad.rizki'))
+      : (user?.handle || (user?.email ? `@${user.email.split('@')[0]}` : '@climber'))
   )
   const [homeBase, setHomeBase] = useState(
-    isViewingOther ? 'Jakarta Selatan, DKI Jakarta' : (user?.hometown || 'Bandung, Jawa Barat')
+    isViewingOther ? 'Jakarta Selatan, DKI Jakarta' : (user?.hometown || 'Indonesia')
   )
   const [countryOfOrigin, setCountryOfOrigin] = useState(user?.countryOfOrigin || 'Indonesia')
   const [userAccountStatus, setUserAccountStatus] = useState<
@@ -317,38 +317,6 @@ function PersonalAccountContent() {
   const [copiedLink, setCopiedLink] = useState(false)
   const [sharedToast, setSharedToast] = useState<string | null>(null)
 
-  // Experience Stats (Row 8)
-  const experienceData = {
-    problemsSent: 42,
-    cragsVisited: 14,
-    gymVisited: 8,
-    friendsConnected: 68,
-  }
-
-  // Monthly stats for experience chart
-  const monthlyChartData = [
-    { month: 'Nov', sent: 18, crags: 5, gyms: 3, friends: 22 },
-    { month: 'Dec', sent: 24, crags: 7, gyms: 4, friends: 34 },
-    { month: 'Jan', sent: 29, crags: 9, gyms: 5, friends: 45 },
-    { month: 'Feb', sent: 35, crags: 11, gyms: 6, friends: 55 },
-    { month: 'Mar', sent: 39, crags: 13, gyms: 7, friends: 62 },
-    { month: 'Apr', sent: 42, crags: 14, gyms: 8, friends: 68 },
-  ]
-
-  // Performance Grades (Row 9)
-  const performanceData = {
-    maxBoulder: 'V8 (7B)',
-    maxSport: '5.12c (7b+)',
-    flashBoulder: 'V6 (7A)',
-    flashSport: '5.11d (7a)',
-    discipline: 'Bouldering & Sport Lead',
-    pyramid: [
-      { grade: 'V7–V8', count: 9, bar: '80%' },
-      { grade: 'V5–V6', count: 15, bar: '95%' },
-      { grade: 'V3–V4', count: 18, bar: '100%' },
-    ],
-  }
-
   // On-going Projects state (Row 10)
   const [projects, setProjects] = useState<UserProjectItem[]>([])
   const [showAddProjectModal, setShowAddProjectModal] = useState(false)
@@ -373,6 +341,72 @@ function PersonalAccountContent() {
   const [selectedQRModal, setSelectedQRModal] = useState<OrderWalletItem | null>(null)
   const [selectedReceiptModal, setSelectedReceiptModal] = useState<OrderWalletItem | null>(null)
   const [selectedCheckoutModal, setSelectedCheckoutModal] = useState<OrderWalletItem | null>(null)
+
+  // Dynamic Experience Stats (derived from real user ascents & orders)
+  const experienceData = useMemo(() => ({
+    problemsSent: ascents.length,
+    cragsVisited: new Set(ascents.map((a) => a.location).filter(Boolean)).size,
+    gymVisited: walletOrders.filter((o) => o.status === 'active' || o.status === 'history').length,
+    friendsConnected: 0,
+  }), [ascents, walletOrders])
+
+  // Dynamic Monthly stats for experience chart
+  const monthlyChartData = useMemo(() => {
+    const months = ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr']
+    return months.map((m) => ({
+      month: m,
+      sent: ascents.filter((a) => a.date?.toLowerCase().includes(m.toLowerCase())).length,
+      crags: new Set(
+        ascents
+          .filter((a) => a.date?.toLowerCase().includes(m.toLowerCase()))
+          .map((a) => a.location)
+          .filter(Boolean)
+      ).size,
+      gyms: 0,
+      friends: 0,
+    }))
+  }, [ascents])
+
+  // Dynamic Performance Grades (derived from real user ascents)
+  const performanceData = useMemo(() => {
+    const boulderAscents = ascents.filter(
+      (a) => a.discipline === 'bouldering' || (a.grade && a.grade.startsWith('V'))
+    )
+    const sportAscents = ascents.filter(
+      (a) => a.discipline === 'sport' || (a.grade && a.grade.includes('.'))
+    )
+    const flashAscents = ascents.filter(
+      (a) => a.ascentType === 'flash' || a.ascentType === 'onsight'
+    )
+
+    const gradeCounts: Record<string, number> = {}
+    ascents.forEach((a) => {
+      const g = a.grade || 'V3'
+      gradeCounts[g] = (gradeCounts[g] || 0) + 1
+    })
+
+    const maxCount = Math.max(...Object.values(gradeCounts), 1)
+    const pyramid = Object.entries(gradeCounts)
+      .slice(0, 5)
+      .map(([grade, count]) => ({
+        grade,
+        count,
+        bar: `${Math.round((count / maxCount) * 100)}%`,
+      }))
+
+    return {
+      maxBoulder: boulderAscents[0]?.grade || '—',
+      maxSport: sportAscents[0]?.grade || '—',
+      flashBoulder: flashAscents[0]?.grade || '—',
+      discipline:
+        ascents.length > 0
+          ? boulderAscents.length >= sportAscents.length
+            ? 'Bouldering'
+            : 'Sport Lead'
+          : 'All-Rounder',
+      pyramid,
+    }
+  }, [ascents])
 
   // Gear state (Row 11)
   const [gears, setGears] = useState<UserGearItem[]>([])
@@ -1001,20 +1035,26 @@ function PersonalAccountContent() {
           <span className="text-xs font-semibold uppercase tracking-wider opacity-80 block">
             Send Pyramid Distribution
           </span>
-          <div className="space-y-2">
-            {performanceData.pyramid.map((pyr, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-xs">
-                <span className="w-16 font-mono font-bold text-[#FF6B00]">{pyr.grade}</span>
-                <div className="flex-1 h-3 rounded-full bg-black/20 overflow-hidden relative">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#FF6B00] to-[#F90657] rounded-full"
-                    style={{ width: pyr.bar }}
-                  />
+          {performanceData.pyramid.length === 0 ? (
+            <p className="text-xs opacity-60 py-3 text-center">
+              Belum ada data piramida grade. Selesaikan jalur panjat untuk melihat distribusi grade Anda di sini!
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {performanceData.pyramid.map((pyr, idx) => (
+                <div key={idx} className="flex items-center gap-3 text-xs">
+                  <span className="w-16 font-mono font-bold text-[#FF6B00]">{pyr.grade}</span>
+                  <div className="flex-1 h-3 rounded-full bg-black/20 overflow-hidden relative">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#FF6B00] to-[#F90657] rounded-full"
+                      style={{ width: pyr.bar }}
+                    />
+                  </div>
+                  <span className="w-16 text-right font-medium opacity-80">{pyr.count} sends</span>
                 </div>
-                <span className="w-16 text-right font-medium opacity-80">{pyr.count} sends</span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -1379,41 +1419,49 @@ function PersonalAccountContent() {
         </div>
 
         {/* Gear Thumbnails Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
-          {gears.map((g) => (
-            <div
-              key={g.id}
-              className={`rounded-2xl border overflow-hidden flex flex-col group transition-all relative ${
-                isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
-              }`}
-            >
-              <div className="h-32 w-full relative overflow-hidden bg-black/20">
-                <img
-                  src={g.imageUrl}
-                  alt={g.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                {isPersonalAccess && (
-                  <button
-                    onClick={() => deleteUserGear(g.id)}
-                    title="Remove gear"
-                    className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 text-white/70 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                )}
-              </div>
+        {gears.length === 0 ? (
+          <div className={`p-8 text-center rounded-3xl border opacity-75 ${
+            isSandstone ? 'border-[#1a1815]/15' : 'border-white/10'
+          }`}>
+            <p className="text-sm">Belum ada gear panjat yang ditambahkan. Klik &apos;+ Add Gear&apos; untuk mencatat perlengkapan panjat Anda!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+            {gears.map((g) => (
+              <div
+                key={g.id}
+                className={`rounded-2xl border overflow-hidden flex flex-col group transition-all relative ${
+                  isSandstone ? 'bg-[#f4efe6] border-[#1a1815]/15' : 'bg-[#181D22] border-white/10'
+                }`}
+              >
+                <div className="h-32 w-full relative overflow-hidden bg-black/20">
+                  <img
+                    src={g.imageUrl}
+                    alt={g.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  {isPersonalAccess && (
+                    <button
+                      onClick={() => deleteUserGear(g.id)}
+                      title="Remove gear"
+                      className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 text-white/70 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </div>
 
-              <div className="p-2.5 flex-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] text-[#FF6B00] font-semibold block">{g.categoryLabel}</span>
-                  <h4 className="font-bold text-xs truncate mt-0.5">{g.name}</h4>
-                  <p className="text-[10px] opacity-70 truncate">{g.brand} · {g.condition}</p>
+                <div className="p-2.5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] text-[#FF6B00] font-semibold block">{g.categoryLabel}</span>
+                    <h4 className="font-bold text-xs truncate mt-0.5">{g.name}</h4>
+                    <p className="text-[10px] opacity-70 truncate">{g.brand} · {g.condition}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Pink divider */}
