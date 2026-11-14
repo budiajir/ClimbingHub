@@ -4,6 +4,62 @@ import { neon } from '@neondatabase/serverless'
 import { hashPassword } from 'better-auth/crypto'
 
 /**
+ * Server action to update user profile details in Neon Postgres.
+ */
+export async function updateCurrentUserProfileAction(data: {
+  userId?: string
+  name: string
+  handle?: string
+  role?: string
+  hometown?: string
+  countryOfOrigin?: string
+}): Promise<{ success: boolean; error?: string }> {
+  const connectionString = process.env.DATABASE_URL?.trim()
+  if (!connectionString) {
+    return { success: false, error: 'Database belum terkonfigurasi' }
+  }
+
+  try {
+    let targetUserId = data.userId
+    const sql = neon(connectionString)
+
+    if (!targetUserId) {
+      // Find latest registered or fallback
+      const recentUsers = await sql`SELECT id FROM "user" ORDER BY created_at DESC LIMIT 1`
+      if (recentUsers.length > 0) {
+        targetUserId = recentUsers[0].id
+      }
+    }
+
+    if (!targetUserId) {
+      return { success: false, error: 'Sesi pengguna tidak ditemukan' }
+    }
+
+    // Normalize handle with @
+    let normalizedHandle = data.handle?.trim()
+    if (normalizedHandle && !normalizedHandle.startsWith('@')) {
+      normalizedHandle = '@' + normalizedHandle
+    }
+
+    await sql`
+      UPDATE "user"
+      SET
+        name = ${data.name.trim()},
+        handle = COALESCE(${normalizedHandle || null}, handle),
+        hometown = COALESCE(${data.hometown?.trim() || null}, hometown),
+        country_of_origin = COALESCE(${data.countryOfOrigin?.trim() || 'Indonesia'}, country_of_origin),
+        updated_at = NOW()
+      WHERE id = ${targetUserId}
+    `
+
+    return { success: true }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Gagal memperbarui profil'
+    return { success: false, error: message }
+  }
+}
+
+/**
  * Check if an email exists in user table and whether it has a password set.
  */
 export async function checkEmailStatusAction(email: string): Promise<{

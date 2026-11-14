@@ -79,6 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           handle?: string | null
           gradeMax?: string | null
           ascentsCount?: number | null
+          hometown?: string | null
+          countryOfOrigin?: string | null
         })
       | undefined
 
@@ -94,6 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80',
         gradeMax: sessionUser.gradeMax || 'V4 Climber',
         ascentsCount: Number(sessionUser.ascentsCount || 0),
+        hometown: sessionUser.hometown || undefined,
+        countryOfOrigin: sessionUser.countryOfOrigin || undefined,
       }
 
       setRoleState(sessionRole)

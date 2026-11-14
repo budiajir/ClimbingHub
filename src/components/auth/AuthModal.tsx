@@ -249,13 +249,13 @@ export default function AuthModal() {
             {tab === 'register' && (
               <div>
                 <label className="text-[11px] text-slate-ash uppercase tracking-wider font-light block mb-1">
-                  Full Name
+                  Nama Lengkap (Full Name)
                 </label>
                 <div className="flex items-center gap-2 bg-granite border border-white/5 rounded-xl px-3 py-2.5 focus-within:border-lime/40">
                   <User size={15} className="text-slate-ash" />
                   <input
                     required
-                    placeholder="e.g. Alex Honnold"
+                    placeholder="Contoh: Budi Ajiramadan"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"

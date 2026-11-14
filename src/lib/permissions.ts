@@ -15,6 +15,8 @@ export interface ClimberUser {
   avatar: string
   gradeMax: string
   ascentsCount: number
+  hometown?: string
+  countryOfOrigin?: string
 }
 
 export interface GymTenant {

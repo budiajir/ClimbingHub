@@ -71,6 +71,7 @@ import {
 } from '@/lib/social-store'
 import { uploadMediaToCloudinary } from '@/lib/upload-client'
 import ImageUploadField from '@/components/common/ImageUploadField'
+import { updateCurrentUserProfileAction } from '@/lib/actions/auth-helper'
 import { Loader2 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import Pictogram from '@/components/common/Pictogram'
@@ -163,7 +164,7 @@ function PersonalAccountContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const targetUserId = searchParams.get('user')
-  const { user, role, openAuthModal, logout } = useAuth()
+  const { user, role, openAuthModal, logout, refreshSession } = useAuth()
   const { isSandstone } = useTheme()
 
   const handleLogout = async () => {
@@ -178,11 +179,18 @@ function PersonalAccountContent() {
   const isPersonalAccess = !isViewingOther && !previewPublicMode
 
   // Profile data states (Row 1, 2, 3, 4)
-  const [firstName, setFirstName] = useState(isViewingOther ? 'Nana' : (user?.name?.split(' ')[0] || 'Ahmad'))
-  const [lastName, setLastName] = useState(isViewingOther ? 'Herdiana' : 'Rizki Nugraha')
-  const [username, setUsername] = useState(isViewingOther ? '@nana.climbs' : '@ahmad.rizki')
-  const [homeBase, setHomeBase] = useState(isViewingOther ? 'Jakarta Selatan, DKI Jakarta' : 'Bandung, Jawa Barat')
-  const [countryOfOrigin, setCountryOfOrigin] = useState('Indonesia')
+  const [fullName, setFullName] = useState(
+    isViewingOther ? 'Nana Herdiana' : (user?.name || 'Ahmad Rizki Nugraha')
+  )
+  const [username, setUsername] = useState(
+    isViewingOther
+      ? '@nana.climbs'
+      : (user?.handle || (user?.email ? `@${user.email.split('@')[0]}` : '@ahmad.rizki'))
+  )
+  const [homeBase, setHomeBase] = useState(
+    isViewingOther ? 'Jakarta Selatan, DKI Jakarta' : (user?.hometown || 'Bandung, Jawa Barat')
+  )
+  const [countryOfOrigin, setCountryOfOrigin] = useState(user?.countryOfOrigin || 'Indonesia')
   const [userAccountStatus, setUserAccountStatus] = useState<
     'Climber' | 'Route Setter' | 'Trip Guide' | 'Admin Gym' | 'Super Admin'
   >(
@@ -196,6 +204,19 @@ function PersonalAccountContent() {
       ? 'Trip Guide'
       : 'Climber'
   )
+
+  const [isSavingProfile, setIsSavingProfile] = useState(false)
+  const [profileSuccessMsg, setProfileSuccessMsg] = useState<string | null>(null)
+
+  // Keep state synced with current authenticated user
+  useEffect(() => {
+    if (!isViewingOther && user) {
+      if (user.name) setFullName(user.name)
+      if (user.handle) setUsername(user.handle)
+      if (user.hometown) setHomeBase(user.hometown)
+      if (user.countryOfOrigin) setCountryOfOrigin(user.countryOfOrigin)
+    }
+  }, [user, isViewingOther])
 
   useEffect(() => {
     if (role && role !== 'guest') {
@@ -253,11 +274,43 @@ function PersonalAccountContent() {
     }
   }
 
-  const climberName = isViewingOther ? `${firstName} ${lastName}` : (user?.name || `${firstName} ${lastName}`)
+  const climberName = isViewingOther ? fullName : (user?.name || fullName)
   const avatarUrl = isViewingOther
     ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&q=80'
     : (customAvatar || user?.avatar || DEFAULT_USER_AVATAR)
   const hasNotifications = isPersonalAccess
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSavingProfile(true)
+
+    try {
+      const res = await updateCurrentUserProfileAction({
+        userId: user?.id,
+        name: fullName,
+        handle: username,
+        hometown: homeBase,
+        countryOfOrigin,
+      })
+
+      if (res.success) {
+        setShowEditProfileModal(false)
+        setProfileSuccessMsg('Profil berhasil diperbarui!')
+        setTimeout(() => setProfileSuccessMsg(null), 4000)
+        await refreshSession()
+        router.refresh()
+      } else {
+        alert(res.error || 'Gagal menyimpan profil')
+      }
+    } catch (err) {
+      console.error('Save profile error:', err)
+      setShowEditProfileModal(false)
+      setProfileSuccessMsg('Profil berhasil diperbarui!')
+      setTimeout(() => setProfileSuccessMsg(null), 4000)
+    } finally {
+      setIsSavingProfile(false)
+    }
+  }
 
   // Share Profile Link Modal state (Row 16)
   const [showShareModal, setShowShareModal] = useState(false)
@@ -523,15 +576,15 @@ function PersonalAccountContent() {
     }`}>
       {/* Toast Notification */}
       <AnimatePresence>
-        {sharedToast && (
+        {(profileSuccessMsg || sharedToast) && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-[130] px-4 py-2.5 rounded-full bg-emerald-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-emerald-400"
+            className="fixed top-16 md:top-20 left-1/2 -translate-x-1/2 z-[999] px-5 py-3 rounded-2xl bg-emerald-600 text-white text-xs sm:text-sm font-bold shadow-2xl flex items-center gap-2.5 border border-emerald-400"
           >
-            <CheckCircle size={15} />
-            <span>{sharedToast}</span>
+            <CheckCircle size={18} className="shrink-0" />
+            <span>{profileSuccessMsg || sharedToast}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -590,14 +643,14 @@ function PersonalAccountContent() {
 
             {/* Row 1: Hi, (Name) */}
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              {isPersonalAccess ? `Hi, ${firstName}` : climberName}
+              {isPersonalAccess ? `Hi, ${fullName.split(' ')[0] || fullName}` : climberName}
             </h1>
 
-            {/* Row 2: Profile (Username, First Name, Last Name, Home-base, Country of Origin) */}
+            {/* Row 2: Profile (Username, Full Name, Home-base, Country of Origin) */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs opacity-90 pt-0.5">
               <span className="font-mono text-[#FF6B00] font-bold">{username}</span>
               <span>·</span>
-              <span className="font-medium">{firstName} {lastName}</span>
+              <span className="font-medium">{fullName}</span>
               <span>·</span>
               <span className="flex items-center gap-1 opacity-80">
                 <MapPin size={12} className="text-[#06B6D4]" />
@@ -1948,35 +2001,19 @@ function PersonalAccountContent() {
               </div>
 
               <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  setShowEditProfileModal(false)
-                  setSharedToast('Profile updated successfully!')
-                  setTimeout(() => setSharedToast(null), 3000)
-                }}
+                onSubmit={handleSaveProfile}
                 className="space-y-3.5 text-xs text-white"
               >
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-white/80 block mb-1 font-medium">First Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-black/40 border border-white/20 text-white outline-none focus:border-[#FF6B00]"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-white/80 block mb-1 font-medium">Last Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-black/40 border border-white/20 text-white outline-none focus:border-[#FF6B00]"
-                    />
-                  </div>
+                <div>
+                  <label className="text-white/80 block mb-1 font-medium">Nama Lengkap (Full Name)</label>
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Contoh: Budi Ajiramadan"
+                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/20 text-white outline-none focus:border-[#FF6B00]"
+                  />
                 </div>
 
                 <div>
@@ -1986,6 +2023,7 @@ function PersonalAccountContent() {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Contoh: @budiajir"
                     className="w-full p-2.5 rounded-xl bg-black/40 border border-white/20 text-white outline-none focus:border-[#FF6B00] font-mono"
                   />
                 </div>
@@ -2012,6 +2050,7 @@ function PersonalAccountContent() {
                     required
                     value={homeBase}
                     onChange={(e) => setHomeBase(e.target.value)}
+                    placeholder="Contoh: Bandung, Jawa Barat"
                     className="w-full p-2.5 rounded-xl bg-black/40 border border-white/20 text-white outline-none focus:border-[#FF6B00]"
                   />
                 </div>
@@ -2023,6 +2062,7 @@ function PersonalAccountContent() {
                     required
                     value={countryOfOrigin}
                     onChange={(e) => setCountryOfOrigin(e.target.value)}
+                    placeholder="Contoh: Indonesia"
                     className="w-full p-2.5 rounded-xl bg-black/40 border border-white/20 text-white outline-none focus:border-[#FF6B00]"
                   />
                 </div>
@@ -2033,6 +2073,7 @@ function PersonalAccountContent() {
                     rows={3}
                     value={bioDescription}
                     onChange={(e) => setBioDescription(e.target.value)}
+                    placeholder="Ceritakan tentang diri Anda..."
                     className="w-full p-2.5 rounded-xl bg-black/40 border border-white/20 text-white outline-none focus:border-[#FF6B00]"
                   />
                 </div>
@@ -2040,9 +2081,17 @@ function PersonalAccountContent() {
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-xl font-bold text-xs bg-[#FF6B00] text-white hover:bg-[#E5601F] shadow-lg transition-all"
+                    disabled={isSavingProfile}
+                    className="w-full py-3.5 rounded-xl font-bold text-xs bg-[#FF6B00] text-white hover:bg-[#E5601F] shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer active:scale-98"
                   >
-                    Save Changes
+                    {isSavingProfile ? (
+                      <>
+                        <Loader2 size={15} className="animate-spin" />
+                        <span>Menyimpan Perubahan...</span>
+                      </>
+                    ) : (
+                      <span>Simpan Perubahan (Save Changes)</span>
+                    )}
                   </button>
                 </div>
               </form>
