@@ -72,6 +72,7 @@ function createAuth() {
         gradeMax: {
           type: 'string',
           required: false,
+          defaultValue: 'Beta Tester (jalur.world)',
           input: true,
         },
         ascentsCount: {

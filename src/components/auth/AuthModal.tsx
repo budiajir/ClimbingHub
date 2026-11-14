@@ -110,6 +110,7 @@ export default function AuthModal() {
         email,
         password,
         role: selectedRole,
+        gradeMax: 'Beta Tester (jalur.world)',
         hometown: hometown.trim() || undefined,
       })
 

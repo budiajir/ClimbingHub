@@ -90,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       avatar:
         rawUser.image ||
         'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80',
-      gradeMax: rawUser.gradeMax || 'V4 Climber',
+      gradeMax: rawUser.gradeMax || 'Beta Tester (jalur.world)',
       ascentsCount: Number(rawUser.ascentsCount || 0),
       hometown: rawUser.hometown || undefined,
       countryOfOrigin: rawUser.countryOfOrigin || undefined,
@@ -131,7 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         avatar:
           sessionUser.image ||
           'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80',
-        gradeMax: sessionUser.gradeMax || 'V4 Climber',
+        gradeMax: sessionUser.gradeMax || 'Beta Tester (jalur.world)',
         ascentsCount: Number(sessionUser.ascentsCount || 0),
         hometown: sessionUser.hometown || undefined,
         countryOfOrigin: sessionUser.countryOfOrigin || undefined,
@@ -164,12 +164,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Only set to guest if not recently authenticated in local cache
+    // Only set to guest if not authenticated in local cache
     try {
       const cached = localStorage.getItem('climbhub_active_user')
       if (cached) {
         const parsed = JSON.parse(cached)
-        if (parsed?.timestamp && Date.now() - parsed.timestamp < 15000) {
+        if (parsed?.user?.id && parsed?.user?.email) {
+          setUser(parsed.user)
+          setRoleState(parsed.role || 'climber')
           return () => {
             cancelled = true
           }

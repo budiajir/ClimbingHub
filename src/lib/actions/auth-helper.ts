@@ -154,7 +154,20 @@ export async function activateWaitlistUserAction(email: string, password: string
 
     if (name && name.trim() && (!user.name || user.name === 'Jalur Climber')) {
       await sql`
-        UPDATE "user" SET name = ${name.trim()}, updated_at = NOW() WHERE id = ${user.id}
+        UPDATE "user"
+        SET name = ${name.trim()},
+            grade_max = COALESCE(grade_max, 'Beta Tester (jalur.world)'),
+            email_verified = true,
+            updated_at = NOW()
+        WHERE id = ${user.id}
+      `
+    } else {
+      await sql`
+        UPDATE "user"
+        SET grade_max = COALESCE(grade_max, 'Beta Tester (jalur.world)'),
+            email_verified = true,
+            updated_at = NOW()
+        WHERE id = ${user.id}
       `
     }
 

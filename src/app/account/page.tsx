@@ -76,89 +76,7 @@ import { Loader2 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import Pictogram from '@/components/common/Pictogram'
 
-const DEFAULT_SAMPLE_ASCENTS: UserAscent[] = [
-  {
-    id: 'ascent-1',
-    userId: 'user-1',
-    problemId: 'p-1',
-    problemName: 'Gugusan Bintang',
-    grade: '5.12 B',
-    fontGrade: '7b',
-    setter: 'Ade Ahmad',
-    location: 'Citatah 90 (A)',
-    provinceCountry: 'Jawa Barat, ID',
-    date: '15/04/26',
-    time: '16:45',
-    createdAt: '2026-04-15T16:45:00Z',
-    ascentType: 'redpoint',
-    gradeVote: '5.12 B',
-    climberName: 'Ahmad Rizki Nugraha',
-    attempts: '6 Attempts',
-    duration: '3 Weeks',
-    belayer: 'Nana Herdiana',
-    photographer: 'Meizan Nataadiningrat',
-    wallAngle: '115° Overhang',
-    wallHeight: '18 m',
-    boltsCount: '8 Bolts',
-    photoUrl: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=800&q=80',
-    markers: [],
-    discipline: 'lead',
-  },
-  {
-    id: 'ascent-2',
-    userId: 'user-1',
-    problemId: 'p-2',
-    problemName: 'El Capung Mantle',
-    grade: 'V7 (7A+)',
-    fontGrade: '7A+',
-    setter: 'Curated Setter',
-    location: 'Lembah Harau · Sarasah Bonta',
-    provinceCountry: 'Sumatera Barat, ID',
-    date: '28/03/26',
-    time: '15:20',
-    createdAt: '2026-03-28T15:20:00Z',
-    ascentType: 'flash',
-    gradeVote: 'V7',
-    climberName: 'Ahmad Rizki Nugraha',
-    attempts: '1 Attempt (Flash)',
-    duration: '1 Day',
-    belayer: 'Dimas Anggara',
-    photographer: 'Budi Prasetyo',
-    wallAngle: '125° Roof',
-    wallHeight: '4.5 m',
-    boltsCount: '0 (Boulder)',
-    photoUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80',
-    markers: [],
-    discipline: 'boulder',
-  },
-  {
-    id: 'ascent-3',
-    userId: 'user-1',
-    problemId: 'p-3',
-    problemName: 'Sikatan Dyno',
-    grade: 'V6 (7A)',
-    fontGrade: '7A',
-    setter: 'Rizki & Local Crew',
-    location: 'Tebing Siung · Pantai Siung',
-    provinceCountry: 'DI Yogyakarta, ID',
-    date: '10/02/26',
-    time: '17:10',
-    createdAt: '2026-02-10T17:10:00Z',
-    ascentType: 'onsight',
-    gradeVote: 'V6',
-    climberName: 'Ahmad Rizki Nugraha',
-    attempts: '1 Attempt (Onsight)',
-    duration: 'Single Session',
-    belayer: 'Sarah Amalia',
-    photographer: 'Rani Wijaya',
-    wallAngle: 'Vertical Wall',
-    wallHeight: '5.2 m',
-    boltsCount: '0 (Boulder)',
-    photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-    markers: [],
-    discipline: 'boulder',
-  },
-]
+const DEFAULT_SAMPLE_ASCENTS: UserAscent[] = []
 
 function PersonalAccountContent() {
   const searchParams = useSearchParams()
@@ -473,7 +391,7 @@ function PersonalAccountContent() {
   // Refresh data on mount & listeners
   useEffect(() => {
     const loadedAscents = getUserAscents()
-    setAscents(loadedAscents.length > 0 ? loadedAscents : DEFAULT_SAMPLE_ASCENTS)
+    setAscents(loadedAscents)
 
     setProjects(getUserProjects())
     setWalletOrders(getWalletOrders())
@@ -485,7 +403,7 @@ function PersonalAccountContent() {
 
     const handleAscents = () => {
       const reloaded = getUserAscents()
-      setAscents(reloaded.length > 0 ? reloaded : DEFAULT_SAMPLE_ASCENTS)
+      setAscents(reloaded)
     }
     const handleProjects = () => setProjects(getUserProjects())
     const handleWallet = () => setWalletOrders(getWalletOrders())
@@ -689,28 +607,6 @@ function PersonalAccountContent() {
         </div>
       )}
 
-      {/* ============================================================ */}
-      {/* GUEST BANNER (If viewing personal account without session)   */}
-      {/* ============================================================ */}
-      {!isViewingOther && role === 'guest' && !user && (
-        <div className={`p-5 rounded-3xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${
-          isSandstone ? 'bg-[#FFFDF9] border-[#E0D6C6]' : 'bg-[#181D22] border-white/10'
-        }`}>
-          <div>
-            <h3 className="font-bold text-sm text-[#FF6B00]">Belum Masuk ke Akun Pribadi</h3>
-            <p className="text-xs opacity-75 font-light mt-0.5">
-              Masuk atau buat akun untuk mengakses pencatatan Send Card, koleksi gear, dan wishlist pribadi Anda.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => openAuthModal('Silakan masuk untuk mengakses akun pribadi Anda.', '/account')}
-            className="px-4 py-2 rounded-xl bg-[#FF6B00] text-white font-bold text-xs hover:bg-[#E5601F] transition-all shrink-0 cursor-pointer"
-          >
-            Masuk / Buat Akun
-          </button>
-        </div>
-      )}
 
       {/* ============================================================ */}
       {/* 1. HEADER (Page Title, Profile, Status, Description, Share)  */}
@@ -799,7 +695,7 @@ function PersonalAccountContent() {
               )}
 
               {/* Logout CTA */}
-              {isPersonalAccess && (
+              {!isViewingOther && (
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -807,7 +703,7 @@ function PersonalAccountContent() {
                   title="Keluar dari akun Anda"
                 >
                   <LogOut size={13} />
-                  <span>Keluar</span>
+                  <span>Keluar (Logout)</span>
                 </button>
               )}
 
@@ -1305,7 +1201,7 @@ function PersonalAccountContent() {
           <div className={`p-8 text-center rounded-3xl border opacity-75 ${
             isSandstone ? 'border-[#1a1815]/15' : 'border-white/10'
           }`}>
-            <p className="text-sm">No Sent Cards recorded yet. Complete a route in Problems to log your send!</p>
+            <p className="text-sm">Belum ada Send Card tercatat. Jelajahi jalur dan catat send Anda untuk memulai riwayat panjat!</p>
           </div>
         ) : sentCardViewMode === 'slideshow' ? (
           /* SLIDESHOW (DEFAULT) VIEW MODE (Row 12 Requirement) */
