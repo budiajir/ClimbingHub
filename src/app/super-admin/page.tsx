@@ -23,6 +23,7 @@ import {
   MessageCircle,
 } from 'lucide-react'
 import Link from 'next/link'
+import ImageUploadField from '@/components/common/ImageUploadField'
 import { useAuth } from '@/lib/auth-context'
 import { useTheme } from '@/lib/theme-context'
 import {
@@ -1290,15 +1291,13 @@ export default function SuperAdminPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-white/70 block mb-1 font-medium">Foto Hero / Tebing URL</label>
-                <input
-                  placeholder="https://images.unsplash.com/..."
-                  value={newCrag.imageUrl}
-                  onChange={(e) => setNewCrag({ ...newCrag, imageUrl: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-orange-500"
-                />
-              </div>
+              <ImageUploadField
+                label="Foto Hero / Sampul Tebing"
+                value={newCrag.imageUrl}
+                onChange={(url) => setNewCrag({ ...newCrag, imageUrl: url })}
+                folder="jalur/crags"
+                helperText="Pilih foto tebing langsung dari galeri HP atau folder file laptop (otomatis di-upload ke Cloudinary)."
+              />
 
               <div>
                 <label className="text-white/70 block mb-1 font-medium">Deskripsi Tebing</label>
@@ -1446,15 +1445,13 @@ export default function SuperAdminPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-white/70 block mb-1 font-medium">Foto Jalur / Topo URL</label>
-                <input
-                  placeholder="https://images.unsplash.com/..."
-                  value={newRoute.imageUrl}
-                  onChange={(e) => setNewRoute({ ...newRoute, imageUrl: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-lime"
-                />
-              </div>
+              <ImageUploadField
+                label="Foto Jalur / Topo"
+                value={newRoute.imageUrl}
+                onChange={(url) => setNewRoute({ ...newRoute, imageUrl: url })}
+                folder="jalur/routes"
+                helperText="Upload foto jalur tebing atau topo langsung dari galeri HP atau folder laptop."
+              />
 
               <div>
                 <label className="text-white/70 block mb-1 font-medium">Deskripsi &amp; Beta Jalur</label>
@@ -1568,15 +1565,13 @@ export default function SuperAdminPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-white/70 block mb-1 font-medium">Foto Banner / Cover Komunitas (URL)</label>
-                <input
-                  placeholder="https://images.unsplash.com/..."
-                  value={communityForm.imageUrl}
-                  onChange={(e) => setCommunityForm({ ...communityForm, imageUrl: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-indigo-400"
-                />
-              </div>
+              <ImageUploadField
+                label="Foto Banner / Cover Komunitas"
+                value={communityForm.imageUrl}
+                onChange={(url) => setCommunityForm({ ...communityForm, imageUrl: url })}
+                folder="jalur/communities"
+                helperText="Upload banner komunitas dari file laptop atau galeri HP."
+              />
 
               <div>
                 <label className="text-white/70 block mb-1 font-medium">Tags (pisahkan koma)</label>

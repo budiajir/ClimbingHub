@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ImagePlus, MapPin, Send, Sparkles } from 'lucide-react'
+import { X, ImagePlus, MapPin, Send, Sparkles, Upload, Loader2, Camera, Check } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
 import { useAuth } from '@/lib/auth-context'
+import { uploadMediaToCloudinary } from '@/lib/upload-client'
 import {
   addCommunityPost,
   type CommunityAuthorType,
@@ -46,6 +47,38 @@ export default function CreatePostModal({
   const [imageUrl, setImageUrl] = useState(PRESET_PHOTOS[0])
   const [authorType, setAuthorType] = useState<CommunityAuthorType>(defaultAuthorType)
   const [syncToPersonalFeed, setSyncToPersonalFeed] = useState(true)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Pilih file berupa gambar (JPG, PNG, WEBP).')
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      const uploaded = await uploadMediaToCloudinary(file, 'jalur/community-posts')
+      setImageUrl(uploaded.secureUrl)
+    } catch (err) {
+      console.warn('Upload error, using local fallback:', err)
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setImageUrl(reader.result)
+        }
+      }
+      reader.readAsDataURL(file)
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -250,47 +283,121 @@ export default function CreatePostModal({
 
               {/* Row 4: Foto Lampiran */}
               <div className="space-y-2">
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#FF6B00]">
-                  Lampirkan Foto (Pilih Foto atau Masukkan URL)
-                </label>
-                <div className="flex items-center gap-2">
-                  <ImagePlus size={16} className="text-[#FF6B00] shrink-0" />
-                  <input
-                    type="url"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://..."
-                    className={`flex-1 px-3 py-2 rounded-xl text-xs border outline-none ${
-                      isSandstone
-                        ? 'bg-[#FAF6EF] border-[#DDD3C4] text-[#1a1815]'
-                        : 'bg-[#14161a] border-white/15 text-white'
-                    }`}
-                  />
+                <div className="flex items-center justify-between">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#FF6B00]">
+                    Lampirkan Foto
+                  </label>
+                  <button
+                    type="button"
+                    disabled={isUploading}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-[11px] font-bold text-[#FF6B00] hover:underline flex items-center gap-1 disabled:opacity-60"
+                  >
+                    {isUploading ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <Camera size={12} />
+                    )}
+                    <span>{isUploading ? 'Mengunggah...' : 'Pilih dari HP / Laptop'}</span>
+                  </button>
                 </div>
 
-                {/* 4 Working Preset Photo Thumbnails */}
-                <div className="grid grid-cols-4 gap-2 pt-1">
-                  {PRESET_PHOTOS.map((preset, idx) => (
-                    <button
-                      type="button"
-                      key={preset}
-                      onClick={() => setImageUrl(preset)}
-                      className={`h-14 rounded-xl overflow-hidden border-2 transition-all relative ${
-                        imageUrl === preset
-                          ? 'border-[#FF6B00] shadow-sm scale-[1.02]'
-                          : 'border-transparent opacity-70 hover:opacity-100'
-                      }`}
-                    >
+                {/* Hidden File Input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelected}
+                  className="hidden"
+                />
+
+                {/* Big Upload Button / Preview */}
+                <div
+                  onClick={() => !isUploading && fileInputRef.current?.click()}
+                  className={`relative w-full h-36 rounded-2xl border-2 border-dashed overflow-hidden cursor-pointer transition-all flex flex-col items-center justify-center p-3 select-none ${
+                    isSandstone
+                      ? 'border-[#DDD3C4] hover:border-[#FF6B00] bg-[#FAF6EF]'
+                      : 'border-white/15 hover:border-[#FF6B00]/70 bg-black/30'
+                  }`}
+                >
+                  {imageUrl ? (
+                    <>
                       <img
-                        src={preset}
-                        alt={`Preset Foto ${idx + 1}`}
-                        className="w-full h-full object-cover"
+                        src={imageUrl}
+                        alt="Preview Foto"
+                        className="absolute inset-0 w-full h-full object-cover"
                         onError={(e) => {
                           e.currentTarget.src = PRESET_PHOTOS[0]
                         }}
                       />
-                    </button>
-                  ))}
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <span className="px-3 py-1.5 rounded-xl bg-black/80 text-white font-bold text-xs flex items-center gap-1.5 border border-white/20">
+                          {isUploading ? <Loader2 size={13} className="animate-spin text-[#FF6B00]" /> : <Camera size={13} />}
+                          <span>Ganti Foto dari Galeri</span>
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center space-y-1">
+                      <div className="w-10 h-10 rounded-xl bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center mx-auto">
+                        {isUploading ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+                      </div>
+                      <p className="text-xs font-bold">
+                        {isUploading ? 'Sedang Mengunggah...' : 'Ketuk untuk Buka Galeri HP / File Laptop'}
+                      </p>
+                      <p className="text-[10px] opacity-60">
+                        Mendukung format JPG, PNG, WEBP (Maks. 10MB)
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* URL input fallback & preset photos */}
+                <div className="pt-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <ImagePlus size={15} className="text-[#FF6B00] shrink-0" />
+                    <input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="Atau tempel tautan URL foto di sini (https://...)"
+                      className={`flex-1 px-3 py-2 rounded-xl text-xs border outline-none ${
+                        isSandstone
+                          ? 'bg-[#FAF6EF] border-[#DDD3C4] text-[#1a1815]'
+                          : 'bg-[#14161a] border-white/15 text-white'
+                      }`}
+                    />
+                  </div>
+
+                  {/* 4 Working Preset Photo Thumbnails */}
+                  <div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider opacity-60 block mb-1">
+                      Atau pilih foto preset:
+                    </span>
+                    <div className="grid grid-cols-4 gap-2">
+                      {PRESET_PHOTOS.map((preset, idx) => (
+                        <button
+                          type="button"
+                          key={preset}
+                          onClick={() => setImageUrl(preset)}
+                          className={`h-12 rounded-xl overflow-hidden border-2 transition-all relative ${
+                            imageUrl === preset
+                              ? 'border-[#FF6B00] shadow-sm scale-[1.02]'
+                              : 'border-transparent opacity-70 hover:opacity-100'
+                          }`}
+                        >
+                          <img
+                            src={preset}
+                            alt={`Preset Foto ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = PRESET_PHOTOS[0]
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 

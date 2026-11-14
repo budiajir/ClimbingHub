@@ -64,9 +64,13 @@ import { addCommunityPost } from '@/lib/community-posts-store'
 import {
   getPersonalFeedPosts,
   getUserCustomAvatar,
+  saveUserCustomAvatar,
   DEFAULT_USER_AVATAR,
   type PersonalFeedPost,
 } from '@/lib/social-store'
+import { uploadMediaToCloudinary } from '@/lib/upload-client'
+import ImageUploadField from '@/components/common/ImageUploadField'
+import { Loader2 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import Pictogram from '@/components/common/Pictogram'
 
@@ -209,6 +213,39 @@ function PersonalAccountContent() {
   const [showEditProfileModal, setShowEditProfileModal] = useState(false)
 
   const [customAvatar, setCustomAvatar] = useState<string | null>(null)
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const avatarInputRef = React.useRef<HTMLInputElement>(null)
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Pilih file gambar untuk foto profil.')
+      return
+    }
+
+    setIsUploadingAvatar(true)
+    try {
+      const uploaded = await uploadMediaToCloudinary(file, 'jalur/avatars')
+      saveUserCustomAvatar(uploaded.secureUrl)
+      setCustomAvatar(uploaded.secureUrl)
+    } catch (err) {
+      console.warn('Avatar upload fallback:', err)
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          saveUserCustomAvatar(reader.result)
+          setCustomAvatar(reader.result)
+        }
+      }
+      reader.readAsDataURL(file)
+    } finally {
+      setIsUploadingAvatar(false)
+      if (avatarInputRef.current) avatarInputRef.current.value = ''
+    }
+  }
+
   const climberName = isViewingOther ? `${firstName} ${lastName}` : (user?.name || `${firstName} ${lastName}`)
   const avatarUrl = isViewingOther
     ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&q=80'
@@ -627,14 +664,54 @@ function PersonalAccountContent() {
 
           {/* Right Circular Avatar with Notification Indicator */}
           <div className="relative self-start sm:self-center shrink-0">
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-[#FF6B00] shadow-xl p-0.5">
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-[#FF6B00] shadow-xl p-0.5 group">
               <img
                 src={avatarUrl}
                 alt={climberName}
                 className="w-full h-full object-cover rounded-full"
               />
+              {isPersonalAccess && (
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={isUploadingAvatar}
+                  className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Ganti Foto Profil dari Galeri HP / Laptop"
+                >
+                  {isUploadingAvatar ? (
+                    <Loader2 size={18} className="animate-spin text-[#FF6B00]" />
+                  ) : (
+                    <>
+                      <Camera size={18} />
+                      <span className="text-[9px] font-bold mt-0.5">Ubah Foto</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
-            {hasNotifications && (
+            {isPersonalAccess && (
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#FF6B00] hover:bg-[#E5601F] text-white flex items-center justify-center border-2 border-[#181D22] shadow-lg transition-transform hover:scale-110 disabled:opacity-60"
+                title="Ganti Foto Profil dari Galeri HP / Laptop"
+              >
+                {isUploadingAvatar ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <Camera size={13} />
+                )}
+              </button>
+            )}
+            {hasNotifications && !isUploadingAvatar && (
               <span
                 className="absolute top-0 right-0 w-4 h-4 bg-red-500 border-2 border-[#181D22] rounded-full shadow-md animate-pulse"
                 title="Unread notifications"
@@ -2053,16 +2130,13 @@ function PersonalAccountContent() {
                   />
                 </div>
 
-                <div>
-                  <label className="text-white/80 block mb-1 font-medium">Boulder Photo URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://..."
-                    value={newProjectImage}
-                    onChange={(e) => setNewProjectImage(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/20 text-white outline-none focus:border-[#FF6B00]"
-                  />
-                </div>
+                <ImageUploadField
+                  label="Foto Jalur / Boulder Project"
+                  value={newProjectImage}
+                  onChange={(url) => setNewProjectImage(url)}
+                  folder="jalur/projects"
+                  helperText="Pilih foto boulder dari galeri HP atau file laptop."
+                />
 
                 <div>
                   <label className="text-white/80 block mb-1 font-medium">Beta / Crux Notes</label>
@@ -2157,16 +2231,13 @@ function PersonalAccountContent() {
                   />
                 </div>
 
-                <div>
-                  <label className="text-white/80 block mb-1 font-medium">Gear Photo URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://..."
-                    value={newGearImage}
-                    onChange={(e) => setNewGearImage(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/20 text-white outline-none focus:border-[#FF6B00]"
-                  />
-                </div>
+                <ImageUploadField
+                  label="Foto Gear / Peralatan"
+                  value={newGearImage}
+                  onChange={(url) => setNewGearImage(url)}
+                  folder="jalur/gear"
+                  helperText="Upload foto alat panjat Anda dari galeri HP atau folder file."
+                />
 
                 <div className="pt-2">
                   <button
