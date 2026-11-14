@@ -165,6 +165,54 @@ export async function activateWaitlistUserAction(email: string, password: string
   }
 }
 
+export interface PublicUserProfile {
+  id: string
+  name: string
+  email: string
+  handle: string | null
+  hometown: string | null
+  countryOfOrigin: string | null
+  role: string | null
+  gradeMax: string | null
+  imageUrl: string | null
+  ascentsCount: number
+}
+
+/**
+ * Fetch a user profile by ID from Neon PostgreSQL.
+ */
+export async function getUserProfileByIdAction(userId: string): Promise<PublicUserProfile | null> {
+  const connectionString = process.env.DATABASE_URL?.trim()
+  if (!connectionString || !userId) return null
+
+  try {
+    const sql = neon(connectionString)
+    const rows = await sql`
+      SELECT id, name, email, handle, hometown, country_of_origin, role, grade_max, image_url, ascents_count
+      FROM "user"
+      WHERE id = ${userId}
+      LIMIT 1
+    `
+    if (rows.length === 0) return null
+    const u = rows[0]
+    return {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      handle: u.handle,
+      hometown: u.hometown,
+      countryOfOrigin: u.country_of_origin,
+      role: u.role,
+      gradeMax: u.grade_max,
+      imageUrl: u.image_url,
+      ascentsCount: Number(u.ascents_count || 0),
+    }
+  } catch (err) {
+    console.error('getUserProfileByIdAction error:', err)
+    return null
+  }
+}
+
 export interface RegisteredClimberItem {
   id: string
   name: string

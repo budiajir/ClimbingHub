@@ -71,7 +71,7 @@ import {
 } from '@/lib/social-store'
 import { uploadMediaToCloudinary } from '@/lib/upload-client'
 import ImageUploadField from '@/components/common/ImageUploadField'
-import { updateCurrentUserProfileAction } from '@/lib/actions/auth-helper'
+import { updateCurrentUserProfileAction, getUserProfileByIdAction } from '@/lib/actions/auth-helper'
 import { Loader2 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import Pictogram from '@/components/common/Pictogram'
@@ -210,13 +210,59 @@ function PersonalAccountContent() {
 
   // Keep state synced with current authenticated user
   useEffect(() => {
-    if (!isViewingOther && user) {
-      if (user.name) setFullName(user.name)
-      if (user.handle) setUsername(user.handle)
-      if (user.hometown) setHomeBase(user.hometown)
-      if (user.countryOfOrigin) setCountryOfOrigin(user.countryOfOrigin)
+    if (!isViewingOther) {
+      if (user) {
+        if (user.name) setFullName(user.name)
+        if (user.handle) setUsername(user.handle)
+        if (user.hometown) setHomeBase(user.hometown)
+        if (user.countryOfOrigin) setCountryOfOrigin(user.countryOfOrigin)
+        if (user.avatar) setCustomAvatar(user.avatar)
+      } else {
+        try {
+          const cached = localStorage.getItem('climbhub_active_user')
+          if (cached) {
+            const parsed = JSON.parse(cached)
+            if (parsed?.user) {
+              if (parsed.user.name) setFullName(parsed.user.name)
+              if (parsed.user.handle) setUsername(parsed.user.handle)
+              if (parsed.user.hometown) setHomeBase(parsed.user.hometown)
+              if (parsed.user.countryOfOrigin) setCountryOfOrigin(parsed.user.countryOfOrigin)
+              if (parsed.user.avatar) setCustomAvatar(parsed.user.avatar)
+            }
+          }
+        } catch {}
+      }
     }
   }, [user, isViewingOther])
+
+  // Load real profile details if viewing another climber (e.g. /account?user=...)
+  useEffect(() => {
+    if (isViewingOther && targetUserId) {
+      getUserProfileByIdAction(targetUserId).then((otherUser) => {
+        if (otherUser) {
+          if (otherUser.name) setFullName(otherUser.name)
+          const cleanHandle = otherUser.handle || (otherUser.email ? `@${otherUser.email.split('@')[0]}` : `@${otherUser.name.toLowerCase().replace(/[^a-z0-9]+/g, '.')}`)
+          setUsername(cleanHandle)
+          if (otherUser.hometown) setHomeBase(otherUser.hometown)
+          if (otherUser.countryOfOrigin) setCountryOfOrigin(otherUser.countryOfOrigin)
+          if (otherUser.imageUrl) setCustomAvatar(otherUser.imageUrl)
+          if (otherUser.role) {
+            setUserAccountStatus(
+              otherUser.role === 'super_admin'
+                ? 'Super Admin'
+                : otherUser.role === 'gym_admin'
+                ? 'Admin Gym'
+                : otherUser.role === 'route_setter'
+                ? 'Route Setter'
+                : otherUser.role === 'trip_guide'
+                ? 'Trip Guide'
+                : 'Climber'
+            )
+          }
+        }
+      })
+    }
+  }, [isViewingOther, targetUserId])
 
   useEffect(() => {
     if (role && role !== 'guest') {
@@ -639,6 +685,29 @@ function PersonalAccountContent() {
             className="px-3.5 py-1.5 rounded-xl font-bold bg-amber-500 text-black hover:bg-amber-400 self-start sm:self-auto transition-all shrink-0"
           >
             Exit Public Preview
+          </button>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* GUEST BANNER (If viewing personal account without session)   */}
+      {/* ============================================================ */}
+      {!isViewingOther && role === 'guest' && !user && (
+        <div className={`p-5 rounded-3xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${
+          isSandstone ? 'bg-[#FFFDF9] border-[#E0D6C6]' : 'bg-[#181D22] border-white/10'
+        }`}>
+          <div>
+            <h3 className="font-bold text-sm text-[#FF6B00]">Belum Masuk ke Akun Pribadi</h3>
+            <p className="text-xs opacity-75 font-light mt-0.5">
+              Masuk atau buat akun untuk mengakses pencatatan Send Card, koleksi gear, dan wishlist pribadi Anda.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => openAuthModal('Silakan masuk untuk mengakses akun pribadi Anda.', '/account')}
+            className="px-4 py-2 rounded-xl bg-[#FF6B00] text-white font-bold text-xs hover:bg-[#E5601F] transition-all shrink-0 cursor-pointer"
+          >
+            Masuk / Buat Akun
           </button>
         </div>
       )}

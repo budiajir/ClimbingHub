@@ -93,6 +93,20 @@ function createAuth() {
       },
     },
     plugins: [nextCookies()],
+    advanced: {
+      crossSubDomainCookies: {
+        enabled: Boolean(
+          process.env.NODE_ENV === 'production' &&
+            !process.env.VERCEL_URL?.includes('vercel.app')
+        ),
+        domain: '.jalur.world',
+      },
+      defaultCookieAttributes: {
+        sameSite: 'lax',
+        secure: true,
+        path: '/',
+      },
+    },
   })
 }
 
