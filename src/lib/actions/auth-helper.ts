@@ -164,3 +164,59 @@ export async function activateWaitlistUserAction(email: string, password: string
     return { success: false, error: message }
   }
 }
+
+export interface RegisteredClimberItem {
+  id: string
+  name: string
+  handle: string
+  city: string
+  grade: string
+  avatar: string
+  status: string
+}
+
+/**
+ * Fetch real registered climbers from Neon PostgreSQL database.
+ */
+export async function getRegisteredClimbersAction(): Promise<RegisteredClimberItem[]> {
+  const connectionString = process.env.DATABASE_URL?.trim()
+  if (!connectionString) return []
+
+  try {
+    const sql = neon(connectionString)
+    const rows = await sql`
+      SELECT id, name, handle, hometown, role, image_url, grade_max
+      FROM "user"
+      ORDER BY created_at DESC
+      LIMIT 30
+    `
+
+    const fallbackAvatars = [
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=180&q=80',
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=180&q=80',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=180&q=80',
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=180&q=80',
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=180&q=80',
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=180&q=80',
+    ]
+
+    return rows
+      .filter((u) => u.name && u.name.trim().length > 0 && !u.name.startsWith('+62'))
+      .map((u, i) => {
+        const cleanName = u.name.trim()
+        const cleanHandle = u.handle || `@${cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '.')}`
+        return {
+          id: u.id,
+          name: cleanName,
+          handle: cleanHandle,
+          city: u.hometown?.trim() || 'Indonesia',
+          grade: u.grade_max || 'V4 / 5.11a',
+          avatar: u.image_url || fallbackAvatars[i % fallbackAvatars.length],
+          status: i % 3 === 0 ? 'Outdoor' : i % 3 === 1 ? 'At Gym' : 'Active',
+        }
+      })
+  } catch (err) {
+    console.error('getRegisteredClimbersAction error:', err)
+    return []
+  }
+}

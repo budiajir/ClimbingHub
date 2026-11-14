@@ -34,11 +34,11 @@ export interface CommunityInvite {
   status: 'Sent'
 }
 
-const FRIENDS_STORAGE_KEY = 'jalur_connected_friends_v1'
-const CHAT_STORAGE_KEY = 'jalur_chat_threads_v1'
-const INVITES_STORAGE_KEY = 'jalur_community_invites_v1'
+const FRIENDS_STORAGE_KEY = 'jalur_connected_friends_v4'
+const CHAT_STORAGE_KEY = 'jalur_chat_threads_v4'
+const INVITES_STORAGE_KEY = 'jalur_community_invites_v4'
 
-const DEFAULT_CONNECTED_FRIENDS: string[] = ['climber-1', 'climber-3']
+const DEFAULT_CONNECTED_FRIENDS: string[] = []
 
 export const DEFAULT_CHAT_CONTACTS: ChatContact[] = [
   {
@@ -120,46 +120,7 @@ export const DEFAULT_CHAT_CONTACTS: ChatContact[] = [
   },
 ]
 
-const DEFAULT_CHAT_MESSAGES: Record<string, ChatMessage[]> = {
-  'climber-1': [
-    {
-      id: 'm-1',
-      contactId: 'climber-1',
-      sender: 'them',
-      text: 'Minggu pagi jadi merapat ke Tebing Citatah 125? Bawa quickdraw cadangan ya!',
-      timeLabel: '09:15',
-      createdAt: '2026-11-11T09:15:00.000Z',
-    },
-    {
-      id: 'm-2',
-      contactId: 'climber-1',
-      sender: 'me',
-      text: 'Gass! Gue bawa 12 draws sama tali 70m. Jam 7 kita ketemu di meeting point.',
-      timeLabel: '09:22',
-      createdAt: '2026-11-11T09:22:00.000Z',
-    },
-  ],
-  'setter-1': [
-    {
-      id: 'm-3',
-      contactId: 'setter-1',
-      sender: 'them',
-      text: 'Halo! Bolt #3 dan hanger anchor di Sektor Timur baru aja dicek ulang minggu ini. Aman untuk lead 5.11b.',
-      timeLabel: 'Yesterday',
-      createdAt: '2026-11-10T14:20:00.000Z',
-    },
-  ],
-  'guide-1': [
-    {
-      id: 'm-4',
-      contactId: 'guide-1',
-      sender: 'them',
-      text: 'Open slot buat akses Lembah Harau weekend depan. Info cuaca & kondisi batuan granit bisa tanya langsung di sini.',
-      timeLabel: 'Yesterday',
-      createdAt: '2026-11-10T11:05:00.000Z',
-    },
-  ],
-}
+const DEFAULT_CHAT_MESSAGES: Record<string, ChatMessage[]> = {}
 
 export function getConnectedFriends(): string[] {
   if (typeof window === 'undefined') return DEFAULT_CONNECTED_FRIENDS
@@ -301,7 +262,7 @@ export interface PersonalFeedPost {
   createdAt: string
 }
 
-const PERSONAL_FEED_KEY = 'jalur_personal_feed_v1'
+const PERSONAL_FEED_KEY = 'jalur_personal_feed_v4'
 
 export function getPersonalFeedPosts(): PersonalFeedPost[] {
   if (typeof window === 'undefined') return []

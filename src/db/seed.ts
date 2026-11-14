@@ -160,43 +160,6 @@ async function seed() {
     )
     .onConflictDoNothing()
 
-  console.log('Seeding default community posts...')
-  await db
-    .insert(communityPosts)
-    .values([
-      {
-        id: 'post-1',
-        userName: 'Budi Prasetyo',
-        userHandle: '@budiclimb',
-        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-        hometown: 'Bandung',
-        activity: 'Flash Send · Problem Gorejat',
-        location: 'Harau Valley · Sarasah Bonta',
-        grade: 'V7 (7A+)',
-        caption: 'Akhirnya send juga project lama di Sarasah Bonta! Friction batu granit Harau sore hari ini lagi gokil banget.',
-        imageUrl: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=900&q=80',
-        likesCount: 38,
-        comments: [
-          { user: 'Dimas Anggara', text: 'Gokil mantap brother!! Beta undercling nya dapet akhirnya' },
-          { user: 'Sarah Amalia', text: 'Keren banget mas Budi!' },
-        ],
-      },
-      {
-        id: 'post-2',
-        userName: 'Sarah Amalia',
-        userHandle: '@sarah.climbs',
-        avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-        hometown: 'Jakarta',
-        activity: 'Session Training · Indoclimb FX Sudirman',
-        location: 'Indoclimb FX Sudirman · Jakarta Pusat',
-        caption: 'Sesi latihan malam bareng squad Boulder Bastards. Reset rute baru di overhang sector bikin pump banget!',
-        imageUrl: 'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?auto=format&fit=crop&w=900&q=80',
-        likesCount: 45,
-        comments: [{ user: 'Rani Wijaya', text: 'Next week join lagi yaa sar!' }],
-      },
-    ])
-    .onConflictDoNothing()
-
   console.log('Seed completed cleanly.')
 }
 

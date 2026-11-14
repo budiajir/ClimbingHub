@@ -33,192 +33,24 @@ import {
   getConnectedFriends,
   toggleFriendConnection,
 } from '@/lib/social-store'
+import {
+  getRegisteredClimbersAction,
+  type RegisteredClimberItem,
+} from '@/lib/actions/auth-helper'
 
-const WALL_EXTRA_POSTS: CommunityPost[] = [
-  {
-    id: 'wall-squad-1',
-    userId: 'squad-bandung-karst',
-    userName: 'Bandung Karst Collective',
-    userHandle: '@bandung.karst',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80',
-    hometown: 'Bandung, Jawa Barat',
-    timeAgo: '45m ago',
-    activity: 'Squad Meetup · Open Crag Day',
-    location: 'Tebing Citatah 125',
-    grade: '5.10a – 5.12b',
-    caption:
-      'Open Sunday crag session at Sektor Timur! Members and newcomers welcome — crash pads, stick clips, and shared rope beta available at the meeting point from 07:00 WIB.',
-    image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&q=80',
-    likes: 34,
-    hasLiked: false,
-    authorType: 'squad',
-    comments: [{ user: 'dimas.crags', text: 'I will bring 2 extra crash pads!' }],
-  },
-  {
-    id: 'wall-gym-1',
-    userId: 'boulder-cave-jakarta',
-    userName: 'Boulder Cave Kemang',
-    userHandle: '@bouldercave.jkt',
-    avatar: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=150&q=80',
-    hometown: 'Jakarta Selatan',
-    timeAgo: '3h ago',
-    activity: 'Fresh Reset · 18 New Problems',
-    location: 'Main Cave & Slab Wall',
-    grade: 'V1 – V8',
-    caption:
-      'Our route setters just wrapped this week’s comp-style slab & roof reset! Swing by tonight for the community test session.',
-    image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1000&q=80',
-    likes: 51,
-    hasLiked: false,
-    authorType: 'gym',
-    comments: [{ user: 'raka.boulders', text: 'The pink V5 dual-tex slab looks wicked!' }],
-  },
-]
-
-const REGISTERED_CLIMBERS = [
-  {
-    id: 'climber-1',
-    name: 'Raka Pratama',
-    handle: '@raka.boulders',
-    city: 'Jakarta Selatan',
-    grade: 'V6 / 5.12a',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=180&q=80',
-    status: 'Active',
-  },
-  {
-    id: 'climber-2',
-    name: 'Nadia Kusuma',
-    handle: '@nadia.sends',
-    city: 'Bandung',
-    grade: 'V7 / 5.12c',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=180&q=80',
-    status: 'At Gym',
-  },
-  {
-    id: 'climber-3',
-    name: 'Dimas Wijaya',
-    handle: '@dimas.crags',
-    city: 'Yogyakarta',
-    grade: 'V5 / 5.11c',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=180&q=80',
-    status: 'At Crag',
-  },
-  {
-    id: 'climber-4',
-    name: 'Rani Wulandari',
-    handle: '@rani.climbs',
-    city: 'Surabaya',
-    grade: 'V4 / 5.11a',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=180&q=80',
-    status: 'Online',
-  },
-  {
-    id: 'climber-5',
-    name: 'Guntur Pratama',
-    handle: '@guntur.mp',
-    city: 'Padang / Harau',
-    grade: 'V6 / 5.12b',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=180&q=80',
-    status: 'Outdoor',
-  },
-  {
-    id: 'climber-6',
-    name: 'Siti Aisyah',
-    handle: '@siti.boulder',
-    city: 'Bali',
-    grade: 'V6 / 5.11d',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=180&q=80',
-    status: 'At Crag',
-  },
-]
-import Pictogram from '@/components/common/Pictogram'
-
-interface FriendPost {
-  id: string
-  userId: string
-  userName: string
-  userHandle: string
-  avatar: string
-  hometown: string
-  timeAgo: string
-  activity: string
-  location: string
-  grade?: string
-  caption: string
-  image: string
-  likes: number
-  hasLiked?: boolean
-  comments: { user: string; text: string }[]
-}
-
-const INITIAL_FRIEND_POSTS: FriendPost[] = [
-  {
-    id: 'post-1',
-    userId: 'climber-1',
-    userName: 'Budi Prasetyo',
-    userHandle: '@budiclimb',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    hometown: 'Bandung',
-    timeAgo: '2 jam yang lalu',
-    activity: 'Flash Send · Problem Gorejat',
-    location: 'Harau Valley · Sarasah Bonta',
-    grade: 'V7 (7A+)',
-    caption: 'Akhirnya send juga project lama di Sarasah Bonta! Friction batu granit Harau hari ini lagi gokil banget pas sore hari.',
-    image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&w=900&q=80',
-    likes: 38,
-    comments: [
-      { user: 'Dimas Anggara', text: 'Gokil mantap brother!! Beta undercling nya dapet akhirnya' },
-      { user: 'Sarah Amalia', text: 'Keren banget mas Budi!' },
-    ],
-  },
-  {
-    id: 'post-2',
-    userId: 'climber-2',
-    userName: 'Sarah Amalia',
-    userHandle: '@sarah.climbs',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-    hometown: 'Jakarta',
-    timeAgo: '5 jam yang lalu',
-    activity: 'Session Training · Indoclimb FX Sudirman',
-    location: 'Indoclimb FX Sudirman · Jakarta',
-    caption: 'Sesi latihan malam bareng squad Boulder Bastards. Reset rute baru di overhang sector bikin pump banget!',
-    image: 'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?auto=format&fit=crop&w=900&q=80',
-    likes: 45,
-    comments: [
-      { user: 'Rani Wijaya', text: 'Next week join lagi yaa sar!' },
-    ],
-  },
-  {
-    id: 'post-3',
-    userId: 'climber-3',
-    userName: 'Dimas Anggara',
-    userHandle: '@dimas_boulder',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    hometown: 'Yogyakarta',
-    timeAgo: '1 hari yang lalu',
-    activity: 'Outdoor Ascent · Tebing Siung Karst',
-    location: 'Tebing Siung · Pantai Siung',
-    grade: '6c (5.11a)',
-    caption: 'Sesi sunset climbing di pinggir ombak Siung. Angin laut sejuk, anchor bersih dan view luar biasa.',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80',
-    likes: 62,
-    comments: [
-      { user: 'Budi Prasetyo', text: 'Spot favorit jogja emang Siung!' },
-    ],
-  },
-]
+const WALL_EXTRA_POSTS: CommunityPost[] = []
 
 export default function CommunityPage() {
   const { theme } = useTheme()
   const isSandstone = theme === 'sandstone'
-  const { isAuthenticated, openAuthModal } = useAuth()
+  const { isAuthenticated, openAuthModal, user } = useAuth()
 
   const [activeTab, setActiveTab] = useState<'timeline' | 'chat' | 'clubs' | 'climbers'>('timeline')
   const [wallFilter, setWallFilter] = useState<'all' | CommunityAuthorType>('all')
   const [friendSearch, setFriendSearch] = useState('')
   const [storePosts, setStorePosts] = useState<CommunityPost[]>([])
-  const [legacyPosts, setLegacyPosts] = useState<FriendPost[]>(INITIAL_FRIEND_POSTS)
-  const [extraPosts, setExtraPosts] = useState<CommunityPost[]>(WALL_EXTRA_POSTS)
+  const [extraPosts, setExtraPosts] = useState<CommunityPost[]>([])
+  const [registeredClimbers, setRegisteredClimbers] = useState<RegisteredClimberItem[]>([])
   const [connectedFriends, setConnectedFriends] = useState<string[]>([])
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({})
   const [extraComments, setExtraComments] = useState<Record<string, { user: string; text: string }[]>>({})
@@ -238,6 +70,9 @@ export default function CommunityPage() {
       setConnectedFriends(getConnectedFriends())
     }
     syncCommunity()
+    getRegisteredClimbersAction().then(setRegisteredClimbers)
+    window.addEventListener('community-posts-updated', syncCommunity)
+    window.addEventListener('social-friends-updated', syncCommunity)
     window.addEventListener('community-posts-updated', syncCommunity)
     window.addEventListener('social-friends-updated', syncCommunity)
 
@@ -260,49 +95,15 @@ export default function CommunityPage() {
   }, [])
 
   const allWallPosts: CommunityPost[] = useMemo(() => {
-    const merged: CommunityPost[] = [
-      ...storePosts.map(p => ({ ...p, authorType: p.authorType || 'climber' })),
-      ...extraPosts,
-      ...legacyPosts.map(lp => ({ ...lp, authorType: 'member' as CommunityAuthorType })),
-    ]
-    const seen = new Set<string>()
-    return merged.filter(item => {
-      if (seen.has(item.id)) return false
-      seen.add(item.id)
-      return true
-    })
-  }, [storePosts, extraPosts, legacyPosts])
+    return storePosts.map((p) => ({ ...p, authorType: p.authorType || 'climber' }))
+  }, [storePosts])
 
   const handleToggleLike = (postId: string) => {
     if (!isAuthenticated) {
       openAuthModal('Silakan masuk atau buat akun untuk menyukai postingan.')
       return
     }
-    if (storePosts.some(p => p.id === postId)) {
-      togglePostLike(postId)
-      return
-    }
-    if (extraPosts.some(p => p.id === postId)) {
-      setExtraPosts(prev =>
-        prev.map(p =>
-          p.id === postId
-            ? { ...p, hasLiked: !p.hasLiked, likes: p.hasLiked ? p.likes - 1 : p.likes + 1 }
-            : p
-        )
-      )
-      return
-    }
-    setLegacyPosts(prev =>
-      prev.map(p => {
-        if (p.id !== postId) return p
-        const hasLiked = p.hasLiked
-        return {
-          ...p,
-          hasLiked: !hasLiked,
-          likes: hasLiked ? p.likes - 1 : p.likes + 1,
-        }
-      })
-    )
+    togglePostLike(postId)
   }
 
   const handleAddComment = (postId: string) => {
@@ -312,11 +113,11 @@ export default function CommunityPage() {
     }
     const text = (commentInputs[postId] || '').trim()
     if (!text) return
-    setExtraComments(prev => ({
+    setExtraComments((prev) => ({
       ...prev,
-      [postId]: [...(prev[postId] || []), { user: 'You', text }],
+      [postId]: [...(prev[postId] || []), { user: user?.name || 'You', text }],
     }))
-    setCommentInputs(prev => ({ ...prev, [postId]: '' }))
+    setCommentInputs((prev) => ({ ...prev, [postId]: '' }))
   }
 
   const filteredPosts = allWallPosts.filter(p => {
@@ -512,57 +313,93 @@ export default function CommunityPage() {
             </div>
 
             {/* Quick Friend Avatars Thumbnail Strip */}
-            <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2">
-              {REGISTERED_CLIMBERS.map(f => {
-                const isFriend = connectedFriends.includes(f.id)
-                return (
-                  <div
-                    key={f.id}
-                    className={`flex flex-col items-center gap-1.5 min-w-[92px] p-2.5 rounded-2xl border ${
-                      isSandstone ? 'bg-[#FAF6EF] border-[#E0D6C6]' : 'bg-[#1a1f24] border-white/10'
-                    }`}
-                  >
-                    <Link
-                      href={`/account?user=${f.id}`}
-                      className="flex flex-col items-center gap-1 group cursor-pointer"
-                    >
-                      <div className="w-12 h-12 rounded-full overflow-hidden p-0.5 border-2 border-[#FF6B00] group-hover:scale-105 transition-transform">
-                        <img src={f.avatar} alt={f.name} className="w-full h-full object-cover rounded-full" />
-                      </div>
-                      <span className={`text-[11px] font-bold truncate max-w-[80px] ${
-                        isSandstone ? 'text-[#1a1815]' : 'text-chalk group-hover:text-[#FF6B00]'
-                      }`}>
-                        {f.name.split(' ')[0]}
-                      </span>
-                      <span className="text-[9px] text-[#FF6B00] font-mono">{f.status}</span>
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!isAuthenticated) {
-                          openAuthModal('Silakan masuk atau daftar akun untuk menambahkan teman manjat.')
-                          return
-                        }
-                        toggleFriendConnection(f.id)
-                      }}
-                      className={`w-full py-1 px-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${
-                        isFriend
-                          ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
-                          : 'bg-[#FF6B00] text-white hover:bg-[#E5601F]'
+            {registeredClimbers.length > 0 && (
+              <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2">
+                {registeredClimbers.map(f => {
+                  const isFriend = connectedFriends.includes(f.id)
+                  return (
+                    <div
+                      key={f.id}
+                      className={`flex flex-col items-center gap-1.5 min-w-[92px] p-2.5 rounded-2xl border ${
+                        isSandstone ? 'bg-[#FAF6EF] border-[#E0D6C6]' : 'bg-[#1a1f24] border-white/10'
                       }`}
                     >
-                      {isFriend ? <Check size={10} /> : <UserPlus size={10} />}
-                      <span>{isFriend ? 'Friend' : 'Add'}</span>
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
+                      <Link
+                        href={`/account?user=${f.id}`}
+                        className="flex flex-col items-center gap-1 group cursor-pointer"
+                      >
+                        <div className="w-12 h-12 rounded-full overflow-hidden p-0.5 border-2 border-[#FF6B00] group-hover:scale-105 transition-transform">
+                          <img src={f.avatar} alt={f.name} className="w-full h-full object-cover rounded-full" />
+                        </div>
+                        <span className={`text-[11px] font-bold truncate max-w-[80px] ${
+                          isSandstone ? 'text-[#1a1815]' : 'text-chalk group-hover:text-[#FF6B00]'
+                        }`}>
+                          {f.name.split(' ')[0]}
+                        </span>
+                        <span className="text-[9px] text-[#FF6B00] font-mono">{f.status}</span>
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!isAuthenticated) {
+                            openAuthModal('Silakan masuk atau daftar akun untuk mengikuti pemanjat ini.')
+                            return
+                          }
+                          toggleFriendConnection(f.id)
+                        }}
+                        className={`w-full py-1 px-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${
+                          isFriend
+                            ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
+                            : 'bg-[#FF6B00] text-white hover:bg-[#E5601F]'
+                        }`}
+                      >
+                        {isFriend ? <Check size={10} /> : <UserPlus size={10} />}
+                        <span>{isFriend ? 'Following' : 'Follow'}</span>
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           {/* Community Wall Feed */}
           <div className="space-y-6 max-w-2xl mx-auto">
-            {filteredPosts.map(post => {
+            {filteredPosts.length === 0 ? (
+              <div
+                className={`text-center py-16 px-6 rounded-3xl border border-dashed ${
+                  isSandstone
+                    ? 'bg-[#FAF6EF] border-[#E0D6C6] text-[#1a1815]'
+                    : 'bg-[#1a1f24]/50 border-white/10 text-chalk'
+                }`}
+              >
+                <div className="w-14 h-14 rounded-full bg-[#FF6B00]/15 text-[#FF6B00] flex items-center justify-center mx-auto mb-3">
+                  <MessageCircle size={28} />
+                </div>
+                <h3 className="font-bold text-base sm:text-lg">Belum Ada Postingan di Community Wall</h3>
+                <p
+                  className={`text-xs max-w-md mx-auto mt-1 mb-5 leading-relaxed font-light ${
+                    isSandstone ? 'text-[#1a1815]/70' : 'text-slate-ash'
+                  }`}
+                >
+                  Jadilah pemanjat pertama yang membagikan momen latihan, send problem tebing, atau update sesi manjatmu ke komunitas!
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      openAuthModal('Silakan masuk atau daftar akun untuk membuat postingan komunitas.')
+                      return
+                    }
+                    setShowCreatePost(true)
+                  }}
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-2xl bg-[#FF6B00] hover:bg-[#E5601F] text-white font-bold text-xs shadow-lg transition-all"
+                >
+                  <Plus size={15} /> Buat Postingan Pertama
+                </button>
+              </div>
+            ) : (
+              filteredPosts.map(post => {
               const sourceType = post.authorType || 'climber'
               const authorHref =
                 sourceType === 'gym'
@@ -747,7 +584,8 @@ export default function CommunityPage() {
                   </div>
                 </div>
               )
-            })}
+            })
+            )}
           </div>
         </div>
       ) : activeTab === 'chat' ? (
@@ -771,64 +609,80 @@ export default function CommunityPage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {REGISTERED_CLIMBERS.map(c => {
-              const isFriend = connectedFriends.includes(c.id)
-              return (
-                <div
-                  key={c.id}
-                  className={`rounded-2xl p-4 border flex flex-col justify-between gap-4 ${
-                    isSandstone
-                      ? 'bg-[#FFFDF9] border-[#E0D6C6] text-[#1a1815]'
-                      : 'bg-[#23262C] border-white/10 text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Link href={`/account?user=${c.id}`} className="shrink-0">
-                      <img
-                        src={c.avatar}
-                        alt={c.name}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-[#FF6B00]"
-                      />
-                    </Link>
-                    <div className="min-w-0">
-                      <Link href={`/account?user=${c.id}`} className="font-bold text-sm hover:underline block truncate">
-                        {c.name}
+            {registeredClimbers.length === 0 ? (
+              <div className="col-span-full text-center py-12 text-sm opacity-60">
+                Memuat daftar pemanjat...
+              </div>
+            ) : (
+              registeredClimbers.map(c => {
+                const isFriend = connectedFriends.includes(c.id)
+                return (
+                  <div
+                    key={c.id}
+                    className={`rounded-2xl p-4 border flex flex-col justify-between gap-4 ${
+                      isSandstone
+                        ? 'bg-[#FFFDF9] border-[#E0D6C6] text-[#1a1815]'
+                        : 'bg-[#23262C] border-white/10 text-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Link href={`/account?user=${c.id}`} className="shrink-0">
+                        <img
+                          src={c.avatar}
+                          alt={c.name}
+                          className="w-14 h-14 rounded-full object-cover border-2 border-[#FF6B00]"
+                        />
                       </Link>
-                      <p className="text-[11px] opacity-65 truncate">{c.handle} · {c.city}</p>
-                      <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FF6B00]/15 text-[#FF6B00]">
-                        {c.grade}
-                      </span>
+                      <div className="min-w-0">
+                        <Link href={`/account?user=${c.id}`} className="font-bold text-sm hover:underline block truncate">
+                          {c.name}
+                        </Link>
+                        <p className="text-[11px] opacity-65 truncate">{c.handle} · {c.city}</p>
+                        <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FF6B00]/15 text-[#FF6B00]">
+                          {c.grade}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!isAuthenticated) {
+                            openAuthModal('Silakan masuk atau daftar akun untuk mengikuti pemanjat ini.')
+                            return
+                          }
+                          toggleFriendConnection(c.id)
+                        }}
+                        className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                          isFriend
+                            ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-500'
+                            : 'bg-[#FF6B00] text-white hover:bg-[#E5601F]'
+                        }`}
+                      >
+                        {isFriend ? <Check size={13} /> : <UserPlus size={13} />}
+                        <span>{isFriend ? 'Following' : 'Follow'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!isAuthenticated) {
+                            openAuthModal('Silakan masuk atau daftar akun untuk memulai obrolan.')
+                            return
+                          }
+                          setChatContactId(c.id)
+                          setActiveTab('chat')
+                        }}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold border flex items-center gap-1 ${
+                          isSandstone ? 'border-[#DDD3C4] text-[#1a1815]' : 'border-white/15 text-white'
+                        }`}
+                      >
+                        <MessageSquare size={13} /> Chat
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => toggleFriendConnection(c.id)}
-                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                        isFriend
-                          ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-500'
-                          : 'bg-[#FF6B00] text-white hover:bg-[#E5601F]'
-                      }`}
-                    >
-                      {isFriend ? <Check size={13} /> : <UserPlus size={13} />}
-                      <span>{isFriend ? 'Connected' : 'Add Friend'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setChatContactId(c.id)
-                        setActiveTab('chat')
-                      }}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold border flex items-center gap-1 ${
-                        isSandstone ? 'border-[#DDD3C4] text-[#1a1815]' : 'border-white/15 text-white'
-                      }`}
-                    >
-                      <MessageSquare size={13} /> Chat
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })
+            )}
           </div>
         </div>
       )}
