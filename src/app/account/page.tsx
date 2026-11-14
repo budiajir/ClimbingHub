@@ -43,6 +43,7 @@ import {
   Globe,
   Radio,
   Edit3,
+  LogOut,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { useTheme } from '@/lib/theme-context'
@@ -162,8 +163,14 @@ function PersonalAccountContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const targetUserId = searchParams.get('user')
-  const { user, role, openAuthModal } = useAuth()
+  const { user, role, openAuthModal, logout } = useAuth()
   const { isSandstone } = useTheme()
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/')
+    router.refresh()
+  }
 
   // Access Control & Staged View
   const isViewingOther = !!targetUserId && targetUserId !== user?.id && targetUserId !== 'self'
@@ -632,6 +639,19 @@ function PersonalAccountContent() {
                   }`}
                 >
                   <Edit3 size={13} /> Edit Profile
+                </button>
+              )}
+
+              {/* Logout CTA */}
+              {isPersonalAccess && (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 flex items-center gap-1.5 transition-all"
+                  title="Keluar dari akun Anda"
+                >
+                  <LogOut size={13} />
+                  <span>Keluar</span>
                 </button>
               )}
 

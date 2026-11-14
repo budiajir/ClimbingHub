@@ -50,6 +50,7 @@ export default function TopBar({
   const { role, user, gymTenant, openAuthModal, logout } = useAuth()
   const { isSandstone, toggleTheme } = useTheme()
   const [showDrawer, setShowDrawer] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [policyKey, setPolicyKey] = useState<PolicyKey | null>(null)
   const [activeDropdownKey, setActiveDropdownKey] = useState<string | null>(null)
@@ -101,14 +102,14 @@ export default function TopBar({
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-14 md:h-16 grid grid-cols-3 items-center">
-          {/* Left: User Account Button (Personal Account) */}
-          <div className="flex items-center justify-start">
+          {/* Left: User Account Button (Personal Account & Dropdown) */}
+          <div className="flex items-center justify-start relative">
             <button
               onClick={() => {
                 if (role === 'guest') {
-                  openAuthModal('Please sign in or register to access your Personal Account.')
+                  openAuthModal('Masuk atau buat akun untuk mengakses Akun Pribadi Anda.')
                 } else {
-                  router.push('/account')
+                  setShowProfileMenu((prev) => !prev)
                 }
               }}
               className={`relative w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all border ${
@@ -116,7 +117,7 @@ export default function TopBar({
                   ? 'border-[#1a1815]/30 hover:border-[#1a1815] text-[#1a1815] hover:bg-[#1a1815]/10'
                   : 'border-white/20 hover:border-[#FF6B00] text-chalk hover:text-[#FF6B00] hover:bg-white/5'
               }`}
-              title={role === 'guest' ? 'Sign In / Account' : `${user?.name || 'Climber'} · Personal Account`}
+              title={role === 'guest' ? 'Masuk / Akun' : `${user?.name || 'Climber'} · Menu Akun`}
               aria-label="Personal Account"
             >
               {user?.avatar ? (
@@ -133,6 +134,104 @@ export default function TopBar({
                 <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
               )}
             </button>
+
+            {/* Profile Dropdown Menu for Authenticated Users */}
+            <AnimatePresence>
+              {showProfileMenu && role !== 'guest' && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowProfileMenu(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className={`absolute left-0 top-full mt-2 w-64 rounded-2xl p-2.5 z-50 border shadow-2xl backdrop-blur-md ${
+                      isSandstone
+                        ? 'bg-[#f4efe6] border-[#1a1815]/20 text-[#1a1815]'
+                        : 'bg-[#181d22] border-white/15 text-chalk'
+                    }`}
+                  >
+                    {/* User Header */}
+                    <div className="px-2.5 py-2 border-b border-white/10 mb-1.5">
+                      <p className="text-xs font-bold truncate">{user?.name || 'Climber'}</p>
+                      <p className="text-[11px] text-slate-ash truncate">{user?.email}</p>
+                      <span
+                        className={`inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          role === 'super_admin'
+                            ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
+                            : role === 'gym_admin'
+                            ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                            : 'bg-lime/15 text-lime border border-lime/30'
+                        }`}
+                      >
+                        {getRoleLabel(role)}
+                      </span>
+                    </div>
+
+                    {/* Navigation Links */}
+                    <Link
+                      href="/account"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="flex items-center gap-2.5 px-2.5 py-2 text-xs rounded-xl hover:bg-white/5 transition-colors"
+                    >
+                      <User size={14} className="text-[#FF6B00]" />
+                      <span>Akun Saya (Profil)</span>
+                    </Link>
+
+                    {role === 'super_admin' && (
+                      <Link
+                        href="/super-admin"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2.5 px-2.5 py-2 text-xs rounded-xl hover:bg-white/5 transition-colors text-amber-400 font-semibold"
+                      >
+                        <Crown size={14} />
+                        <span>Super Admin Panel</span>
+                      </Link>
+                    )}
+
+                    {role === 'gym_admin' && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2.5 px-2.5 py-2 text-xs rounded-xl hover:bg-white/5 transition-colors text-cyan-400 font-semibold"
+                      >
+                        <Store size={14} />
+                        <span>Gym Partner Portal</span>
+                      </Link>
+                    )}
+
+                    <Link
+                      href="/settings"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="flex items-center gap-2.5 px-2.5 py-2 text-xs rounded-xl hover:bg-white/5 transition-colors"
+                    >
+                      <SettingsIcon size={14} className="text-slate-ash" />
+                      <span>Pengaturan</span>
+                    </Link>
+
+                    {/* Prominent Red Sign Out Button */}
+                    <div className="border-t border-white/10 my-1 pt-1">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setShowProfileMenu(false)
+                          await logout()
+                          router.push('/')
+                          router.refresh()
+                        }}
+                        className="w-full flex items-center gap-2.5 px-2.5 py-2 text-xs rounded-xl text-red-400 hover:bg-red-500/10 transition-colors font-medium text-left"
+                      >
+                        <LogOut size={14} />
+                        <span>Keluar (Sign Out)</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Center: Typography Logo (Halaman Utama) */}
