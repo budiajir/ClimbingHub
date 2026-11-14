@@ -5,13 +5,6 @@ import { headers } from 'next/headers'
 import { account, db, isDatabaseConfigured, session, user, verification } from '@/lib/db'
 
 function createAuth() {
-  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : undefined
-
-  const baseURL = process.env.BETTER_AUTH_URL || vercelUrl || 'http://localhost:3000'
   const secret =
     process.env.BETTER_AUTH_SECRET ||
     'jalur-local-dev-secret-minimum-32-characters'
@@ -19,20 +12,34 @@ function createAuth() {
   const trustedOrigins = Array.from(
     new Set(
       [
-        baseURL,
+        'https://www.jalur.world',
+        'https://jalur.world',
+        'https://climbinghub.vercel.app',
         'http://localhost:3000',
         'http://localhost:3001',
-        vercelUrl,
-        'https://climbinghub.vercel.app',
-        'https://jalur.world',
-        'https://www.jalur.world',
         process.env.NEXT_PUBLIC_APP_URL,
+        process.env.BETTER_AUTH_URL,
+        process.env.VERCEL_PROJECT_PRODUCTION_URL
+          ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+          : undefined,
+        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
       ].filter((url): url is string => Boolean(url))
     )
   )
 
   return betterAuth({
-    baseURL,
+    baseURL: {
+      allowedHosts: [
+        'jalur.world',
+        'www.jalur.world',
+        '*.jalur.world',
+        'climbinghub.vercel.app',
+        '*.vercel.app',
+        'localhost:3000',
+        'localhost:3001',
+      ],
+      fallback: 'https://www.jalur.world',
+    },
     secret,
     trustedOrigins,
     database: drizzleAdapter(db, {

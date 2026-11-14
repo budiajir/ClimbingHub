@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { signIn, signUp } from '@/lib/auth-client'
-import { activateWaitlistUserAction } from '@/lib/actions/auth-helper'
+import { activateWaitlistUserAction, checkEmailStatusAction } from '@/lib/actions/auth-helper'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -36,6 +36,7 @@ export default function AuthModal() {
   const [name, setName] = useState('')
   const [selectedRole, setSelectedRole] = useState<'climber' | 'route_setter' | 'trip_guide'>('climber')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [unregisteredPrompt, setUnregisteredPrompt] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isAuthModalOpen) return null
@@ -50,25 +51,63 @@ export default function AuthModal() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
+    setUnregisteredPrompt(null)
     setIsSubmitting(true)
 
     try {
-      const result =
-        tab === 'login'
-          ? await signIn.email({ email, password })
-          : await signUp.email({
-              name: name.trim() || 'Jalur Climber',
-              email,
-              password,
-              role: selectedRole,
-            })
+      if (tab === 'login') {
+        const result = await signIn.email({ email, password })
+
+        if (result?.error) {
+          // Check if user doesn't exist or is from waitlist without password
+          const status = await checkEmailStatusAction(email)
+
+          if (!status.exists) {
+            setErrorMsg('Email ini belum terdaftar di Jalur.')
+            setUnregisteredPrompt(email)
+            return
+          }
+
+          if (status.exists && !status.hasPassword) {
+            // User exists in waitlist but has no password yet -> activate with current password!
+            const activateRes = await activateWaitlistUserAction(email, password, name)
+            if (activateRes.success) {
+              const retryLogin = await signIn.email({ email, password })
+              if (!retryLogin?.error) {
+                await refreshSession()
+                closeAuthModal()
+                navigateAfterAuth()
+                router.refresh()
+                return
+              }
+            }
+          }
+
+          setErrorMsg('Email atau password salah. Silakan periksa kembali.')
+          return
+        }
+
+        await refreshSession()
+        closeAuthModal()
+        navigateAfterAuth()
+        router.refresh()
+        return
+      }
+
+      // tab === 'register'
+      const fallbackName = name.trim() || email.split('@')[0] || 'Jalur Climber'
+      const result = await signUp.email({
+        name: fallbackName,
+        email,
+        password,
+        role: selectedRole,
+      })
 
       if (result?.error) {
         if (
-          tab === 'register' &&
-          (result.error.status === 422 ||
-            result.error.message?.toLowerCase().includes('already exists') ||
-            result.error.code === 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL')
+          result.error.status === 422 ||
+          result.error.message?.toLowerCase().includes('already exists') ||
+          result.error.code === 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL'
         ) {
           const activateRes = await activateWaitlistUserAction(email, password, name)
           if (activateRes.success) {
@@ -77,6 +116,7 @@ export default function AuthModal() {
               await refreshSession()
               closeAuthModal()
               navigateAfterAuth()
+              router.refresh()
               return
             }
           } else if (activateRes.error) {
@@ -87,7 +127,7 @@ export default function AuthModal() {
 
         setErrorMsg(
           result.error.message ||
-            'Autentikasi gagal. Periksa kembali email dan password Anda.'
+            'Pendaftaran gagal. Periksa kembali email dan password Anda.'
         )
         return
       }
@@ -95,6 +135,7 @@ export default function AuthModal() {
       await refreshSession()
       closeAuthModal()
       navigateAfterAuth()
+      router.refresh()
     } catch (err) {
       setErrorMsg(
         err instanceof Error
@@ -109,6 +150,17 @@ export default function AuthModal() {
   const switchTab = (nextTab: 'login' | 'register') => {
     setTab(nextTab)
     setErrorMsg(null)
+    setUnregisteredPrompt(null)
+  }
+
+  const handleQuickRegisterFromLogin = () => {
+    setTab('register')
+    if (!name && email) {
+      const suggestedName = email.split('@')[0].replace(/[._-]/g, ' ')
+      setName(suggestedName.charAt(0).toUpperCase() + suggestedName.slice(1))
+    }
+    setErrorMsg(null)
+    setUnregisteredPrompt(null)
   }
 
   return (
@@ -155,7 +207,7 @@ export default function AuthModal() {
                   : 'text-slate-ash hover:text-chalk font-light'
               }`}
             >
-              Sign In
+              Masuk (Sign In)
             </button>
             <button
               type="button"
@@ -166,7 +218,7 @@ export default function AuthModal() {
                   : 'text-slate-ash hover:text-chalk font-light'
               }`}
             >
-              Sign Up
+              Daftar Baru (Sign Up)
             </button>
           </div>
 
@@ -174,6 +226,21 @@ export default function AuthModal() {
             <div className="mb-3 rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2.5 flex items-start gap-2 text-xs text-red-300">
               <AlertCircle size={15} className="shrink-0 mt-0.5 text-red-400" />
               <span>{errorMsg}</span>
+            </div>
+          )}
+
+          {unregisteredPrompt && (
+            <div className="mb-3 rounded-xl bg-lime/10 border border-lime/30 p-3 text-xs text-chalk space-y-2 animate-fade-in">
+              <p className="text-slate-ash text-[11px]">
+                Email <span className="text-lime font-mono font-bold">{unregisteredPrompt}</span> belum terdaftar di Jalur.
+              </p>
+              <button
+                type="button"
+                onClick={handleQuickRegisterFromLogin}
+                className="w-full py-2 bg-lime text-granite font-bold rounded-lg text-xs shadow-lime-glow-sm hover:bg-lime-dim transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Daftarkan Akun Baru dengan Email Ini →</span>
+              </button>
             </div>
           )}
 
@@ -290,10 +357,37 @@ export default function AuthModal() {
                     ? 'Signing In...'
                     : 'Creating Account...'
                   : tab === 'login'
-                    ? 'Sign In Now'
-                    : 'Create Account'}
+                    ? 'Masuk ke Jalur'
+                    : 'Buat Akun Baru'}
               </span>
             </button>
+
+            {/* Quick Switch between Login & Register */}
+            <div className="text-center pt-2">
+              {tab === 'login' ? (
+                <p className="text-xs text-slate-ash">
+                  Belum punya akun?{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchTab('register')}
+                    className="text-lime font-bold hover:underline ml-1"
+                  >
+                    Daftar di sini
+                  </button>
+                </p>
+              ) : (
+                <p className="text-xs text-slate-ash">
+                  Sudah punya akun?{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchTab('login')}
+                    className="text-lime font-bold hover:underline ml-1"
+                  >
+                    Masuk di sini
+                  </button>
+                </p>
+              )}
+            </div>
           </form>
 
           {/* Link to Gym Partner */}

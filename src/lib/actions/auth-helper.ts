@@ -4,6 +4,47 @@ import { neon } from '@neondatabase/serverless'
 import { hashPassword } from 'better-auth/crypto'
 
 /**
+ * Check if an email exists in user table and whether it has a password set.
+ */
+export async function checkEmailStatusAction(email: string): Promise<{
+  exists: boolean
+  hasPassword: boolean
+  role?: string
+}> {
+  const connectionString = process.env.DATABASE_URL?.trim()
+  if (!connectionString) {
+    return { exists: false, hasPassword: false }
+  }
+
+  try {
+    const sql = neon(connectionString)
+    const normalizedEmail = email.trim().toLowerCase()
+
+    const userRows = await sql`
+      SELECT id, role FROM "user" WHERE LOWER(email) = ${normalizedEmail} LIMIT 1
+    `
+
+    if (userRows.length === 0) {
+      return { exists: false, hasPassword: false }
+    }
+
+    const userId = userRows[0].id
+    const accountRows = await sql`
+      SELECT id, password FROM "account" WHERE user_id = ${userId} AND provider_id = 'credential' LIMIT 1
+    `
+
+    const hasPassword = accountRows.length > 0 && Boolean(accountRows[0].password)
+    return {
+      exists: true,
+      hasPassword,
+      role: userRows[0].role as string | undefined,
+    }
+  } catch {
+    return { exists: false, hasPassword: false }
+  }
+}
+
+/**
  * Server action to automatically activate users who previously joined via waitlist (e.g. jalur.world)
  * but do not yet have a credential password in the "account" table.
  */
