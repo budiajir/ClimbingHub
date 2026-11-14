@@ -22,8 +22,7 @@ export async function getCommunities(): Promise<Community[]> {
       .orderBy(desc(communities.memberCount))
 
     if (!rows || rows.length === 0) {
-      const { communities: mockCommunities } = await import('../mock-data')
-      return mockCommunities
+      return []
     }
 
     return rows.map((c) => ({

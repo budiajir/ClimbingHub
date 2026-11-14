@@ -251,6 +251,9 @@ export default function SuperAdminPage() {
           setShowCommunityModal(false)
           const updated = await getSuperAdminCommunitiesAction()
           setCommunitiesList(updated)
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('communities-updated'))
+          }
         } else {
           showToast(res.error || 'Gagal memperbarui komunitas.', 'error')
         }
@@ -265,6 +268,9 @@ export default function SuperAdminPage() {
           const updated = await getSuperAdminCommunitiesAction()
           setCommunitiesList(updated)
           getSuperAdminStatsAction().then((s) => setStats(s))
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('communities-updated'))
+          }
         } else {
           showToast(res.error || 'Gagal membuat komunitas.', 'error')
         }
@@ -283,6 +289,9 @@ export default function SuperAdminPage() {
         showToast(`Komunitas "${name}" berhasil dihapus.`)
         setCommunitiesList((prev) => prev.filter((c) => c.id !== id))
         getSuperAdminStatsAction().then((s) => setStats(s))
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('communities-updated'))
+        }
       } else {
         showToast(res.error || 'Gagal menghapus komunitas.', 'error')
       }
@@ -351,6 +360,9 @@ export default function SuperAdminPage() {
         setStats((prev) =>
           prev ? { ...prev, totalCrags: Math.max(0, prev.totalCrags - 1) } : null
         )
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('crags-updated'))
+        }
       } else {
         showToast(res.error || 'Gagal menghapus tebing.', 'error')
       }
@@ -379,6 +391,9 @@ export default function SuperAdminPage() {
           })
           const updatedCrags = await getSuperAdminCragsAction()
           setCrags(updatedCrags)
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('crags-updated'))
+          }
         } else {
           showToast(res.error || 'Gagal memperbarui tebing.', 'error')
         }
@@ -400,6 +415,9 @@ export default function SuperAdminPage() {
           const updatedCrags = await getSuperAdminCragsAction()
           setCrags(updatedCrags)
           setStats((prev) => (prev ? { ...prev, totalCrags: prev.totalCrags + 1 } : null))
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('crags-updated'))
+          }
         } else {
           showToast(res.error || 'Gagal membuat tebing.', 'error')
         }
@@ -455,6 +473,9 @@ export default function SuperAdminPage() {
         setStats((prev) =>
           prev ? { ...prev, totalGyms: Math.max(0, prev.totalGyms - 1) } : null
         )
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('gyms-updated'))
+        }
       } else {
         showToast(res.error || 'Gagal menghapus data gym.', 'error')
       }
@@ -487,6 +508,9 @@ export default function SuperAdminPage() {
           setEditingGym(null)
           const updated = await getSuperAdminGymsAction()
           setGymsList(updated)
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('gyms-updated'))
+          }
         } else {
           showToast(res.error || 'Gagal memperbarui data gym.', 'error')
         }
@@ -519,6 +543,9 @@ export default function SuperAdminPage() {
           const updated = await getSuperAdminGymsAction()
           setGymsList(updated)
           setStats((prev) => (prev ? { ...prev, totalGyms: prev.totalGyms + 1 } : null))
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('gyms-updated'))
+          }
         } else {
           showToast(res.error || 'Gagal menambahkan gym baru.', 'error')
         }
@@ -552,6 +579,9 @@ export default function SuperAdminPage() {
         })
         const updatedRoutes = await getSuperAdminRoutesAction(routeSearch)
         setRoutesList(updatedRoutes)
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('crags-updated'))
+        }
       } else {
         showToast(res.error || 'Gagal membuat jalur.', 'error')
       }
@@ -566,6 +596,9 @@ export default function SuperAdminPage() {
       if (res.ok) {
         setRoutesList((prev) => prev.filter((r) => r.id !== routeId))
         showToast(`Jalur "${routeName}" telah dihapus.`)
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('crags-updated'))
+        }
       } else {
         showToast(res.error || 'Gagal menghapus jalur.', 'error')
       }

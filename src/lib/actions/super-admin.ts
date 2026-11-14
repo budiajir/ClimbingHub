@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { asc, desc, eq, ilike, or, sql } from 'drizzle-orm'
 import {
   ascentLogs,
@@ -356,6 +357,9 @@ export async function createCragAction(data: {
       description: 'Sektor Utama',
     })
 
+    revalidatePath('/')
+    revalidatePath('/crags')
+    revalidatePath('/super-admin')
     return { ok: true, cragId }
   } catch (error) {
     console.error('[createCragAction] Error:', error)
@@ -399,6 +403,10 @@ export async function updateCragAction(
       })
       .where(eq(cragRegions.id, id))
 
+    revalidatePath('/')
+    revalidatePath('/crags')
+    revalidatePath(`/crags/${id}`)
+    revalidatePath('/super-admin')
     return { ok: true }
   } catch (error) {
     console.error('[updateCragAction] Error:', error)
@@ -421,6 +429,10 @@ export async function deleteCragAction(id: string): Promise<{ ok: boolean; error
 
   try {
     await db.delete(cragRegions).where(eq(cragRegions.id, id))
+    revalidatePath('/')
+    revalidatePath('/crags')
+    revalidatePath(`/crags/${id}`)
+    revalidatePath('/super-admin')
     return { ok: true }
   } catch (error) {
     console.error('[deleteCragAction] Error:', error)
@@ -568,6 +580,11 @@ export async function createRouteAction(data: {
       ascentCount: 0,
     })
 
+    revalidatePath('/')
+    revalidatePath('/crags')
+    revalidatePath(`/crags/${data.cragId}`)
+    revalidatePath('/beta')
+    revalidatePath('/super-admin')
     return { ok: true, routeId }
   } catch (error) {
     console.error('[createRouteAction] Error:', error)
@@ -592,6 +609,10 @@ export async function deleteRouteAction(
 
   try {
     await db.delete(routes).where(eq(routes.id, routeId))
+    revalidatePath('/')
+    revalidatePath('/crags')
+    revalidatePath('/beta')
+    revalidatePath('/super-admin')
     return { ok: true }
   } catch (error) {
     console.error('[deleteRouteAction] Error:', error)
@@ -688,6 +709,9 @@ export async function createGymAction(data: {
       slotsEvening: 12,
     })
 
+    revalidatePath('/')
+    revalidatePath('/gyms')
+    revalidatePath('/super-admin')
     return { ok: true, gymId }
   } catch (error) {
     console.error('[createGymAction] Error:', error)
@@ -737,6 +761,10 @@ export async function updateGymAction(
       })
       .where(eq(gyms.id, id))
 
+    revalidatePath('/')
+    revalidatePath('/gyms')
+    revalidatePath(`/gyms/${id}`)
+    revalidatePath('/super-admin')
     return { ok: true }
   } catch (error) {
     console.error('[updateGymAction] Error:', error)
@@ -759,6 +787,10 @@ export async function deleteGymAction(id: string): Promise<{ ok: boolean; error?
 
   try {
     await db.delete(gyms).where(eq(gyms.id, id))
+    revalidatePath('/')
+    revalidatePath('/gyms')
+    revalidatePath(`/gyms/${id}`)
+    revalidatePath('/super-admin')
     return { ok: true }
   } catch (error) {
     console.error('[deleteGymAction] Error:', error)
@@ -860,6 +892,9 @@ export async function createCommunityAction(input: {
       members: [],
     })
 
+    revalidatePath('/')
+    revalidatePath('/community')
+    revalidatePath('/super-admin')
     return { ok: true, id }
   } catch (error) {
     console.error('[createCommunityAction] Error:', error)
@@ -909,6 +944,10 @@ export async function updateCommunityAction(
       })
       .where(eq(communities.id, id))
 
+    revalidatePath('/')
+    revalidatePath('/community')
+    revalidatePath(`/community/${id}`)
+    revalidatePath('/super-admin')
     return { ok: true }
   } catch (error) {
     console.error('[updateCommunityAction] Error:', error)
@@ -933,6 +972,10 @@ export async function deleteCommunityAction(
 
   try {
     await db.delete(communities).where(eq(communities.id, id))
+    revalidatePath('/')
+    revalidatePath('/community')
+    revalidatePath(`/community/${id}`)
+    revalidatePath('/super-admin')
     return { ok: true }
   } catch (error) {
     console.error('[deleteCommunityAction] Error:', error)

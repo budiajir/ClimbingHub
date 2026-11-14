@@ -38,7 +38,7 @@ export function useGyms() {
     async function load() {
       try {
         const data = await getGyms()
-        if (active && data.length > 0) {
+        if (active && Array.isArray(data)) {
           setGyms(data)
         }
       } catch {
@@ -48,8 +48,15 @@ export function useGyms() {
       }
     }
     load()
+
+    const handleUpdate = () => load()
+    window.addEventListener('gyms-updated', handleUpdate)
+    window.addEventListener('focus', handleUpdate)
+
     return () => {
       active = false
+      window.removeEventListener('gyms-updated', handleUpdate)
+      window.removeEventListener('focus', handleUpdate)
     }
   }, [])
 
@@ -224,8 +231,9 @@ export function useCragRegions() {
     async function load() {
       try {
         const dbCrags = await getCragRegions()
-        if (active && dbCrags.length > 0) {
-          setCragRegions(mergeCragRegions([...initialMockCrags, ...dbCrags]))
+        if (active && Array.isArray(dbCrags)) {
+          // Authoritative DB state! Deleted crags are never resurrected!
+          setCragRegions(dbCrags)
         }
       } catch {
         if (active) setCragRegions(mergeCragRegions(initialMockCrags))
@@ -234,8 +242,17 @@ export function useCragRegions() {
       }
     }
     load()
+
+    const handleUpdate = () => {
+      load()
+    }
+    window.addEventListener('crags-updated', handleUpdate)
+    window.addEventListener('focus', handleUpdate)
+
     return () => {
       active = false
+      window.removeEventListener('crags-updated', handleUpdate)
+      window.removeEventListener('focus', handleUpdate)
     }
   }, [])
 
@@ -254,7 +271,7 @@ export function useCommunities() {
     async function load() {
       try {
         const data = await getCommunities()
-        if (active && data.length > 0) {
+        if (active && Array.isArray(data)) {
           setCommunities(data)
         }
       } catch {
@@ -264,8 +281,15 @@ export function useCommunities() {
       }
     }
     load()
+
+    const handleUpdate = () => load()
+    window.addEventListener('communities-updated', handleUpdate)
+    window.addEventListener('focus', handleUpdate)
+
     return () => {
       active = false
+      window.removeEventListener('communities-updated', handleUpdate)
+      window.removeEventListener('focus', handleUpdate)
     }
   }, [])
 

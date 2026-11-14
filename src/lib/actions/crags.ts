@@ -1,8 +1,9 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { asc, desc, eq, inArray } from 'drizzle-orm'
 import { cragRegions, getDb, isDatabaseConfigured, routes, sectors } from '../db'
-import { normalizeIsoDate, normalizeRouteDiscipline } from '../problem-helpers'
+import { normalizeCragName, normalizeIsoDate, normalizeRouteDiscipline } from '../problem-helpers'
 import type { CragRegion, PitchDetail, Problem, RouteDiscipline, TopoMarker } from '../mock-data'
 
 function mapRouteRow(row: typeof routes.$inferSelect): Problem {
@@ -52,38 +53,62 @@ function mapRouteRow(row: typeof routes.$inferSelect): Problem {
 function assembleCragRegion(
   crag: typeof cragRegions.$inferSelect,
   sectorRows: (typeof sectors.$inferSelect)[],
-  routeRows: (typeof routes.$inferSelect)[]
+  routeRows: (typeof routes.$inferSelect)[],
+  mockCrags?: CragRegion[]
 ): CragRegion {
+  const mockMatch = mockCrags?.find(
+    (m) =>
+      m.id === crag.id ||
+      normalizeCragName(m.name) === normalizeCragName(crag.name)
+  )
+
   const mappedSectors = sectorRows
     .filter((s) => s.cragId === crag.id)
-    .map((sector) => ({
-      id: sector.id,
-      name: sector.name || 'Sector',
-      image: sector.imageUrl || crag.imageUrl || '',
-      description: sector.description || undefined,
-      problems: routeRows.filter((r) => r.sectorId === sector.id).map(mapRouteRow),
-    }))
+    .map((sector) => {
+      const mockSector = mockMatch?.sectors?.find(
+        (ms) =>
+          ms.id === sector.id ||
+          normalizeCragName(ms.name) === normalizeCragName(sector.name)
+      )
+      const dbProblems = routeRows
+        .filter((r) => r.sectorId === sector.id)
+        .map(mapRouteRow)
+      const problems =
+        dbProblems.length > 0 ? dbProblems : mockSector?.problems || []
+
+      return {
+        id: sector.id,
+        name: sector.name || mockSector?.name || 'Sector',
+        image: sector.imageUrl || mockSector?.image || crag.imageUrl || '',
+        description: sector.description || mockSector?.description || undefined,
+        problems,
+      }
+    })
+
+  const finalSectors =
+    mappedSectors.length > 0 ? mappedSectors : mockMatch?.sectors || []
 
   return {
+    ...mockMatch,
     id: crag.id,
     name: crag.name,
     province: crag.province,
-    image: crag.imageUrl,
-    description: crag.description || undefined,
-    coordinates: crag.coordinates || undefined,
-    gmapsUrl: crag.gmapsUrl || undefined,
-    rockType: crag.rockType || undefined,
-    sectorCount: crag.sectorCount ?? mappedSectors.length,
+    image: crag.imageUrl || mockMatch?.image || '',
+    description: crag.description || mockMatch?.description || undefined,
+    coordinates: crag.coordinates || mockMatch?.coordinates || undefined,
+    gmapsUrl: crag.gmapsUrl || mockMatch?.gmapsUrl || undefined,
+    rockType: crag.rockType || mockMatch?.rockType || undefined,
+    sectorCount: crag.sectorCount ?? finalSectors.length,
     problemCount:
       crag.problemCount ??
-      mappedSectors.reduce((acc, s) => acc + (s.problems?.length || 0), 0),
-    sectors: mappedSectors,
+      finalSectors.reduce((acc, s) => acc + (s.problems?.length || 0), 0),
+    sectors: finalSectors,
   }
 }
 
 /**
  * Fetch all crag regions with nested sectors and routes.
- * Falls back to mock data if DATABASE_URL is missing or the DB has no crag rows yet.
+ * Falls back to mock data if DATABASE_URL is missing.
  */
 export async function getCragRegions(): Promise<CragRegion[]> {
   try {
@@ -100,11 +125,11 @@ export async function getCragRegions(): Promise<CragRegion[]> {
     ])
 
     if (!cragRows || cragRows.length === 0) {
-      const { cragRegions: mockCrags } = await import('../mock-data')
-      return mockCrags
+      return []
     }
 
-    return cragRows.map((crag) => assembleCragRegion(crag, sectorRows, routeRows))
+    const { cragRegions: mockCrags } = await import('../mock-data')
+    return cragRows.map((crag) => assembleCragRegion(crag, sectorRows, routeRows, mockCrags))
   } catch {
     const { cragRegions: mockCrags } = await import('../mock-data')
     return mockCrags
@@ -137,7 +162,8 @@ export async function getCragWithSectors(id: string): Promise<CragRegion | null>
             .orderBy(desc(routes.ascentCount))
         : []
 
-    return assembleCragRegion(crag, sectorRows, routeRows)
+    const { cragRegions: mockCrags } = await import('../mock-data')
+    return assembleCragRegion(crag, sectorRows, routeRows, mockCrags)
   } catch {
     const { cragRegions: mockCrags } = await import('../mock-data')
     return mockCrags.find((c) => c.id === id) ?? null
@@ -205,6 +231,9 @@ export async function createRoute(data: {
       startType: data.startType || null,
     })
 
+    revalidatePath('/')
+    revalidatePath('/crags')
+    revalidatePath('/beta')
     return { id: routeId }
   } catch (err) {
     console.error('createRoute error:', err)
@@ -237,6 +266,8 @@ export async function upsertCragRegion(data: {
       })
       .onConflictDoNothing({ target: cragRegions.id })
 
+    revalidatePath('/')
+    revalidatePath('/crags')
     return { id: data.id }
   } catch (err) {
     console.error('upsertCragRegion error:', err)
@@ -267,6 +298,8 @@ export async function upsertSector(data: {
       })
       .onConflictDoNothing({ target: sectors.id })
 
+    revalidatePath('/')
+    revalidatePath('/crags')
     return { id: data.id }
   } catch (err) {
     console.error('upsertSector error:', err)

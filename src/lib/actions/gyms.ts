@@ -51,8 +51,7 @@ export async function getGyms(): Promise<Gym[]> {
     const rows = await db.select().from(gyms).orderBy(desc(gyms.rating))
 
     if (!rows || rows.length === 0) {
-      const { gyms: mockGyms } = await import('../mock-data')
-      return mockGyms
+      return []
     }
 
     return rows.map(mapGymRow)

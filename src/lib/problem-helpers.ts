@@ -263,3 +263,18 @@ export function normalizeIsoDate(raw?: string | null): string | null {
   const trimmed = raw.trim()
   return /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? trimmed : null
 }
+
+/**
+ * Normalizes a crag or sector name for robust deduplication.
+ * Strips out leading prefixes like "tebing", "crag", "sektor", "sector", and ignores case & extra spaces.
+ */
+export function normalizeCragName(str?: string | null): string {
+  if (!str) return ''
+  return String(str)
+    .trim()
+    .toLowerCase()
+    .replace(/^(tebing|crag|sektor|sector)\s+/i, '')
+    .replace(/[\s\-_]+/g, ' ')
+    .trim()
+}
+
