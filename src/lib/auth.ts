@@ -18,9 +18,16 @@ function createAuth() {
 
   const trustedOrigins = Array.from(
     new Set(
-      [baseURL, 'http://localhost:3000', 'http://localhost:3001', vercelUrl].filter(
-        (url): url is string => Boolean(url)
-      )
+      [
+        baseURL,
+        'http://localhost:3000',
+        'http://localhost:3001',
+        vercelUrl,
+        'https://climbinghub.vercel.app',
+        'https://jalur.world',
+        'https://www.jalur.world',
+        process.env.NEXT_PUBLIC_APP_URL,
+      ].filter((url): url is string => Boolean(url))
     )
   )
 
