@@ -5,6 +5,15 @@ const PUBLIC_ADMIN_PATHS = ['/admin/login', '/admin/register']
 
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
+  const host = request.headers.get('host') || ''
+
+  // Canonicalize apex jalur.world -> www.jalur.world so cookies & sessions remain unified
+  if (host === 'jalur.world') {
+    const redirectUrl = new URL(request.url)
+    redirectUrl.host = 'www.jalur.world'
+    redirectUrl.protocol = 'https'
+    return NextResponse.redirect(redirectUrl, { status: 308 })
+  }
 
   if (PUBLIC_ADMIN_PATHS.some((publicPath) => pathname.startsWith(publicPath))) {
     return NextResponse.next()
@@ -39,9 +48,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/account/:path*',
-    '/admin/:path*',
-    '/set-route/:path*',
-    '/super-admin/:path*',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)',
   ],
 }

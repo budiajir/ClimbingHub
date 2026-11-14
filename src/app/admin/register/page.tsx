@@ -14,6 +14,8 @@ import {
   Sparkles,
   AlertCircle,
   Loader2,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { signUp } from '@/lib/auth-client'
@@ -35,6 +37,7 @@ export default function AdminRegisterPage() {
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [registeredSuccess, setRegisteredSuccess] = useState(false)
@@ -299,12 +302,21 @@ export default function AdminRegisterPage() {
                     <input
                       required
                       minLength={6}
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       placeholder="Minimum 6 characters"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"
                     />
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="text-slate-ash hover:text-chalk p-1 transition-colors shrink-0"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
                   </div>
                 </div>
               </div>

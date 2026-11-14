@@ -107,7 +107,7 @@ export default function TopBar({
             <button
               onClick={() => {
                 if (role === 'guest') {
-                  openAuthModal('Masuk atau buat akun untuk mengakses Akun Pribadi Anda.')
+                  openAuthModal('Masuk atau buat akun untuk mengakses Akun Pribadi Anda.', '/account')
                 } else {
                   setShowProfileMenu((prev) => !prev)
                 }

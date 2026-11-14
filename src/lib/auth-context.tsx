@@ -14,6 +14,7 @@ interface AuthContextType {
   isAuthModalOpen: boolean
   authModalReason: string
   setRole: (role: UserRole) => void
+  setAuthenticatedUser: (rawUser: any) => void
   loginAsGuest: () => void
   loginAsRegistered: (customUser?: Partial<ClimberUser>) => void
   loginAsGymAdmin: (customGym?: Partial<GymTenant>) => void
@@ -27,7 +28,7 @@ interface AuthContextType {
     phone: string
     picName: string
   }) => GymTenant
-  openAuthModal: (reason?: string) => void
+  openAuthModal: (reason?: string, nextPath?: string) => void
   closeAuthModal: () => void
 }
 
@@ -63,9 +64,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authModalReason, setAuthModalReason] = useState('')
   const handledAuthQueryRef = useRef(false)
 
-  // Ensure legacy demo cookies are removed
+  // Ensure legacy demo cookies are removed and restore cached user immediately
   useEffect(() => {
     clearLegacyDemoCookie()
+    try {
+      const cached = localStorage.getItem('climbhub_active_user')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (parsed?.user?.id && parsed?.user?.email) {
+          setUser(parsed.user)
+          setRoleState(parsed.role || 'climber')
+        }
+      }
+    } catch {}
+  }, [])
+
+  const setAuthenticatedUser = useCallback((rawUser: any) => {
+    if (!rawUser) return
+    const sessionRole = normalizeSessionRole(rawUser.role)
+    const mappedUser: ClimberUser = {
+      id: rawUser.id,
+      name: rawUser.name,
+      email: rawUser.email,
+      handle: rawUser.handle || `@${rawUser.email.split('@')[0]}`,
+      avatar:
+        rawUser.image ||
+        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80',
+      gradeMax: rawUser.gradeMax || 'V4 Climber',
+      ascentsCount: Number(rawUser.ascentsCount || 0),
+      hometown: rawUser.hometown || undefined,
+      countryOfOrigin: rawUser.countryOfOrigin || undefined,
+    }
+    setRoleState(sessionRole)
+    setUser(mappedUser)
+    try {
+      localStorage.setItem(
+        'climbhub_active_user',
+        JSON.stringify({ user: mappedUser, role: sessionRole, timestamp: Date.now() })
+      )
+    } catch {}
   }, [])
 
   // Sync authenticated Better Auth session
@@ -102,6 +139,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setRoleState(sessionRole)
       setUser(mappedUser)
+      try {
+        localStorage.setItem(
+          'climbhub_active_user',
+          JSON.stringify({ user: mappedUser, role: sessionRole, timestamp: Date.now() })
+        )
+      } catch {}
 
       if (sessionRole === 'gym_admin') {
         getMyManagedGymAction().then((ownedGym) => {
@@ -120,6 +163,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         cancelled = true
       }
     }
+
+    // Only set to guest if not recently authenticated in local cache
+    try {
+      const cached = localStorage.getItem('climbhub_active_user')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (parsed?.timestamp && Date.now() - parsed.timestamp < 15000) {
+          return () => {
+            cancelled = true
+          }
+        }
+      }
+    } catch {}
 
     // Unauthenticated (Guest / Not logged in)
     setRoleState('guest')
@@ -213,6 +269,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setGymTenant(null)
     clearLegacyDemoCookie()
     try {
+      localStorage.removeItem('climbhub_active_user')
       localStorage.removeItem('climbhub_role')
       localStorage.removeItem('climbhub_user')
       localStorage.removeItem('climbhub_gym')
@@ -225,8 +282,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const openAuthModal = (reason?: string) => {
+  const openAuthModal = (reason?: string, nextPath?: string) => {
     setAuthModalReason(reason || 'Silakan masuk atau buat akun untuk melanjutkan.')
+    if (nextPath && typeof window !== 'undefined') {
+      try {
+        const url = new URL(window.location.href)
+        url.searchParams.set('next', nextPath)
+        window.history.replaceState({}, '', url.toString())
+      } catch {}
+    }
     setIsAuthModalOpen(true)
   }
 
@@ -240,11 +304,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role,
         user,
         gymTenant,
-        isAuthenticated: Boolean(sessionData?.user),
+        isAuthenticated: Boolean(sessionData?.user) || (role !== 'guest' && Boolean(user)),
         isSessionPending,
         isAuthModalOpen,
         authModalReason,
         setRole,
+        setAuthenticatedUser,
         loginAsGuest,
         loginAsRegistered,
         loginAsGymAdmin,

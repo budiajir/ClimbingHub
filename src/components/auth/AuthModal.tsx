@@ -11,6 +11,8 @@ import {
   AlertCircle,
   Loader2,
   MapPin,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { signIn, signUp } from '@/lib/auth-client'
@@ -28,12 +30,13 @@ function getSafeNextPath(): string | null {
 }
 
 export default function AuthModal() {
-  const { isAuthModalOpen, authModalReason, closeAuthModal, refreshSession } =
+  const { isAuthModalOpen, authModalReason, closeAuthModal, refreshSession, setAuthenticatedUser } =
     useAuth()
   const router = useRouter()
   const [tab, setTab] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [name, setName] = useState('')
   const [hometown, setHometown] = useState('')
   const [selectedRole, setSelectedRole] = useState<'climber' | 'route_setter' | 'trip_guide'>('climber')
@@ -44,10 +47,8 @@ export default function AuthModal() {
   if (!isAuthModalOpen) return null
 
   const navigateAfterAuth = () => {
-    const nextPath = getSafeNextPath()
-    if (nextPath) {
-      router.push(nextPath)
-    }
+    const nextPath = getSafeNextPath() || '/account'
+    router.push(nextPath)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,6 +77,9 @@ export default function AuthModal() {
             if (activateRes.success) {
               const retryLogin = await signIn.email({ email, password })
               if (!retryLogin?.error) {
+                if (retryLogin?.data?.user) {
+                  setAuthenticatedUser(retryLogin.data.user)
+                }
                 await refreshSession()
                 closeAuthModal()
                 navigateAfterAuth()
@@ -89,6 +93,9 @@ export default function AuthModal() {
           return
         }
 
+        if (result?.data?.user) {
+          setAuthenticatedUser(result.data.user)
+        }
         await refreshSession()
         closeAuthModal()
         navigateAfterAuth()
@@ -116,6 +123,9 @@ export default function AuthModal() {
           if (activateRes.success) {
             const loginRes = await signIn.email({ email, password })
             if (!loginRes?.error) {
+              if (loginRes?.data?.user) {
+                setAuthenticatedUser(loginRes.data.user)
+              }
               await refreshSession()
               closeAuthModal()
               navigateAfterAuth()
@@ -135,6 +145,9 @@ export default function AuthModal() {
         return
       }
 
+      if (result?.data?.user) {
+        setAuthenticatedUser(result.data.user)
+      }
       await refreshSession()
       closeAuthModal()
       navigateAfterAuth()
@@ -306,16 +319,25 @@ export default function AuthModal() {
                 Password
               </label>
               <div className="flex items-center gap-2 bg-granite border border-white/5 rounded-xl px-3 py-2.5 focus-within:border-lime/40">
-                <Lock size={15} className="text-slate-ash" />
+                <Lock size={15} className="text-slate-ash shrink-0" />
                 <input
                   required
                   minLength={6}
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Minimum 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-transparent text-chalk text-xs w-full focus:outline-none placeholder:font-light font-normal"
                 />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="text-slate-ash hover:text-chalk p-1 transition-colors shrink-0"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
               </div>
             </div>
 
