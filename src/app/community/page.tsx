@@ -39,7 +39,7 @@ const WALL_EXTRA_POSTS: CommunityPost[] = [
     userId: 'squad-bandung-karst',
     userName: 'Bandung Karst Collective',
     userHandle: '@bandung.karst',
-    avatar: 'https://images.unsplash.com/photo-1516592693881-58b99d046728?w=150&q=80',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80',
     hometown: 'Bandung, Jawa Barat',
     timeAgo: '45m ago',
     activity: 'Squad Meetup · Open Crag Day',
@@ -47,7 +47,7 @@ const WALL_EXTRA_POSTS: CommunityPost[] = [
     grade: '5.10a – 5.12b',
     caption:
       'Open Sunday crag session at Sektor Timur! Members and newcomers welcome — crash pads, stick clips, and shared rope beta available at the meeting point from 07:00 WIB.',
-    image: 'https://images.unsplash.com/photo-1516592693881-58b99d046728?w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&q=80',
     likes: 34,
     hasLiked: false,
     authorType: 'squad',

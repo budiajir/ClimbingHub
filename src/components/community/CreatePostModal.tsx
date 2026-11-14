@@ -20,11 +20,12 @@ interface CreatePostModalProps {
   defaultAuthorType?: CommunityAuthorType
 }
 
+// 4 Verified, working high-quality climbing photo presets
 const PRESET_PHOTOS = [
   'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=900&q=80',
-  'https://images.unsplash.com/photo-1516592693881-58b99d046728?w=900&q=80',
+  'https://images.unsplash.com/photo-1544816155-12df9643f363?w=900&q=80',
   'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?w=900&q=80',
-  'https://images.unsplash.com/photo-1601224748193-d24f166b5c77?w=900&q=80',
+  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&q=80',
 ]
 
 export default function CreatePostModal({
@@ -38,8 +39,8 @@ export default function CreatePostModal({
   const isSandstone = theme === 'sandstone'
   const { user } = useAuth()
 
-  const [activity, setActivity] = useState('Session Update')
-  const [location, setLocation] = useState(defaultLocation || 'Citatah 125')
+  const [activity, setActivity] = useState('Sesi Latihan')
+  const [location, setLocation] = useState(defaultLocation || 'Tebing Citatah 125')
   const [grade, setGrade] = useState('V5 / 6C')
   const [caption, setCaption] = useState('')
   const [imageUrl, setImageUrl] = useState(PRESET_PHOTOS[0])
@@ -61,8 +62,8 @@ export default function CreatePostModal({
       userHandle: handle,
       avatar: user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&q=80',
       hometown: 'Indonesia',
-      timeAgo: 'Just now',
-      activity: activity.trim() || 'Community Update',
+      timeAgo: 'Baru saja',
+      activity: activity.trim() || 'Update Komunitas',
       location: location.trim() || 'Indonesia',
       grade: grade.trim() || undefined,
       caption: caption.trim(),
@@ -96,103 +97,115 @@ export default function CreatePostModal({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
           />
 
+          {/* Modal Container */}
           <motion.div
-            initial={{ scale: 0.94, opacity: 0, y: 12 }}
+            initial={{ scale: 0.95, opacity: 0, y: 24 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.94, opacity: 0, y: 12 }}
+            exit={{ scale: 0.95, opacity: 0, y: 24 }}
             onClick={(e) => e.stopPropagation()}
-            className={`relative z-10 w-full max-w-lg rounded-3xl p-6 shadow-2xl border max-h-[90vh] overflow-y-auto ${
+            className={`relative z-10 w-full max-w-lg rounded-t-[28px] sm:rounded-3xl shadow-2xl border flex flex-col max-h-[92vh] sm:max-h-[88vh] my-auto overflow-hidden ${
               isSandstone
                 ? 'bg-[#FFFDF9] border-[#E0D6C6] text-[#1a1815]'
-                : 'bg-[#23262C] border-white/15 text-white'
+                : 'bg-[#1b1f24] border-white/15 text-white'
             }`}
           >
+            {/* 1. STICKY HEADER: Selalu terlihat & tidak akan terpotong di HP */}
             <div
-              className={`flex items-center justify-between pb-3 mb-4 border-b ${
-                isSandstone ? 'border-[#E0D6C6]' : 'border-white/10'
+              className={`shrink-0 flex items-center justify-between px-5 py-4 border-b ${
+                isSandstone ? 'border-[#E0D6C6] bg-[#FAF6EF]' : 'border-white/10 bg-[#161a1f]'
               }`}
             >
               <div>
-                <h3 className="font-bold text-lg">Create Community Post</h3>
-                <p className={`text-xs ${isSandstone ? 'text-[#524e48]' : 'text-white/60'}`}>
-                  Publishes to Community Wall & auto-syncs to Personal Account Feed.
+                <h3 className="font-extrabold text-base sm:text-lg tracking-tight">
+                  Buat Postingan Komunitas
+                </h3>
+                <p className={`text-[11px] sm:text-xs mt-0.5 ${isSandstone ? 'text-[#6b655c]' : 'text-white/60'}`}>
+                  Bagikan sesi manjat, info tebing, atau beta ke sesama climber.
                 </p>
               </div>
               <button
+                type="button"
                 onClick={onClose}
-                className={`p-1.5 rounded-lg ${
-                  isSandstone ? 'text-[#7a746c] hover:text-[#1a1815]' : 'text-white/60 hover:text-white'
+                aria-label="Tutup"
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  isSandstone
+                    ? 'bg-black/5 hover:bg-black/10 text-[#1a1815]'
+                    : 'bg-white/10 hover:bg-white/20 text-white'
                 }`}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+            {/* 2. SCROLLABLE BODY */}
+            <form id="create-post-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+              {/* Row 1: Tipe Post & Label Aktivitas */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#FF6B00]">
-                    Post Type
+                    Tipe Postingan
                   </label>
                   <select
                     value={authorType}
                     onChange={(e) => setAuthorType(e.target.value as CommunityAuthorType)}
-                    className={`w-full px-3 py-2.5 rounded-xl text-xs border outline-none ${
+                    className={`w-full px-3 py-2.5 rounded-xl text-xs border outline-none font-medium ${
                       isSandstone
                         ? 'bg-[#FAF6EF] border-[#DDD3C4] text-[#1a1815]'
-                        : 'bg-[#1a1d22] border-white/15 text-white'
+                        : 'bg-[#14161a] border-white/15 text-white'
                     }`}
                   >
-                    <option value="climber">Climber Update</option>
-                    <option value="squad">Squad & Club Note</option>
-                    <option value="gym">Gym Session / Event</option>
-                    <option value="member">Member Beta</option>
+                    <option value="climber">🧗 Climber Update (Catatan Pemanjat)</option>
+                    <option value="squad">👥 Squad &amp; Klub (Info Komunitas)</option>
+                    <option value="gym">🏪 Sesi Gym / Reset Jalur</option>
+                    <option value="member">💡 Member Beta / Tips Rute</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#FF6B00]">
-                    Activity Tag
+                    Label Aktivitas
                   </label>
                   <input
                     type="text"
                     value={activity}
                     onChange={(e) => setActivity(e.target.value)}
-                    placeholder="e.g. Flashed Problem, Open Session"
-                    className={`w-full px-3 py-2.5 rounded-xl text-xs border outline-none ${
+                    placeholder="Contoh: Flashed Problem, Open Crag Day"
+                    className={`w-full px-3 py-2.5 rounded-xl text-xs border outline-none font-medium ${
                       isSandstone
                         ? 'bg-[#FAF6EF] border-[#DDD3C4] text-[#1a1815]'
-                        : 'bg-[#1a1d22] border-white/15 text-white'
+                        : 'bg-[#14161a] border-white/15 text-white'
                     }`}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Row 2: Lokasi & Grade */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#FF6B00]">
-                    Location / Crag / Gym
+                    Lokasi / Tebing / Gym
                   </label>
                   <div className="relative">
-                    <MapPin size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#FF6B00]" />
+                    <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#FF6B00]" />
                     <input
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      placeholder="Citatah 125 / Boulder Cave"
-                      className={`w-full pl-8 pr-3 py-2.5 rounded-xl text-xs border outline-none ${
+                      placeholder="Contoh: Tebing Citatah 125 / Boulder Cave"
+                      className={`w-full pl-8.5 pr-3 py-2.5 rounded-xl text-xs border outline-none font-medium ${
                         isSandstone
                           ? 'bg-[#FAF6EF] border-[#DDD3C4] text-[#1a1815]'
-                          : 'bg-[#1a1d22] border-white/15 text-white'
+                          : 'bg-[#14161a] border-white/15 text-white'
                       }`}
                     />
                   </div>
@@ -200,44 +213,45 @@ export default function CreatePostModal({
 
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#FF6B00]">
-                    Grade (Optional)
+                    Grade Jalur (Opsional)
                   </label>
                   <input
                     type="text"
                     value={grade}
                     onChange={(e) => setGrade(e.target.value)}
-                    placeholder="e.g. V5 / 5.11c"
-                    className={`w-full px-3 py-2.5 rounded-xl text-xs border outline-none ${
+                    placeholder="Contoh: V5 / 6C atau 5.11a"
+                    className={`w-full px-3 py-2.5 rounded-xl text-xs border outline-none font-medium ${
                       isSandstone
                         ? 'bg-[#FAF6EF] border-[#DDD3C4] text-[#1a1815]'
-                        : 'bg-[#1a1d22] border-white/15 text-white'
+                        : 'bg-[#14161a] border-white/15 text-white'
                     }`}
                   />
                 </div>
               </div>
 
+              {/* Row 3: Caption / Cerita */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#FF6B00]">
-                  Caption / Story
+                  Cerita &amp; Beta Jalur *
                 </label>
                 <textarea
                   rows={3}
                   required
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
-                  placeholder="Share beta, partner callout, crag condition, or session recap..."
-                  className={`w-full px-3.5 py-2.5 rounded-xl text-xs border outline-none resize-none ${
+                  placeholder="Ceritakan momen manjatmu, kondisi cuaca di tebing, beta gerakan crux, atau ajak partner latihan..."
+                  className={`w-full px-3.5 py-2.5 rounded-xl text-xs border outline-none resize-none leading-relaxed ${
                     isSandstone
                       ? 'bg-[#FAF6EF] border-[#DDD3C4] text-[#1a1815]'
-                      : 'bg-[#1a1d22] border-white/15 text-white'
+                      : 'bg-[#14161a] border-white/15 text-white'
                   }`}
                 />
               </div>
 
-              {/* Image URL & Presets */}
+              {/* Row 4: Foto Lampiran */}
               <div className="space-y-2">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#FF6B00]">
-                  Photo Attachment
+                  Lampirkan Foto (Pilih Foto atau Masukkan URL)
                 </label>
                 <div className="flex items-center gap-2">
                   <ImagePlus size={16} className="text-[#FF6B00] shrink-0" />
@@ -249,38 +263,53 @@ export default function CreatePostModal({
                     className={`flex-1 px-3 py-2 rounded-xl text-xs border outline-none ${
                       isSandstone
                         ? 'bg-[#FAF6EF] border-[#DDD3C4] text-[#1a1815]'
-                        : 'bg-[#1a1d22] border-white/15 text-white'
+                        : 'bg-[#14161a] border-white/15 text-white'
                     }`}
                   />
                 </div>
+
+                {/* 4 Working Preset Photo Thumbnails */}
                 <div className="grid grid-cols-4 gap-2 pt-1">
                   {PRESET_PHOTOS.map((preset, idx) => (
                     <button
                       type="button"
                       key={preset}
                       onClick={() => setImageUrl(preset)}
-                      className={`h-12 rounded-xl overflow-hidden border-2 transition-all ${
-                        imageUrl === preset ? 'border-[#FF6B00] scale-[1.02]' : 'border-transparent opacity-70 hover:opacity-100'
+                      className={`h-14 rounded-xl overflow-hidden border-2 transition-all relative ${
+                        imageUrl === preset
+                          ? 'border-[#FF6B00] shadow-sm scale-[1.02]'
+                          : 'border-transparent opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={preset} alt={`Preset ${idx + 1}`} className="w-full h-full object-cover" />
+                      <img
+                        src={preset}
+                        alt={`Preset Foto ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = PRESET_PHOTOS[0]
+                        }}
+                      />
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Auto Sync Toggle */}
+              {/* Row 5: Auto Sync Toggle */}
               <label
-                className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer ${
-                  isSandstone ? 'bg-[#FAF6EF] border-[#E0D6C6]' : 'bg-white/5 border-white/10'
+                className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-colors ${
+                  isSandstone
+                    ? 'bg-[#FAF6EF] border-[#E0D6C6] hover:bg-[#F5EFE3]'
+                    : 'bg-white/5 border-white/10 hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <Sparkles size={15} className="text-[#FF6B00]" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#FF6B00]/10 flex items-center justify-center shrink-0">
+                    <Sparkles size={16} className="text-[#FF6B00]" />
+                  </div>
                   <div>
-                    <p className="text-xs font-bold">Auto-post to Personal Account Feed</p>
-                    <p className={`text-[11px] ${isSandstone ? 'text-[#524e48]' : 'text-white/60'}`}>
-                      Syncs your Community Wall update into your Personal Account Feed
+                    <p className="text-xs font-bold leading-tight">Posting ke Feed Akun Saya</p>
+                    <p className={`text-[10px] mt-0.5 ${isSandstone ? 'text-[#6b655c]' : 'text-white/60'}`}>
+                      Sinkronkan kiriman ini ke profil &amp; portofolio manjat Anda
                     </p>
                   </div>
                 </div>
@@ -288,17 +317,29 @@ export default function CreatePostModal({
                   type="checkbox"
                   checked={syncToPersonalFeed}
                   onChange={(e) => setSyncToPersonalFeed(e.target.checked)}
-                  className="accent-[#FF6B00] w-4 h-4"
+                  className="accent-[#FF6B00] w-4 h-4 cursor-pointer"
                 />
               </label>
+            </form>
 
+            {/* 3. STICKY FOOTER: Tombol submit selalu terlihat di HP */}
+            <div
+              className={`shrink-0 p-4 sm:px-5 border-t ${
+                isSandstone ? 'border-[#E0D6C6] bg-[#FAF6EF]' : 'border-white/10 bg-[#161a1f]'
+              }`}
+              style={{
+                paddingBottom: 'max(env(safe-area-inset-bottom, 16px), 16px)',
+              }}
+            >
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl text-xs font-bold bg-[#FF6B00] hover:bg-[#E5601F] text-white shadow-md flex items-center justify-center gap-2 transition-all"
+                form="create-post-form"
+                className="w-full py-3 rounded-xl text-xs sm:text-sm font-bold bg-[#FF6B00] hover:bg-[#E5601F] text-white shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
               >
-                <Send size={14} /> Publish to Community Wall
+                <Send size={14} />
+                <span>Publikasikan ke Komunitas</span>
               </button>
-            </form>
+            </div>
           </motion.div>
         </div>
       )}

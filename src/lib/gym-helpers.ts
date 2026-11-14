@@ -69,7 +69,7 @@ export function getGymCategorizedPhotos(gym: Gym): GymCategorizedPhoto[] {
     gym.image,
     ...(gym.images || []),
     'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1000&q=80',
-    'https://images.unsplash.com/photo-1516592693881-58b99d046728?w=1000&q=80',
+    'https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&q=80',
     'https://images.unsplash.com/photo-1507034589621-94e11a1903d2?w=1000&q=80',
   ].filter(Boolean)
 
