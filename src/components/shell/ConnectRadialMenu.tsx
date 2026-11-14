@@ -81,7 +81,7 @@ export default function ConnectRadialMenu({
       id: "rent-gear",
       title: "Rent Gear",
       subtitle: "Borrow climbing gear from trusted climber",
-      tag: "Coming in V5.0",
+      tag: "Coming in V2.0",
       icon: "/pictograms/connect-rent-gear.png",
       onClick: () => {
         onClose();

@@ -20,6 +20,7 @@ import {
 import Link from 'next/link'
 import { useGyms } from '@/lib/use-data'
 import { useTheme } from '@/lib/theme-context'
+import { useAuth } from '@/lib/auth-context'
 import { Gym } from '@/lib/mock-data'
 import dynamic from 'next/dynamic'
 import ShareLinkModal from '@/components/common/ShareLinkModal'
@@ -44,6 +45,7 @@ const InteractiveIndonesiaMap = dynamic(
 export default function GymsPage() {
   const { gyms } = useGyms()
   const { theme } = useTheme()
+  const { isAuthenticated, openAuthModal } = useAuth()
   const isSandstone = theme === 'sandstone'
   const [query, setQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState('all')
@@ -54,6 +56,21 @@ export default function GymsPage() {
   const [shareTarget, setShareTarget] = useState<Gym | null>(null)
   const [sharePageOpen, setSharePageOpen] = useState(false)
   const [wishlistedIds, setWishlistedIds] = useState<string[]>([])
+
+  const handleToggleWishlist = (gymItem: Gym) => {
+    if (!isAuthenticated) {
+      openAuthModal('Silakan masuk atau daftar akun untuk menyimpan gym ke Wishlist.')
+      return
+    }
+    toggleWishlist({
+      id: gymItem.id,
+      type: 'gym',
+      title: gymItem.name,
+      subtitle: `${gymItem.city} · Indoor Climbing`,
+      image: gymItem.image,
+      location: gymItem.address || gymItem.city,
+    })
+  }
 
   useEffect(() => {
     const syncWishlist = () => {
@@ -254,16 +271,7 @@ export default function GymsPage() {
                 <div className="absolute top-3 right-3 flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      toggleWishlist({
-                        id: currentGym.id,
-                        type: 'gym',
-                        title: currentGym.name,
-                        subtitle: `${currentGym.city} · Indoor Climbing`,
-                        image: currentGym.image,
-                        location: currentGym.address || currentGym.city,
-                      })
-                    }
+                    onClick={() => handleToggleWishlist(currentGym)}
                     className={`w-9 h-9 rounded-full flex items-center justify-center border backdrop-blur-md transition-all ${
                       saved
                         ? 'bg-rose-500 text-white border-rose-400'
@@ -439,16 +447,7 @@ export default function GymsPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
-                    onClick={() =>
-                      toggleWishlist({
-                        id: gym.id,
-                        type: 'gym',
-                        title: gym.name,
-                        subtitle: `${gym.city} · Indoor Climbing`,
-                        image: gym.image,
-                        location: gym.address || gym.city,
-                      })
-                    }
+                    onClick={() => handleToggleWishlist(gym)}
                     className={`p-2 rounded-xl border transition-colors ${
                       saved
                         ? 'bg-rose-500/15 border-rose-500/40 text-rose-500'
@@ -521,14 +520,7 @@ export default function GymsPage() {
                           onClick={e => {
                             e.preventDefault()
                             e.stopPropagation()
-                            toggleWishlist({
-                              id: gym.id,
-                              type: 'gym',
-                              title: gym.name,
-                              subtitle: `${gym.city} · Indoor Climbing`,
-                              image: gym.image,
-                              location: gym.address || gym.city,
-                            })
+                            handleToggleWishlist(gym)
                           }}
                           className={`w-8 h-8 rounded-full flex items-center justify-center border backdrop-blur-md transition-all ${
                             saved

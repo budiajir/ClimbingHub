@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import CommunityDirectory from '@/components/community/CommunityDirectory'
 import { useTheme } from '@/lib/theme-context'
+import { useAuth } from '@/lib/auth-context'
 import CreatePostModal from '@/components/community/CreatePostModal'
 import InviteFriendModal from '@/components/community/InviteFriendModal'
 import CommunityChatPanel from '@/components/community/CommunityChatPanel'
@@ -210,6 +211,7 @@ const INITIAL_FRIEND_POSTS: FriendPost[] = [
 export default function CommunityPage() {
   const { theme } = useTheme()
   const isSandstone = theme === 'sandstone'
+  const { isAuthenticated, openAuthModal } = useAuth()
 
   const [activeTab, setActiveTab] = useState<'timeline' | 'chat' | 'clubs' | 'climbers'>('timeline')
   const [wallFilter, setWallFilter] = useState<'all' | CommunityAuthorType>('all')
@@ -272,6 +274,10 @@ export default function CommunityPage() {
   }, [storePosts, extraPosts, legacyPosts])
 
   const handleToggleLike = (postId: string) => {
+    if (!isAuthenticated) {
+      openAuthModal('Silakan masuk atau buat akun untuk menyukai postingan.')
+      return
+    }
     if (storePosts.some(p => p.id === postId)) {
       togglePostLike(postId)
       return
@@ -300,6 +306,10 @@ export default function CommunityPage() {
   }
 
   const handleAddComment = (postId: string) => {
+    if (!isAuthenticated) {
+      openAuthModal('Silakan masuk atau buat akun untuk menulis komentar.')
+      return
+    }
     const text = (commentInputs[postId] || '').trim()
     if (!text) return
     setExtraComments(prev => ({
@@ -351,7 +361,13 @@ export default function CommunityPage() {
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={() => setShowCreatePost(true)}
+            onClick={() => {
+              if (!isAuthenticated) {
+                openAuthModal('Silakan masuk atau daftar akun untuk membuat postingan komunitas.')
+                return
+              }
+              setShowCreatePost(true)
+            }}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#FF6B00] hover:bg-[#E5601F] text-white font-bold text-xs shadow-lg transition-all"
           >
             <Plus size={15} /> Create Post
@@ -359,7 +375,13 @@ export default function CommunityPage() {
 
           <button
             type="button"
-            onClick={() => setShowInviteModal(true)}
+            onClick={() => {
+              if (!isAuthenticated) {
+                openAuthModal('Silakan masuk atau daftar akun untuk mengundang teman manjat.')
+                return
+              }
+              setShowInviteModal(true)
+            }}
             className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all ${
               isSandstone
                 ? 'border-[#1a1815]/25 text-[#1a1815] hover:border-[#FF6B00]'
@@ -411,7 +433,13 @@ export default function CommunityPage() {
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id as typeof activeTab)}
+              onClick={() => {
+                if (tab.id === 'chat' && !isAuthenticated) {
+                  openAuthModal('Silakan masuk atau daftar akun untuk membuka ruang obrolan chat komunitas.')
+                  return
+                }
+                setActiveTab(tab.id as typeof activeTab)
+              }}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 border ${
                 active
                   ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-md'
@@ -510,7 +538,13 @@ export default function CommunityPage() {
                     </Link>
                     <button
                       type="button"
-                      onClick={() => toggleFriendConnection(f.id)}
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          openAuthModal('Silakan masuk atau daftar akun untuk menambahkan teman manjat.')
+                          return
+                        }
+                        toggleFriendConnection(f.id)
+                      }}
                       className={`w-full py-1 px-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${
                         isFriend
                           ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
@@ -584,7 +618,13 @@ export default function CommunityPage() {
                       {(sourceType === 'climber' || sourceType === 'member') && (
                         <button
                           type="button"
-                          onClick={() => toggleFriendConnection(post.userId)}
+                          onClick={() => {
+                            if (!isAuthenticated) {
+                              openAuthModal('Silakan masuk atau daftar akun untuk menambahkan teman manjat.')
+                              return
+                            }
+                            toggleFriendConnection(post.userId)
+                          }}
                           className={`px-2.5 py-1 rounded-full text-[11px] font-bold border flex items-center gap-1 transition-all ${
                             isFriend
                               ? 'bg-emerald-500/15 border-emerald-500/35 text-emerald-500'

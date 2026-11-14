@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useCragRegions } from "@/lib/use-data";
 import { useTheme } from "@/lib/theme-context";
+import { useAuth } from "@/lib/auth-context";
 import { CragRegion } from "@/lib/mock-data";
 import OpenTripModal from "@/components/crag/OpenTripModal";
 import BookTripModal from "@/components/crag/BookTripModal";
@@ -47,6 +48,7 @@ export default function CragsDirectoryPage() {
   const { cragRegions, loading } = useCragRegions();
   const { theme } = useTheme();
   const isSandstone = theme === "sandstone";
+  const { isAuthenticated, openAuthModal } = useAuth();
 
   // View Mode: 'list' (default matching user UI) | 'thumbnail' | 'slide'
   const [viewMode, setViewMode] = useState<"list" | "thumbnail" | "slide">("list");
@@ -74,6 +76,10 @@ export default function CragsDirectoryPage() {
   const handleToggleWishlist = (e: React.MouseEvent, crag: CragRegion) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isAuthenticated) {
+      openAuthModal("Silakan masuk atau buat akun untuk menyimpan tebing ke wishlist.");
+      return;
+    }
     toggleWishlist({
       id: crag.id,
       type: "crag",
@@ -677,6 +683,10 @@ export default function CragsDirectoryPage() {
 
                       <button
                         onClick={() => {
+                          if (!isAuthenticated) {
+                            openAuthModal("Silakan masuk atau daftar akun untuk memesan trip tebing.");
+                            return;
+                          }
                           setActiveModalCrag(crag);
                           setShowBookTrip(true);
                         }}
@@ -692,6 +702,10 @@ export default function CragsDirectoryPage() {
 
                       <button
                         onClick={() => {
+                          if (!isAuthenticated) {
+                            openAuthModal("Silakan masuk atau daftar akun untuk menyewa alat panjat tebing.");
+                            return;
+                          }
                           setActiveModalCrag(crag);
                           setShowRentEquip(true);
                         }}
@@ -839,6 +853,10 @@ export default function CragsDirectoryPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => {
+                            if (!isAuthenticated) {
+                              openAuthModal("Silakan masuk atau daftar akun untuk mengikuti open trip.");
+                              return;
+                            }
                             setActiveModalCrag(crag);
                             setShowOpenTrip(true);
                           }}
@@ -852,6 +870,10 @@ export default function CragsDirectoryPage() {
                         </button>
                         <button
                           onClick={() => {
+                            if (!isAuthenticated) {
+                              openAuthModal("Silakan masuk atau daftar akun untuk memesan trip tebing.");
+                              return;
+                            }
                             setActiveModalCrag(crag);
                             setShowBookTrip(true);
                           }}
@@ -865,6 +887,10 @@ export default function CragsDirectoryPage() {
                         </button>
                         <button
                           onClick={() => {
+                            if (!isAuthenticated) {
+                              openAuthModal("Silakan masuk atau daftar akun untuk menyewa alat panjat tebing.");
+                              return;
+                            }
                             setActiveModalCrag(crag);
                             setShowRentEquip(true);
                           }}

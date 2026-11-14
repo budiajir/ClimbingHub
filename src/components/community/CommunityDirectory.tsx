@@ -17,6 +17,7 @@ import {
 import { Community } from "@/lib/mock-data";
 import { useCommunities } from "@/lib/use-data";
 import { useTheme } from "@/lib/theme-context";
+import { useAuth } from "@/lib/auth-context";
 import InviteFriendModal from "@/components/community/InviteFriendModal";
 import ShareLinkModal from "@/components/common/ShareLinkModal";
 import {
@@ -31,6 +32,7 @@ export default function CommunityDirectory() {
   const router = useRouter();
   const { communities } = useCommunities();
   const { theme } = useTheme();
+  const { isAuthenticated, openAuthModal } = useAuth();
   const isSandstone = theme === "sandstone";
   const [filterCity, setFilterCity] = useState<string>("all");
 
@@ -225,7 +227,13 @@ export default function CommunityDirectory() {
                       </button>
                     ) : (
                       <button
-                        onClick={() => setSelectedJoin(comm)}
+                        onClick={() => {
+                          if (!isAuthenticated) {
+                            openAuthModal("Silakan masuk atau daftar akun untuk bergabung dengan komunitas.");
+                            return;
+                          }
+                          setSelectedJoin(comm);
+                        }}
                         className="flex-1 flex items-center justify-center gap-1.5 h-10 border rounded-xl text-xs font-bold touch-ripple transition-all bg-[#FF6B00] text-white border-[#FF6B00] hover:bg-[#FF6B00]/90 shadow-md cursor-pointer"
                       >
                         <UserPlus size={14} /> Request to Join
@@ -235,7 +243,13 @@ export default function CommunityDirectory() {
                     {/* Invite Friend CTA */}
                     <button
                       type="button"
-                      onClick={() => setInviteClub(comm)}
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          openAuthModal("Silakan masuk atau daftar akun untuk mengundang teman ke komunitas.");
+                          return;
+                        }
+                        setInviteClub(comm);
+                      }}
                       className={`px-3 flex items-center justify-center gap-1 h-10 bg-transparent border rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                         isSandstone
                           ? "border-[#1a1815]/20 hover:border-[#FF6B00] text-[#1a1815]"
@@ -321,9 +335,17 @@ export default function CommunityDirectory() {
         community={selectedDetail}
         onClose={() => setSelectedDetail(null)}
         onRequestJoin={(comm) => {
+          if (!isAuthenticated) {
+            openAuthModal("Silakan masuk atau daftar akun untuk bergabung dengan komunitas.");
+            return;
+          }
           setSelectedJoin(comm);
         }}
         onUploadPhoto={(comm) => {
+          if (!isAuthenticated) {
+            openAuthModal("Silakan masuk atau daftar akun untuk mengunggah foto kegiatan komunitas.");
+            return;
+          }
           setSelectedUpload(comm);
         }}
       />

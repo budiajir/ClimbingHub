@@ -63,7 +63,7 @@ export default function CragDetailPage() {
   const { cragRegions, setCragRegions, loading } = useCragRegions();
   const { theme } = useTheme();
   const isSandstone = theme === "sandstone";
-  const { role, user, openAuthModal } = useAuth();
+  const { role, user, openAuthModal, isAuthenticated } = useAuth();
 
   const [problemsViewMode, setProblemsViewMode] = useState<"thumbnail" | "list" | "slide">("thumbnail");
   const [isCragWishlisted, setIsCragWishlisted] = useState(false);
@@ -196,6 +196,10 @@ export default function CragDetailPage() {
   // Check In Toggle Handler
   const handleToggleCheckIn = () => {
     if (!crag) return;
+    if (!isAuthenticated) {
+      openAuthModal("Silakan masuk atau daftar akun untuk melakukan check-in di tebing ini.");
+      return;
+    }
     if (isCheckedIn) {
       checkOutUserFromCrag(crag.id, user?.id || "user-1");
       setIsCheckedIn(false);
@@ -447,6 +451,10 @@ export default function CragDetailPage() {
             <button
               type="button"
               onClick={() => {
+                if (!isAuthenticated) {
+                  openAuthModal("Silakan masuk atau daftar akun untuk menyimpan tebing ke Wishlist.");
+                  return;
+                }
                 toggleWishlist({
                   id: crag.id,
                   type: "crag",

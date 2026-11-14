@@ -75,7 +75,7 @@ const EQUIPMENT_CATALOG: EquipmentItem[] = [
 ]
 
 export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipmentModalProps) {
-  const { user } = useAuth()
+  const { user, isAuthenticated, openAuthModal } = useAuth()
   const { theme } = useTheme()
   const isSandstone = theme === 'sandstone'
 
@@ -112,6 +112,11 @@ export default function RentEquipmentModal({ isOpen, crag, onClose }: RentEquipm
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isAuthenticated) {
+      onClose()
+      openAuthModal('Silakan masuk atau daftar akun untuk menyelesaikan pesanan sewa alat.')
+      return
+    }
     if (totalItemCount === 0) return
 
     // Save rental order to Personal Account Order Wallet

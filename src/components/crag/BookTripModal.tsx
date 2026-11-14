@@ -38,7 +38,7 @@ const PACKAGES = [
 ];
 
 export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalProps) {
-  const { user } = useAuth();
+  const { user, isAuthenticated, openAuthModal } = useAuth();
   const { theme } = useTheme();
   const isSandstone = theme === "sandstone";
 
@@ -57,6 +57,11 @@ export default function BookTripModal({ isOpen, crag, onClose }: BookTripModalPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      onClose();
+      openAuthModal("Silakan masuk atau daftar akun untuk memesan trip tebing.");
+      return;
+    }
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);

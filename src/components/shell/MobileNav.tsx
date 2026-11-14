@@ -71,7 +71,7 @@ export default function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { isSandstone } = useTheme();
-  const { role, openAuthModal } = useAuth();
+  const { role, openAuthModal, isAuthenticated } = useAuth();
 
   // CONNECT radial menu state
   const [showConnect, setShowConnect] = useState(false);
@@ -98,22 +98,38 @@ export default function MobileNav() {
 
   const handleRentGear = () => {
     setShowConnect(false);
+    if (!isAuthenticated) {
+      openAuthModal("Silakan masuk atau daftar akun untuk menyewa alat panjat tebing.");
+      return;
+    }
     window.dispatchEvent(new CustomEvent("connect-rent-equipment"));
     setShowRentEquip(true);
   };
 
   const handleSetProblems = () => {
     setShowConnect(false);
+    if (!isAuthenticated) {
+      openAuthModal("Silakan masuk dengan akun Route Setter atau Super Admin untuk membuat rute.");
+      return;
+    }
     router.push("/set-route");
   };
 
   const handleProjectSent = () => {
     setShowConnect(false);
+    if (!isAuthenticated) {
+      openAuthModal("Silakan masuk atau daftar akun untuk mencatat pencapaian Send Card.");
+      return;
+    }
     router.push("/project-sent");
   };
 
   const handleOpenTripSelect = (type: "open" | "book") => {
     setShowConnect(false);
+    if (!isAuthenticated) {
+      openAuthModal("Silakan masuk atau daftar akun untuk mengikuti trip panjat tebing.");
+      return;
+    }
     window.dispatchEvent(new CustomEvent("connect-open-trip", { detail: { type } }));
     if (type === "book") {
       setShowBookTrip(true);
@@ -124,6 +140,10 @@ export default function MobileNav() {
 
   const handleAddFriend = () => {
     setShowConnect(false);
+    if (!isAuthenticated) {
+      openAuthModal("Silakan masuk atau daftar akun untuk menambahkan teman manjat.");
+      return;
+    }
     router.push("/friends");
   };
 

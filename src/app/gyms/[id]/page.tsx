@@ -21,6 +21,7 @@ import {
 import Link from 'next/link'
 import { useGyms } from '@/lib/use-data'
 import { useTheme } from '@/lib/theme-context'
+import { useAuth } from '@/lib/auth-context'
 import { type BookingData } from '@/components/gym/SlotPicker'
 import ETicket from '@/components/gym/ETicket'
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist-store'
@@ -48,6 +49,7 @@ export default function GymDetailPage() {
   const paramId = (typeof rawId === 'string' ? rawId : Array.isArray(rawId) ? rawId[0] : '') || ''
   const { gyms, loading } = useGyms()
   const { theme } = useTheme()
+  const { isAuthenticated, openAuthModal } = useAuth()
   const isSandstone = theme === 'sandstone'
   const gym = gyms.find(g => String(g.id || '').toLowerCase() === paramId.toLowerCase())
   const [booking, setBooking] = useState<BookingData | null>(null)
@@ -86,6 +88,10 @@ export default function GymDetailPage() {
 
   const handleToggleWishlist = () => {
     if (!gym) return
+    if (!isAuthenticated) {
+      openAuthModal('Silakan masuk atau daftar akun untuk menyimpan gym ke Wishlist.')
+      return
+    }
     const updated = toggleWishlist({
       id: gym.id,
       type: 'gym',
@@ -411,6 +417,10 @@ export default function GymDetailPage() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (!isAuthenticated) {
+                      openAuthModal('Silakan masuk atau daftar akun untuk memberikan ulasan rating.')
+                      return
+                    }
                     const stars = userRatingStars || 5
                     setUserRatingStars(stars)
                     saveGymUserRating(gym.id, stars, ratingComment)
@@ -504,7 +514,16 @@ export default function GymDetailPage() {
               ? 'bg-transparent border-[#1a1815]/25 text-[#1a1815]'
               : 'bg-crag border-white/10 lg:border-lime/20'
           }`}>
-            <GymV2RoadmapPanel gym={gym} onBook={setBooking} />
+            <GymV2RoadmapPanel
+              gym={gym}
+              onBook={(data) => {
+                if (!isAuthenticated) {
+                  openAuthModal('Silakan masuk atau daftar akun untuk memesan pass/tiket gym.')
+                  return
+                }
+                setBooking(data)
+              }}
+            />
           </div>
         </div>
       </div>

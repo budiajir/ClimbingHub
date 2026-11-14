@@ -82,7 +82,7 @@ const AVAILABLE_FRIENDS = [
 ]
 
 export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalProps) {
-  const { user } = useAuth()
+  const { user, isAuthenticated, openAuthModal } = useAuth()
 
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('create')
 
@@ -109,6 +109,11 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isAuthenticated) {
+      onClose()
+      openAuthModal('Silakan masuk atau daftar akun untuk membuat open trip komunitas.')
+      return
+    }
 
     const bookingCode = `TP-${Math.floor(1000 + Math.random() * 9000)}`
     const tripTitle = title || `Open Trip — ${crag.name}`
@@ -146,6 +151,12 @@ export default function OpenTripModal({ isOpen, crag, onClose }: OpenTripModalPr
   }
 
   const handleJoinTrip = (trip: CommunityTrip) => {
+    if (!isAuthenticated) {
+      onClose()
+      openAuthModal('Silakan masuk atau daftar akun untuk bergabung ke open trip ini.')
+      return
+    }
+
     const bookingCode = `TJ-${Math.floor(1000 + Math.random() * 9000)}`
 
     // Add to wallet store as participant
