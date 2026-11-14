@@ -32,10 +32,15 @@ import {
   updateUserRoleAction,
   getSuperAdminCragsAction,
   createCragAction,
+  updateCragAction,
+  deleteCragAction,
   getSuperAdminRoutesAction,
   createRouteAction,
   deleteRouteAction,
   getSuperAdminGymsAction,
+  createGymAction,
+  updateGymAction,
+  deleteGymAction,
   getSuperAdminCommunitiesAction,
   createCommunityAction,
   updateCommunityAction,
@@ -85,11 +90,26 @@ export default function SuperAdminPage() {
 
   // Modals
   const [showAddCragModal, setShowAddCragModal] = useState(false)
+  const [editingCrag, setEditingCrag] = useState<SuperAdminCragItem | null>(null)
   const [showAddRouteModal, setShowAddRouteModal] = useState(false)
   const [showCommunityModal, setShowCommunityModal] = useState(false)
   const [editingCommunity, setEditingCommunity] = useState<SuperAdminCommunityItem | null>(null)
+  const [showGymModal, setShowGymModal] = useState(false)
+  const [editingGym, setEditingGym] = useState<SuperAdminGymItem | null>(null)
 
   // Forms
+  const [gymForm, setGymForm] = useState({
+    name: '',
+    city: 'Jakarta Selatan',
+    province: 'DKI Jakarta',
+    address: '',
+    phone: '',
+    instagram: '',
+    imageUrl: '',
+    pricePerSession: 65000,
+    facilities: 'Bouldering Wall, Lead Wall, Rental Shoes, Locker Room',
+  })
+
   const [communityForm, setCommunityForm] = useState({
     name: '',
     city: 'Bandung',
@@ -284,28 +304,224 @@ export default function SuperAdminPage() {
     })
   }
 
-  // Handle create crag
+  // Crags Handlers: Open Add, Open Edit, Delete, Submit
+  const handleOpenAddCrag = () => {
+    setEditingCrag(null)
+    setNewCrag({
+      name: '',
+      province: 'Jawa Barat',
+      city: '',
+      description: '',
+      accessInfo: '',
+      lat: -6.83,
+      lng: 107.45,
+      imageUrl: '',
+    })
+    setShowAddCragModal(true)
+  }
+
+  const handleOpenEditCrag = (crag: SuperAdminCragItem) => {
+    setEditingCrag(crag)
+    setNewCrag({
+      name: crag.name,
+      province: crag.province,
+      city: crag.city || '',
+      description: crag.description || '',
+      accessInfo: '',
+      lat: crag.lat,
+      lng: crag.lng,
+      imageUrl: crag.imageUrl || '',
+    })
+    setShowAddCragModal(true)
+  }
+
+  const handleDeleteCrag = async (crag: SuperAdminCragItem) => {
+    if (
+      !confirm(
+        `Yakin ingin menghapus tebing "${crag.name}" beserta seluruh sektor dan jalurnya? Tindakan ini tidak dapat dibatalkan.`
+      )
+    ) {
+      return
+    }
+    startTransition(async () => {
+      const res = await deleteCragAction(crag.id)
+      if (res.ok) {
+        showToast(`Tebing "${crag.name}" berhasil dihapus.`)
+        setCrags((prev) => prev.filter((c) => c.id !== crag.id))
+        setStats((prev) =>
+          prev ? { ...prev, totalCrags: Math.max(0, prev.totalCrags - 1) } : null
+        )
+      } else {
+        showToast(res.error || 'Gagal menghapus tebing.', 'error')
+      }
+    })
+  }
+
+  // Handle create or update crag
   const handleCreateCrag = async (e: React.FormEvent) => {
     e.preventDefault()
     startTransition(async () => {
-      const res = await createCragAction(newCrag)
-      if (res.ok) {
-        showToast(`Tebing "${newCrag.name}" berhasil dibuat!`)
-        setShowAddCragModal(false)
-        setNewCrag({
-          name: '',
-          province: 'Jawa Barat',
-          city: '',
-          description: '',
-          accessInfo: '',
-          lat: -6.83,
-          lng: 107.45,
-          imageUrl: '',
-        })
-        const updatedCrags = await getSuperAdminCragsAction()
-        setCrags(updatedCrags)
+      if (editingCrag) {
+        const res = await updateCragAction(editingCrag.id, newCrag)
+        if (res.ok) {
+          showToast(`Tebing "${newCrag.name}" berhasil diperbarui!`)
+          setShowAddCragModal(false)
+          setEditingCrag(null)
+          setNewCrag({
+            name: '',
+            province: 'Jawa Barat',
+            city: '',
+            description: '',
+            accessInfo: '',
+            lat: -6.83,
+            lng: 107.45,
+            imageUrl: '',
+          })
+          const updatedCrags = await getSuperAdminCragsAction()
+          setCrags(updatedCrags)
+        } else {
+          showToast(res.error || 'Gagal memperbarui tebing.', 'error')
+        }
       } else {
-        showToast(res.error || 'Gagal membuat tebing.', 'error')
+        const res = await createCragAction(newCrag)
+        if (res.ok) {
+          showToast(`Tebing "${newCrag.name}" berhasil dibuat!`)
+          setShowAddCragModal(false)
+          setNewCrag({
+            name: '',
+            province: 'Jawa Barat',
+            city: '',
+            description: '',
+            accessInfo: '',
+            lat: -6.83,
+            lng: 107.45,
+            imageUrl: '',
+          })
+          const updatedCrags = await getSuperAdminCragsAction()
+          setCrags(updatedCrags)
+          setStats((prev) => (prev ? { ...prev, totalCrags: prev.totalCrags + 1 } : null))
+        } else {
+          showToast(res.error || 'Gagal membuat tebing.', 'error')
+        }
+      }
+    })
+  }
+
+  // Gyms Handlers: Open Add, Open Edit, Delete, Submit
+  const handleOpenAddGym = () => {
+    setEditingGym(null)
+    setGymForm({
+      name: '',
+      city: 'Jakarta Selatan',
+      province: 'DKI Jakarta',
+      address: '',
+      phone: '',
+      instagram: '',
+      imageUrl: '',
+      pricePerSession: 65000,
+      facilities: 'Bouldering Wall, Lead Wall, Rental Shoes, Locker Room',
+    })
+    setShowGymModal(true)
+  }
+
+  const handleOpenEditGym = (g: SuperAdminGymItem) => {
+    setEditingGym(g)
+    setGymForm({
+      name: g.name,
+      city: g.city,
+      province: g.province,
+      address: g.address,
+      phone: g.phone,
+      instagram: g.instagram || '',
+      imageUrl: g.imageUrl || '',
+      pricePerSession: g.pricePerSession || 65000,
+      facilities:
+        g.facilities && g.facilities.length > 0
+          ? g.facilities.join(', ')
+          : 'Bouldering Wall, Lead Wall, Rental Shoes, Locker Room',
+    })
+    setShowGymModal(true)
+  }
+
+  const handleDeleteGym = async (g: SuperAdminGymItem) => {
+    if (!confirm(`Yakin ingin menghapus mitra gym "${g.name}"?`)) {
+      return
+    }
+    startTransition(async () => {
+      const res = await deleteGymAction(g.id)
+      if (res.ok) {
+        showToast(`Mitra gym "${g.name}" berhasil dihapus.`)
+        setGymsList((prev) => prev.filter((item) => item.id !== g.id))
+        setStats((prev) =>
+          prev ? { ...prev, totalGyms: Math.max(0, prev.totalGyms - 1) } : null
+        )
+      } else {
+        showToast(res.error || 'Gagal menghapus data gym.', 'error')
+      }
+    })
+  }
+
+  const handleSubmitGym = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const facilitiesArray = gymForm.facilities
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+
+    startTransition(async () => {
+      if (editingGym) {
+        const res = await updateGymAction(editingGym.id, {
+          name: gymForm.name,
+          city: gymForm.city,
+          province: gymForm.province,
+          address: gymForm.address,
+          phone: gymForm.phone,
+          instagram: gymForm.instagram,
+          imageUrl: gymForm.imageUrl,
+          pricePerSession: Number(gymForm.pricePerSession) || 65000,
+          facilities: facilitiesArray,
+        })
+        if (res.ok) {
+          showToast(`Data gym "${gymForm.name}" berhasil diperbarui!`)
+          setShowGymModal(false)
+          setEditingGym(null)
+          const updated = await getSuperAdminGymsAction()
+          setGymsList(updated)
+        } else {
+          showToast(res.error || 'Gagal memperbarui data gym.', 'error')
+        }
+      } else {
+        const res = await createGymAction({
+          name: gymForm.name,
+          city: gymForm.city,
+          province: gymForm.province,
+          address: gymForm.address,
+          phone: gymForm.phone,
+          instagram: gymForm.instagram,
+          imageUrl: gymForm.imageUrl,
+          pricePerSession: Number(gymForm.pricePerSession) || 65000,
+          facilities: facilitiesArray,
+        })
+        if (res.ok) {
+          showToast(`Mitra gym "${gymForm.name}" berhasil ditambahkan!`)
+          setShowGymModal(false)
+          setGymForm({
+            name: '',
+            city: 'Jakarta Selatan',
+            province: 'DKI Jakarta',
+            address: '',
+            phone: '',
+            instagram: '',
+            imageUrl: '',
+            pricePerSession: 65000,
+            facilities: 'Bouldering Wall, Lead Wall, Rental Shoes, Locker Room',
+          })
+          const updated = await getSuperAdminGymsAction()
+          setGymsList(updated)
+          setStats((prev) => (prev ? { ...prev, totalGyms: prev.totalGyms + 1 } : null))
+        } else {
+          showToast(res.error || 'Gagal menambahkan gym baru.', 'error')
+        }
       }
     })
   }
@@ -621,7 +837,7 @@ export default function SuperAdminPage() {
                     type="button"
                     onClick={() => {
                       setActiveTab('crags')
-                      setShowAddCragModal(true)
+                      handleOpenAddCrag()
                     }}
                     className="px-4 py-2 rounded-xl bg-orange-500/15 text-orange-400 border border-orange-500/30 font-bold text-xs hover:bg-orange-500/25 transition-all flex items-center gap-1.5"
                   >
@@ -811,7 +1027,7 @@ export default function SuperAdminPage() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddCragModal(true)}
+                  onClick={handleOpenAddCrag}
                   className="px-4 py-2.5 rounded-2xl bg-orange-500/15 text-orange-400 border border-orange-500/30 font-bold text-xs hover:bg-orange-500/25 transition-all flex items-center gap-1.5 shadow-lg"
                 >
                   <Plus size={15} />
@@ -863,13 +1079,31 @@ export default function SuperAdminPage() {
                       <span className="text-[10px] text-white/50">
                         {crag.routesCount} Jalur · {crag.sectorsCount} Sektor
                       </span>
-                      <Link
-                        href={`/crags/${crag.id}`}
-                        className="text-[11px] text-lime hover:underline font-bold inline-flex items-center gap-1"
-                      >
-                        <span>Buka Tebing</span>
-                        <ExternalLink size={12} />
-                      </Link>
+                      <div className="flex items-center gap-1.5">
+                        <Link
+                          href={`/crags/${crag.id}`}
+                          className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-lime transition-colors"
+                          title="Buka Halaman Tebing"
+                        >
+                          <ExternalLink size={13} />
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditCrag(crag)}
+                          className="p-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 transition-colors"
+                          title="Edit Data Tebing"
+                        >
+                          <Edit3 size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCrag(crag)}
+                          className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+                          title="Hapus Tebing"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -968,19 +1202,34 @@ export default function SuperAdminPage() {
         {/* ==================================================================== */}
         {/* TAB 4: GYM PARTNERS */}
         {/* ==================================================================== */}
+        {/* ==================================================================== */}
+        {/* TAB: GYMS (MITRA CLIMBING GYM) */}
+        {/* ==================================================================== */}
         {activeTab === 'gyms' && (
-          <div className="space-y-4 animate-fadeIn">
-            <div>
-              <h2 className="font-bold text-base text-white">Mitra Climbing Gym Terdaftar</h2>
-              <p className="text-xs text-white/50">
-                Fasilitas gym yang terhubung ke platform kasir &amp; reservasi sesi Jalur
-              </p>
+          <div className="space-y-6 animate-fadeIn">
+            {/* Header Action */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl bg-[#161a1f] border border-white/10">
+              <div>
+                <h2 className="font-bold text-base text-white">Mitra Climbing Gym Terdaftar</h2>
+                <p className="text-xs text-white/50">
+                  Kelola mitra gym, tambah gym baru, edit fasilitas/harga sesi, atau hapus mitra gym
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleOpenAddGym}
+                className="px-4 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs flex items-center gap-1.5 shadow-lg transition-all"
+              >
+                <Plus size={15} />
+                <span>+ Tambah Gym Baru</span>
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {isLoadingGyms ? (
                 <div className="col-span-full py-16 text-center">
-                  <Loader2 className="animate-spin text-lime mx-auto" size={24} />
+                  <Loader2 className="animate-spin text-cyan-400 mx-auto" size={24} />
                 </div>
               ) : gymsList.length === 0 ? (
                 <div className="col-span-full py-16 text-center text-xs text-white/50">
@@ -990,12 +1239,18 @@ export default function SuperAdminPage() {
                 gymsList.map((g) => (
                   <div
                     key={g.id}
-                    className="p-5 rounded-3xl bg-[#161a1f] border border-white/10 space-y-3 flex flex-col justify-between"
+                    className="p-5 rounded-3xl bg-[#161a1f] border border-white/10 space-y-3 flex flex-col justify-between hover:border-white/20 transition-all"
                   >
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
+                      {g.imageUrl && (
+                        <div
+                          className="w-full h-32 rounded-2xl bg-cover bg-center border border-white/10"
+                          style={{ backgroundImage: `url(${g.imageUrl})` }}
+                        />
+                      )}
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h4 className="font-bold text-white text-base">{g.name}</h4>
+                          <h4 className="font-bold text-white text-base leading-snug">{g.name}</h4>
                           <p className="text-xs text-cyan-400 font-medium">
                             {g.city}, {g.province}
                           </p>
@@ -1004,16 +1259,26 @@ export default function SuperAdminPage() {
                           Active Partner
                         </span>
                       </div>
-                      <p className="text-[11px] text-white/60 font-light">{g.address}</p>
+                      <p className="text-[11px] text-white/60 font-light line-clamp-2">{g.address}</p>
                       <div className="pt-2 text-xs space-y-1 text-white/70">
-                        <div>
-                          <span className="text-white/40">PIC / Owner: </span>
-                          <span className="font-medium text-white">{g.picName || 'Owner'}</span>
-                        </div>
+                        {g.pricePerSession && (
+                          <div>
+                            <span className="text-white/40">Tarif Sesi: </span>
+                            <span className="font-semibold text-emerald-400">
+                              Rp {g.pricePerSession.toLocaleString('id-ID')}
+                            </span>
+                          </div>
+                        )}
                         <div>
                           <span className="text-white/40">Kontak: </span>
                           <span className="font-mono text-white">{g.phone}</span>
                         </div>
+                        {g.instagram && (
+                          <div>
+                            <span className="text-white/40">Instagram: </span>
+                            <span className="text-pink-400 font-medium">{g.instagram}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1021,13 +1286,31 @@ export default function SuperAdminPage() {
                       <span className="text-[10px] text-white/40">
                         {g.dailyVisitors} pengunjung harian
                       </span>
-                      <Link
-                        href={`/gyms/${g.id}`}
-                        className="text-[11px] text-cyan-400 hover:underline font-bold inline-flex items-center gap-1"
-                      >
-                        <span>Lihat Gym</span>
-                        <ExternalLink size={12} />
-                      </Link>
+                      <div className="flex items-center gap-1.5">
+                        <Link
+                          href={`/gyms/${g.id}`}
+                          className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-cyan-400 transition-colors"
+                          title="Buka Halaman Gym"
+                        >
+                          <ExternalLink size={13} />
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditGym(g)}
+                          className="p-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 transition-colors"
+                          title="Edit Data Gym"
+                        >
+                          <Edit3 size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteGym(g)}
+                          className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+                          title="Hapus Gym"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -1213,13 +1496,16 @@ export default function SuperAdminPage() {
       </main>
 
       {/* ==================================================================== */}
-      {/* MODAL: TAMBAH TEBING BARU */}
+      {/* MODAL: TAMBAH / EDIT TEBING */}
       {/* ==================================================================== */}
       {showAddCragModal && (
         <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="w-full max-w-lg bg-[#161a1f] border border-orange-500/40 rounded-3xl p-6 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
             <button
-              onClick={() => setShowAddCragModal(false)}
+              onClick={() => {
+                setShowAddCragModal(false)
+                setEditingCrag(null)
+              }}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:text-white"
             >
               <X size={16} />
@@ -1227,9 +1513,11 @@ export default function SuperAdminPage() {
 
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/20">
-                <Mountain size={13} /> Tambah Tebing Baru
+                <Mountain size={13} /> {editingCrag ? 'Edit Lokasi Tebing' : 'Tambah Tebing Baru'}
               </div>
-              <h3 className="text-lg font-bold text-white">Input Lokasi Tebing Alam</h3>
+              <h3 className="text-lg font-bold text-white">
+                {editingCrag ? `Edit Tebing: ${editingCrag.name}` : 'Input Lokasi Tebing Alam'}
+              </h3>
             </div>
 
             <form onSubmit={handleCreateCrag} className="space-y-3.5 text-xs">
@@ -1316,7 +1604,7 @@ export default function SuperAdminPage() {
                 className="w-full py-3 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {isPending && <Loader2 size={14} className="animate-spin" />}
-                <span>Simpan Tebing Baru</span>
+                <span>{editingCrag ? 'Simpan Perubahan Tebing' : 'Simpan Tebing Baru'}</span>
               </button>
             </form>
           </div>
@@ -1601,6 +1889,144 @@ export default function SuperAdminPage() {
               >
                 {isPending && <Loader2 size={14} className="animate-spin" />}
                 <span>{editingCommunity ? 'Simpan Perubahan' : 'Terbitkan Komunitas'}</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==================================================================== */}
+      {/* MODAL: TAMBAH / EDIT MITRA GYM */}
+      {/* ==================================================================== */}
+      {showGymModal && (
+        <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-[#161a1f] border border-cyan-500/40 rounded-3xl p-6 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+            <button
+              onClick={() => {
+                setShowGymModal(false)
+                setEditingGym(null)
+              }}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold border border-cyan-500/20">
+                <Store size={13} /> {editingGym ? 'Edit Mitra Gym' : 'Tambah Mitra Gym Baru'}
+              </div>
+              <h3 className="text-lg font-bold text-white">
+                {editingGym ? `Edit Gym: ${editingGym.name}` : 'Pendaftaran Mitra Climbing Gym'}
+              </h3>
+            </div>
+
+            <form onSubmit={handleSubmitGym} className="space-y-3.5 text-xs">
+              <div>
+                <label className="text-white/70 block mb-1 font-medium">Nama Climbing Gym *</label>
+                <input
+                  required
+                  placeholder="e.g. Indoclimb FX Sudirman"
+                  value={gymForm.name}
+                  onChange={(e) => setGymForm({ ...gymForm, name: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-cyan-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-white/70 block mb-1 font-medium">Kota / Kabupaten *</label>
+                  <input
+                    required
+                    placeholder="e.g. Jakarta Selatan"
+                    value={gymForm.city}
+                    onChange={(e) => setGymForm({ ...gymForm, city: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-white/70 block mb-1 font-medium">Provinsi *</label>
+                  <input
+                    required
+                    placeholder="e.g. DKI Jakarta"
+                    value={gymForm.province}
+                    onChange={(e) => setGymForm({ ...gymForm, province: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-cyan-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-white/70 block mb-1 font-medium">Alamat Lengkap *</label>
+                <input
+                  required
+                  placeholder="e.g. fX Sudirman Lt. 3, Jl. Jend. Sudirman, Gelora"
+                  value={gymForm.address}
+                  onChange={(e) => setGymForm({ ...gymForm, address: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-cyan-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-white/70 block mb-1 font-medium">Nomor Telepon / WhatsApp *</label>
+                  <input
+                    required
+                    placeholder="08123456789"
+                    value={gymForm.phone}
+                    onChange={(e) => setGymForm({ ...gymForm, phone: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-white/70 block mb-1 font-medium">Instagram (Opsional)</label>
+                  <input
+                    placeholder="e.g. @indoclimb"
+                    value={gymForm.instagram}
+                    onChange={(e) => setGymForm({ ...gymForm, instagram: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-cyan-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-white/70 block mb-1 font-medium">Harga Tiket Per Sesi (Rp) *</label>
+                <input
+                  type="number"
+                  required
+                  placeholder="e.g. 65000"
+                  value={gymForm.pricePerSession}
+                  onChange={(e) =>
+                    setGymForm({ ...gymForm, pricePerSession: parseInt(e.target.value) || 0 })
+                  }
+                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-cyan-500 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="text-white/70 block mb-1 font-medium">Fasilitas Gym (pisahkan koma)</label>
+                <input
+                  placeholder="Bouldering Wall, Lead Wall, Rental Shoes, Shower, Locker Room"
+                  value={gymForm.facilities}
+                  onChange={(e) => setGymForm({ ...gymForm, facilities: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-black/40 border border-white/15 text-white outline-none focus:border-cyan-500"
+                />
+              </div>
+
+              <ImageUploadField
+                label="Foto Cover / Suasana Gym"
+                value={gymForm.imageUrl}
+                onChange={(url) => setGymForm({ ...gymForm, imageUrl: url })}
+                folder="jalur/gyms"
+                helperText="Upload foto fasilitas gym dari file laptop atau galeri HP."
+              />
+
+              <button
+                type="submit"
+                disabled={isPending}
+                className="w-full py-3 bg-cyan-500 text-black font-bold rounded-xl shadow-lg hover:bg-cyan-400 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {isPending && <Loader2 size={14} className="animate-spin text-black" />}
+                <span>{editingGym ? 'Simpan Perubahan Gym' : 'Daftarkan Mitra Gym'}</span>
               </button>
             </form>
           </div>

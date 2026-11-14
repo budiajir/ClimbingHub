@@ -73,6 +73,10 @@ export interface SuperAdminGymItem {
   province: string
   address: string
   phone: string
+  instagram?: string | null
+  imageUrl?: string | null
+  pricePerSession?: number | null
+  facilities?: string[]
   picName: string | null
   dailyVisitors: number
   todayRevenue: number
@@ -363,6 +367,71 @@ export async function createCragAction(data: {
 }
 
 /**
+ * 5b. Update Existing Crag (Edit Tebing)
+ */
+export async function updateCragAction(
+  id: string,
+  data: {
+    name: string
+    province: string
+    city?: string
+    description?: string
+    lat: number
+    lng: number
+    imageUrl?: string
+  }
+): Promise<{ ok: boolean; error?: string }> {
+  if (!isDatabaseConfigured()) {
+    return { ok: false, error: 'Database belum terhubung.' }
+  }
+
+  const db = getDb()
+
+  try {
+    await db
+      .update(cragRegions)
+      .set({
+        name: data.name.trim(),
+        province: data.province.trim(),
+        description: data.description?.trim() || '',
+        coordinates: { lat: data.lat, lng: data.lng },
+        imageUrl: data.imageUrl?.trim() || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
+      })
+      .where(eq(cragRegions.id, id))
+
+    return { ok: true }
+  } catch (error) {
+    console.error('[updateCragAction] Error:', error)
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Gagal memperbarui tebing.',
+    }
+  }
+}
+
+/**
+ * 5c. Delete Crag (Hapus Tebing)
+ */
+export async function deleteCragAction(id: string): Promise<{ ok: boolean; error?: string }> {
+  if (!isDatabaseConfigured()) {
+    return { ok: false, error: 'Database belum terhubung.' }
+  }
+
+  const db = getDb()
+
+  try {
+    await db.delete(cragRegions).where(eq(cragRegions.id, id))
+    return { ok: true }
+  } catch (error) {
+    console.error('[deleteCragAction] Error:', error)
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Gagal menghapus tebing.',
+    }
+  }
+}
+
+/**
  * 6. Fetch Routes List for Moderation
  */
 export async function getSuperAdminRoutesAction(
@@ -558,6 +627,10 @@ export async function getSuperAdminGymsAction(): Promise<SuperAdminGymItem[]> {
         province: g.province,
         address: g.address,
         phone: g.phone,
+        instagram: g.instagram,
+        imageUrl: g.imageUrl,
+        pricePerSession: g.pricePerSession,
+        facilities: g.facilities || [],
         picName: 'Gym Operator',
         dailyVisitors: visitors,
         todayRevenue: revenue,
@@ -567,6 +640,132 @@ export async function getSuperAdminGymsAction(): Promise<SuperAdminGymItem[]> {
   } catch (error) {
     console.error('[getSuperAdminGymsAction] Error:', error)
     return []
+  }
+}
+
+/**
+ * 9b. Create New Gym Partner
+ */
+export async function createGymAction(data: {
+  name: string
+  city: string
+  province: string
+  address: string
+  phone: string
+  instagram?: string
+  imageUrl?: string
+  pricePerSession?: number
+  facilities?: string[]
+}): Promise<{ ok: boolean; gymId?: string; error?: string }> {
+  if (!isDatabaseConfigured()) {
+    return { ok: false, error: 'Database belum terhubung.' }
+  }
+
+  const db = getDb()
+
+  try {
+    const slug = data.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '')
+    const gymId = `gym-${slug}-${Date.now().toString(36)}`
+
+    await db.insert(gyms).values({
+      id: gymId,
+      name: data.name.trim(),
+      city: data.city.trim(),
+      province: data.province.trim(),
+      address: data.address.trim(),
+      phone: data.phone.trim(),
+      instagram: data.instagram?.trim() || '',
+      imageUrl: data.imageUrl?.trim() || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
+      pricePerSession: data.pricePerSession || 65000,
+      facilities: data.facilities && data.facilities.length > 0 ? data.facilities : ['Bouldering Wall', 'Lead Wall', 'Rental Shoes', 'Locker Room'],
+      rating: '5.0',
+      reviewCount: 1,
+      slotsMorning: 5,
+      slotsAfternoon: 8,
+      slotsEvening: 12,
+    })
+
+    return { ok: true, gymId }
+  } catch (error) {
+    console.error('[createGymAction] Error:', error)
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Gagal menambahkan gym baru.',
+    }
+  }
+}
+
+/**
+ * 9c. Update Existing Gym Partner
+ */
+export async function updateGymAction(
+  id: string,
+  data: {
+    name: string
+    city: string
+    province: string
+    address: string
+    phone: string
+    instagram?: string
+    imageUrl?: string
+    pricePerSession?: number
+    facilities?: string[]
+  }
+): Promise<{ ok: boolean; error?: string }> {
+  if (!isDatabaseConfigured()) {
+    return { ok: false, error: 'Database belum terhubung.' }
+  }
+
+  const db = getDb()
+
+  try {
+    await db
+      .update(gyms)
+      .set({
+        name: data.name.trim(),
+        city: data.city.trim(),
+        province: data.province.trim(),
+        address: data.address.trim(),
+        phone: data.phone.trim(),
+        instagram: data.instagram?.trim() || '',
+        imageUrl: data.imageUrl?.trim() || 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
+        pricePerSession: data.pricePerSession || 65000,
+        facilities: data.facilities && data.facilities.length > 0 ? data.facilities : ['Bouldering Wall', 'Lead Wall', 'Rental Shoes', 'Locker Room'],
+      })
+      .where(eq(gyms.id, id))
+
+    return { ok: true }
+  } catch (error) {
+    console.error('[updateGymAction] Error:', error)
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Gagal memperbarui data gym.',
+    }
+  }
+}
+
+/**
+ * 9d. Delete Gym Partner
+ */
+export async function deleteGymAction(id: string): Promise<{ ok: boolean; error?: string }> {
+  if (!isDatabaseConfigured()) {
+    return { ok: false, error: 'Database belum terhubung.' }
+  }
+
+  const db = getDb()
+
+  try {
+    await db.delete(gyms).where(eq(gyms.id, id))
+    return { ok: true }
+  } catch (error) {
+    console.error('[deleteGymAction] Error:', error)
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Gagal menghapus data gym.',
+    }
   }
 }
 
