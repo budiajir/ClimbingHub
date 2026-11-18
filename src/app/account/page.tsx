@@ -437,10 +437,17 @@ function PersonalAccountContent() {
   const filteredOrders = walletOrders.filter((o) => o.status === walletTab)
   const filteredWishlist = wishlistFilter === 'all' ? wishlist : wishlist.filter((w) => w.type === wishlistFilter)
 
+  // Dynamic Profile URL (auto-matches current domain, whether vercel.app, custom domain, or localhost)
+  const currentProfileUrl = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}/account?user=${isViewingOther ? targetUserId : (user?.id || 'climber-1')}`
+    }
+    return 'https://climbinghub.vercel.app/account'
+  }, [isViewingOther, targetUserId, user?.id])
+
   // Copy Profile URL
   const handleCopyProfileUrl = () => {
-    const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/account?user=${isViewingOther ? targetUserId : (user?.id || 'climber-1')}` : 'https://jalur.world/account'
-    navigator.clipboard.writeText(profileUrl)
+    navigator.clipboard.writeText(currentProfileUrl)
     setCopiedLink(true)
     setTimeout(() => setCopiedLink(false), 2500)
   }
@@ -1939,7 +1946,7 @@ function PersonalAccountContent() {
               {/* QR Code Container */}
               <div className="bg-white p-3.5 rounded-2xl mx-auto inline-block shadow-inner">
                 <QRCodeSVG
-                  value={typeof window !== 'undefined' ? `${window.location.origin}/account?user=${isViewingOther ? targetUserId : (user?.id || 'climber-1')}` : 'https://jalur.world/account'}
+                  value={currentProfileUrl}
                   size={140}
                 />
               </div>
@@ -1964,7 +1971,7 @@ function PersonalAccountContent() {
                 {/* Social Share Options */}
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <a
-                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out ${climberName}'s climbing profile on Jalur: https://jalur.world/account`)}`}
+                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out ${climberName}'s climbing profile on Jalur: ${currentProfileUrl}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="py-2 px-3 rounded-xl text-xs font-bold bg-[#25D366]/20 border border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/30 flex items-center justify-center gap-1.5 transition-all"
@@ -1973,7 +1980,7 @@ function PersonalAccountContent() {
                   </a>
 
                   <a
-                    href={`https://t.me/share/url?url=${encodeURIComponent('https://jalur.world/account')}&text=${encodeURIComponent(`Check out ${climberName}'s climbing profile on Jalur!`)}`}
+                    href={`https://t.me/share/url?url=${encodeURIComponent(currentProfileUrl)}&text=${encodeURIComponent(`Check out ${climberName}'s climbing profile on Jalur!`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="py-2 px-3 rounded-xl text-xs font-bold bg-[#0088cc]/20 border border-[#0088cc]/40 text-[#0088cc] hover:bg-[#0088cc]/30 flex items-center justify-center gap-1.5 transition-all"

@@ -38,7 +38,11 @@ function createAuth() {
         'localhost:3000',
         'localhost:3001',
       ],
-      fallback: 'https://www.jalur.world',
+      fallback:
+        process.env.NEXT_PUBLIC_APP_URL ||
+        (process.env.VERCEL_PROJECT_PRODUCTION_URL
+          ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+          : 'https://climbinghub.vercel.app'),
     },
     secret,
     trustedOrigins,
@@ -98,7 +102,8 @@ function createAuth() {
       crossSubDomainCookies: {
         enabled: Boolean(
           process.env.NODE_ENV === 'production' &&
-            !process.env.VERCEL_URL?.includes('vercel.app')
+            !process.env.VERCEL_URL?.includes('vercel.app') &&
+            Boolean(process.env.NEXT_PUBLIC_APP_URL?.includes('jalur.world'))
         ),
         domain: '.jalur.world',
       },
